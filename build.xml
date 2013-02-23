@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Buddi Web" basedir="." default="war-buddi">
+	<exec outputproperty="git" executable="git">
+		<arg value="describe"/>
+		<arg value="--long"/>
+		<arg value="--tags"/>
+	</exec>
+
+	<!-- Set up all the project specific properties -->
+	<property name="PROJECT_SHORT_NAME" value="buddi-web"/>
+
+	<path id="classpath">
+		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar"/>
+	</path>
+
+	<target name="war-buddi" depends="jar" description="Build Buddi Web server instance">
+		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
+			<param name="conf" value="server"/>
+			<param name="war-name" value="buddi-web"/>
+		</antcall>
+	</target>
+
+	<target name="war-buddi-standalone" depends="jar" description="Build Buddi Web standalone instance">
+		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
+			<param name="conf" value="standalone"/>
+			<param name="war-name" value="buddi-standalone"/>
+		</antcall>
+	</target>
+
+
+	<target name="bundle-war">
+		<mkdir dir="build/dist"/>
+		<mkdir dir="build/temp"/>
+		<mkdir dir="build/temp/WebContent"/>
+
+		<filter token="git" value="${git}"/>
+		<filter token="environment" value="${war-name}"/>
+		
+		<copy filtering="true" todir="build/temp" overwrite="true">
+			<fileset dir="WebContent/WEB-INF">
+				<include name="web.xml"/>
+			</fileset>
+		</copy>
+		<copy filtering="true" todir="build/temp/" overwrite="true">
+			<fileset file="WebContent/WEB-INF/classes/logging.properties"/>
+		</copy>
+		<copy filtering="true" todir="build/temp/" overwrite="true">
+			<fileset file="conf/${conf}/sieve.properties"/>
+		</copy>
+
+		<echo append="false" file="build/temp/version.properties">VERSION=${git}</echo>
+		
+		<war destfile="build/dist/${war-name}.war" webxml="build/temp/web.xml">
+			<lib dir="WebContent/WEB-INF/lib">
+				<include name="*.jar"/>
+			</lib>
+			<lib dir="build/lib">
+				<include name="*.jar"/>
+			</lib>
+			<classes dir="build/temp">
+				<include name="*.properties"/>
+			</classes>
+			<webinf dir="WebContent/WEB-INF">
+				<include name="**/*"/>
+				<exclude name="classes/**"/>
+				<exclude name="lib/**"/>
+				<exclude name="web.xml"/>
+				<exclude name="WEB-INF/lib"/>
+			</webinf>
+			<zipfileset dir="WebContent">
+				<include name="*/**"/>
+				<exclude name="WEB-INF/**"/>
+			</zipfileset>
+		</war>
+		
+	</target>	
+
+	<target name="jar" depends="compile">
+		<mkdir dir="build/lib"/>
+		<jar destfile="build/lib/${PROJECT_SHORT_NAME}-${git}.jar">
+			<fileset dir="build/classes">
+				<include name="**/*"/>
+				<exclude name="pf-config.properties"/>
+				<exclude name="pf-printer-config.txt"/>
+			</fileset>
+			<fileset dir="src">
+				<include name="**/*"/>
+				<exclude name="pf-config.properties"/>
+				<exclude name="pf-printer-config.txt"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="build/classes"/>
+		<javac
+			target="1.5"
+			source="1.5" 
+			optimize="true" 
+			includes="**/*.java" 
+			destdir="build/classes" 
+			debug="true" 
+			debuglevel="lines,vars,source" 
+			classpathref="classpath">
+			<src path="src"/>
+		</javac>
+	</target>
+
+	<target name="clean" description="Removes all files from build directory">
+		<delete dir="build"/>
+	</target>
+
+</project>
