@@ -24,7 +24,7 @@ public class Migration {
 				liquibase.getDatabase().setDefaultSchemaName(schema);
 			}
 			try {
-				liquibase.update("prod");
+				liquibase.update(null);
 			} catch (ValidationFailedException e) {
 				Logger.getLogger(Migration.class.getName()).log(Level.INFO, "Validation Failed", e);
 			}

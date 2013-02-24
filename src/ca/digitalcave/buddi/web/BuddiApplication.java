@@ -83,7 +83,6 @@ public class BuddiApplication extends Application{
 		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
 		configuration.addMappers("ca.digitalcave.buddi.web.db");
 		sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
-
 		
 		//***** Freemarker Configuration *****
 		freemarker.template.Configuration freemarkerConfiguration = new freemarker.template.Configuration();

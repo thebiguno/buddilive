@@ -27,7 +27,7 @@ import ca.digitalcave.buddi.web.util.CryptoUtil;
 
 public class BuddiVerifier implements Verifier {
 	
-	public final static String COOKIE_NAME = "sieve";
+	public final static String COOKIE_NAME = "buddi";
 	
 	private BuddiApplication application;
 	

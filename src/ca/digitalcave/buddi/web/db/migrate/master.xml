@@ -9,7 +9,7 @@
 			<column name="id" type="int">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_users_id"/>
 			</column>
-			<column name="email" type="varchar(128)">
+			<column name="email" type="varchar(255)">
 				<constraints nullable="false" unique="true"/>
 			</column>
 			<column name="credentials" type="varchar(255)" remarks="whatever is required by the auth mechanism">

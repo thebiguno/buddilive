@@ -4,7 +4,6 @@ To create the Derby DB for standalone use, please do the following (assuming *ni
 2) You should see a message along the lines of "ij version 10.9", with a prompt 'ij>'.  Now type
 		CONNECT 'jdbc:derby:db/buddi;create=true';
 	to create the database.
-3) Type each of the DB init commands from the schema.txt file
-4) When finished, type "exit;" to end your session.
+3) When finished, type "exit;" to end your session.
 
 You should now be able to run Buddi in standalone mode.

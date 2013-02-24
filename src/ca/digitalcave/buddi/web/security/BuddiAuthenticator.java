@@ -10,7 +10,7 @@ import ca.digitalcave.buddi.web.BuddiApplication;
 public class BuddiAuthenticator extends ChallengeAuthenticator {
 
 	private BuddiAuthenticator(BuddiApplication application, Context context, boolean optional) {
-		super(context, optional, ChallengeScheme.CUSTOM, "Richer Sieve Connect", new BuddiVerifier(application));
+		super(context, optional, ChallengeScheme.CUSTOM, "Buddi Live", new BuddiVerifier(application));
 	}	
 	
 	public BuddiAuthenticator(BuddiApplication application, Context context, boolean optional, Class<?> next) {
