@@ -16,12 +16,14 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
+import ca.digitalcave.buddi.web.db.migrate.Migration;
 import ca.digitalcave.buddi.web.resource.IndexResource;
 import ca.digitalcave.buddi.web.security.AddressFilter;
 import ca.digitalcave.buddi.web.security.BuddiAuthenticator;
 import ca.digitalcave.buddi.web.service.BuddiStatusService;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
@@ -63,12 +65,12 @@ public class BuddiApplication extends Application{
 	public synchronized void start() throws Exception {
 		final Properties p = new Properties();
 		p.load(new ClientResource(getContext(), "war:///WEB-INF/buddi.properties").get().getStream());
-		
+
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(p.getProperty("db.driver"));
 		ds.setJdbcUrl(p.getProperty("db.url"));
-		ds.setUser(p.getProperty("db.user"));
-		ds.setPassword(p.getProperty("db.password"));
+//		ds.setUser(p.getProperty("db.user"));
+//		ds.setPassword(p.getProperty("db.password"));
 		ds.setPreferredTestQuery(p.getProperty("db.query"));
 		ds.setTestConnectionOnCheckin(false);
 		ds.setTestConnectionOnCheckout(true);
@@ -97,6 +99,8 @@ public class BuddiApplication extends Application{
 		this.freemarkerConfiguration = freemarkerConfiguration;
 
 		setStatusService(new BuddiStatusService());
+
+		Migration.migrate(sqlSessionFactory, p.getProperty("db.schema", "buddi"));
 
 		super.start();
 	}

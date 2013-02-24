@@ -18,7 +18,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.Buddi;
+import ca.digitalcave.buddi.web.db.Schema;
 import ca.digitalcave.buddi.web.security.BuddiVerifier;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
 
@@ -69,7 +69,7 @@ public class IndexResource extends ServerResource {
 	protected Representation get(Variant variant) throws ResourceException {
 		
 		SqlSession sql = ((BuddiApplication) getApplication()).getSqlSessionFactory().openSession();
-		sql.getMapper(Buddi.class).selectAccounts(1);
+//		sql.getMapper(Schema.class).selectAccounts(1);
 		sql.close();
 		//Handle Logout
 		if (getQuery().getFirst("logout") != null) {

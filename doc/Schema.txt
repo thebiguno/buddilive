@@ -1,0 +1,26 @@
+The database is laid out as follows:
+
+Table						Columns
+-----------------------------------
+user						id, email, password
+source						id, name, deleted, type (A|C), account_category_id
+account						id, account_type_id, start_date, start_balance, is_deleted, overdraft_credit_limit, interest_rate
+account_type				id, user_id, name, is_credit
+category					id, user_id, parent_id, start_date, period_type, is_income, is_deleted
+transaction					id, user_id, description, number, memo
+transaction_split			id, transaction_id (transaction), amount, from_id (source), to_id (source)
+
+CONNECT 'jdbc:derby:db/buddi;create=true';
+
+CREATE TABLE user (
+	id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY,
+	email VARCHAR(128) NOT NULL,
+	password VARCHAR(128) NOT NULL
+);
+
+CREATE TABLE source (
+	id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY,
+	name VARCHAR(128) NOT NULL, 
+	deleted CHAR(1) NOT NULL DEFAULT 'N',		--'Y' or 'N' 
+	type CHAR(1) NOT NULL, account_category_id
+);
