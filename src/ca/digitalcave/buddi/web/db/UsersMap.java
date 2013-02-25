@@ -6,5 +6,5 @@ import ca.digitalcave.buddi.web.model.User;
 
 
 public interface UsersMap {
-	public User selectUser(@Param("email") String email);
+	public User selectUser(@Param("identifier") String identifier);
 }

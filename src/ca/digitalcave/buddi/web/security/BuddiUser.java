@@ -5,14 +5,26 @@ import java.util.Date;
 import ca.digitalcave.buddi.web.model.User;
 
 public class BuddiUser extends org.restlet.security.User {
+	private int id;
 	private boolean donated = false;
 	private Date created;
 	private Date modified;
 	
 	public BuddiUser(User user) {
 		super(user.getEmail(), user.getCredentials());
+		this.setId(user.getId());
+		this.setDonated(user.isDonated());
+		this.setEmail(user.getEmail());
+		this.setModified(user.getModified());
+		this.setCreated(user.getCreated());
 	}
 	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	public Date getCreated() {
 		return created;
 	}

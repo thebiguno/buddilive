@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ca.digitalcave.buddi.web.db.Sources">
+	<select id="selectSource" resultType="map">
+		SELECT
+			id,
+			users as user,
+			uuid,
+			name,
+			start_date,
+			deleted,
+			created,
+			modified,
+			
+			account_type,
+			start_balance,
+			
+			period_type,
+			income,
+			parent
+		FROM sources 
+		WHERE 
+			users = #{user}
+			<if test="id != null">
+				and id = #{id}
+			</if>
+			<if test="uuid != null">
+				and uuid = #{uuid}
+			</if>
+	</select>
+	
+	<insert id="insertSource" parameterType="map">
+		INSERT INTO sources (
+			users,
+			uuid,
+			name,
+			start_date,
+			deleted,
+			created,
+			modified,
+			
+			account_type,
+			start_balance,
+			
+			period_type,
+			income,
+			parent
+		)
+		values (#{user}, #{uuid}, #{name}, #{startDate}, #{deleted}, #{created}, #{modified}, #{accountType}, #{startBalance}, #{periodType}, #{income}, #{parent})
+	</insert>
+</mapper>

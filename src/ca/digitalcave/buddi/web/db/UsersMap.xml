@@ -3,12 +3,14 @@
 <mapper namespace="ca.digitalcave.buddi.web.db.UsersMap">
 	<select id="selectUser" resultType="ca.digitalcave.buddi.web.model.User">
 		SELECT 
-			email,
+			id,
+			identifier,
 			credentials,
+			email,
 			donated,
 			created,
 			modified
 		FROM users 
-		WHERE email = #{email}
+		WHERE identifier = #{identifier}
 	</select>
 </mapper>

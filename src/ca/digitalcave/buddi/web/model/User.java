@@ -5,17 +5,28 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class User implements JsonSerialization {
-	private String email;
+public class User {
+	private int id;
+	private String identifier;
 	private String credentials;
+	private String email;
 	private String uuid;
 	private boolean donated = false;
 	private Date created;
 	private Date modified;
 	
-	public User() {
+	public int getId() {
+		return id;
 	}
-	
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getIdentifier() {
+		return identifier;
+	}
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
+	}
 	public String getEmail() {
 		return email;
 	}
@@ -56,21 +67,15 @@ public class User implements JsonSerialization {
 		this.donated = donated;
 	}
 	
-	@Override
 	public JSONObject toJson() throws JSONException {
 		final JSONObject result = new JSONObject();
-		result.put("id", email);
+		
+		result.put("identifier", identifier);
 		result.put("uuid", uuid);
 		result.put("credentials", credentials);
 		result.put("donated", donated);
 		result.put("created", created);
 		result.put("modified", modified);
 		return result;
-	}
-	
-	@Override
-	public Object fromJson(JSONObject serialized) throws JSONException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

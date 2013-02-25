@@ -61,12 +61,13 @@ public class BuddiVerifier implements Verifier {
 			return RESULT_MISSING;
 		} else {
 			//if (true) return RESULT_INVALID;
-			final String email = request.getChallengeResponse().getIdentifier();
+			final String identifier = request.getChallengeResponse().getIdentifier();	//This is the non-hashed identifier from the request
 			final String secret = new String(request.getChallengeResponse().getSecret());
 			
 			SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 			try {
-				final User user = sqlSession.getMapper(UsersMap.class).selectUser(email);
+				final String hashedIdentifier = CryptoUtil.getSha1Hash("", identifier);
+				final User user = sqlSession.getMapper(UsersMap.class).selectUser(hashedIdentifier);
 				final String storedSecret = user.getCredentials();
 				if (storedSecret.startsWith("SHA1:")) {
 					final String storedSalt = CryptoUtil.extractSalt(storedSecret);
