@@ -7,7 +7,7 @@
 			identifier,
 			credentials,
 			email,
-			donated,
+			premium,
 			created,
 			modified
 		FROM users 

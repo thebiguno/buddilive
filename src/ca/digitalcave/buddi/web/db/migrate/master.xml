@@ -6,7 +6,7 @@
 
 	<changeSet id="create users" author="wyatt">
 		<createTable tableName="users">
-			<column name="id" type="int" autoIncrement="true">
+			<column name="id" type="int">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_users_id"/>
 			</column>
 			<column name="uuid" type="varchar(64)">
@@ -19,15 +19,21 @@
 				<constraints nullable="false"/>
 			</column>
 			<column name="email" type="varchar(255)"/>		<!-- An optional, recoverable, email address used for communication with the user -->
-			<column name="donated" type="boolean"/> <!-- Has the user donated?  This will determine ad visibility, etc -->
-			<column name="created" type="timestamp"/>
-			<column name="modified" type="timestamp"/>
+			<column name="premium" type="char(1)" defaultValue="N">
+				<constraints nullable="false"/>
+			</column>
+			<column name="created" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="modified" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
 		</createTable>
 	</changeSet>
 
 	<changeSet id="create sources" author="wyatt">
 		<createTable tableName="sources">
-			<column name="id" type="bigint" autoIncrement="true">
+			<column name="id" type="int">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_sources_id"/>
 			</column>
 			<column name="users" type="int">
@@ -42,12 +48,19 @@
 			<column name="start_date" type="date">
 				<constraints nullable="false"/>
 			</column>
-			<column name="deleted" type="boolean" defaultValueBoolean="false"/>
-			<column name="created" type="timestamp"/>
-			<column name="modified" type="timestamp"/>
+			<column name="deleted" type="char(1)" defaultValue="N"/>
+			<column name="created" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="modified" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="type" type="char(1)">	<!-- One of 'D'ebit, 'C'redit, 'I'ncome, 'E'xpense -->
+				<constraints nullable="false"/>
+			</column>
+
 			
 			<!-- The following are only for accounts -->
-			<column name="account_type" type="varchar(255)"/>
 			<column name="start_balance" type="currency">
 				<constraints nullable="false"/>
 			</column>
@@ -56,16 +69,15 @@
 			<column name="period_type" type="varchar(255)">
 				<constraints nullable="false"/>
 			</column>
-			<column name="income" type="boolean"/>
-			<column name="parent" type="bigint">
+			<column name="parent" type="int">
 				<constraints foreignKeyName="pk_source_id" />
 			</column>
 		</createTable>
 	</changeSet>
 	
-	<changeSet id="create parent_transaction" author="wyatt">
-		<createTable tableName="parent_transaction">
-			<column name="id" type="bigint" autoIncrement="true">
+	<changeSet id="create transactions" author="wyatt">
+		<createTable tableName="transactions">
+			<column name="id" type="bigint">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_parent_transaction_id"/>
 			</column>
 			<column name="uuid" type="varchar(64)">
@@ -82,15 +94,22 @@
 				<constraints nullable="false"/>
 			</column>
 
-			<column name="deleted" type="boolean" defaultValueBoolean="false"/>
-			<column name="created" type="timestamp"/>
-			<column name="modified" type="timestamp"/>
+			<column name="deleted" type="char(1)" defaultValue="N">
+				<constraints nullable="false"/>
+			</column>
+			<column name="created" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="modified" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+
 		</createTable>
 	</changeSet>
 	
-	<changeSet id="create transaction component" author="wyatt">
-		<createTable tableName="transaction_component">
-			<column name="id" type="bigint" autoIncrement="true">
+	<changeSet id="create splits" author="wyatt">
+		<createTable tableName="splits">
+			<column name="id" type="bigint">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_transaction_component_id"/>
 			</column>
 			<column name="parent_transaction" type="bigint">
@@ -99,24 +118,34 @@
 			<column name="amount" type="currency">
 				<constraints nullable="false"/>
 			</column>
-			<column name="from_source" type="bigint">
+			<column name="from_source" type="int">
 				<constraints nullable="false" foreignKeyName="pk_sources_id" deleteCascade="true"/>
 			</column>
-			<column name="to_source" type="bigint">
+			<column name="to_source" type="int">
 				<constraints nullable="false" foreignKeyName="pk_sources_id" deleteCascade="true"/>
 			</column>
 			<column name="memo" type="varchar(1024)"/>
-			<column name="deleted" type="boolean" defaultValueBoolean="false"/>
-			<column name="created" type="timestamp"/>
-			<column name="modified" type="timestamp"/>
+			<column name="deleted" type="char(1)" defaultValue="N">
+				<constraints nullable="false"/>
+			</column>
+			<column name="created" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="modified" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+
 		</createTable>
 	</changeSet>
 	
 	<changeSet id="populate users" author="wyatt" context="sample">
 		<insert tableName="users">
+			<column name="id" valueNumeric="0"/>
 			<column name="identifier" value="SHA1:751a224fbc239d09e95e7caad9bcd339bc46164a"/> <!-- admin@digitalcave.ca, no salt -->
 			<column name="credentials" value="SHA1:ebe56a2da75740d421c78c6b6c998820b4dfd52d64eaa9e4"/> <!-- ActivityChooses72Things, random salt -->
 			<column name="uuid" value="0"/>
+			<column name="created" valueDate="current_timestamp"/>
+			<column name="modified" valueDate="current_timestamp"/>
 		</insert>
 	</changeSet>
 
