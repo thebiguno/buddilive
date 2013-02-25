@@ -16,6 +16,7 @@ public class CryptoUtil {
 	private static final String ALGORITHM = "PBEWithMD5AndTripleDES";
 	private static final char[] PASSWORD = "xMa&6-EG!VdLu#]Ne5ye9\"3De[nrmSl".toCharArray();
 	private static final int ITERATION_COUNT = 2048;
+	private static final int SALT_LENGTH = 4;
 
 	public static byte[] encrypt(byte[] bytes) throws Exception {
 		final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
@@ -53,7 +54,7 @@ public class CryptoUtil {
 		return c.doFinal(in);
 	}
 	
-	public static String saltedSha1(String salt, String secret) {
+	public static String getSha1Hash(String salt, String secret) {
 		try {
 			final MessageDigest digest = MessageDigest.getInstance("SHA1");
 			digest.update(salt.getBytes());
@@ -61,13 +62,13 @@ public class CryptoUtil {
 			final StringBuilder sb = new StringBuilder();
 			sb.append("SHA1:");
 			sb.append(salt);
-			sb.append(toString(hash));
+			sb.append(bytesToString(hash));
 			return sb.toString();
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	private static String toString(byte[] bytes) {
+	private static String bytesToString(byte[] bytes) {
 		final int base = 16;
 		final StringBuilder buf = new StringBuilder();
 		for (int i = 0; i < bytes.length; i++) {
@@ -83,13 +84,23 @@ public class CryptoUtil {
 		}
 		return buf.toString();
 	}
-	public static String randomSalt() {
-		final byte[] salt = new byte[4];
+	public static String getRandomSalt() {
+		final byte[] salt = new byte[SALT_LENGTH];
 		final Random r = new Random();
 		r.nextBytes(salt);
-		return toString(salt);
+		return bytesToString(salt);
 	}
-	public static String extractSalt(String credentials) {
-		return credentials.substring(5,9);
+	public static String extractSalt(String hash) {
+		return hash.substring(5, 5 + (SALT_LENGTH * 2));	//Here we assume an ASCII representation of an N byte hash, i.e. the one generated above.
+	}
+	
+	public static void main(String[] args) {
+		for (int i = 0; i < 3; i++){
+			String salt = getRandomSalt();
+			System.out.println("Salt: " + salt);
+			String hash = getSha1Hash(salt, "admin@digitalcave.ca");
+			System.out.println("Hash: " + hash);
+			System.out.println("ExtS: " + extractSalt(hash));
+		}
 	}
 }

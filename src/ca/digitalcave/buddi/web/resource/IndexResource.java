@@ -3,7 +3,6 @@ package ca.digitalcave.buddi.web.resource;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
@@ -18,7 +17,6 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.Schema;
 import ca.digitalcave.buddi.web.security.BuddiVerifier;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
 
@@ -68,9 +66,6 @@ public class IndexResource extends ServerResource {
 	@Override
 	protected Representation get(Variant variant) throws ResourceException {
 		
-		SqlSession sql = ((BuddiApplication) getApplication()).getSqlSessionFactory().openSession();
-//		sql.getMapper(Schema.class).selectAccounts(1);
-		sql.close();
 		//Handle Logout
 		if (getQuery().getFirst("logout") != null) {
 			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, "");

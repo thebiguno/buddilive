@@ -4,20 +4,96 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 	                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
-	<changeSet id="create users" author="wo">
+	<changeSet id="create users" author="wyatt">
 		<createTable tableName="users">
-			<column name="id" type="int">
+			<column name="id" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_users_id"/>
 			</column>
 			<column name="email" type="varchar(255)">
 				<constraints nullable="false" unique="true"/>
 			</column>
-			<column name="credentials" type="varchar(255)" remarks="whatever is required by the auth mechanism">
+			<column name="credentials" type="varchar(255)">
 				<constraints nullable="false"/>
 			</column>
+			<column name="donated" type="boolean"/> <!-- Has the user donated?  This will determine ad visibility, etc -->
 			<column name="created" type="timestamp"/>
 			<column name="modified" type="timestamp"/>
 		</createTable>
+	</changeSet>
+	
+	<changeSet id="create account type" author="wyatt">
+		<createTable tableName="account_type">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_account_type_id"/>
+			</column>
+			<column name="name" type="varchar(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="credit" type="boolean"/>
+			<column name="created" type="timestamp"/>
+			<column name="modified" type="timestamp"/>
+		</createTable>
+	</changeSet>
+	
+	<changeSet id="create account" author="wyatt">
+		<createTable tableName="account">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_account_id"/>
+			</column>
+			<column name="users" type="int">
+				<constraints foreignKeyName="pk_users_id" deleteCascade="true"/>
+			</column>
+			<column name="account_type" type="bigint">
+				<constraints foreignKeyName="pk_account_type_id" deleteCascade="true"/>
+			</column>
+			<column name="name" type="varchar(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="start_date" type="date">
+				<constraints nullable="false"/>
+			</column>
+			<column name="start_balance" type="currency">
+				<constraints nullable="false"/>
+			</column>
+			<column name="overdraft_limit" type="currency"/>
+			<column name="deleted" type="boolean"/>
+			<column name="created" type="timestamp"/>
+			<column name="modified" type="timestamp"/>
+		</createTable>
+	</changeSet>
+	
+	<changeSet id="create category" author="wyatt">
+		<createTable tableName="category">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_category_id"/>
+			</column>
+			<column name="users" type="int">
+				<constraints foreignKeyName="pk_users_id" deleteCascade="true"/>
+			</column>
+			<column name="parent" type="bigint">
+				<constraints foreignKeyName="pk_category_id"/>
+			</column>
+			<column name="name" type="varchar(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="start_date" type="date">
+				<constraints nullable="false"/>
+			</column>
+			<column name="period_type" type="varchar(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="income" type="boolean"/>
+			<column name="deleted" type="boolean"/>
+			<column name="created" type="timestamp"/>
+			<column name="modified" type="timestamp"/>
+		</createTable>
+	</changeSet>
+	
+	<changeSet id="populate users" author="wyatt" context="sample">
+		<insert tableName="users">
+			<column name="email" value="SHA1:69ac4e23205b1b5dc5d5032be3d26d92c778c8889b56a8a6"/> <!-- admin@digitalcave.ca -->
+			<column name="credentials" value="SHA1:ebe56a2da75740d421c78c6b6c998820b4dfd52d64eaa9e4"/> <!-- ActivityChooses72Things -->
+		</insert>
 	</changeSet>
 
 </databaseChangeLog>

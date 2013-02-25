@@ -1,40 +1,36 @@
 package ca.digitalcave.buddi.web.security;
 
-import org.restlet.security.User;
+import java.util.Date;
 
-public class BuddiUser extends User {
+import ca.digitalcave.buddi.web.model.User;
 
-	private String commonName;
-	private String client;
-	private String companyName;
-	private String telephone;
-
-	public BuddiUser(String identifier, char[] secret) {
-		super(identifier, secret);
+public class BuddiUser extends org.restlet.security.User {
+	private boolean donated = false;
+	private Date created;
+	private Date modified;
+	
+	public BuddiUser(User user) {
+		super(user.getEmail(), user.getCredentials());
 	}
 	
-	public String getCommonName() {
-		return commonName;
+	public Date getCreated() {
+		return created;
 	}
-	public void setCommonName(String commonName) {
-		this.commonName = commonName;
+	public void setCreated(Date created) {
+		this.created = created;
 	}
-	public String getClient() {
-		return client;
+	
+	public Date getModified() {
+		return modified;
 	}
-	public void setClient(String client) {
-		this.client = client;
+	public void setModified(Date modified) {
+		this.modified = modified;
 	}
-	public String getCompanyName() {
-		return companyName;
+	
+	public boolean isDonated() {
+		return donated;
 	}
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
-	}
-	public String getTelephone() {
-		return telephone;
-	}
-	public void setTelephone(String telephone) {
-		this.telephone = telephone;
+	public void setDonated(boolean donated) {
+		this.donated = donated;
 	}
 }
