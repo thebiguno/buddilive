@@ -13,4 +13,14 @@
 		FROM users 
 		WHERE identifier = #{identifier}
 	</select>
+	
+	<insert id="insertUser">
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from users
+		</selectKey>
+		INSERT INTO users
+			(id, identifier, credentials, email, premium, created, modified)
+		VALUES
+			(#(id), #(identifier), #(credentials), #(email), #(premium), current_timestamp, current_timestamp)
+	</insert>
 </mapper>

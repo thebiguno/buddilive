@@ -4,48 +4,47 @@
 	<select id="selectSource" resultType="map">
 		SELECT
 			id,
-			users as user,
+			user_id as userId,
 			uuid,
 			name,
-			start_date,
+			start_date as startDate,
 			deleted,
 			created,
 			modified,
+			type,
 			
-			account_type,
-			start_balance,
+			start_balance as startBalance,
 			
-			period_type,
-			income,
+			period_type as periodType,
 			parent
 		FROM sources 
 		WHERE 
-			users = #{user}
+			user_id = #{user}
 			<if test="id != null">
-				and id = #{id}
-			</if>
-			<if test="uuid != null">
-				and uuid = #{uuid}
+				and (id = #{id} or uuid = #{id})
 			</if>
 	</select>
 	
 	<insert id="insertSource" parameterType="map">
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from sources
+		</selectKey>
 		INSERT INTO sources (
-			users,
+			id,
+			user_id,
 			uuid,
 			name,
 			start_date,
 			deleted,
-			created,
-			modified,
+			type,
 			
-			account_type,
 			start_balance,
 			
 			period_type,
-			income,
-			parent
+			parent,
+			created,
+			modified
 		)
-		values (#{user}, #{uuid}, #{name}, #{startDate}, #{deleted}, #{created}, #{modified}, #{accountType}, #{startBalance}, #{periodType}, #{income}, #{parent})
+		values (#{id}, #{userId}, #{uuid}, #{name}, #{startDate}, #{deleted}, #{type}, #{startBalance}, #{periodType,jdbcType=VARCHAR}, #{parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
 </mapper>

@@ -11,7 +11,7 @@ public class BuddiUser extends org.restlet.security.User {
 	private Date modified;
 	
 	public BuddiUser(User user) {
-		super(user.getEmail(), user.getCredentials());
+		super(user.getIdentifier(), user.getCredentials());
 		this.setId(user.getId());
 		this.setDonated(user.isDonated());
 		this.setEmail(user.getEmail());

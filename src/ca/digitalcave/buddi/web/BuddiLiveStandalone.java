@@ -6,7 +6,7 @@ import java.net.URL;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-public class BuddiStandalone {
+public class BuddiLiveStandalone {
 
 	/**
 	 * Start the embedded Jetty server for testing / standalone use.
@@ -16,7 +16,7 @@ public class BuddiStandalone {
 		final URL warUrl = new File("WebContent").toURI().toURL(); 
 		final WebAppContext context = new WebAppContext(warUrl.toExternalForm(), "/");
 		
-		context.setClassLoader(BuddiStandalone.class.getClassLoader());
+		context.setClassLoader(BuddiLiveStandalone.class.getClassLoader());
 		server.setHandler(context);
 		
 		server.start();

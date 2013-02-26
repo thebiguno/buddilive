@@ -3,7 +3,6 @@ package ca.digitalcave.buddi.web.resource.data;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
@@ -19,9 +18,11 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
+import ca.digitalcave.buddi.web.db.UsersMap;
+import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.security.BuddiUser;
 
-public class SourcesResource extends ServerResource {
+public class UsersDataResource extends ServerResource {
 
 	@Override
 	protected void doInit() throws ResourceException {
@@ -34,11 +35,15 @@ public class SourcesResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final BuddiUser user = (BuddiUser) getRequest().getClientInfo().getUser();
 		try {
-			final List<Map<String, Object>> sources = sqlSession.getMapper(Sources.class).selectSource(user.getId(), (Long) null);
+			final User userResult = sqlSession.getMapper(UsersMap.class).selectUser(user.getIdentifier());
 			final JSONObject result = new JSONObject();
-			for (Map<String, Object> source : sources) {
-				result.accumulate("data", new JSONObject(source));
-			}
+			result.put("id", userResult.getId());
+			result.put("uuid", userResult.getUuid());
+			result.put("identifier", userResult.getIdentifier());
+			result.put("credentials", userResult.getCredentials());
+			result.put("email", userResult.getEmail());
+			result.put("created", userResult.getCreated());
+			result.put("modified", userResult.getModified());
 			return new JsonRepresentation(result);
 		}
 		catch (JSONException e){
@@ -64,7 +69,7 @@ public class SourcesResource extends ServerResource {
 				values.put(key, request.get(key));
 			}
 			values.put("user", user.getId());
-			Long result = sqlSession.getMapper(Sources.class).insertSource(values);
+			Integer result = sqlSession.getMapper(Sources.class).insertSource(values);
 			System.out.println(result);
 		}
 		catch (IOException e){

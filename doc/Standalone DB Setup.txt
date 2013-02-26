@@ -1,9 +1,3 @@
-To create the Derby DB for standalone use, please do the following (assuming *nix system, you may have to adapt for Windows use)
+To create the Derby DB for standalone use, please do the following (assuming *nix system, you may have to adapt for Windows use):
 
-1) From the main Buddi folder (ca.digitalcave.buddi.web), type 'java -jar lib/derbyrun.jar ij' and hit enter.
-2) You should see a message along the lines of "ij version 10.9", with a prompt 'ij>'.  Now type
-		CONNECT 'jdbc:derby:db/buddi;create=true';
-	to create the database.
-3) When finished, type "exit;" to end your session.
-
-You should now be able to run Buddi in standalone mode.
+			rm -rf db; echo "CONNECT 'jdbc:derby:db/buddi;create=true';" | java -jar lib/derbyrun.jar ij

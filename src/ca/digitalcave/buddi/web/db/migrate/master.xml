@@ -19,7 +19,7 @@
 				<constraints nullable="false"/>
 			</column>
 			<column name="email" type="varchar(255)"/>		<!-- An optional, recoverable, email address used for communication with the user -->
-			<column name="premium" type="char(1)" defaultValue="N">
+			<column name="premium" type="char(1)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="created" type="timestamp">
@@ -30,13 +30,16 @@
 			</column>
 		</createTable>
 	</changeSet>
+	<changeSet id="create users check constraints" author="wyatt">
+		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_premium CHECK (premium in ('Y', 'N'))</sql>
+	</changeSet>
 
 	<changeSet id="create sources" author="wyatt">
 		<createTable tableName="sources">
 			<column name="id" type="int">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_sources_id"/>
 			</column>
-			<column name="users" type="int">
+			<column name="user_id" type="int">
 				<constraints  nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
 			</column>
 			<column name="uuid" type="varchar(64)">
@@ -48,7 +51,9 @@
 			<column name="start_date" type="date">
 				<constraints nullable="false"/>
 			</column>
-			<column name="deleted" type="char(1)" defaultValue="N"/>
+			<column name="deleted" type="char(1)" defaultValue="N">
+				<constraints nullable="false"/>
+			</column>
 			<column name="created" type="timestamp">
 				<constraints nullable="false"/>
 			</column>
@@ -66,13 +71,14 @@
 			</column>
 			
 			<!-- The following are only for categories -->
-			<column name="period_type" type="varchar(255)">
-				<constraints nullable="false"/>
-			</column>
+			<column name="period_type" type="varchar(255)"/>
 			<column name="parent" type="int">
 				<constraints foreignKeyName="pk_source_id" />
 			</column>
 		</createTable>
+	</changeSet>
+	<changeSet id="create sources check constraints" author="wyatt" dbms="derby">
+		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_deleted CHECK (deleted in ('Y', 'N'))</sql>
 	</changeSet>
 	
 	<changeSet id="create transactions" author="wyatt">
@@ -83,7 +89,7 @@
 			<column name="uuid" type="varchar(64)">
 				<constraints nullable="false" unique="true" uniqueConstraintName="uc_parent_transaction_uuid"/>
 			</column>
-			<column name="users" type="int">
+			<column name="user_id" type="int">
 				<constraints nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
 			</column>
 			<column name="description" type="varchar(255)">
@@ -93,8 +99,7 @@
 			<column name="date" type="date">
 				<constraints nullable="false"/>
 			</column>
-
-			<column name="deleted" type="char(1)" defaultValue="N">
+			<column name="deleted" type="char(1)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="created" type="timestamp">
@@ -103,8 +108,10 @@
 			<column name="modified" type="timestamp">
 				<constraints nullable="false"/>
 			</column>
-
 		</createTable>
+	</changeSet>
+	<changeSet id="create transactions check constraints" author="wyatt" dbms="derby">
+		<sql>ALTER TABLE transactions ADD CONSTRAINT cc_transactions_deleted CHECK (deleted in ('Y', 'N'))</sql>
 	</changeSet>
 	
 	<changeSet id="create splits" author="wyatt">
@@ -114,6 +121,9 @@
 			</column>
 			<column name="parent_transaction" type="bigint">
 				<constraints nullable="false" foreignKeyName="pk_parent_transaction_id" deleteCascade="true"/>
+			</column>
+			<column name="user_id" type="int">
+				<constraints  nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
 			</column>
 			<column name="amount" type="currency">
 				<constraints nullable="false"/>
@@ -134,7 +144,6 @@
 			<column name="modified" type="timestamp">
 				<constraints nullable="false"/>
 			</column>
-
 		</createTable>
 	</changeSet>
 	
@@ -144,6 +153,7 @@
 			<column name="identifier" value="SHA1:751a224fbc239d09e95e7caad9bcd339bc46164a"/> <!-- admin@digitalcave.ca, no salt -->
 			<column name="credentials" value="SHA1:ebe56a2da75740d421c78c6b6c998820b4dfd52d64eaa9e4"/> <!-- ActivityChooses72Things, random salt -->
 			<column name="uuid" value="0"/>
+			<column name="premium" value="Y"/>
 			<column name="created" valueDate="current_timestamp"/>
 			<column name="modified" valueDate="current_timestamp"/>
 		</insert>

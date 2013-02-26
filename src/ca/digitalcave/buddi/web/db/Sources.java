@@ -18,15 +18,15 @@ public interface Sources {
 	/**
 	 * Select the source by uuid, for the specified user id
 	 * @param user
-	 * @param uuid
+	 * @param id
 	 * @return
 	 */
-	public List<Map<String, Object>> selectSource(@Param("user") int user, @Param("uuid") String uuid);
+	public List<Map<String, Object>> selectSource(@Param("user") int user, @Param("id") String uuid);
 	
 	/**
 	 * Inserts the source
 	 * @param source
 	 * @return
 	 */
-	public Long insertSource(Map<String, Object> source);
+	public Integer insertSource(Map<String, Object> source);
 }
