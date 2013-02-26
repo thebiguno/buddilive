@@ -14,7 +14,7 @@ import org.restlet.engine.util.Base64;
 import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.UsersMap;
+import ca.digitalcave.buddi.web.db.Users;
 import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
 
@@ -67,7 +67,8 @@ public class BuddiVerifier implements Verifier {
 			SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 			try {
 				final String hashedIdentifier = CryptoUtil.getSha1Hash("", identifier);
-				final User user = sqlSession.getMapper(UsersMap.class).selectUser(hashedIdentifier);
+				final User user = sqlSession.getMapper(Users.class).selectUser(hashedIdentifier);
+				if (user == null) return RESULT_INVALID;
 				final String storedSecret = user.getCredentials();
 				if (storedSecret.startsWith("SHA1:")) {
 					final String storedSalt = CryptoUtil.extractSalt(storedSecret);

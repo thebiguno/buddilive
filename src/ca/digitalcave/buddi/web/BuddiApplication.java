@@ -45,7 +45,7 @@ public class BuddiApplication extends Application{
 		getTunnelService().setExtensionsTunnel(true);
 
 		final Router router = new Router(getContext());
-		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), false, UsersDataResource.class));
+		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
 		router.attach("/data/sources/", new BuddiAuthenticator(this, getContext(), false, SourcesDataResource.class));
 //		router.attach("/script/{name}", new BuddiAuthenticator(this, getContext(), false, ScriptResource.class));
 //		router.attach("/parameters", new BuddiAuthenticator(this, getContext(), false, ParametersResource.class));

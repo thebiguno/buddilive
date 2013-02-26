@@ -1,9 +1,8 @@
 package ca.digitalcave.buddi.web.resource.data;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
@@ -20,7 +19,9 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
+import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.security.BuddiUser;
+import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class SourcesDataResource extends ServerResource {
 
@@ -35,12 +36,28 @@ public class SourcesDataResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final BuddiUser user = (BuddiUser) getRequest().getClientInfo().getUser();
 		try {
-			final List<Map<String, Object>> sources = sqlSession.getMapper(Sources.class).selectSource(user.getId(), (Long) null);
+			final List<Source> sources = sqlSession.getMapper(Sources.class).selectSource(user.getId(), (Long) null);
 			final JSONArray result = new JSONArray();
-			for (Map<String, Object> source : sources) {
-				result.put(new JSONObject(source));
+			for (Source source : sources) {
+				final JSONObject item = new JSONObject();
+				item.put("id", source.getId());
+				item.put("userId", source.getUserId());
+				item.put("uuid", source.getUuid());
+				item.put("name", source.getName());
+				item.put("startDate", FormatUtil.formatDateTime((Date) source.getStartDate()));
+				item.put("deleted", source.isDeleted());
+				item.put("type", source.getType());
+				item.put("created", FormatUtil.formatDateTime((Date) source.getCreated()));
+				item.put("modified", FormatUtil.formatDateTime((Date) source.getModified()));
+				item.put("startBalance", source.getStartBalance());
+				item.put("periodType", source.getPeriodType());
+				item.put("parent", source.getParent());
+				result.put(item);
 			}
 			return new JsonRepresentation(result);
+		}
+		catch (JSONException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {
 			sqlSession.close();
@@ -56,16 +73,19 @@ public class SourcesDataResource extends ServerResource {
 			final JSONArray request = new JSONArray(entity.getText());
 			for (int i = 0; i < request.length(); i++) {
 				final JSONObject source = request.getJSONObject(i);
-				final Map<String, Object> values = new HashMap<String, Object>();
-				values.put("userId", user.getId());
-				values.put("uuid", source.has("uuid") ? source.getString("uuid") : UUID.randomUUID().toString());
-				values.put("name", source.getString("name"));
-				values.put("startDate", source.get("startDate"));
-				values.put("deleted", source.has("delete") ? source.getString("deleted") : "N");
-				values.put("type", source.getString("type"));
-				values.put("startBalance", source.getInt("startBalance"));
-				values.put("periodType", source.optString("periodType"));
-				Integer count = sqlSession.getMapper(Sources.class).insertSource(values);
+
+				final Source value = new Source();
+				value.setUserId(user.getId());
+				value.setUuid(source.has("uuid") ? source.getString("uuid") : UUID.randomUUID().toString());
+				value.setName(source.getString("name"));
+				value.setStartDate(source.has("startDate") ? FormatUtil.parseDate(source.getString("startDate")) : FormatUtil.parseDate("1900-01-01"));
+				value.setDeleted(source.has("delete") ? source.getBoolean("deleted") : false);
+				value.setType(source.getString("type"));
+				value.setStartBalance(source.has("startBalance") ? source.getLong("startBalance") : null);
+				value.setPeriodType(source.has("periodType") ? source.getString("periodType") : null);
+				value.setParent(source.has("parent") ? source.getInt("parent") : null);
+
+				final Integer count = sqlSession.getMapper(Sources.class).insertSource(value);
 				if (count == 1){
 					sqlSession.commit();
 				}

@@ -31,7 +31,7 @@
 		</createTable>
 	</changeSet>
 	<changeSet id="create users check constraints" author="wyatt">
-		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_premium CHECK (premium in ('Y', 'N'))</sql>
+		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_premium CHECK (premium IN ('Y', 'N'))</sql>
 	</changeSet>
 
 	<changeSet id="create sources" author="wyatt">
@@ -51,7 +51,7 @@
 			<column name="start_date" type="date">
 				<constraints nullable="false"/>
 			</column>
-			<column name="deleted" type="char(1)" defaultValue="N">
+			<column name="deleted" type="char(1)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="created" type="timestamp">
@@ -66,9 +66,7 @@
 
 			
 			<!-- The following are only for accounts -->
-			<column name="start_balance" type="currency">
-				<constraints nullable="false"/>
-			</column>
+			<column name="start_balance" type="bigint"/>
 			
 			<!-- The following are only for categories -->
 			<column name="period_type" type="varchar(255)"/>
@@ -78,7 +76,11 @@
 		</createTable>
 	</changeSet>
 	<changeSet id="create sources check constraints" author="wyatt" dbms="derby">
-		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_deleted CHECK (deleted in ('Y', 'N'))</sql>
+		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_deleted CHECK (deleted IN ('Y', 'N'))</sql>
+		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_type CHECK (type IN ('D', 'C', 'I', 'E'))</sql>	<!-- Ensure type is one of Debit, Credit, Inome, Expense -->
+		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_startbalance CHECK (start_balance IS NULL OR type IN ('D', 'C'))</sql>	<!-- Ensure that start_balance is only set on accounts (Debit / Credit), and not categories (Income / Expense) -->
+		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_parent CHECK (parent IS NULL OR type IN ('I', 'E'))</sql>	<!-- Ensure that parent is only set on categories (Income / Expense), and not accounts (Debit / Credit) -->
+		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_periodtype CHECK (period_type IS NULL OR type IN ('I', 'E'))</sql>	<!-- Ensure that period_type is only set on categories (Income / Expense), and not accounts (Debit / Credit) -->
 	</changeSet>
 	
 	<changeSet id="create transactions" author="wyatt">
@@ -111,7 +113,7 @@
 		</createTable>
 	</changeSet>
 	<changeSet id="create transactions check constraints" author="wyatt" dbms="derby">
-		<sql>ALTER TABLE transactions ADD CONSTRAINT cc_transactions_deleted CHECK (deleted in ('Y', 'N'))</sql>
+		<sql>ALTER TABLE transactions ADD CONSTRAINT cc_transactions_deleted CHECK (deleted IN ('Y', 'N'))</sql>
 	</changeSet>
 	
 	<changeSet id="create splits" author="wyatt">
@@ -125,7 +127,7 @@
 			<column name="user_id" type="int">
 				<constraints  nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
 			</column>
-			<column name="amount" type="currency">
+			<column name="amount" type="bigint">
 				<constraints nullable="false"/>
 			</column>
 			<column name="from_source" type="int">
@@ -135,7 +137,7 @@
 				<constraints nullable="false" foreignKeyName="pk_sources_id" deleteCascade="true"/>
 			</column>
 			<column name="memo" type="varchar(1024)"/>
-			<column name="deleted" type="char(1)" defaultValue="N">
+			<column name="deleted" type="char(1)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="created" type="timestamp">
@@ -145,6 +147,9 @@
 				<constraints nullable="false"/>
 			</column>
 		</createTable>
+	</changeSet>
+	<changeSet id="create splits check constraints" author="wyatt" dbms="derby">
+		<sql>ALTER TABLE splits ADD CONSTRAINT cc_splits_deleted CHECK (deleted IN ('Y', 'N'))</sql>
 	</changeSet>
 	
 	<changeSet id="populate users" author="wyatt" context="sample">

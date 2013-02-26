@@ -1,9 +1,10 @@
 package ca.digitalcave.buddi.web.db;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+
+import ca.digitalcave.buddi.web.model.Source;
 
 
 public interface Sources {
@@ -13,7 +14,7 @@ public interface Sources {
 	 * @param user
 	 * @return
 	 */
-	public List<Map<String, Object>> selectSource(@Param("user") int user, @Param("id") Long id);
+	public List<Source> selectSource(@Param("user") int user, @Param("id") Long id);
 	
 	/**
 	 * Select the source by uuid, for the specified user id
@@ -21,12 +22,12 @@ public interface Sources {
 	 * @param id
 	 * @return
 	 */
-	public List<Map<String, Object>> selectSource(@Param("user") int user, @Param("id") String uuid);
+	public List<Source> selectSource(@Param("user") int user, @Param("id") String uuid);
 	
 	/**
 	 * Inserts the source
 	 * @param source
 	 * @return
 	 */
-	public Integer insertSource(Map<String, Object> source);
+	public Integer insertSource(Source source);
 }

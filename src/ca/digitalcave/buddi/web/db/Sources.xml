@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.web.db.Sources">
-	<select id="selectSource" resultType="map">
+	<select id="selectSource" resultType="ca.digitalcave.buddi.web.model.Source">
 		SELECT
 			id,
 			user_id as userId,
@@ -25,7 +25,7 @@
 			</if>
 	</select>
 	
-	<insert id="insertSource" parameterType="map">
+	<insert id="insertSource" parameterType="ca.digitalcave.buddi.web.model.Source">
 		<selectKey keyProperty="id" resultType="int" order="BEFORE">
 			SELECT coalesce(max(id), 0) + 1 from sources
 		</selectKey>
@@ -45,6 +45,6 @@
 			created,
 			modified
 		)
-		values (#{id}, #{userId}, #{uuid}, #{name}, #{startDate}, #{deleted}, #{type}, #{startBalance}, #{periodType,jdbcType=VARCHAR}, #{parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		values (#{id}, #{userId}, #{uuid}, #{name}, #{startDate}, <choose><when test="deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, #{type}, #{startBalance,jdbcType=BIGINT}, #{periodType,jdbcType=VARCHAR}, #{parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
 </mapper>

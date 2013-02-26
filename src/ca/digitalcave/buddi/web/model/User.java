@@ -11,7 +11,7 @@ public class User {
 	private String credentials;
 	private String email;
 	private String uuid;
-	private boolean donated = false;
+	private boolean premium = false;
 	private Date created;
 	private Date modified;
 	
@@ -60,11 +60,11 @@ public class User {
 		this.modified = modified;
 	}
 	
-	public boolean isDonated() {
-		return donated;
+	public boolean isPremium() {
+		return premium;
 	}
-	public void setDonated(boolean donated) {
-		this.donated = donated;
+	public void setPremium(boolean premium) {
+		this.premium = premium;
 	}
 	
 	public JSONObject toJson() throws JSONException {
@@ -73,7 +73,7 @@ public class User {
 		result.put("identifier", identifier);
 		result.put("uuid", uuid);
 		result.put("credentials", credentials);
-		result.put("donated", donated);
+		result.put("donated", premium);
 		result.put("created", created);
 		result.put("modified", modified);
 		return result;
