@@ -1,9 +1,13 @@
 package ca.digitalcave.buddi.web.model;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import ca.digitalcave.buddi.web.util.CryptoUtil;
+import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class User {
 	private int id;
@@ -15,6 +19,28 @@ public class User {
 	private Date created;
 	private Date modified;
 	
+	public User() {
+	}
+	public User(JSONObject json) throws JSONException{
+		this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha1Hash("", json.getString("identifier")));
+		this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha1Hash(CryptoUtil.getRandomSalt(), json.getString("credentials")));
+		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
+		this.setEmail(json.has("email") ? json.getString("email") : null);
+		this.setPremium(false);
+
+	}
+	public JSONObject toJson() throws JSONException {
+		final JSONObject result = new JSONObject();
+		result.put("id", this.getId());
+		result.put("uuid", this.getUuid());
+		result.put("identifier", this.getIdentifier());
+		result.put("credentials", this.getCredentials());
+		result.put("email", this.getEmail());
+		result.put("created", FormatUtil.formatDateTime(this.getCreated()));
+		result.put("modified", FormatUtil.formatDateTime(this.getModified()));
+		
+		return result;
+	}
 	public int getId() {
 		return id;
 	}
@@ -67,15 +93,4 @@ public class User {
 		this.premium = premium;
 	}
 	
-	public JSONObject toJson() throws JSONException {
-		final JSONObject result = new JSONObject();
-		
-		result.put("identifier", identifier);
-		result.put("uuid", uuid);
-		result.put("credentials", credentials);
-		result.put("donated", premium);
-		result.put("created", created);
-		result.put("modified", modified);
-		return result;
-	}
 }

@@ -1,6 +1,12 @@
 package ca.digitalcave.buddi.web.model;
 
 import java.util.Date;
+import java.util.UUID;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class Source {
 	private int id;
@@ -15,6 +21,39 @@ public class Source {
 	private Long startBalance;
 	private String periodType;
 	private Integer parent;
+	
+	public Source() {
+	}
+	public Source(JSONObject json) throws JSONException {
+		this.setUserId(json.getInt("userId"));
+		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
+		this.setName(json.getString("name"));
+		this.setStartDate(json.has("startDate") ? FormatUtil.parseDate(json.getString("startDate")) : FormatUtil.parseDate("1900-01-01"));
+		this.setDeleted(json.has("delete") ? json.getBoolean("deleted") : false);
+		this.setType(json.getString("type"));
+		this.setStartBalance(json.has("startBalance") ? json.getLong("startBalance") : null);
+		this.setPeriodType(json.has("periodType") ? json.getString("periodType") : null);
+		this.setParent(json.has("parent") ? json.getInt("parent") : null);
+
+	}
+	
+	public JSONObject toJson() throws JSONException {
+		final JSONObject result = new JSONObject();
+		result.put("id", this.getId());
+		result.put("userId", this.getUserId());
+		result.put("uuid", this.getUuid());
+		result.put("name", this.getName());
+		result.put("startDate", FormatUtil.formatDateTime((Date) this.getStartDate()));
+		result.put("deleted", this.isDeleted());
+		result.put("type", this.getType());
+		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
+		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
+		result.put("startBalance", this.getStartBalance());
+		result.put("periodType", this.getPeriodType());
+		result.put("parent", this.getParent());
+		return result;
+	}
+	
 	public int getId() {
 		return id;
 	}
