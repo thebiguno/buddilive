@@ -21,6 +21,7 @@ import ca.digitalcave.buddi.web.util.CryptoUtil;
 public class BuddiVerifier implements Verifier {
 	
 	public final static String COOKIE_NAME = "buddi";
+	public final static String COOKIE_PASSWORD = "changeme";
 	
 	private BuddiApplication application;
 	
@@ -36,7 +37,7 @@ public class BuddiVerifier implements Verifier {
 		final Cookie cookieUser = request.getCookies().getFirst(COOKIE_NAME);
 		if (cookieUser != null){
 			try {
-				final JSONObject token = new JSONObject(new String(CryptoUtil.decrypt(Base64.decode(cookieUser.getValue()))));
+				final JSONObject token = new JSONObject(new String(CryptoUtil.decrypt(Base64.decode(cookieUser.getValue()), COOKIE_PASSWORD.toCharArray())));
 				
 				if (token.has("clientIp")){
 					if (!token.get("clientIp").equals(request.getClientInfo().getAddress())){
@@ -66,18 +67,14 @@ public class BuddiVerifier implements Verifier {
 			
 			SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 			try {
-				final String hashedIdentifier = CryptoUtil.getSha1Hash("", identifier);
+				final String hashedIdentifier = CryptoUtil.getSha256Hash(1, new byte[0], identifier);
 				final User user = sqlSession.getMapper(Users.class).selectUser(hashedIdentifier);
 				if (user == null) return RESULT_INVALID;
 				final String storedSecret = user.getCredentials();
-				if (storedSecret.startsWith("SHA1:")) {
-					final String storedSalt = CryptoUtil.extractSalt(storedSecret);
-					if (CryptoUtil.getSha1Hash(storedSalt, secret).equals(storedSecret)){
-						request.getClientInfo().setUser(new BuddiUser(user));
-						return RESULT_VALID;
-					}
+				if (CryptoUtil.verify(storedSecret, secret)){
+					request.getClientInfo().setUser(new BuddiUser(user));
+					return RESULT_VALID;
 				}
-				//We currently don't support anything other than SHA1 hashed + salted passwords.  If we add further methods in the future, add them here.
 			} finally {
 				sqlSession.close();
 			}

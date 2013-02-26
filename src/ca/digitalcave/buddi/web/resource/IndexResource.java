@@ -47,7 +47,7 @@ public class IndexResource extends ServerResource {
 				token.put("expiry", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(cal.getTime()));
 			}
 			
-			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, Base64.encode(CryptoUtil.encrypt(token.toString().getBytes()), false));
+			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, Base64.encode(CryptoUtil.encrypt(token.toString().getBytes(), BuddiVerifier.COOKIE_PASSWORD.toCharArray()), false));
 			c.setAccessRestricted(true);
 			if (secure) {
 				c.setMaxAge(-1);					//Clear on browser close

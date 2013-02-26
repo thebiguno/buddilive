@@ -22,8 +22,8 @@ public class User {
 	public User() {
 	}
 	public User(JSONObject json) throws JSONException{
-		this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha1Hash("", json.getString("identifier")));
-		this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha1Hash(CryptoUtil.getRandomSalt(), json.getString("credentials")));
+		this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha256Hash(1, new byte[0], json.getString("identifier")));
+		this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(1, CryptoUtil.getRandomSalt(), json.getString("credentials")));
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		this.setEmail(json.has("email") ? json.getString("email") : null);
 		this.setPremium(false);

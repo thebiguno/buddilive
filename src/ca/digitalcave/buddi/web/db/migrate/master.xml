@@ -12,13 +12,13 @@
 			<column name="uuid" type="varchar(64)">
 				<constraints nullable="false" unique="true" uniqueConstraintName="uc_users_uuid"/>
 			</column>
-			<column name="identifier" type="varchar(64)">		<!-- An SHA1 hash of the login email -->
+			<column name="identifier" type="varchar(256)">		<!-- An SHA1 hash of the login email -->
 				<constraints nullable="false" unique="true" uniqueConstraintName="uc_users_identifier"/>
 			</column>
-			<column name="credentials" type="varchar(64)">
+			<column name="credentials" type="varchar(256)">
 				<constraints nullable="false"/>
 			</column>
-			<column name="email" type="varchar(255)"/>		<!-- An optional, recoverable, email address used for communication with the user -->
+			<column name="email" type="varchar(256)"/>		<!-- An optional, recoverable, email address used for communication with the user -->
 			<column name="premium" type="char(1)">
 				<constraints nullable="false"/>
 			</column>
@@ -45,7 +45,7 @@
 			<column name="uuid" type="varchar(64)">
 				<constraints nullable="false" unique="true" uniqueConstraintName="uc_sources_uuid"/>
 			</column>
-			<column name="name" type="varchar(255)">
+			<column name="name" type="varchar(256)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="start_date" type="date">
@@ -69,7 +69,7 @@
 			<column name="start_balance" type="bigint"/>
 			
 			<!-- The following are only for categories -->
-			<column name="period_type" type="varchar(255)"/>
+			<column name="period_type" type="varchar(256)"/>
 			<column name="parent" type="int">
 				<constraints foreignKeyName="pk_source_id" />
 			</column>
@@ -78,7 +78,7 @@
 	<changeSet id="create sources check constraints" author="wyatt" dbms="derby">
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_deleted CHECK (deleted IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_type CHECK (type IN ('D', 'C', 'I', 'E'))</sql>	<!-- Ensure type is one of Debit, Credit, Inome, Expense -->
-		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_startbalance CHECK (start_balance IS NULL OR type IN ('D', 'C'))</sql>	<!-- Ensure that start_balance is only set on accounts (Debit / Credit), and not categories (Income / Expense) -->
+		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_startbalance CHECK (start_balance IS NULL OR (type IN ('D', 'C') AND start_balance IS NOT NULL))</sql>	<!-- Ensure that start_balance is only set on accounts (Debit / Credit), and not categories (Income / Expense) -->
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_parent CHECK (parent IS NULL OR type IN ('I', 'E'))</sql>	<!-- Ensure that parent is only set on categories (Income / Expense), and not accounts (Debit / Credit) -->
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_periodtype CHECK (period_type IS NULL OR type IN ('I', 'E'))</sql>	<!-- Ensure that period_type is only set on categories (Income / Expense), and not accounts (Debit / Credit) -->
 	</changeSet>
@@ -94,10 +94,10 @@
 			<column name="user_id" type="int">
 				<constraints nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
 			</column>
-			<column name="description" type="varchar(255)">
+			<column name="description" type="varchar(256)">
 				<constraints nullable="false"/>
 			</column>
-			<column name="number" type="varchar(255)"/>
+			<column name="number" type="varchar(256)"/>
 			<column name="date" type="date">
 				<constraints nullable="false"/>
 			</column>
@@ -150,18 +150,6 @@
 	</changeSet>
 	<changeSet id="create splits check constraints" author="wyatt" dbms="derby">
 		<sql>ALTER TABLE splits ADD CONSTRAINT cc_splits_deleted CHECK (deleted IN ('Y', 'N'))</sql>
-	</changeSet>
-	
-	<changeSet id="populate users" author="wyatt" context="sample">
-		<insert tableName="users">
-			<column name="id" valueNumeric="0"/>
-			<column name="identifier" value="SHA1:751a224fbc239d09e95e7caad9bcd339bc46164a"/> <!-- admin@digitalcave.ca, no salt -->
-			<column name="credentials" value="SHA1:ebe56a2da75740d421c78c6b6c998820b4dfd52d64eaa9e4"/> <!-- ActivityChooses72Things, random salt -->
-			<column name="uuid" value="0"/>
-			<column name="premium" value="Y"/>
-			<column name="created" valueDate="current_timestamp"/>
-			<column name="modified" valueDate="current_timestamp"/>
-		</insert>
 	</changeSet>
 
 </databaseChangeLog>
