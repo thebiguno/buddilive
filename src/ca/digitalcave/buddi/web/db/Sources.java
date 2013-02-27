@@ -10,6 +10,8 @@ import ca.digitalcave.buddi.web.model.User;
 
 
 public interface Sources {
+	public List<Source> selectAccounts(@Param("user") User user);
+	
 	public Source selectSource(@Param("user") User user, @Param("id") int id);
 	public Source selectSource(@Param("user") User user, @Param("uuid") String uuid);
 	public List<Source> selectSources(@Param("user") User user);

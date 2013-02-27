@@ -5,7 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all-gray.css">
 		<link rel="icon" type="image/png" href="img/favicon.png"/>
 		<script type="text/javascript" src="extjs/bootstrap.js"></script>
-		<script type="text/javascript" src="app/Application.js"></script>
+		<script type="text/javascript" src="gui/Application.js"></script>
 	</head>
 	<body>
 	</body>

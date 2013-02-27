@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.web.db.Sources">
+	<select id="selectAccounts" resultType="ca.digitalcave.buddi.web.model.Source">
+		SELECT 
+			id, user_id, uuid, name, start_date, deleted, type, start_balance, period_type, parent, created, modified,
+			sum(from.amount),
+			sum(to.amount)
+		FROM sources 
+		LEFT JOIN splits from ON from.from_source = id AND from.user_id = #{user.id}
+		LEFT JOIN splits to ON to.to_source = id AND to.user_id = #{user.id}
+		
+		WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
+		
+		GROUP BY
+			id, user_id, uuid, name, start_date, deleted, type, start_balance, period_type, parent, created, modified
+	</select>
+
 	<select id="selectSource" resultType="ca.digitalcave.buddi.web.model.Source">
 		SELECT * FROM sources 
 		WHERE user_id = #{user.id}

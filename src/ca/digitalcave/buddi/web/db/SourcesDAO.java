@@ -19,6 +19,17 @@ public class SourcesDAO extends DAO implements Sources{
 	}
 	
 	@Override
+	public List<Source> selectAccounts(User user) {
+		final SqlSession s = getSqlSessionFactory().openSession(true);
+		try {
+			return s.getMapper(Sources.class).selectAccounts(user);
+		}
+		finally {
+			s.close();
+		}
+	}
+	
+	@Override
 	public Integer insertSource(User user, Source source) throws DataConstraintException {
 		final SqlSession s = getSqlSessionFactory().openSession();
 		try {
