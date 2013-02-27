@@ -2,31 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.web.db.Transactions">
 	<resultMap id="transaction" type="ca.digitalcave.buddi.web.model.Transaction">
-		<id column="t.id" property="id" />
-		<result column="t.uuid" property="uuid"/>
-		<result column="t.user_id" property="user_id"/>
-		<result column="t.description" property="description"/>
-		<result column="t.number" property="number"/>
-		<result column="t.date" property="date"/>
-		<result column="t.deleted" property="deleted"/>
-		<result column="t.created" property="created"/>
-		<result column="t.modified" property="modified"/>
-		<collection property="splits" ofType="ca.digitalcave.buddi.web.model.Split">
-			<id column="s.id" property="id" />
-			<result column="s.transaction_id" property="transaction_id"/>
-			<result column="s.amount" property="amount"/>
-			<result column="s.from_source" property="from_source"/>
-			<result column="s.to_source" property="to_source"/>
-			<result column="s.memo" property="memo"/>
-			<result column="s.created" property="created"/>
-			<result column="s.modified" property="modified"/>
+		<id column="t_id" property="id" />
+		<result column="uuid" property="uuid"/>
+		<result column="user_id" property="user_id"/>
+		<result column="description" property="description"/>
+		<result column="number" property="number"/>
+		<result column="date" property="date"/>
+		<result column="deleted" property="deleted"/>
+		<result column="t_created" property="created"/>
+		<result column="t_modified" property="modified"/>
+		<collection property="splits" javaType="list" ofType="ca.digitalcave.buddi.web.model.Split">
+			<id column="s_id" property="id" />
+			<result column="t.id" property="transaction_id"/>
+			<result column="amount" property="amount"/>
+			<result column="from_source" property="from_source"/>
+			<result column="to_source" property="to_source"/>
+			<result column="memo" property="memo"/>
+			<result column="s_created" property="created"/>
+			<result column="s_modified" property="modified"/>
 		</collection>
 	</resultMap>
 	
 	<select id="selectTransactions" resultMap="transaction">
 		SELECT 
-			t.id, t.uuid, t.user_id, t.description, t.number, t.date, t.deleted, t.created, t.modified, 
-			s.id, s.amount, s.from_source, s.to_source, s.memo, s.created, s.modified 
+			t.id t_id, t.uuid, t.user_id, t.description, t.number, t.date, t.deleted, t.created t_created, t.modified t_modified, 
+			s.id s_id, s.amount, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified 
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		WHERE t.user_id = #{user.id}
