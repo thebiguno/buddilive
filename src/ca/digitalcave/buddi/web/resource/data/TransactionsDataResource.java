@@ -15,7 +15,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
+import ca.digitalcave.buddi.web.db.bd.DataConstraintException;
 import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -31,7 +31,7 @@ public class TransactionsDataResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Transaction> transactions = application.getTransactionsDAO().selectTransactions(user);
+			final List<Transaction> transactions = application.getTransactionsBD().selectTransactions(user);
 			final JSONArray result = new JSONArray();
 			for (Transaction transaction : transactions) {
 				result.put(transaction.toJson());
@@ -53,7 +53,7 @@ public class TransactionsDataResource extends ServerResource {
 			for (int i = 0; i < request.length(); i++) {
 				final JSONObject transaction = request.getJSONObject(i);
 				transaction.put("userId", user.getId());
-				final Integer count = application.getTransactionsDAO().insertTransaction(user, new Transaction(transaction));
+				final Integer count = application.getTransactionsBD().insertTransaction(user, new Transaction(transaction));
 				if (count == 1){
 					total += count;
 				}

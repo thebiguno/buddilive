@@ -7,14 +7,14 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.dao.DAO;
-import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
+import ca.digitalcave.buddi.web.db.bd.BusinessDelegate;
+import ca.digitalcave.buddi.web.db.bd.DataConstraintException;
 import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.User;
 
-public class SourcesDAO extends DAO implements Sources{
+public class SourcesBD extends BusinessDelegate implements Sources{
 
-	public SourcesDAO(BuddiApplication application, SqlSessionFactory sqlSessionFactory) {
+	public SourcesBD(BuddiApplication application, SqlSessionFactory sqlSessionFactory) {
 		super(application, sqlSessionFactory);
 	}
 	

@@ -4,12 +4,12 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.dao.DAO;
+import ca.digitalcave.buddi.web.db.bd.BusinessDelegate;
 import ca.digitalcave.buddi.web.model.User;
 
-public class UsersDAO extends DAO implements Users{
+public class UsersBD extends BusinessDelegate implements Users{
 
-	public UsersDAO(BuddiApplication application, SqlSessionFactory sqlSessionFactory) {
+	public UsersBD(BuddiApplication application, SqlSessionFactory sqlSessionFactory) {
 		super(application, sqlSessionFactory);
 	}
 	

@@ -65,7 +65,7 @@ public class BuddiVerifier implements Verifier {
 			
 			
 			final String hashedIdentifier = CryptoUtil.getSha256Hash(1, new byte[0], identifier);
-			final User user = application.getUsersDAO().selectUser(hashedIdentifier);
+			final User user = application.getUsersBD().selectUser(hashedIdentifier);
 			if (user == null) return RESULT_INVALID;
 			final String storedSecret = user.getCredentials();
 			if (CryptoUtil.verify(storedSecret, secret)){

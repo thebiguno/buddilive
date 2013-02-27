@@ -15,7 +15,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
+import ca.digitalcave.buddi.web.db.bd.DataConstraintException;
 import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -31,7 +31,7 @@ public class SourcesDataResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Source> sources = application.getSourcesDAO().selectSources(user);
+			final List<Source> sources = application.getSourcesBD().selectSources(user);
 			final JSONArray result = new JSONArray();
 			for (Source source : sources) {
 				result.put(source.toJson());
@@ -54,7 +54,7 @@ public class SourcesDataResource extends ServerResource {
 			for (int i = 0; i < request.length(); i++) {
 				final JSONObject source = request.getJSONObject(i);
 				source.put("userId", user.getId());
-				final Integer count = application.getSourcesDAO().insertSource(user, new Source(source));
+				final Integer count = application.getSourcesBD().insertSource(user, new Source(source));
 				if (count == 1){
 					total ++;
 				}

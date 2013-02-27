@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
+import ca.digitalcave.buddi.web.db.bd.DataConstraintException;
 import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.User;
 

@@ -48,7 +48,7 @@ public class UsersDataResource extends ServerResource {
 			for (int i = 0; i < request.length(); i++) {
 				final JSONObject user = request.getJSONObject(i);
 
-				final Integer count = application.getUsersDAO().insertUser(new User(user));
+				final Integer count = application.getUsersBD().insertUser(new User(user));
 				if (count == 1){
 					total += count;
 				}

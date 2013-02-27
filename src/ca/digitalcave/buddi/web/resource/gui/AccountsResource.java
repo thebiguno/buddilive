@@ -33,7 +33,7 @@ public class AccountsResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Source> allAccounts = application.getSourcesDAO().selectAccounts(user);
+			final List<Source> allAccounts = application.getSourcesBD().selectAccounts(user);
 			final Map<String, List<Source>> accountsByType = new HashMap<String, List<Source>>();
 			for (Source account : allAccounts) {
 				if (accountsByType.get(account.getAccountType()) == null) accountsByType.put(account.getAccountType(), new ArrayList<Source>());

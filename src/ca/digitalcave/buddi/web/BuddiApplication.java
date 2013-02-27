@@ -15,9 +15,9 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
-import ca.digitalcave.buddi.web.db.SourcesDAO;
-import ca.digitalcave.buddi.web.db.TransactionsDAO;
-import ca.digitalcave.buddi.web.db.UsersDAO;
+import ca.digitalcave.buddi.web.db.SourcesBD;
+import ca.digitalcave.buddi.web.db.TransactionsBD;
+import ca.digitalcave.buddi.web.db.UsersBD;
 import ca.digitalcave.buddi.web.db.migrate.Migration;
 import ca.digitalcave.buddi.web.resource.IndexResource;
 import ca.digitalcave.buddi.web.resource.data.SourcesDataResource;
@@ -37,9 +37,9 @@ import freemarker.template.TemplateExceptionHandler;
 
 public class BuddiApplication extends Application{
 	private Configuration freemarkerConfiguration;
-	private UsersDAO usersDAO;
-	private SourcesDAO sourcesDAO;
-	private TransactionsDAO transactionsDAO;
+	private UsersBD usersBD;
+	private SourcesBD sourcesBD;
+	private TransactionsBD transactionsBD;
 
 	@Override  
 	public synchronized Restlet createInboundRoot() {  
@@ -113,9 +113,9 @@ public class BuddiApplication extends Application{
 
 		Migration.migrate(sqlSessionFactory, p.getProperty("db.schema", "buddi"));
 		
-		this.usersDAO = new UsersDAO(this, sqlSessionFactory);
-		this.sourcesDAO = new SourcesDAO(this, sqlSessionFactory);
-		this.transactionsDAO = new TransactionsDAO(this, sqlSessionFactory);
+		this.usersBD = new UsersBD(this, sqlSessionFactory);
+		this.sourcesBD = new SourcesBD(this, sqlSessionFactory);
+		this.transactionsBD = new TransactionsBD(this, sqlSessionFactory);
 
 		super.start();
 	}
@@ -125,16 +125,16 @@ public class BuddiApplication extends Application{
 		super.stop();
 	}
 	
-	public UsersDAO getUsersDAO() {
-		return usersDAO;
+	public UsersBD getUsersBD() {
+		return usersBD;
 	}
 	
-	public SourcesDAO getSourcesDAO() {
-		return sourcesDAO;
+	public SourcesBD getSourcesBD() {
+		return sourcesBD;
 	}
 	
-	public TransactionsDAO getTransactionsDAO() {
-		return transactionsDAO;
+	public TransactionsBD getTransactionsBD() {
+		return transactionsBD;
 	}
 	
 	public Configuration getFreemarkerConfiguration() {
