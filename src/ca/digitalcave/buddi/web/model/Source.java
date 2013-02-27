@@ -9,22 +9,23 @@ import org.json.JSONObject;
 import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class Source {
-	private int id;
-	private int userId;
+	private Integer id;
+	private int user_id;
 	private String uuid;
 	private String name;
-	private Date startDate;
+	private Date start_date;
 	private boolean deleted;
 	private Date created;
 	private Date modified;
 	private String type;
-	private Long startBalance;
+	private Long start_balance;
 	private String periodType;
 	private Integer parent;
 	
 	public Source() {
 	}
 	public Source(JSONObject json) throws JSONException {
+		this.setId(json.has("id") ? json.getInt("id") : null);
 		this.setUserId(json.getInt("userId"));
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		this.setName(json.getString("name"));
@@ -34,7 +35,6 @@ public class Source {
 		this.setStartBalance(json.has("startBalance") ? json.getLong("startBalance") : null);
 		this.setPeriodType(json.has("periodType") ? json.getString("periodType") : null);
 		this.setParent(json.has("parent") ? json.getInt("parent") : null);
-
 	}
 	
 	public JSONObject toJson() throws JSONException {
@@ -54,17 +54,17 @@ public class Source {
 		return result;
 	}
 	
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public int getUserId() {
-		return userId;
+		return user_id;
 	}
 	public void setUserId(int userId) {
-		this.userId = userId;
+		this.user_id = userId;
 	}
 	public String getUuid() {
 		return uuid;
@@ -79,10 +79,10 @@ public class Source {
 		this.name = name;
 	}
 	public Date getStartDate() {
-		return startDate;
+		return start_date;
 	}
 	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
+		this.start_date = startDate;
 	}
 	public boolean isDeleted() {
 		return deleted;
@@ -109,10 +109,10 @@ public class Source {
 		this.type = type;
 	}
 	public Long getStartBalance() {
-		return startBalance;
+		return start_balance;
 	}
 	public void setStartBalance(Long startBalance) {
-		this.startBalance = startBalance;
+		this.start_balance = startBalance;
 	}
 	public String getPeriodType() {
 		return periodType;
@@ -125,5 +125,10 @@ public class Source {
 	}
 	public void setParent(Integer parent) {
 		this.parent = parent;
+	}
+	
+	//Convenience methods
+	public boolean isAccount(){
+		return "D".equals(getType()) || "C".equals(getType());
 	}
 }

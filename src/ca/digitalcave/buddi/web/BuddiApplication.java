@@ -7,7 +7,6 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.codehaus.jackson.JsonFactory;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.Language;
@@ -16,6 +15,9 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
+import ca.digitalcave.buddi.web.db.SourcesDAO;
+import ca.digitalcave.buddi.web.db.TransactionsDAO;
+import ca.digitalcave.buddi.web.db.UsersDAO;
 import ca.digitalcave.buddi.web.db.migrate.Migration;
 import ca.digitalcave.buddi.web.resource.IndexResource;
 import ca.digitalcave.buddi.web.resource.data.SourcesDataResource;
@@ -32,10 +34,10 @@ import freemarker.template.TemplateExceptionHandler;
 
 
 public class BuddiApplication extends Application{
-	private SqlSessionFactory sqlSessionFactory;
-	private final JsonFactory jsonFactory = new JsonFactory();
-	private ComboPooledDataSource ds;
 	private Configuration freemarkerConfiguration;
+	private UsersDAO usersDAO;
+	private SourcesDAO sourcesDAO;
+	private TransactionsDAO transactionsDAO;
 
 	@Override  
 	public synchronized Restlet createInboundRoot() {  
@@ -68,6 +70,7 @@ public class BuddiApplication extends Application{
 	public synchronized void start() throws Exception {
 		final Properties p = new Properties();
 		p.load(new ClientResource(getContext(), "war:///WEB-INF/buddi.properties").get().getStream());
+		final ComboPooledDataSource ds;
 
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(p.getProperty("db.driver"));
@@ -85,6 +88,7 @@ public class BuddiApplication extends Application{
 		final Environment environment = new Environment("prod", new JdbcTransactionFactory(), ds);
 		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
 		configuration.addMappers("ca.digitalcave.buddi.web.db");
+		final SqlSessionFactory sqlSessionFactory;
 		sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
 		
 		//***** Freemarker Configuration *****
@@ -103,6 +107,10 @@ public class BuddiApplication extends Application{
 		setStatusService(new BuddiStatusService());
 
 		Migration.migrate(sqlSessionFactory, p.getProperty("db.schema", "buddi"));
+		
+		this.usersDAO = new UsersDAO(this, sqlSessionFactory);
+		this.sourcesDAO = new SourcesDAO(this, sqlSessionFactory);
+		this.transactionsDAO = new TransactionsDAO(this, sqlSessionFactory);
 
 		super.start();
 	}
@@ -112,13 +120,18 @@ public class BuddiApplication extends Application{
 		super.stop();
 	}
 	
-	public SqlSessionFactory getSqlSessionFactory() {
-		return sqlSessionFactory;
+	public UsersDAO getUsersDAO() {
+		return usersDAO;
 	}
-
-	public JsonFactory getJsonFactory() {
-		return jsonFactory;
+	
+	public SourcesDAO getSourcesDAO() {
+		return sourcesDAO;
 	}
+	
+	public TransactionsDAO getTransactionsDAO() {
+		return transactionsDAO;
+	}
+	
 	public Configuration getFreemarkerConfiguration() {
 		return freemarkerConfiguration;
 	}

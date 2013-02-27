@@ -9,8 +9,8 @@ import org.json.JSONObject;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
 import ca.digitalcave.buddi.web.util.FormatUtil;
 
-public class User {
-	private int id;
+public class User extends org.restlet.security.User {
+	private Integer id;
 	private String identifier;
 	private String credentials;
 	private String email;
@@ -41,10 +41,10 @@ public class User {
 		
 		return result;
 	}
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public String getIdentifier() {

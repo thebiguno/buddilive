@@ -3,7 +3,6 @@ package ca.digitalcave.buddi.web.security;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -14,7 +13,6 @@ import org.restlet.engine.util.Base64;
 import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.Users;
 import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
 
@@ -60,23 +58,19 @@ public class BuddiVerifier implements Verifier {
 		
 		if (request.getChallengeResponse() == null) {
 			return RESULT_MISSING;
-		} else {
-			//if (true) return RESULT_INVALID;
+		} 
+		else {
 			final String identifier = request.getChallengeResponse().getIdentifier();	//This is the non-hashed identifier from the request
 			final String secret = new String(request.getChallengeResponse().getSecret());
 			
-			SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
-			try {
-				final String hashedIdentifier = CryptoUtil.getSha256Hash(1, new byte[0], identifier);
-				final User user = sqlSession.getMapper(Users.class).selectUser(hashedIdentifier);
-				if (user == null) return RESULT_INVALID;
-				final String storedSecret = user.getCredentials();
-				if (CryptoUtil.verify(storedSecret, secret)){
-					request.getClientInfo().setUser(new BuddiUser(user));
-					return RESULT_VALID;
-				}
-			} finally {
-				sqlSession.close();
+			
+			final String hashedIdentifier = CryptoUtil.getSha256Hash(1, new byte[0], identifier);
+			final User user = application.getUsersDAO().selectUser(hashedIdentifier);
+			if (user == null) return RESULT_INVALID;
+			final String storedSecret = user.getCredentials();
+			if (CryptoUtil.verify(storedSecret, secret)){
+				request.getClientInfo().setUser(user);
+				return RESULT_VALID;
 			}
 			return RESULT_INVALID;
 		}

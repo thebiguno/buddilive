@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ca.digitalcave.buddi.web.db.Transactions">
+	<select id="selectTransaction" resultType="ca.digitalcave.buddi.web.model.Transaction">
+		SELECT
+			id,
+			user_id as userId,
+			uuid,
+			name,
+			start_date as startDate,
+			deleted,
+			created,
+			modified,
+			type,
+			
+			start_balance as startBalance,
+			
+			period_type as periodType,
+			parent
+		FROM sources 
+		WHERE 
+			user_id = #{user}
+			<if test="id != null">
+				and (id = #{id} or uuid = #{id})
+			</if>
+	</select>
+	
+	<insert id="insertSource" parameterType="ca.digitalcave.buddi.web.model.Source">
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from sources
+		</selectKey>
+		INSERT INTO sources (
+			id,
+			user_id,
+			uuid,
+			name,
+			start_date,
+			deleted,
+			type,
+			
+			start_balance,
+			
+			period_type,
+			parent,
+			created,
+			modified
+		)
+		values (#{id}, #{userId}, #{uuid}, #{name}, #{startDate}, <choose><when test="deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, #{type}, #{startBalance,jdbcType=BIGINT}, #{periodType,jdbcType=VARCHAR}, #{parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	</insert>
+</mapper>

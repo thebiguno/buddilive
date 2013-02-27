@@ -4,30 +4,14 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
 import ca.digitalcave.buddi.web.model.Source;
+import ca.digitalcave.buddi.web.model.User;
 
 
 public interface Sources {
-	/**
-	 * Select the source by source id, for the specified user id.  Set id to 0 or null to show all.
-	 * @param id
-	 * @param user
-	 * @return
-	 */
-	public List<Source> selectSource(@Param("user") int user, @Param("id") Long id);
-	
-	/**
-	 * Select the source by uuid, for the specified user id
-	 * @param user
-	 * @param id
-	 * @return
-	 */
-	public List<Source> selectSource(@Param("user") int user, @Param("id") String uuid);
-	
-	/**
-	 * Inserts the source
-	 * @param source
-	 * @return
-	 */
-	public Integer insertSource(Source source);
+	public Source selectSource(@Param("user") User user, @Param("id") int id);
+	public Source selectSource(@Param("user") User user, @Param("uuid") String uuid);
+	public List<Source> selectSources(@Param("user") User user);
+	public Integer insertSource(@Param("user") User user, @Param("source") Source source) throws DataConstraintException;
 }

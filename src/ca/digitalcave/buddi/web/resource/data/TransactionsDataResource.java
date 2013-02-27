@@ -15,11 +15,10 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
-import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
-import ca.digitalcave.buddi.web.model.Source;
+import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
 
-public class SourcesDataResource extends ServerResource {
+public class TransactionsDataResource extends ServerResource {
 
 	@Override
 	protected void doInit() throws ResourceException {
@@ -31,10 +30,10 @@ public class SourcesDataResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Source> sources = application.getSourcesDAO().selectSources(user);
+			final List<Transaction> transactions = application.getTransactionsDAO().selectTransactions(user);
 			final JSONArray result = new JSONArray();
-			for (Source source : sources) {
-				result.put(source.toJson());
+			for (Transaction transaction : transactions) {
+				result.put(transaction.toJson());
 			}
 			return new JsonRepresentation(result);
 		}
@@ -50,30 +49,25 @@ public class SourcesDataResource extends ServerResource {
 		try {
 			final JSONArray request = new JSONArray(entity.getText());
 			int total = 0;
-			int error = 0;
 			for (int i = 0; i < request.length(); i++) {
-				final JSONObject source = request.getJSONObject(i);
-				source.put("userId", user.getId());
-				final Integer count = application.getSourcesDAO().insertSource(user, new Source(source));
+				final JSONObject transaction = request.getJSONObject(i);
+				transaction.put("userId", user.getId());
+				final Integer count = application.getTransactionsDAO().insertTransaction(user, new Transaction(transaction));
 				if (count == 1){
-					total ++;
+					total += count;
 				}
 				else {
-					error ++;
+					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 				}
 			}
-			
+
 			final JSONObject result = new JSONObject();
 			result.put("success", true);
 			result.put("added", total);
-			result.put("error", error);
 			return new JsonRepresentation(result);
 		}
-		catch (DataConstraintException e){
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-		}
 		catch (IOException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
