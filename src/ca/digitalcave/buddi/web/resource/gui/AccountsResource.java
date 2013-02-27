@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +19,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
+import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -31,9 +33,10 @@ public class AccountsResource extends ServerResource {
 	@Override
 	protected Representation get(Variant variant) throws ResourceException {
 		final BuddiApplication application = (BuddiApplication) getApplication();
+		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Source> allAccounts = application.getSourcesBD().selectAccounts(user);
+			final List<Source> allAccounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
 			final Map<String, List<Source>> accountsByType = new HashMap<String, List<Source>>();
 			for (Source account : allAccounts) {
 				if (accountsByType.get(account.getAccountType()) == null) accountsByType.put(account.getAccountType(), new ArrayList<Source>());
@@ -71,6 +74,9 @@ public class AccountsResource extends ServerResource {
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		finally {
+			sqlSession.close();
 		}
 	}
 }

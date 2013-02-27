@@ -15,9 +15,6 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
-import ca.digitalcave.buddi.web.db.SourcesBD;
-import ca.digitalcave.buddi.web.db.TransactionsBD;
-import ca.digitalcave.buddi.web.db.UsersBD;
 import ca.digitalcave.buddi.web.db.migrate.Migration;
 import ca.digitalcave.buddi.web.resource.IndexResource;
 import ca.digitalcave.buddi.web.resource.data.SourcesDataResource;
@@ -37,9 +34,8 @@ import freemarker.template.TemplateExceptionHandler;
 
 public class BuddiApplication extends Application{
 	private Configuration freemarkerConfiguration;
-	private UsersBD usersBD;
-	private SourcesBD sourcesBD;
-	private TransactionsBD transactionsBD;
+	private SqlSessionFactory sqlSessionFactory;
+
 
 	@Override  
 	public synchronized Restlet createInboundRoot() {  
@@ -93,7 +89,6 @@ public class BuddiApplication extends Application{
 		final Environment environment = new Environment("prod", new JdbcTransactionFactory(), ds);
 		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
 		configuration.addMappers("ca.digitalcave.buddi.web.db");
-		final SqlSessionFactory sqlSessionFactory;
 		sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
 		
 		//***** Freemarker Configuration *****
@@ -112,10 +107,6 @@ public class BuddiApplication extends Application{
 		setStatusService(new BuddiStatusService());
 
 		Migration.migrate(sqlSessionFactory, p.getProperty("db.schema", "buddi"));
-		
-		this.usersBD = new UsersBD(this, sqlSessionFactory);
-		this.sourcesBD = new SourcesBD(this, sqlSessionFactory);
-		this.transactionsBD = new TransactionsBD(this, sqlSessionFactory);
 
 		super.start();
 	}
@@ -125,16 +116,8 @@ public class BuddiApplication extends Application{
 		super.stop();
 	}
 	
-	public UsersBD getUsersBD() {
-		return usersBD;
-	}
-	
-	public SourcesBD getSourcesBD() {
-		return sourcesBD;
-	}
-	
-	public TransactionsBD getTransactionsBD() {
-		return transactionsBD;
+	public SqlSessionFactory getSqlSessionFactory() {
+		return sqlSessionFactory;
 	}
 	
 	public Configuration getFreemarkerConfiguration() {

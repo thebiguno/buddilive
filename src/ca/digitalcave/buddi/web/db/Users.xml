@@ -14,13 +14,13 @@
 		WHERE identifier = #{identifier}
 	</select>
 	
-	<insert id="insertUser" parameterType="ca.digitalcave.buddi.web.model.User">
-		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+	<insert id="insertUser">
+		<selectKey keyProperty="user.id" resultType="int" order="BEFORE">
 			SELECT coalesce(max(id), 0) + 1 from users
 		</selectKey>
 		INSERT INTO users
 			(id, identifier, credentials, uuid, email, premium, created, modified)
 		VALUES
-			(#{id}, #{identifier}, #{credentials}, #{uuid}, #{email,jdbcType=VARCHAR}, <choose><when test="premium == true">'Y'</when><otherwise>'N'</otherwise></choose>, current_timestamp, current_timestamp)
+			(#{user.id}, #{user.identifier}, #{user.credentials}, #{user.uuid}, #{user.email,jdbcType=VARCHAR}, <choose><when test="user.premium == true">'Y'</when><otherwise>'N'</otherwise></choose>, current_timestamp, current_timestamp)
 	</insert>
 </mapper>

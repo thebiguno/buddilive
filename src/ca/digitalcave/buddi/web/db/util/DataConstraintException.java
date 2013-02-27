@@ -1,4 +1,4 @@
-package ca.digitalcave.buddi.web.db.bd;
+package ca.digitalcave.buddi.web.db.util;
 
 public class DataConstraintException extends Exception {
 	private static final long serialVersionUID = 1L;

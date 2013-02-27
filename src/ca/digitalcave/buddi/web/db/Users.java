@@ -18,5 +18,5 @@ public interface Users {
 	 * @param user
 	 * @return
 	 */
-	public Integer insertUser(User user);
+	public Integer insertUser(@Param("user") User user);
 }

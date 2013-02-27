@@ -3,6 +3,7 @@ package ca.digitalcave.buddi.web.security;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -13,8 +14,10 @@ import org.restlet.engine.util.Base64;
 import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
+import ca.digitalcave.buddi.web.db.Users;
 import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
+import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class BuddiVerifier implements Verifier {
 	
@@ -45,7 +48,7 @@ public class BuddiVerifier implements Verifier {
 				
 				Date expiry = null;
 				try {
-					expiry = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(token.getString("expiry"));
+					expiry = FormatUtil.parseDateTime(token.getString("expiry"));
 				}
 				catch (Throwable e){}
 				
@@ -65,12 +68,19 @@ public class BuddiVerifier implements Verifier {
 			
 			
 			final String hashedIdentifier = CryptoUtil.getSha256Hash(1, new byte[0], identifier);
-			final User user = application.getUsersBD().selectUser(hashedIdentifier);
-			if (user == null) return RESULT_INVALID;
-			final String storedSecret = user.getCredentials();
-			if (CryptoUtil.verify(storedSecret, secret)){
-				request.getClientInfo().setUser(user);
-				return RESULT_VALID;
+			final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
+			try {
+				final User user = sqlSession.getMapper(Users.class).selectUser(hashedIdentifier);
+				if (user != null){
+					final String storedSecret = user.getCredentials();
+					if (CryptoUtil.verify(storedSecret, secret)){
+						request.getClientInfo().setUser(user);
+						return RESULT_VALID;
+					}
+				}
+			}
+			finally {
+				sqlSession.close();
 			}
 			return RESULT_INVALID;
 		}

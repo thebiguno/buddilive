@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.web.resource;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.json.JSONObject;
@@ -19,6 +18,7 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.security.BuddiVerifier;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
+import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class IndexResource extends ServerResource {
 	private static final int DAYS = 7;
@@ -44,7 +44,7 @@ public class IndexResource extends ServerResource {
 				
 				final Calendar cal = Calendar.getInstance();
 				cal.add(Calendar.DAY_OF_MONTH, DAYS);
-				token.put("expiry", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(cal.getTime()));
+				token.put("expiry", FormatUtil.formatDateTime(cal.getTime()));
 			}
 			
 			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, Base64.encode(CryptoUtil.encrypt(token.toString().getBytes(), BuddiVerifier.COOKIE_PASSWORD.toCharArray()), false));
