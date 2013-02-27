@@ -15,6 +15,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
+import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
 import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -66,8 +67,11 @@ public class TransactionsDataResource extends ServerResource {
 			result.put("added", total);
 			return new JsonRepresentation(result);
 		}
-		catch (IOException e){
+		catch (DataConstraintException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+		catch (IOException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);

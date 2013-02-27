@@ -8,6 +8,8 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.dao.DAO;
+import ca.digitalcave.buddi.web.db.dao.DataConstraintException;
+import ca.digitalcave.buddi.web.model.Split;
 import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -18,16 +20,29 @@ public class TransactionsDAO extends DAO implements Transactions {
 	}
 	
 	@Override
-	public Integer insertTransaction(User user, Transaction transaction) {
+	public Integer insertTransaction(User user, Transaction transaction) throws DataConstraintException {
 		final SqlSession s = getSqlSessionFactory().openSession();
 		try {
+			//Perform integrity checks
+			if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DataConstraintException("A transaction must contain at least one split.");
+			if (transaction.getDate() == null) throw new DataConstraintException("The transaction date must be set");
+			
 			Integer count = s.getMapper(Transactions.class).insertTransaction(user, transaction);
+			for (Split split : transaction.getSplits()) {
+				split.setTransactionId(transaction.getId());
+				s.getMapper(Transactions.class).insertSplit(user, split);
+			}
 			s.commit();
 			return count;
 		}
 		finally {
 			s.close();
 		}
+	}
+	
+	@Override
+	public Integer insertSplit(User user, Split split) throws DataConstraintException {
+		throw new RuntimeException("Not implemented");
 	}
 	
 	@Override

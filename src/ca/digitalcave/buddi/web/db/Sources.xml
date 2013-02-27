@@ -2,18 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.web.db.Sources">
 	<select id="selectAccounts" resultType="ca.digitalcave.buddi.web.model.Source">
-		SELECT 
-			id, user_id, uuid, name, start_date, deleted, type, start_balance, period_type, parent, created, modified,
-			sum(from.amount),
-			sum(to.amount)
-		FROM sources 
-		LEFT JOIN splits from ON from.from_source = id AND from.user_id = #{user.id}
-		LEFT JOIN splits to ON to.to_source = id AND to.user_id = #{user.id}
-		
+		SELECT * FROM sources WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
+	</select>
+	
+	<select id="selectAccountBalances" resultType="long">
+		SELECT sum(amount) + sum(to_splits.amount)
+		FROM splits
 		WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
-		
-		GROUP BY
-			id, user_id, uuid, name, start_date, deleted, type, start_balance, period_type, parent, created, modified
+	</select>
+	
+	<select id="selectAccountsByAccountType" resultType="ca.digitalcave.buddi.web.model.Source">
+		SELECT * FROM sources WHERE user_id = #{user.id} AND account_type = #{accountType} AND (type = 'D' OR type = 'C')
 	</select>
 
 	<select id="selectSource" resultType="ca.digitalcave.buddi.web.model.Source">
@@ -28,12 +27,12 @@
 		SELECT * FROM sources WHERE user_id = #{user.id}
 	</select>
 	
-	<insert id="insertSource" parameterType="ca.digitalcave.buddi.web.model.Source">
+	<insert id="insertSource">
 		<selectKey keyProperty="id" resultType="int" order="BEFORE">
 			SELECT coalesce(max(id), 0) + 1 from sources
 		</selectKey>
-		INSERT INTO sources (id, user_id, uuid, name, start_date, deleted, type, start_balance, period_type, parent, created, modified)
-		values (#{id}, #{user.id}, #{source.uuid}, #{source.name}, #{source.startDate}, <choose><when test="source.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, #{source.type}, #{source.startBalance,jdbcType=BIGINT}, #{source.periodType,jdbcType=VARCHAR}, #{source.parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		INSERT INTO sources (id, user_id, uuid, name, start_date, deleted, type, account_type, start_balance, period_type, parent, created, modified)
+		values (#{id}, #{user.id}, #{source.uuid}, #{source.name}, #{source.startDate}, <choose><when test="source.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, #{source.type}, #{source.accountType,jdbcType=VARCHAR}, #{source.startBalance,jdbcType=BIGINT}, #{source.periodType,jdbcType=VARCHAR}, #{source.parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
 </mapper>
 			

@@ -8,55 +8,51 @@ import org.json.JSONObject;
 import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class Split {
-	private Integer id;
-	private long parent_transaction;
+	private Long id;
+	private Long transaction_id;
 	private int user_id;
 	private long amount;
 	private int from_source;
 	private int to_source;
 	private String memo;
-	private boolean deleted;
 	private Date created;
 	private Date modified;
 	
 	public Split() {
 	}
 	public Split(JSONObject json) throws JSONException {
-		this.setId(json.getInt("id"));
-		this.setParentTransaction(json.getLong("parentTransaction"));
-		this.setUserId(json.getInt("userId"));
+		this.setId(json.has("id") ? json.getLong("id") : null);
+		this.setTransactionId(json.has("transactionId") ? json.getLong("transactionId") : null);
 		this.setAmount(json.getLong("amount"));
 		this.setFromSource(json.getInt("fromSource"));
 		this.setToSource(json.getInt("toSource"));
-		this.setMemo(json.getString("memo"));
-		this.setDeleted(json.getBoolean("deleted"));
+		this.setMemo(json.has("memo") ? json.getString("memo") : null);
 	}
 	
 	public JSONObject toJson() throws JSONException {
 		final JSONObject result = new JSONObject();
 		result.put("id", this.getId());
-		result.put("parentTransaction", this.getParentTransaction());
+		result.put("transactionId", this.getTransactionId());
 		result.put("userId", this.getUserId());
 		result.put("amount", this.getAmount());
 		result.put("fromSource", this.getFromSource());
 		result.put("toSource", this.getToSource());
 		result.put("memo", this.getMemo());
-		result.put("deleted", this.isDeleted());
 		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
 		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
 		return result;
 	}
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
-	public long getParentTransaction() {
-		return parent_transaction;
+	public Long getTransactionId() {
+		return transaction_id;
 	}
-	public void setParentTransaction(long parentTransaction) {
-		this.parent_transaction = parentTransaction;
+	public void setTransactionId(Long transactionId) {
+		this.transaction_id = transactionId;
 	}
 	public int getUserId() {
 		return user_id;
@@ -87,12 +83,6 @@ public class Split {
 	}
 	public void setMemo(String memo) {
 		this.memo = memo;
-	}
-	public boolean isDeleted() {
-		return deleted;
-	}
-	public void setDeleted(boolean deleted) {
-		this.deleted = deleted;
 	}
 	public Date getCreated() {
 		return created;

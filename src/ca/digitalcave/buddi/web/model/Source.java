@@ -18,6 +18,7 @@ public class Source {
 	private Date created;
 	private Date modified;
 	private String type;
+	private String account_type;
 	private Long start_balance;
 	private String periodType;
 	private Integer parent;
@@ -26,12 +27,12 @@ public class Source {
 	}
 	public Source(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getInt("id") : null);
-		this.setUserId(json.getInt("userId"));
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		this.setName(json.getString("name"));
 		this.setStartDate(json.has("startDate") ? FormatUtil.parseDate(json.getString("startDate")) : FormatUtil.parseDate("1900-01-01"));
 		this.setDeleted(json.has("delete") ? json.getBoolean("deleted") : false);
 		this.setType(json.getString("type"));
+		this.setAccountType(json.has("accountType") ? json.getString("accountType") : null);
 		this.setStartBalance(json.has("startBalance") ? json.getLong("startBalance") : null);
 		this.setPeriodType(json.has("periodType") ? json.getString("periodType") : null);
 		this.setParent(json.has("parent") ? json.getInt("parent") : null);
@@ -49,6 +50,7 @@ public class Source {
 		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
 		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
 		result.put("startBalance", this.getStartBalance());
+		result.put("accountType", this.getAccountType());
 		result.put("periodType", this.getPeriodType());
 		result.put("parent", this.getParent());
 		return result;
@@ -107,6 +109,12 @@ public class Source {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public String getAccountType() {
+		return account_type;
+	}
+	public void setAccountType(String accountType) {
+		this.account_type = accountType;
 	}
 	public Long getStartBalance() {
 		return start_balance;

@@ -21,6 +21,7 @@ import ca.digitalcave.buddi.web.db.UsersDAO;
 import ca.digitalcave.buddi.web.db.migrate.Migration;
 import ca.digitalcave.buddi.web.resource.IndexResource;
 import ca.digitalcave.buddi.web.resource.data.SourcesDataResource;
+import ca.digitalcave.buddi.web.resource.data.TransactionsDataResource;
 import ca.digitalcave.buddi.web.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.web.resource.gui.AccountsResource;
 import ca.digitalcave.buddi.web.security.AddressFilter;
@@ -49,6 +50,7 @@ public class BuddiApplication extends Application{
 
 		final Router router = new Router(getContext());
 		router.attach("/gui/accounts", new BuddiAuthenticator(this, getContext(), false, AccountsResource.class));
+		router.attach("/data/transactions/", new BuddiAuthenticator(this, getContext(), true, TransactionsDataResource.class));
 		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
 		router.attach("/data/sources/", new BuddiAuthenticator(this, getContext(), false, SourcesDataResource.class));
 		

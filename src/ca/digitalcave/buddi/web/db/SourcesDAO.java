@@ -30,6 +30,17 @@ public class SourcesDAO extends DAO implements Sources{
 	}
 	
 	@Override
+	public List<Source> selectAccountsByAccountType(User user, String accountType) {
+		final SqlSession s = getSqlSessionFactory().openSession(true);
+		try {
+			return s.getMapper(Sources.class).selectAccountsByAccountType(user, accountType);
+		}
+		finally {
+			s.close();
+		}
+	}
+	
+	@Override
 	public Integer insertSource(User user, Source source) throws DataConstraintException {
 		final SqlSession s = getSqlSessionFactory().openSession();
 		try {
@@ -41,6 +52,15 @@ public class SourcesDAO extends DAO implements Sources{
 				}
 				if (parent.getUserId() != source.getUserId()){
 					throw new DataConstraintException("The userId of a parent category must match the userId of the child category");
+				}
+			}
+			if (source.isAccount()){
+				List<Source> accounts = selectAccountsByAccountType(user, source.getAccountType());
+				for (Source account : accounts) {
+					if (!account.getType().equals(source.getType())){
+						if ("D".equals(source.getType())) throw new DataConstraintException(String.format("You cannot add a debit account to account type %s when there are already credit accounts assigned to the same account type.", source.getAccountType()));
+						else throw new DataConstraintException(String.format("You cannot add a credit account to account type %s when there are already debit accounts assigned to the same account type.", source.getAccountType()));
+					}
 				}
 			}
 			

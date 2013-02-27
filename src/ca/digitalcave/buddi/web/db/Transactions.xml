@@ -1,50 +1,55 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.web.db.Transactions">
-	<select id="selectTransaction" resultType="ca.digitalcave.buddi.web.model.Transaction">
-		SELECT
-			id,
-			user_id as userId,
-			uuid,
-			name,
-			start_date as startDate,
-			deleted,
-			created,
-			modified,
-			type,
-			
-			start_balance as startBalance,
-			
-			period_type as periodType,
-			parent
-		FROM sources 
-		WHERE 
-			user_id = #{user}
-			<if test="id != null">
-				and (id = #{id} or uuid = #{id})
-			</if>
+	<resultMap id="transaction" type="ca.digitalcave.buddi.web.model.Transaction">
+		<id column="t.id" property="id" />
+		<result column="t.uuid" property="uuid"/>
+		<result column="t.user_id" property="user_id"/>
+		<result column="t.description" property="description"/>
+		<result column="t.number" property="number"/>
+		<result column="t.date" property="date"/>
+		<result column="t.deleted" property="deleted"/>
+		<result column="t.created" property="created"/>
+		<result column="t.modified" property="modified"/>
+		<collection property="splits" ofType="ca.digitalcave.buddi.web.model.Split">
+			<id column="s.id" property="id" />
+			<result column="s.transaction_id" property="transaction_id"/>
+			<result column="s.amount" property="amount"/>
+			<result column="s.from_source" property="from_source"/>
+			<result column="s.to_source" property="to_source"/>
+			<result column="s.memo" property="memo"/>
+			<result column="s.created" property="created"/>
+			<result column="s.modified" property="modified"/>
+		</collection>
+	</resultMap>
+	
+	<select id="selectTransactions" resultMap="transaction">
+		SELECT 
+			t.id, t.uuid, t.user_id, t.description, t.number, t.date, t.deleted, t.created, t.modified, 
+			s.id, s.amount, s.from_source, s.to_source, s.memo, s.created, s.modified 
+		FROM transactions t
+		LEFT JOIN splits s ON s.transaction_id = t.id
+		WHERE t.user_id = #{user.id}
 	</select>
 	
-	<insert id="insertSource" parameterType="ca.digitalcave.buddi.web.model.Source">
-		<selectKey keyProperty="id" resultType="int" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from sources
+	<insert id="insertTransaction">
+		<selectKey keyProperty="transaction.id" resultType="long" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from transactions
 		</selectKey>
-		INSERT INTO sources (
-			id,
-			user_id,
-			uuid,
-			name,
-			start_date,
-			deleted,
-			type,
-			
-			start_balance,
-			
-			period_type,
-			parent,
-			created,
-			modified
+		INSERT INTO transactions (
+			id, uuid, user_id, description, number, date, deleted, created, modified
+
 		)
-		values (#{id}, #{userId}, #{uuid}, #{name}, #{startDate}, <choose><when test="deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, #{type}, #{startBalance,jdbcType=BIGINT}, #{periodType,jdbcType=VARCHAR}, #{parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		values (#{transaction.id}, #{transaction.uuid}, #{user.id}, #{transaction.description}, #{transaction.number,jdbcType=VARCHAR}, #{transaction.date}, <choose><when test="transaction.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	</insert>
+	
+	<insert id="insertSplit">
+		<selectKey keyProperty="split.id" resultType="long" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from splits
+		</selectKey>
+		INSERT INTO splits (
+			id, transaction_id, amount, from_source, to_source, memo, created, modified
+		)
+		values (#{split.id}, #{split.transactionId}, #{split.amount}, #{split.fromSource}, #{split.toSource}, #{split.memo,jdbcType=VARCHAR}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
 </mapper>

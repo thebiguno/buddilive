@@ -36,8 +36,8 @@ public class AccountsResource extends ServerResource {
 			final List<Source> allAccounts = application.getSourcesDAO().selectAccounts(user);
 			final Map<String, List<Source>> accountsByType = new HashMap<String, List<Source>>();
 			for (Source account : allAccounts) {
-				if (accountsByType.get(account.getType()) == null) accountsByType.put(account.getType(), new ArrayList<Source>());
-				accountsByType.get(account.getType()).add(account);
+				if (accountsByType.get(account.getAccountType()) == null) accountsByType.put(account.getAccountType(), new ArrayList<Source>());
+				accountsByType.get(account.getAccountType()).add(account);
 			}
 			
 			final JSONArray data = new JSONArray();
