@@ -10,24 +10,17 @@ import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class Source {
 	private Integer id;
-	private int user_id;
+	private int userId;
 	private String uuid;
 	private String name;
-	private Date start_date;
+	private Date startDate;
 	private boolean deleted;
 	private Date created;
 	private Date modified;
 	private String type;
-	private String account_type;
-	private Long start_balance;
-	private String periodType;
-	private Integer parent;
 	
-	//The following are used for temporary results from the DB, but are not persisted.
-	private Long balance;
+	public Source() {}
 	
-	public Source() {
-	}
 	public Source(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getInt("id") : null);
 		this.setUuid(json.optString("uuid", UUID.randomUUID().toString()));
@@ -35,10 +28,6 @@ public class Source {
 		this.setStartDate(FormatUtil.parseDate(json.optString("startDate", "1900-01-01")));
 		this.setDeleted(json.optBoolean("deleted", false));
 		this.setType(json.optString("type", null));
-		this.setAccountType(json.optString("accountType", null));
-		this.setStartBalance(json.optLong("startBalance") == 0 ? null : json.optLong("startBalance"));
-		this.setPeriodType(json.optString("periodType", null));
-		this.setParent(json.optInt("parent") == 0 ? null : json.optInt("parent"));
 	}
 	
 	public JSONObject toJson() throws JSONException {
@@ -52,11 +41,6 @@ public class Source {
 		result.put("type", this.getType());
 		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
 		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
-		result.put("startBalance", this.getStartBalance());
-		result.put("balance", this.getBalance());
-		result.put("accountType", this.getAccountType());
-		result.put("periodType", this.getPeriodType());
-		result.put("parent", this.getParent());
 		return result;
 	}
 	
@@ -67,10 +51,10 @@ public class Source {
 		this.id = id;
 	}
 	public int getUserId() {
-		return user_id;
+		return userId;
 	}
 	public void setUserId(int userId) {
-		this.user_id = userId;
+		this.userId = userId;
 	}
 	public String getUuid() {
 		return uuid;
@@ -85,10 +69,10 @@ public class Source {
 		this.name = name;
 	}
 	public Date getStartDate() {
-		return start_date;
+		return startDate;
 	}
 	public void setStartDate(Date startDate) {
-		this.start_date = startDate;
+		this.startDate = startDate;
 	}
 	public boolean isDeleted() {
 		return deleted;
@@ -114,39 +98,9 @@ public class Source {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public String getAccountType() {
-		return account_type;
-	}
-	public void setAccountType(String accountType) {
-		this.account_type = accountType;
-	}
-	public Long getStartBalance() {
-		return start_balance;
-	}
-	public void setStartBalance(Long startBalance) {
-		this.start_balance = startBalance;
-	}
-	public String getPeriodType() {
-		return periodType;
-	}
-	public void setPeriodType(String periodType) {
-		this.periodType = periodType;
-	}
-	public Integer getParent() {
-		return parent;
-	}
-	public void setParent(Integer parent) {
-		this.parent = parent;
-	}
 	
 	//Convenience methods
 	public boolean isAccount(){
 		return "D".equals(getType()) || "C".equals(getType());
-	}
-	public Long getBalance() {
-		return balance;
-	}
-	public void setBalance(Long balance) {
-		this.balance = balance;
 	}
 }

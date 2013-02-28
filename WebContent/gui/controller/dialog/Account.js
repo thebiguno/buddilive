@@ -19,8 +19,11 @@ Ext.define("BuddiLive.controller.dialog.Account", {
 	"ok": function(component){
 		var window = component.up("buddiaccount");
 		var grid = window.initialConfig.grid;
+		var selected = window.initialConfig.selected;
 
 		var request = {};
+		request.action = (selected ? "update" : "insert");
+		if (selected) request.id = selected.id;
 		request.name = window.down("textfield[itemId='name']").getValue();
 		request.accountType = window.down("textfield[itemId='accountType']").getValue();
 		request.type = window.down("combobox[itemId='type']").getValue();

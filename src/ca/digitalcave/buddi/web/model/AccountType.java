@@ -6,12 +6,12 @@ public class AccountType {
 
 	private String accountType;
 	private String type;
-	private List<Source> accounts;
+	private List<Account> accounts;
 	
-	public List<Source> getAccounts() {
+	public List<Account> getAccounts() {
 		return accounts;
 	}
-	public void setAccounts(List<Source> accounts) {
+	public void setAccounts(List<Account> accounts) {
 		this.accounts = accounts;
 	}
 	public String getType() {

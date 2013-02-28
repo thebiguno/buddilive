@@ -19,8 +19,8 @@ import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.web.db.util.DatabaseException;
+import ca.digitalcave.buddi.web.model.Account;
 import ca.digitalcave.buddi.web.model.AccountType;
-import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.util.FormatUtil;
 
@@ -48,7 +48,7 @@ public class AccountsResource extends ServerResource {
 				type.put("nodeType", "type");
 				type.put("icon", "img/folder-open-table.png");
 				final JSONArray accounts = new JSONArray();
-				for (Source a : t.getAccounts()) {
+				for (Account a : t.getAccounts()) {
 					final JSONObject account = new JSONObject();
 					account.put("id", a.getId());
 					account.put("name", a.getName());
@@ -87,20 +87,27 @@ public class AccountsResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final JSONObject request = new JSONObject(entity.getText());
-			Source source = new Source(request);
+			final String action = request.optString("action");
 			
-			if (source.getId() == null){
-				ConstraintsChecker.checkInsertSource(source, user, sqlSession);
-				int count = sqlSession.getMapper(Sources.class).insertSource(user, source);
+			final Account account = new Account(request);
+			
+			if ("insert".equals(action)){
+				ConstraintsChecker.checkInsertAccount(account, user, sqlSession);
+				int count = sqlSession.getMapper(Sources.class).insertAccount(user, account);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
-			}
-			else if ("delete".equals(request.optString("action")) || "undelete".equals(request.optString("action"))){
-				source.setDeleted("delete".equals(request.optString("action")));
-				int count = sqlSession.getMapper(Sources.class).updateDeleted(user, source);
+			} 
+			else if ("delete".equals(action) || "undelete".equals(action)){
+				account.setDeleted("delete".equals(action));
+				int count = sqlSession.getMapper(Sources.class).updateSourceDeleted(user, account);
 				if (count != 1) throw new DatabaseException(String.format("Delete / undelete failed; expected 1 row, returned %s", count));
 			}
+			else if ("update".equals(action)){
+				ConstraintsChecker.checkUpdateAccount(account, user, sqlSession);
+				int count = sqlSession.getMapper(Sources.class).updateAccount(user, account);
+				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+			}
 			else {
-				
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
 			}
 			
 			sqlSession.commit();

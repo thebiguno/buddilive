@@ -5,32 +5,33 @@
 		SELECT * FROM sources WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
 	</select>
 	
+	<resultMap id="account" type="ca.digitalcave.buddi.web.model.Account">
+		<id column="a_id" property="id" />
+		<result column="a_user_id" property="userId"/>
+		<result column="a_uuid" property="uuid"/>
+		<result column="a_name" property="name"/>
+		<result column="a_start_date" property="startDate"/>
+		<result column="a_account_type" property="accountType" />
+		<result column="a_deleted" property="deleted" typeHandler="ca.digitalcave.buddi.web.db.handler.BooleanHandler"/>
+		<result column="a_type" property="type"/>
+		<result column="a_start_balance" property="startBalance"/>
+		<result column="a_period_type" property="periodType"/>
+		<result column="a_created" property="created"/>
+		<result column="a_modified" property="modified"/>
+		<result column="a_balance" property="balance"/>
+	</resultMap>
+	
 	<resultMap id="accountsByType" type="ca.digitalcave.buddi.web.model.AccountType">
-		<id column="account_type" property="accountType" />
-		<id column="type" property="type" />
-		<collection property="accounts" javaType="list" ofType="ca.digitalcave.buddi.web.model.Source">
-			<id column="a_id" property="id" />
-			<result column="user_id" property="user_id"/>
-			<result column="uuid" property="uuid"/>
-			<result column="name" property="name"/>
-			<result column="start_date" property="startDate"/>
-			<result column="account_type" property="accountType" />
-			<result column="deleted" property="deleted" typeHandler="org.apache.ibatis.type.BooleanTypeHandler"/>
-			<result column="type" property="type"/>
-			<result column="start_balance" property="start_balance"/>
-			<result column="period_type" property="periodType"/>
-			<result column="created" property="created"/>
-			<result column="modified" property="modified"/>
-			<result column="balance" property="balance"/>
-		</collection>
+		<id column="a_account_type" property="accountType" />
+		<id column="a_type" property="type" />
+		<collection property="accounts" resultMap="account"/>
 	</resultMap>	
+	
+	
 	<select id="selectAccountsWithBalancesByType" resultMap="accountsByType">
-		--We calculate the running account balance as the sum of all amounts for which the 
-		-- account is the to source, subtracting the sum of all amounts for which the account 
-		-- is the from source, plus the starting balance.
 		SELECT 
-			a.id a_id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified,
-			coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as balance
+			a.id a_id, a.user_id a_user_id, a.uuid a_uuid, a.name a_name, a.start_date a_name, a.deleted a_deleted, a.type a_type, a.account_type a_account_type, a.start_balance a_start_balance, a.created, a.modified,
+			coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as a_balance
 		FROM sources a
 		LEFT JOIN splits to_splits ON to_splits.to_source = a.id
 		LEFT JOIN splits from_splits ON from_splits.from_source = a.id
@@ -38,11 +39,16 @@
 		GROUP BY 
 			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified
 		ORDER BY a.type DESC, a.account_type, a.name
-		
 	</select>
 	
-	<select id="selectAccountsByAccountType" resultType="ca.digitalcave.buddi.web.model.Source">
-		SELECT * FROM sources WHERE user_id = #{user.id} AND account_type = #{accountType} AND (type = 'D' OR type = 'C')
+	<select id="selectAccountsByAccountType" resultMap="account">
+		SELECT 
+			a.id a_id, a.user_id a_user_id, a.uuid a_uuid, a.name a_name, a.start_date a_name, a.deleted a_deleted, a.type a_type, a.account_type a_account_type, a.start_balance a_start_balance, a.created, a.modified
+		FROM sources a
+		LEFT JOIN splits to_splits ON to_splits.to_source = a.id
+		LEFT JOIN splits from_splits ON from_splits.from_source = a.id
+		WHERE user_id = #{user.id} AND account_type = #{accountType} AND (type = 'D' OR type = 'C')
+		ORDER BY a.type DESC, a.account_type, a.name
 	</select>
 
 	<select id="selectSource" resultType="ca.digitalcave.buddi.web.model.Source">
@@ -57,20 +63,57 @@
 		SELECT * FROM sources WHERE user_id = #{user.id}
 	</select>
 	
-	<insert id="insertSource">
-		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+	<insert id="insertAccount">
+		<selectKey keyProperty="account.id" resultType="int" order="BEFORE">
 			SELECT coalesce(max(id), 0) + 1 from sources
 		</selectKey>
-		INSERT INTO sources (id, user_id, uuid, name, start_date, deleted, type, account_type, start_balance, period_type, parent, created, modified)
-		values (#{id}, #{user.id}, #{source.uuid}, #{source.name}, #{source.startDate}, <choose><when test="source.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, #{source.type}, #{source.accountType,jdbcType=VARCHAR}, #{source.startBalance,jdbcType=BIGINT}, #{source.periodType,jdbcType=VARCHAR}, #{source.parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		INSERT INTO sources (
+			id,
+			user_id,
+			uuid,
+			name,
+			start_date,
+			deleted,
+			type,
+			account_type,
+			start_balance,
+			created,
+			modified
+		)
+		VALUES (
+			#{account.id},
+			#{user.id},
+			#{account.uuid},
+			#{account.name},
+			#{account.startDate},
+			<choose><when test="account.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			#{account.type},
+			#{account.accountType,jdbcType=VARCHAR},
+			#{account.startBalance,jdbcType=BIGINT},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
 	</insert>
 
-	<update id="updateDeleted">
+	<insert id="updateAccount">
+		UPDATE sources
+		SET
+			uuid = #{account.uuid},
+			name = #{account.name},
+			start_date = #{account.startDate},
+			deleted = <choose><when test="account.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			type = #{account.type},
+			account_type = #{account.accountType},
+			start_balance = #{account.startBalance,jdbcType=BIGINT},
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{account.id} AND user_id = #{user.id}
+	</insert>
+	<update id="updateSourceDeleted">
 		UPDATE sources 
 		SET 
 			deleted = <choose><when test="source.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, 
 			modified = CURRENT_TIMESTAMP
-		WHERE id = #{source.id}
+		WHERE id = #{source.id} AND user_id = #{user.id}
 	</update>
 
 </mapper>
