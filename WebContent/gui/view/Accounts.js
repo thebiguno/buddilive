@@ -17,7 +17,8 @@ Ext.define('BuddiLive.view.Accounts', {
 				"width": 300,
 				"xtype": "treecolumn",
 				"renderer": function(value, metaData, record){
-					if (!record.raw.debit) metaData.style = 'color:#D10000;' 
+					if (!record.raw.debit) metaData.style += " color:#D10000;";
+					if (record.raw.deleted == true) metaData.style += " text-decoration: line-through;";
 					return value;
 				}
 			},

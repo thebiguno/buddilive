@@ -57,6 +57,7 @@ public class AccountsResource extends ServerResource {
 					account.put("accountType", a.getAccountType());
 					account.put("startingBalance", FormatUtil.formatCurrency(a.getStartBalance()));
 					account.put("debit", "D".equals(a.getType()));
+					account.put("deleted", a.isDeleted());
 					account.put("leaf", true);
 					account.put("nodeType", "account");
 					account.put("icon", "img/table.png");

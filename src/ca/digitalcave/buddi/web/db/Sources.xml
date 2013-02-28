@@ -15,7 +15,7 @@
 			<result column="name" property="name"/>
 			<result column="start_date" property="startDate"/>
 			<result column="account_type" property="accountType" />
-			<result column="deleted" property="deleted"/>
+			<result column="deleted" property="deleted" typeHandler="org.apache.ibatis.type.BooleanTypeHandler"/>
 			<result column="type" property="type"/>
 			<result column="start_balance" property="start_balance"/>
 			<result column="period_type" property="periodType"/>
