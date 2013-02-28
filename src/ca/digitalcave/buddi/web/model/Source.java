@@ -23,6 +23,9 @@ public class Source {
 	private String periodType;
 	private Integer parent;
 	
+	//The following are used for temporary results from the DB, but are not persisted.
+	private Long balance;
+	
 	public Source() {
 	}
 	public Source(JSONObject json) throws JSONException {
@@ -50,6 +53,7 @@ public class Source {
 		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
 		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
 		result.put("startBalance", this.getStartBalance());
+		result.put("balance", this.getBalance());
 		result.put("accountType", this.getAccountType());
 		result.put("periodType", this.getPeriodType());
 		result.put("parent", this.getParent());
@@ -138,5 +142,11 @@ public class Source {
 	//Convenience methods
 	public boolean isAccount(){
 		return "D".equals(getType()) || "C".equals(getType());
+	}
+	public Long getBalance() {
+		return balance;
+	}
+	public void setBalance(Long balance) {
+		this.balance = balance;
 	}
 }

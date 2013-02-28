@@ -1,10 +1,6 @@
 package ca.digitalcave.buddi.web.resource.gui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
@@ -20,6 +16,7 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
+import ca.digitalcave.buddi.web.model.AccountType;
 import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -36,27 +33,20 @@ public class AccountsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Source> allAccounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
-			final Map<String, List<Source>> accountsByType = new HashMap<String, List<Source>>();
-			for (Source account : allAccounts) {
-				if (accountsByType.get(account.getAccountType()) == null) accountsByType.put(account.getAccountType(), new ArrayList<Source>());
-				accountsByType.get(account.getAccountType()).add(account);
-			}
+			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountsWithBalancesByType(user);
 			
 			final JSONArray data = new JSONArray();
-			final List<String> types = new ArrayList<String>(accountsByType.keySet());
-			Collections.sort(types);
-			for (String t : types) {
+			for (AccountType t : accountsByType) {
 				final JSONObject type = new JSONObject();
-				type.put("name", t);
+				type.put("name", t.getType());
 				type.put("expanded", true);
 				type.put("type", "type");
 				type.put("icon", "img/folder-open-table.png");
 				final JSONArray accounts = new JSONArray();
-				for (Source a : accountsByType.get(t)) {
+				for (Source a : t.getAccounts()) {
 					final JSONObject account = new JSONObject();
 					account.put("name", a.getName());
-					account.put("balance", 0);
+					account.put("balance", a.getBalance());
 					account.put("leaf", true);
 					account.put("type", "account");
 					account.put("debit", "D".equals(a.getType()));

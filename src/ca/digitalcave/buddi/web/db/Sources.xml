@@ -5,10 +5,38 @@
 		SELECT * FROM sources WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
 	</select>
 	
-	<select id="selectAccountBalances" resultType="long">
-		SELECT sum(amount) + sum(to_splits.amount)
-		FROM splits
+	<resultMap id="accountsByType" type="ca.digitalcave.buddi.web.model.AccountType">
+		<id column="account_type" property="type" />
+		<collection property="accounts" javaType="list" ofType="ca.digitalcave.buddi.web.model.Source">
+			<id column="a_id" property="id" />
+			<result column="user_id" property="user_id"/>
+			<result column="uuid" property="uuid"/>
+			<result column="name" property="name"/>
+			<result column="start_date" property="startDate"/>
+			<result column="deleted" property="deleted"/>
+			<result column="type" property="type"/>
+			<result column="start_balance" property="start_balance"/>
+			<result column="period_type" property="periodType"/>
+			<result column="created" property="created"/>
+			<result column="modified" property="modified"/>
+			<result column="balance" property="balance"/>
+		</collection>
+	</resultMap>	
+	<select id="selectAccountsWithBalancesByType" resultMap="accountsByType">
+		--We calculate the running account balance as the sum of all amounts for which the 
+		-- account is the to source, subtracting the sum of all amounts for which the account 
+		-- is the from source, plus the starting balance.
+		SELECT 
+			a.id a_id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified,
+			coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as balance
+		FROM sources a
+		LEFT JOIN splits to_splits ON to_splits.to_source = a.id
+		LEFT JOIN splits from_splits ON from_splits.from_source = a.id
 		WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
+		GROUP BY 
+			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified
+		ORDER BY a.type DESC, a.account_type
+		
 	</select>
 	
 	<select id="selectAccountsByAccountType" resultType="ca.digitalcave.buddi.web.model.Source">
