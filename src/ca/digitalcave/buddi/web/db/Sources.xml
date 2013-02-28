@@ -6,13 +6,15 @@
 	</select>
 	
 	<resultMap id="accountsByType" type="ca.digitalcave.buddi.web.model.AccountType">
-		<id column="account_type" property="type" />
+		<id column="account_type" property="accountType" />
+		<id column="type" property="type" />
 		<collection property="accounts" javaType="list" ofType="ca.digitalcave.buddi.web.model.Source">
 			<id column="a_id" property="id" />
 			<result column="user_id" property="user_id"/>
 			<result column="uuid" property="uuid"/>
 			<result column="name" property="name"/>
 			<result column="start_date" property="startDate"/>
+			<result column="account_type" property="accountType" />
 			<result column="deleted" property="deleted"/>
 			<result column="type" property="type"/>
 			<result column="start_balance" property="start_balance"/>
@@ -35,7 +37,7 @@
 		WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
 		GROUP BY 
 			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified
-		ORDER BY a.type DESC, a.account_type
+		ORDER BY a.type DESC, a.account_type, a.name
 		
 	</select>
 	
@@ -62,7 +64,13 @@
 		INSERT INTO sources (id, user_id, uuid, name, start_date, deleted, type, account_type, start_balance, period_type, parent, created, modified)
 		values (#{id}, #{user.id}, #{source.uuid}, #{source.name}, #{source.startDate}, <choose><when test="source.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, #{source.type}, #{source.accountType,jdbcType=VARCHAR}, #{source.startBalance,jdbcType=BIGINT}, #{source.periodType,jdbcType=VARCHAR}, #{source.parent,jdbcType=BIGINT}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
+
+	<update id="updateDeleted">
+		UPDATE sources 
+		SET 
+			deleted = <choose><when test="source.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, 
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{source.id}
+	</update>
+
 </mapper>
-			
-			
-			

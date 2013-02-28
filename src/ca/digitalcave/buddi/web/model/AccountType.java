@@ -4,6 +4,7 @@ import java.util.List;
 
 public class AccountType {
 
+	private String accountType;
 	private String type;
 	private List<Source> accounts;
 	
@@ -18,5 +19,11 @@ public class AccountType {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public String getAccountType() {
+		return accountType;
+	}
+	public void setAccountType(String accountType) {
+		this.accountType = accountType;
 	}
 }

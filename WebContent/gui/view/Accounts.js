@@ -14,28 +14,50 @@ Ext.define('BuddiLive.view.Accounts', {
 			{
 				"text": "Name",
 				"dataIndex": "name",
-				"flex": 1,
-				"xtype": "treecolumn"
+				"width": 300,
+				"xtype": "treecolumn",
+				"renderer": function(value, metaData, record){
+					if (!record.raw.debit) metaData.style = 'color:#D10000;' 
+					return value;
+				}
 			},
 			{
 				"text": "Balance",
 				"dataIndex": "balance",
-				"flex": 1
+				"width": 100,
+				"align": "right",
+				"renderer": function(value, metaData, record){
+					if (!record.raw.debit ^ record.raw.balance < 0) metaData.style = 'color:#D10000;' 
+					return value;
+				}
 			}
 		];
 		this.dockedItems = [{
 			"xtype": "toolbar",
-			"dock": "bottom",
+			"dock": "top",
 			"items": [
+				{
+					"text": "Edit Transactions",
+					"icon": "img/table-select-row.png",
+					"itemId": "editTransactions",
+					"disabled": true
+				},
+				"-",
 				{
 					"text": "Add Account",
 					"icon": "img/table--plus.png",
 					"itemId": "addAccount"
 				},
 				{
-					"text": "Edit Transactions",
+					"text": "Edit Account",
 					"icon": "img/table--pencil.png",
-					"itemId": "editTransactions",
+					"itemId": "editAccount",
+					"disabled": true
+				},
+				{
+					"text": "Delete Account",
+					"icon": "img/table--pencil.png",
+					"itemId": "deleteAccount",
 					"disabled": true
 				}
 			]

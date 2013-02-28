@@ -18,7 +18,7 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Transactions;
 import ca.digitalcave.buddi.web.db.util.ConstraintsChecker;
-import ca.digitalcave.buddi.web.db.util.DataConstraintException;
+import ca.digitalcave.buddi.web.db.util.DatabaseException;
 import ca.digitalcave.buddi.web.model.Split;
 import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
@@ -64,11 +64,11 @@ public class TransactionsDataResource extends ServerResource {
 				final Transaction transaction = new Transaction(json);
 				ConstraintsChecker.checkInsertTransaction(transaction, sqlSession);
 				int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
-				if (count != 1) throw new DataConstraintException(String.format("Insert failed; expected 1 row, returned %s", count));
+				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 				for (Split split : transaction.getSplits()) {
 					split.setTransactionId(transaction.getId());
 					count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
-					if (count != 1) throw new DataConstraintException(String.format("Insert failed; expected 1 row, returned %s", count));
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 				}
 			}
 
@@ -77,7 +77,7 @@ public class TransactionsDataResource extends ServerResource {
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}
-		catch (DataConstraintException e){
+		catch (DatabaseException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		catch (IOException e){

@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.web.security;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.ibatis.session.SqlSession;

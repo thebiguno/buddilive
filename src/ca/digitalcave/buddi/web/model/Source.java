@@ -30,15 +30,15 @@ public class Source {
 	}
 	public Source(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getInt("id") : null);
-		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
-		this.setName(json.getString("name"));
-		this.setStartDate(json.has("startDate") ? FormatUtil.parseDate(json.getString("startDate")) : FormatUtil.parseDate("1900-01-01"));
-		this.setDeleted(json.has("delete") ? json.getBoolean("deleted") : false);
-		this.setType(json.getString("type"));
-		this.setAccountType(json.has("accountType") ? json.getString("accountType") : null);
-		this.setStartBalance(json.has("startBalance") ? json.getLong("startBalance") : null);
-		this.setPeriodType(json.has("periodType") ? json.getString("periodType") : null);
-		this.setParent(json.has("parent") ? json.getInt("parent") : null);
+		this.setUuid(json.optString("uuid", UUID.randomUUID().toString()));
+		this.setName(json.optString("name", null));
+		this.setStartDate(FormatUtil.parseDate(json.optString("startDate", "1900-01-01")));
+		this.setDeleted(json.optBoolean("deleted", false));
+		this.setType(json.optString("type", null));
+		this.setAccountType(json.optString("accountType", null));
+		this.setStartBalance(json.optLong("startBalance") == 0 ? null : json.optLong("startBalance"));
+		this.setPeriodType(json.optString("periodType", null));
+		this.setParent(json.optInt("parent") == 0 ? null : json.optInt("parent"));
 	}
 	
 	public JSONObject toJson() throws JSONException {

@@ -16,7 +16,7 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Users;
-import ca.digitalcave.buddi.web.db.util.DataConstraintException;
+import ca.digitalcave.buddi.web.db.util.DatabaseException;
 import ca.digitalcave.buddi.web.model.User;
 
 public class UsersDataResource extends ServerResource {
@@ -52,7 +52,7 @@ public class UsersDataResource extends ServerResource {
 				final JSONObject user = request.getJSONObject(i);
 
 				final Integer count = sqlSession.getMapper(Users.class).insertUser(new User(user));
-				if (count != 1) throw new DataConstraintException(String.format("Insert failed; expected 1 row, returned %s", count));
+				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 			}
 			
 			sqlSession.commit();
@@ -60,7 +60,7 @@ public class UsersDataResource extends ServerResource {
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}
-		catch (DataConstraintException e){
+		catch (DatabaseException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		catch (IOException e){

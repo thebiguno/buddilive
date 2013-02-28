@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.web.service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
@@ -13,7 +14,20 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.service.StatusService;
 
+import ca.digitalcave.buddi.web.db.util.DatabaseException;
+
 public class BuddiStatusService extends StatusService {
+
+	@Override
+	public Status getStatus(Throwable e, Request request, Response response) {
+		if (e instanceof DatabaseException){
+			return new Status(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
+		}
+		else if (e.getCause() != null && e.getCause() instanceof SQLIntegrityConstraintViolationException){
+			return new Status(Status.CLIENT_ERROR_BAD_REQUEST, "A data constraint violation has occurred.  Please change the request and try again.");
+		}
+		return super.getStatus(e, request, response);
+	}
 	
 	@Override
 	public Representation getRepresentation(Status status, Request request, Response response) {

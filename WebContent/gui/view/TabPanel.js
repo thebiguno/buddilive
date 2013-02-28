@@ -5,7 +5,8 @@ Ext.define('BuddiLive.view.TabPanel', {
 	"requires": [
 		"BuddiLive.view.Accounts",
 		"BuddiLive.view.Budget",
-		"BuddiLive.view.Reports"
+		"BuddiLive.view.Reports",
+		"BuddiLive.view.Transactions"
 	],
 	
 	"initComponent": function(){

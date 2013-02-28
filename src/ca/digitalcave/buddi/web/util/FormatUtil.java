@@ -1,5 +1,7 @@
 package ca.digitalcave.buddi.web.util;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,5 +32,13 @@ public class FormatUtil {
 		catch (ParseException e){
 			return null;
 		}
+	}
+	
+	public static String formatCurrency(Long value){
+		if (value == null) return null;
+		final NumberFormat f = DecimalFormat.getInstance();
+		f.setMaximumFractionDigits(2);
+		f.setMinimumFractionDigits(2);
+		return f.format((double) value / 100.0);
 	}
 }

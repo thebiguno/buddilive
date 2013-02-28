@@ -4,8 +4,15 @@ Ext.define('BuddiLive.view.Transactions', {
 	
 	"initComponent": function(){
 		this.closable = true;
+		this.title = "Transactions";
+		this.layout = "fit";
+		this.store = Ext.create("BuddiLive.store.Transactions");
 		this.columns = [
-			"Foo", "Bar"
+			{
+				"text": "Name",
+				"dataIndex": "name",
+				"flex": 1
+			}
 		];
 		this.callParent(arguments);
 	}
