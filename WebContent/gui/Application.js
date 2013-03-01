@@ -14,6 +14,7 @@ Ext.application({
 	"controllers": [
 		"Accounts",
 		"Transactions",
+		"TransactionDescriptions",
 		"dialog.Account"
 	],
 	"launch": function() {

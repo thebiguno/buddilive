@@ -11,13 +11,11 @@ Ext.define("BuddiLive.controller.Accounts", {
 	"init": function() {
 		this.control({
 			"buddiaccounts": {
-				"celldblclick": this.editTransactions,
 				"selectionchange": this.selectionChange
 			},
 			"buddiaccounts button[itemId='addAccount']": {"click": this.addAccount},
 			"buddiaccounts button[itemId='editAccount']": {"click": this.editAccount},
-			"buddiaccounts button[itemId='deleteAccount']": {"click": this.deleteAccount},
-			"buddiaccounts button[itemId='editTransactions']": {"click": this.editTransactions}
+			"buddiaccounts button[itemId='deleteAccount']": {"click": this.deleteAccount}
 		});
 	},
 	
@@ -86,13 +84,6 @@ Ext.define("BuddiLive.controller.Accounts", {
 				}
 			});
 		}
-	},
-		
-	"editTransactions": function(component){
-		var tabs = component.up("budditabpanel");
-		tabs.add({
-			"xtype": "budditransactions"
-		}).show();
 	},
 	
 	"selectionChange": function(selectionModel, selected){

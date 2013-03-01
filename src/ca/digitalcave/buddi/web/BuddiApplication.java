@@ -20,6 +20,9 @@ import ca.digitalcave.buddi.web.resource.IndexResource;
 import ca.digitalcave.buddi.web.resource.data.TransactionsDataResource;
 import ca.digitalcave.buddi.web.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.web.resource.gui.AccountsResource;
+import ca.digitalcave.buddi.web.resource.gui.DescriptionsResource;
+import ca.digitalcave.buddi.web.resource.gui.SourcesResource;
+import ca.digitalcave.buddi.web.resource.gui.TransactionsResource;
 import ca.digitalcave.buddi.web.security.AddressFilter;
 import ca.digitalcave.buddi.web.security.BuddiAuthenticator;
 import ca.digitalcave.buddi.web.service.BuddiStatusService;
@@ -45,6 +48,10 @@ public class BuddiApplication extends Application{
 
 		final Router router = new Router(getContext());
 		router.attach("/gui/accounts", new BuddiAuthenticator(this, getContext(), false, AccountsResource.class));
+		router.attach("/gui/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
+		router.attach("/gui/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
+		router.attach("/gui/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
+		router.attach("/gui/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/data/transactions/", new BuddiAuthenticator(this, getContext(), false, TransactionsDataResource.class));
 		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
 //		router.attach("/data/sources/", new BuddiAuthenticator(this, getContext(), false, SourcesDataResource.class));

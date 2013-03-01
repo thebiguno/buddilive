@@ -6,7 +6,6 @@ Ext.define('BuddiLive.view.Accounts', {
 	],
 	
 	"initComponent": function(){
-		this.title = "My Accounts";
 		this.layout = "fit";
 		this.rootVisible = false;
 		this.store = Ext.create("BuddiLive.store.Accounts");
@@ -37,13 +36,6 @@ Ext.define('BuddiLive.view.Accounts', {
 			"xtype": "toolbar",
 			"dock": "top",
 			"items": [
-				{
-					"text": "Edit Transactions",
-					"icon": "img/table-select-row.png",
-					"itemId": "editTransactions",
-					"disabled": true
-				},
-				"-",
 				{
 					"text": "Add Account",
 					"icon": "img/table--plus.png",

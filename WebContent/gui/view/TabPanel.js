@@ -6,13 +6,28 @@ Ext.define('BuddiLive.view.TabPanel', {
 		"BuddiLive.view.Accounts",
 		"BuddiLive.view.Budget",
 		"BuddiLive.view.Reports",
-		"BuddiLive.view.Transactions"
+		"BuddiLive.view.Transactions",
+		"BuddiLive.view.transaction.TransactionEditor"
 	],
 	
 	"initComponent": function(){
 		this.layout = "fit";
 		this.items = [
-			{"xtype": "buddiaccounts"},
+			{
+				"xtype": "panel",
+				"title": "My Accounts",
+				"layout": "border",
+				"items": [
+					{
+						"xtype": "buddiaccounts",
+						"region": "west"
+					},
+					{
+						"xtype": "budditransactions",
+						"region": "center"
+					}
+				]
+			},
 			{"xtype": "buddibudget"},
 			{"xtype": "buddireports"}
 		];

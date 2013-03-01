@@ -1,18 +1,18 @@
-Ext.define("BuddiLive.controller.Transactions", {
+Ext.define("BuddiLive.controller.TransactionDescriptions", {
 	"extend": "Ext.app.Controller",
-	"stores": ["Transactions"],
-	"models": ["Transactions"],
+	"stores": ["TransactionDescriptions"],
+	"models": ["TransactionDescriptions"],
 	"views": [
 		"Transactions"
 	],
 		
 	"init": function() {
 		this.control({
-			"buddiaccounts": {
+			"budditransactions": {
 				//"celldblclick": this.editTransactions,
 				//"selectionchange": this.selectionChange
 			},
-			"buddiaccounts button[itemId='add']": {
+			"budditransactions button[itemId='add']": {
 				"click": this.add
 			}
 		});
