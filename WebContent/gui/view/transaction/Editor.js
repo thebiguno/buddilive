@@ -50,19 +50,22 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 			"dock": "bottom",
 			"items": [
 				{
+					"text": "Delete",
 					"tooltip": "Delete Transaction",
-					"icon": "img/table-delete-row.png",
+					"icon": "img/minus-circle.png",
 					"itemId": "deleteTransaction"
 				},
 				"->",
 				{
+					"text": "Clear",
 					"tooltip": "Clear Transaction",
-					"icon": "img/table-join-row.png",
+					"icon": "img/exclamation-circle.png",
 					"itemId": "clearTransaction"
 				},
 				{
-					"text": "Record Transaction",
-					"icon": "img/table-insert-row.png",
+					"text": "Record",
+					"tooltip": "Record Transaction",
+					"icon": "img/plus-circle.png",
 					"itemId": "recordTransaction"
 				}
 			]
