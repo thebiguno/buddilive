@@ -43,7 +43,7 @@ public class SourcesResource extends ServerResource {
 			}
 			
 			final JSONObject result = new JSONObject();
-			result.put("children", data);
+			result.put("data", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}

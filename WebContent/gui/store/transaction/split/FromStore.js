@@ -1,6 +1,9 @@
-Ext.define("BuddiLive.store.SourcesFrom", {
+Ext.define("BuddiLive.store.transaction.split.FromStore", {
 	"extend": "Ext.data.Store",
-	"model": "BuddiLive.model.Combobox",
+	"requires": [
+		"BuddiLive.model.shared.Combobox"
+	],
+	"model": "BuddiLive.model.shared.Combobox",
 	"proxy": {
 		"type": "ajax",
 		"url": "gui/sources/from.json",

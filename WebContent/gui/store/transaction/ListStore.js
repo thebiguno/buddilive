@@ -1,6 +1,9 @@
-Ext.define("BuddiLive.store.Transactions", {
+Ext.define("BuddiLive.store.transaction.ListStore", {
 	"extend": "Ext.data.Store",
-	"model": "BuddiLive.model.Transactions",
+	"requires": [
+		"BuddiLive.model.transaction.ListModel"
+	],
+	"model": "BuddiLive.model.transaction.ListModel",
 	"proxy": {
 		"type": "ajax",
 		"url": "gui/transactions.json",

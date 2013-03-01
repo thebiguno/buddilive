@@ -1,40 +1,33 @@
-Ext.define("BuddiLive.controller.Accounts", {
+Ext.define("BuddiLive.controller.account.Tree", {
 	"extend": "Ext.app.Controller",
-	"stores": ["Accounts"],
-	"models": ["Accounts"],
-	"views": [
-		"Accounts",
-		"Transactions",
-		"dialog.Account"
-	],
-		
+
 	"init": function() {
 		this.control({
-			"buddiaccounts": {
+			"accounttree": {
 				"selectionchange": this.selectionChange
 			},
-			"buddiaccounts button[itemId='addAccount']": {"click": this.addAccount},
-			"buddiaccounts button[itemId='editAccount']": {"click": this.editAccount},
-			"buddiaccounts button[itemId='deleteAccount']": {"click": this.deleteAccount}
+			"accounttree button[itemId='addAccount']": {"click": this.addAccount},
+			"accounttree button[itemId='editAccount']": {"click": this.editAccount},
+			"accounttree button[itemId='deleteAccount']": {"click": this.deleteAccount}
 		});
 	},
 	
 	"addAccount": function(component){
-		var grid = component.up("buddiaccounts");
-		Ext.widget("buddiaccount", {
+		var grid = component.up("accounttree");
+		Ext.widget("accounteditor", {
 			"grid": grid
 		}).show();
 	},
 	"editAccount": function(component){
-		var grid = component.up("buddiaccounts");
+		var grid = component.up("accounttree");
 		var selected = grid.getSelectionModel().getSelection()[0].raw;
-		Ext.widget("buddiaccount", {
+		Ext.widget("accounteditor", {
 			"grid": grid,
 			"selected": selected
 		}).show();
 	},
 	"deleteAccount": function(component){
-		var grid = component.up("buddiaccounts");
+		var grid = component.up("accounttree");
 		var selected = grid.getSelectionModel().getSelection()[0].raw;
 		
 		if (selected == null) return;

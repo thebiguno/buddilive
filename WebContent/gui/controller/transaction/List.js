@@ -1,31 +1,26 @@
-Ext.define("BuddiLive.controller.TransactionDescriptions", {
+Ext.define("BuddiLive.controller.transaction.List", {
 	"extend": "Ext.app.Controller",
-	"stores": ["TransactionDescriptions"],
-	"models": ["TransactionDescriptions"],
-	"views": [
-		"Transactions"
-	],
-		
+
 	"init": function() {
 		this.control({
-			"budditransactions": {
+			"accounttree": {
 				//"celldblclick": this.editTransactions,
 				//"selectionchange": this.selectionChange
 			},
-			"budditransactions button[itemId='add']": {
+			"accounttree button[itemId='add']": {
 				"click": this.add
 			}
 		});
 	},
 	
 	"add": function(component){
-		component.up("budditransactions").getStore().load();
+		component.up("transactionlist").getStore().load();
 	},
 	
 	"editTransactions": function(component){
 		var tabs = component.up("budditabpanel");
 		tabs.add({
-			"xtype": "budditransactions"
+			"xtype": "transactionlist"
 		}).show();
 	},
 	

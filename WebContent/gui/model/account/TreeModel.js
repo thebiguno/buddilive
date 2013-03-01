@@ -1,11 +1,11 @@
-Ext.define('BuddiLive.model.Accounts', {
+Ext.define('BuddiLive.model.account.TreeModel', {
 	"extend": "Ext.data.Model",
 	"fields": [
 		"id", 
 		"name", 
 		"type", 
-		"accountType", 
-		"startBalance", 
+		"accountType",
+		"startBalance",
 		"deleted", 
 		"balance", 
 		"nodeType"

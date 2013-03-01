@@ -1,9 +1,6 @@
-Ext.define("BuddiLive.controller.dialog.Account", {
+Ext.define("BuddiLive.controller.account.Editor", {
 	"extend": "Ext.app.Controller",
-	"views": [
-		"dialog.Account"
-	],
-		
+
 	"init": function() {
 		this.control({
 			"buddiaccount component": {"blur": this.updateButtons},

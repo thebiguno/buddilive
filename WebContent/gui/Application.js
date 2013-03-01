@@ -12,10 +12,10 @@ Ext.application({
 	],
 	
 	"controllers": [
-		"Accounts",
-		"Transactions",
-		"TransactionDescriptions",
-		"dialog.Account"
+		"account.Tree",
+		"account.Editor",
+		"transaction.List",
+		"transaction.Editor"
 	],
 	"launch": function() {
 		// This is fired as soon as the page is ready

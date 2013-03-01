@@ -1,6 +1,6 @@
-Ext.define('BuddiLive.view.Budget', {
+Ext.define('BuddiLive.view.budget.Tree', {
 	"extend": "Ext.tree.Panel",
-	"alias": "widget.buddibudget",
+	"alias": "widget.budgettree",
 	
 	"initComponent": function(){
 		this.title = "My Budget";

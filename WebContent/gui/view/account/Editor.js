@@ -1,6 +1,6 @@
-Ext.define('BuddiLive.view.dialog.Account', {
+Ext.define('BuddiLive.view.account.Editor', {
 	"extend": "Ext.window.Window",
-	"alias": "widget.buddiaccount",
+	"alias": "widget.accounteditor",
 	"requires": [
 		
 	],

@@ -1,6 +1,6 @@
-Ext.define('BuddiLive.view.Reports', {
+Ext.define('BuddiLive.view.report.Panel', {
 	"extend": "Ext.panel.Panel",
-	"alias": "widget.buddireports",
+	"alias": "widget.reportpanel",
 	
 	"initComponent": function(){
 		this.title = "My Reports";

@@ -1,19 +1,20 @@
-Ext.define('BuddiLive.view.Accounts', {
+Ext.define('BuddiLive.view.account.Tree', {
 	"extend": "Ext.tree.Panel",
-	"alias": "widget.buddiaccounts",
+	"alias": "widget.accounttree",
 	"requires": [
-		"BuddiLive.store.Accounts"
+		"BuddiLive.store.account.TreeStore"
 	],
 	
 	"initComponent": function(){
 		this.layout = "fit";
 		this.rootVisible = false;
-		this.store = Ext.create("BuddiLive.store.Accounts");
+		this.border = false;
+		this.store = Ext.create("BuddiLive.store.account.TreeStore");
 		this.columns = [
 			{
 				"text": "Name",
 				"dataIndex": "name",
-				"width": 300,
+				"flex": 3,
 				"xtype": "treecolumn",
 				"renderer": function(value, metaData, record){
 					if (!record.raw.debit) metaData.style += " color:#D10000;";
@@ -24,7 +25,7 @@ Ext.define('BuddiLive.view.Accounts', {
 			{
 				"text": "Balance",
 				"dataIndex": "balance",
-				"width": 100,
+				"flex": 1,
 				"align": "right",
 				"renderer": function(value, metaData, record){
 					if (!record.raw.debit ^ record.raw.balance < 0) metaData.style = 'color:#D10000;' 
@@ -37,18 +38,18 @@ Ext.define('BuddiLive.view.Accounts', {
 			"dock": "top",
 			"items": [
 				{
-					"text": "Add Account",
+					"tooltip": "Add Account",
 					"icon": "img/table--plus.png",
 					"itemId": "addAccount"
 				},
 				{
-					"text": "Edit Account",
+					"tooltip": "Edit Account",
 					"icon": "img/table--pencil.png",
 					"itemId": "editAccount",
 					"disabled": true
 				},
 				{
-					"text": "Delete Account",
+					"tooltip": "Delete Account",
 					"icon": "img/table--pencil.png",
 					"itemId": "deleteAccount",
 					"disabled": true

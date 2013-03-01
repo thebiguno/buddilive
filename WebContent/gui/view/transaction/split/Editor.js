@@ -1,46 +1,50 @@
-Ext.define('BuddiLive.view.transaction.SplitEditor', {
+Ext.define('BuddiLive.view.transaction.split.Editor', {
 	"extend": "Ext.panel.Panel",
-	"alias": "widget.buddispliteditor",
+	"alias": "widget.spliteditor",
 	
 	"requires": [
-		"BuddiLive.store.SourcesFrom",
-		"BuddiLive.store.SourcesTo"
+		"BuddiLive.store.transaction.split.FromStore",
+		"BuddiLive.store.transaction.split.ToStore"
 	],
 	
 	"initComponent": function(){
 		this.layout = "hbox";
-		this.store = Ext.create("BuddiLive.store.Transactions");
 		this.border = false;
+		this.width = "100%";
 		this.defaults = {
-			"padding": "0 5 0 0"
+			"padding": "0 0 5 5"
 		};
 		this.items = [
 			{
 				"xtype": "numberfield",
 				"itemId": "amount",
-				"width": 100,
+				"flex": 1,
 				"hideTrigger": true,
 				"keyNavEnabled": false,
 				"mouseWheelEnabled": false,
-				"value": 0
+				"emptyText": "0.00 Amount"
 			},
 			{
 				"xtype": "combobox",
 				"itemId": "from",
-				"width": 150,
-				"store": Ext.create("BuddiLive.store.SourcesFrom")
+				"flex": 1,
+				"emptyText": "From",
+				"store": Ext.create("BuddiLive.store.transaction.split.FromStore")
 			},
 			{"xtype": "panel", "html": "<img src='img/folder-open-table.png'/>", "border": false, "padding": "3 5 0 0"},
 			{
 				"xtype": "combobox",
 				"itemId": "to",
-				"width": 150,
-				"store": Ext.create("BuddiLive.store.SourcesTo")
+				"flex": 1,
+				"emptyText": "To",
+				"store": Ext.create("BuddiLive.store.transaction.split.ToStore")
 			},
 			{
 				"xtype": "textfield",
 				"itemId": "memo",
-				"flex": 1
+				"flex": 2,
+				"emptyText": "Memo",
+				"padding": "0 5 5 5"
 			}
 		];
 		
