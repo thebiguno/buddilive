@@ -22,7 +22,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"hideTrigger": true,
 				"keyNavEnabled": false,
 				"mouseWheelEnabled": false,
-				"emptyText": "0.00 Amount"
+				"emptyText": "0.00 (Amount)"
 			},
 			{
 				"xtype": "combobox",
@@ -31,7 +31,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"emptyText": "From",
 				"store": Ext.create("BuddiLive.store.transaction.split.FromStore")
 			},
-			{"xtype": "panel", "html": "<img src='img/folder-open-table.png'/>", "border": false, "padding": "3 5 0 0"},
+			{"xtype": "panel", "html": "<img style='padding-top: 3px;' src='img/arrow.png'/>", "border": false, "width": 25, "height": 25},
 			{
 				"xtype": "combobox",
 				"itemId": "to",
