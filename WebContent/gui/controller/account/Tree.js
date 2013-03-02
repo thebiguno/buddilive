@@ -81,8 +81,8 @@ Ext.define("BuddiLive.controller.account.Tree", {
 	
 	"selectionChange": function(selectionModel, selected){
 		var panel = selectionModel.view.panel;
-		var selectedType = selected.length > 0 ? selected[0].raw.nodeType : null;
-		panel.down("button[itemId='editTransactions']").setDisabled(selectedType != "account");
+		var selectedItem = selected[0].raw;
+		var selectedType = selected.length > 0 ? selectedItem.nodeType : null;
 		panel.down("button[itemId='editAccount']").setDisabled(selectedType != "account");
 		panel.down("button[itemId='deleteAccount']").setDisabled(selectedType != "account");
 		if (selectedType == "account" && selected[0].raw.deleted){
@@ -90,6 +90,10 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		}
 		else {
 			panel.down("button[itemId='deleteAccount']").setText("Delete Account");
+		}
+		
+		if (selectedType == "account"){
+			panel.up("panel[itemId='myAccounts']").down("transactionlist").getStore().load();
 		}
 	}
 });
