@@ -65,7 +65,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 				{
 					"text": "Record",
 					"tooltip": "Record Transaction",
-					"icon": "img/plus-circle.png",
+					"icon": "img/tick-circle.png",
 					"itemId": "recordTransaction"
 				}
 			]

@@ -15,7 +15,8 @@ Ext.application({
 		"account.Tree",
 		"account.Editor",
 		"transaction.List",
-		"transaction.Editor"
+		"transaction.Editor",
+		"transaction.split.Editor"
 	],
 	"launch": function() {
 		// This is fired as soon as the page is ready
