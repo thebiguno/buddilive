@@ -131,6 +131,39 @@
 			CURRENT_TIMESTAMP
 		)
 	</insert>
+	
+	<insert id="insertCategory">
+		<selectKey keyProperty="category.id" resultType="int" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from sources
+		</selectKey>
+		INSERT INTO sources (
+			id,
+			user_id,
+			uuid,
+			name,
+			start_date,
+			deleted,
+			type,
+			period_type,
+			parent,
+			created,
+			modified
+		)
+		VALUES (
+			#{category.id},
+			#{user.id},
+			#{category.uuid},
+			#{category.name},
+			#{category.startDate},
+			<choose><when test="category.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			#{category.type},
+			#{category.periodType,jdbcType=VARCHAR},
+			#{category.parent,jdbcType=INT},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+
 
 	<insert id="updateAccount">
 		UPDATE sources

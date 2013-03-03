@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-import ca.digitalcave.buddi.web.db.util.DatabaseException;
 import ca.digitalcave.buddi.web.model.Account;
 import ca.digitalcave.buddi.web.model.AccountType;
 import ca.digitalcave.buddi.web.model.Category;
@@ -23,8 +22,9 @@ public interface Sources {
 	public Source selectSource(@Param("user") User user, @Param("id") int id);
 	public List<Source> selectSources(@Param("user") User user);
 	
-	public Integer insertAccount(@Param("user") User user, @Param("account") Account account) throws DatabaseException;
+	public Integer insertAccount(@Param("user") User user, @Param("account") Account account);
+	public Integer insertCategory(@Param("user") User user, @Param("category") Category category);
 	
-	public Integer updateAccount(@Param("user") User user, @Param("account") Account account) throws DatabaseException;
-	public Integer updateSourceDeleted(@Param("user") User user, @Param("source") Source source) throws DatabaseException;
+	public Integer updateAccount(@Param("user") User user, @Param("account") Account account);
+	public Integer updateSourceDeleted(@Param("user") User user, @Param("source") Source source);
 }

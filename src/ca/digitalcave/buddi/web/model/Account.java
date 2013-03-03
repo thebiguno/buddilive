@@ -3,6 +3,8 @@ package ca.digitalcave.buddi.web.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ca.digitalcave.buddi.web.util.FormatUtil;
+
 public class Account extends Source {
 	private String accountType;
 	private Long startBalance;
@@ -21,7 +23,7 @@ public class Account extends Source {
 	public JSONObject toJson() throws JSONException {
 		JSONObject result = super.toJson();
 		result.put("startBalance", this.getStartBalance());
-		result.put("balance", this.getBalance());
+		result.put("balance", FormatUtil.formatCurrency(this.getBalance()));
 		result.put("accountType", this.getAccountType());
 		return result;
 	}

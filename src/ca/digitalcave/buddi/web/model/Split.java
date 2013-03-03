@@ -26,10 +26,10 @@ public class Split {
 	public Split(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setTransactionId(json.has("transactionId") ? json.getLong("transactionId") : null);
-		this.setAmount(json.getLong("amount"));
+		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")));
 		this.setFromSource(json.getInt("fromSource"));
 		this.setToSource(json.getInt("toSource"));
-		this.setMemo(json.has("memo") ? json.getString("memo") : null);
+		this.setMemo(json.optString("memo", null));
 	}
 	
 	public JSONObject toJson() throws JSONException {
@@ -37,7 +37,7 @@ public class Split {
 		result.put("id", this.getId());
 		result.put("transactionId", this.getTransactionId());
 		result.put("userId", this.getUserId());
-		result.put("amount", this.getAmount());
+		result.put("amount", FormatUtil.formatCurrency(this.getAmount()));
 		result.put("fromSource", this.getFromSource());
 		result.put("toSource", this.getToSource());
 		result.put("memo", this.getMemo());

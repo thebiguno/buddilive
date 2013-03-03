@@ -8,6 +8,7 @@ import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.model.Account;
 import ca.digitalcave.buddi.web.model.Category;
 import ca.digitalcave.buddi.web.model.Source;
+import ca.digitalcave.buddi.web.model.Split;
 import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -43,10 +44,23 @@ public class ConstraintsChecker {
 		checkInsertAccount(account, user, sqlSession);
 	}
 	
-	public static void checkInsertTransaction(Transaction transaction, SqlSession sqlSession) throws DatabaseException {
+	public static void checkInsertTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException {
 		//Perform integrity checks
 		if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		if (transaction.getDate() == null) throw new DatabaseException("The transaction date must be set");
-
+		for (Split split : transaction.getSplits()) {
+			if (split.getAmount() == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
+			
+			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
+			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
+			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
+			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
+			
+		}
+	}
+	
+	public static void checkUpdateTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException {
+		if (transaction.getId() == null) throw new DatabaseException("The id must be set to perform an update");
+		checkInsertTransaction(transaction, user, sqlSession);
 	}
 }

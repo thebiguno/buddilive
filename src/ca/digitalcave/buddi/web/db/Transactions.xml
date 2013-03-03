@@ -61,4 +61,9 @@
 		)
 		values (#{split.id}, #{split.transactionId}, #{split.amount}, #{split.fromSource}, #{split.toSource}, #{split.memo,jdbcType=VARCHAR}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
+	
+	<delete id="deleteSplits">
+		DELETE FROM splits
+		WHERE transaction_id = #{transaction.id}
+	</delete>
 </mapper>

@@ -1,3 +1,22 @@
+Ext.override(Ext.form.NumberField, {
+	"forcePrecision" : false,
+
+	"valueToRaw": function(value) {
+		var me = this, decimalSeparator = me.decimalSeparator;
+		value = me.parseValue(value);
+		value = me.fixPrecision(value);
+		value = Ext.isNumber(value) ? value : parseFloat(String(value).replace(decimalSeparator, '.'));
+		if (isNaN(value)){
+			value = '';
+		}
+		else {
+			value = me.forcePrecision ? value.toFixed(me.decimalPrecision) : parseFloat(value);
+			value = String(value).replace(".", decimalSeparator);
+		}
+		return value;
+	}
+});
+
 Ext.define('BuddiLive.view.transaction.split.Editor', {
 	"extend": "Ext.panel.Panel",
 	"alias": "widget.spliteditor",
@@ -19,11 +38,12 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "numberfield",
 				"itemId": "amount",
 				"flex": 1,
+				"forcePrecision": true,
 				"hideTrigger": true,
 				"keyNavEnabled": false,
 				"mouseWheelEnabled": false,
 				"emptyText": "0.00 (Amount)",
-				"value": v.amount
+				"value": v.amount / 100
 			},
 			{
 				"xtype": "lazycombobox",
@@ -70,5 +90,14 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 		];
 		
 		this.callParent(arguments);
+	},
+	
+	"getSplit": function(){
+		var s = {};
+		s.amount = this.down("numberfield[itemId='amount']").getValue() * 100;
+		s.fromSource = this.down("combo[itemId='from']").getValue();
+		s.toSource = this.down("combo[itemId='to']").getValue();
+		s.memo = this.down("textfield[itemId='memo']").getValue();
+		return s;
 	}
 });

@@ -1,7 +1,6 @@
 package ca.digitalcave.buddi.web.resource.data;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
@@ -16,39 +15,21 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
+import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.db.Transactions;
 import ca.digitalcave.buddi.web.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.web.db.util.DatabaseException;
+import ca.digitalcave.buddi.web.model.Account;
+import ca.digitalcave.buddi.web.model.Category;
 import ca.digitalcave.buddi.web.model.Split;
 import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
 
-public class TransactionsDataResource extends ServerResource {
+public class ImportDataResource extends ServerResource {
 
 	@Override
 	protected void doInit() throws ResourceException {
 		getVariants().add(new Variant(MediaType.APPLICATION_JSON));
-	}
-
-	@Override
-	protected Representation get(Variant variant) throws ResourceException {
-		final BuddiApplication application = (BuddiApplication) getApplication();
-		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
-		final User user = (User) getRequest().getClientInfo().getUser();
-		try {
-			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user);
-			final JSONArray result = new JSONArray();
-			for (Transaction transaction : transactions) {
-				result.put(transaction.toJson());
-			}
-			return new JsonRepresentation(result);
-		}
-		catch (JSONException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
-		finally {
-			sqlSession.close();
-		}
 	}
 
 	@Override
@@ -57,12 +38,31 @@ public class TransactionsDataResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final JSONArray request = new JSONArray(entity.getText());
-			for (int i = 0; i < request.length(); i++) {
-				final JSONObject json = request.getJSONObject(i);
-				json.put("userId", user.getId());
-				final Transaction transaction = new Transaction(json);
-				ConstraintsChecker.checkInsertTransaction(transaction, sqlSession);
+			final JSONObject request = new JSONObject(entity.getText());
+			
+			//Accounts
+			final JSONArray accounts = request.getJSONArray("accounts");
+			for (int i = 0; i < accounts.length(); i++){
+				final Account account = new Account(accounts.getJSONObject(i));
+				ConstraintsChecker.checkInsertAccount(account, user, sqlSession);
+				int count = sqlSession.getMapper(Sources.class).insertAccount(user, account);
+				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+			}
+			
+			//Categories
+			final JSONArray categories = request.getJSONArray("categories");
+			for (int i = 0; i < categories.length(); i++){
+				final Category category = new Category(categories.getJSONObject(i));
+				ConstraintsChecker.checkInsertCategory(category, user, sqlSession);
+				int count = sqlSession.getMapper(Sources.class).insertCategory(user, category);
+				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+			}
+			
+			//Transactions
+			final JSONArray transactions = request.getJSONArray("transactions");
+			for (int i = 0; i < transactions.length(); i++) {
+				final Transaction transaction = new Transaction(transactions.getJSONObject(i));
+				ConstraintsChecker.checkInsertTransaction(transaction, user, sqlSession);
 				int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 				for (Split split : transaction.getSplits()) {

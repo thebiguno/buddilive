@@ -34,6 +34,18 @@ public class FormatUtil {
 		}
 	}
 	
+	public static Long parseCurrency(String value){
+		if (value == null) return null;
+		final String numbers = value.replaceAll("[^0-9]", "");
+		if (numbers.length() == 0) return null;
+		try {
+			return Long.parseLong(numbers);
+		}
+		catch (NumberFormatException e){
+			return null;
+		}
+	}
+	
 	public static String formatCurrency(Long value){
 		if (value == null) return null;
 		final NumberFormat f = DecimalFormat.getInstance();

@@ -3,30 +3,35 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 
 	"init": function() {
 		this.control({
-			"transactionlist": {
-				//"celldblclick": this.editTransactions,
-				//"selectionchange": this.selectionChange
-			},
-			"transactionlist button[itemId='add']": {
-				"click": this.add
-			}
+			"transactionlist button[itemId='recordTransaction']": {"click": this.recordTransaction}
 		});
 	},
 	
-	"add": function(component){
-		component.up("transactionlist").getStore().load();
-	},
-	
-	"editTransactions": function(component){
-		var tabs = component.up("budditabpanel");
-		tabs.add({
-			"xtype": "transactionlist"
-		}).show();
-	},
-	
-	"selectionChange": function(selectionModel, selected){
-		var panel = selectionModel.view.panel;
-		var selectedType = selected.length > 0 ? selected[0].raw.type : null;
-		panel.down("button[itemId='editTransactions']").setDisabled(selectedType != "account");
+	"recordTransaction": function(component){
+		var editor = component.up("transactioneditor");
+		
+		var request = editor.getTransaction();
+		if (request.date == null || request.description == null || request.splits.length == 0){
+			return;
+		}
+		request.action = "insert";
+
+		var conn = new Ext.data.Connection();
+		conn.request({
+			"url": "gui/transactions",
+			"headers": {
+				"Accept": "application/json"
+			},
+			"method": "POST",
+			"jsonData": request,
+			"success": function(response){
+				editor.setTransaction();
+				editor.up("transactionlist").getStore().reload();
+				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
+			},
+			"failure": function(response){
+				BuddiLive.app.error(response);
+			}
+		});
 	}
 });

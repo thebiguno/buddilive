@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.web.resource.gui;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.db.Transactions;
+import ca.digitalcave.buddi.web.db.util.ConstraintsChecker;
+import ca.digitalcave.buddi.web.db.util.DatabaseException;
 import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.Split;
 import ca.digitalcave.buddi.web.model.Transaction;
@@ -65,7 +68,7 @@ public class TransactionsResource extends ServerResource {
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
-					split.put("amount", s.getAmount() / 100.0);
+					split.put("amount", s.getAmount());
 					split.put("fromId", s.getFromSource());
 					split.put("toId", s.getToSource());
 					split.put("from", s.getFromSourceName());
@@ -84,6 +87,68 @@ public class TransactionsResource extends ServerResource {
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		finally {
+			sqlSession.close();
+		}
+	}
+	
+	@Override
+	protected Representation post(Representation entity, Variant variant) throws ResourceException {
+		final BuddiApplication application = (BuddiApplication) getApplication();
+		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
+		final User user = (User) getRequest().getClientInfo().getUser();
+		try {
+			final JSONObject request = new JSONObject(entity.getText());
+			final String action = request.optString("action");
+			
+			final Transaction transaction = new Transaction(request);
+			
+			if ("insert".equals(action)){
+				ConstraintsChecker.checkInsertTransaction(transaction, user, sqlSession);
+				
+				int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
+				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+
+				for (Split split : transaction.getSplits()) {
+					split.setTransactionId(transaction.getId());
+					count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+				}
+			} 
+			else if ("update".equals(action)){
+				ConstraintsChecker.checkUpdateTransaction(transaction, user, sqlSession);
+				
+				int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
+				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+
+				//To update, we delete all splits associated with the given transaction, and re-insert them according to the given data packet.
+				count = sqlSession.getMapper(Transactions.class).deleteSplits(user, transaction);
+				if (count == 0) throw new DatabaseException("Failed to delete splits; expected 1 or more rows, returned 0");
+
+				for (Split split : transaction.getSplits()) {
+					split.setTransactionId(transaction.getId());
+					count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+				}
+			}
+			else {
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
+			}
+			
+			sqlSession.commit();
+			final JSONObject result = new JSONObject();
+			result.put("success", true);
+			return new JsonRepresentation(result);
+		}
+		catch (DatabaseException e){
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+		catch (IOException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (JSONException e){
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		finally {
 			sqlSession.close();

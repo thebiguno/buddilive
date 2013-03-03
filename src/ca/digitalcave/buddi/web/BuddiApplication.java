@@ -17,7 +17,7 @@ import org.restlet.routing.Router;
 
 import ca.digitalcave.buddi.web.db.migrate.Migration;
 import ca.digitalcave.buddi.web.resource.IndexResource;
-import ca.digitalcave.buddi.web.resource.data.TransactionsDataResource;
+import ca.digitalcave.buddi.web.resource.data.ImportDataResource;
 import ca.digitalcave.buddi.web.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.web.resource.gui.AccountsResource;
 import ca.digitalcave.buddi.web.resource.gui.DescriptionsResource;
@@ -52,7 +52,7 @@ public class BuddiApplication extends Application{
 		router.attach("/gui/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
 		router.attach("/gui/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/gui/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
-		router.attach("/data/transactions/", new BuddiAuthenticator(this, getContext(), false, TransactionsDataResource.class));
+		router.attach("/data/import", new BuddiAuthenticator(this, getContext(), false, ImportDataResource.class));
 		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
 //		router.attach("/data/sources/", new BuddiAuthenticator(this, getContext(), false, SourcesDataResource.class));
 		

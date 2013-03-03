@@ -23,8 +23,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"xtype": "datefield",
 						"itemId": "date",
 						"flex": 1,
-						"emptyText": "Date",
-						"value": new Date()
+						"emptyText": "Date"
 					},
 					{
 						"xtype": "combobox",
@@ -51,20 +50,18 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 			"items": [
 				{
 					"text": "Delete",
-					"tooltip": "Delete Transaction",
 					"icon": "img/minus-circle.png",
-					"itemId": "deleteTransaction"
+					"itemId": "deleteTransaction",
+					"disabled": true
 				},
 				"->",
 				{
 					"text": "Clear",
-					"tooltip": "Clear Transaction",
 					"icon": "img/exclamation-circle.png",
 					"itemId": "clearTransaction"
 				},
 				{
 					"text": "Record",
-					"tooltip": "Record Transaction",
 					"icon": "img/tick-circle.png",
 					"itemId": "recordTransaction"
 				}
@@ -72,6 +69,19 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		}];
 		
 		this.callParent(arguments);
+	},
+	
+	"getTransaction": function(transaction){
+		var t = {};
+		t.date = Ext.Date.format(this.down("datefield[itemId='date']").getValue(), "Y-m-d");
+		t.description = this.down("combobox[itemId='description']").getValue();
+		t.number = this.down("textfield[itemId='number']").getValue();
+		t.splits = [];
+		
+		for (var i = 1;  i < this.items.length; i++){
+			t.splits.push(this.items.get(i).getSplit());
+		}
+		return t;
 	},
 	
 	"setTransaction": function(transaction){
@@ -95,5 +105,8 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 			//If the passed in splits are empty, add an empty editor
 			this.add({"xtype": "spliteditor"});
 		}
+		
+		this.down("textfield[itemId='number']").focus();
+		this.down("datefield[itemId='date']").focus(true, 100);
 	}
 });
