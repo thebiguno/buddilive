@@ -37,7 +37,7 @@ public class AccountsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountsWithBalancesByType(user);
+			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountTypes(user, true);
 			
 			final JSONArray data = new JSONArray();
 			for (AccountType t : accountsByType) {

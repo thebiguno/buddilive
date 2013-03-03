@@ -11,8 +11,33 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.border = false;
 		this.columns = [
 			{
-				"text": "Name",
+				"text": "Date",
 				"dataIndex": "date",
+				"flex": 1
+			},
+			{
+				"text": "Description",
+				"dataIndex": "description",
+				"flex": 1
+			},
+			{
+				"text": "Number",
+				"dataIndex": "number",
+				"flex": 1
+			},
+			{
+				"text": "Amount",
+				"dataIndex": "amount",
+				"flex": 1
+			},
+			{
+				"text": "From",
+				"dataIndex": "from",
+				"flex": 1
+			},
+			{
+				"text": "To",
+				"dataIndex": "to",
 				"flex": 1
 			}
 		];

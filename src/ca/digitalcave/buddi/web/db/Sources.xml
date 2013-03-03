@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.web.db.Sources">
-	<select id="selectAccounts" resultType="ca.digitalcave.buddi.web.model.Source">
-		SELECT * FROM sources WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
-	</select>
-	
-	<resultMap id="account" type="ca.digitalcave.buddi.web.model.Account">
-		<id column="a_id" property="id" />
-		<result column="a_user_id" property="userId"/>
-		<result column="a_uuid" property="uuid"/>
-		<result column="a_name" property="name"/>
-		<result column="a_start_date" property="startDate"/>
+	<resultMap id="source" type="ca.digitalcave.buddi.web.model.Source">
+		<id column="s_id" property="id" />
+		<result column="s_user_id" property="userId"/>
+		<result column="s_uuid" property="uuid"/>
+		<result column="s_name" property="name"/>
+		<result column="s_start_date" property="startDate"/>
+		<result column="s_deleted" property="deleted" typeHandler="ca.digitalcave.buddi.web.db.handler.BooleanHandler"/>
+		<result column="s_type" property="type"/>
+		<result column="s_period_type" property="periodType"/>
+		<result column="s_created" property="created"/>
+		<result column="s_modified" property="modified"/>
+	</resultMap>
+
+	<resultMap id="account" type="ca.digitalcave.buddi.web.model.Account" extends="source">
 		<result column="a_account_type" property="accountType" />
-		<result column="a_deleted" property="deleted" typeHandler="ca.digitalcave.buddi.web.db.handler.BooleanHandler"/>
-		<result column="a_type" property="type"/>
 		<result column="a_start_balance" property="startBalance"/>
-		<result column="a_period_type" property="periodType"/>
-		<result column="a_created" property="created"/>
-		<result column="a_modified" property="modified"/>
 		<result column="a_balance" property="balance"/>
+	</resultMap>
+
+	<resultMap id="category" type="ca.digitalcave.buddi.web.model.Category" extends="source">
+		<result column="c_period_type" property="periodType" />
+		<result column="c_parent" property="parent"/>
 	</resultMap>
 	
 	<resultMap id="accountsByType" type="ca.digitalcave.buddi.web.model.AccountType">
@@ -28,39 +32,72 @@
 	</resultMap>	
 	
 	
-	<select id="selectAccountsWithBalancesByType" resultMap="accountsByType">
+	<select id="selectAccountTypes" resultMap="accountsByType">
 		SELECT 
-			a.id a_id, a.user_id a_user_id, a.uuid a_uuid, a.name a_name, a.start_date a_name, a.deleted a_deleted, a.type a_type, a.account_type a_account_type, a.start_balance a_start_balance, a.created, a.modified,
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.account_type a_account_type, a.start_balance a_start_balance, 
+			<if test="showBalance">
 			coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as a_balance
+			</if>
 		FROM sources a
+		<if test="showBalance">
 		LEFT JOIN splits to_splits ON to_splits.to_source = a.id
 		LEFT JOIN splits from_splits ON from_splits.from_source = a.id
+		</if>
 		WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
 		GROUP BY 
 			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified
 		ORDER BY a.type DESC, a.account_type, a.name
 	</select>
 	
-	<select id="selectAccountsByAccountType" resultMap="account">
+	<select id="selectAccounts" resultMap="account">
 		SELECT 
-			a.id a_id, a.user_id a_user_id, a.uuid a_uuid, a.name a_name, a.start_date a_name, a.deleted a_deleted, a.type a_type, a.account_type a_account_type, a.start_balance a_start_balance, a.created, a.modified
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.account_type a_account_type, a.start_balance a_start_balance 
+			<if test="showBalance">
+			, coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as a_balance
+			</if>
 		FROM sources a
+		<if test="showBalance">
 		LEFT JOIN splits to_splits ON to_splits.to_source = a.id
 		LEFT JOIN splits from_splits ON from_splits.from_source = a.id
-		WHERE user_id = #{user.id} AND account_type = #{accountType} AND (type = 'D' OR type = 'C')
+		</if>
+		WHERE 
+			user_id = #{user.id}
+			<if test="_parameter.containsKey('accountType')">
+			AND account_type = #{accountType}
+			</if>
+			AND (type = 'D' OR type = 'C')
 		ORDER BY a.type DESC, a.account_type, a.name
+	</select>
+
+	<select id="selectCategories" resultMap="category">
+		SELECT 
+			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
+			c.period_type c_period_type, c.parent c_parent 
+		FROM sources c
+		WHERE user_id = #{user.id} 
+		<choose>
+			<when test="income == null">AND (type = 'I' OR type = 'E')</when>
+			<when test="income">AND type = 'I'</when>
+			<otherwise>AND type = 'E'</otherwise>
+		</choose>
+		ORDER BY c.type DESC, c.name
 	</select>
 
 	<select id="selectSource" resultType="ca.digitalcave.buddi.web.model.Source">
 		SELECT * FROM sources 
 		WHERE user_id = #{user.id}
 			<if test="id != null">
-				and (id = #{id} or uuid = #{id})
+				and id = #{id}
 			</if>
 	</select>
 	
-	<select id="selectSources" resultType="ca.digitalcave.buddi.web.model.Source">
-		SELECT * FROM sources WHERE user_id = #{user.id}
+	<select id="selectSources" resultMap="source">
+		SELECT 
+			s.id s_id, s.user_id s_user_id, s.uuid s_uuid, s.name s_name, s.start_date s_start_date, s.deleted s_deleted, s.type s_type, s.created s_created, s.modified s_modified
+		FROM sources s
+		WHERE user_id = #{user.id}
 	</select>
 	
 	<insert id="insertAccount">

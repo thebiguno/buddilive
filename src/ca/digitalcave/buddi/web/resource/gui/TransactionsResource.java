@@ -1,7 +1,8 @@
 package ca.digitalcave.buddi.web.resource.gui;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
@@ -18,12 +19,11 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.db.Transactions;
-import ca.digitalcave.buddi.web.db.util.ConstraintsChecker;
-import ca.digitalcave.buddi.web.db.util.DatabaseException;
-import ca.digitalcave.buddi.web.model.Account;
+import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.Split;
 import ca.digitalcave.buddi.web.model.Transaction;
 import ca.digitalcave.buddi.web.model.User;
+import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class TransactionsResource extends ServerResource {
 
@@ -38,23 +38,38 @@ public class TransactionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user);
+			final Source source = new Source();
+			try {
+				source.setId(Integer.parseInt(getQuery().getFirstValue("source")));
+			}
+			catch (Throwable e){
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			}
+			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, source);
+			final List<Source> sources = sqlSession.getMapper(Sources.class).selectSources(user);
+			final Map<Integer, Source> sourcesMap = new HashMap<Integer, Source>();
+			for (Source s : sources) sourcesMap.put(s.getId(), s);
 			
 			final JSONArray data = new JSONArray();
 			for (Transaction t : transactions) {
 				final JSONObject transaction = new JSONObject();
 				transaction.put("id", t.getId());
-				transaction.put("date", t.getDate());
+				transaction.put("date", FormatUtil.formatDate(t.getDate()));
 				transaction.put("description", t.getDescription());
 				transaction.put("number", t.getNumber());
 				transaction.put("deleted", t.isDeleted());
+				transaction.put("amount", FormatUtil.formatCurrency(t.getAmount()));
+				transaction.put("from", t.getFrom(sourcesMap));
+				transaction.put("to", t.getTo(sourcesMap));
 				final JSONArray splits = new JSONArray();
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
-					split.put("name", s.getAmount());
-					split.put("from", s.getFromSource());
-					split.put("to", s.getToSource());
+					split.put("amount", s.getAmount() / 100.0);
+					split.put("fromId", s.getFromSource());
+					split.put("toId", s.getToSource());
+					split.put("from", s.getFromSourceName());
+					split.put("to", s.getToSourceName());
 					split.put("memo", s.getMemo());
 					splits.put(split);
 				}

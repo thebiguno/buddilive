@@ -93,4 +93,11 @@ public class User extends org.restlet.security.User {
 		this.premium = premium;
 	}
 	
+	@Override
+	public String toString() {
+		try {
+			return toJson().toString();
+		}
+		catch (JSONException e){return "Error converting to JSON";}
+	}
 }

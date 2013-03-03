@@ -2,7 +2,10 @@ package ca.digitalcave.buddi.web.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.json.JSONArray;
@@ -14,7 +17,7 @@ import ca.digitalcave.buddi.web.util.FormatUtil;
 public class Transaction {
 	private Long id;
 	private String uuid;
-	private int user_id;
+	private int userId;
 	private String description;
 	private String number;
 	private Date date;
@@ -73,10 +76,10 @@ public class Transaction {
 		this.uuid = uuid;
 	}
 	public int getUserId() {
-		return user_id;
+		return userId;
 	}
 	public void setUserId(int userId) {
-		this.user_id = userId;
+		this.userId = userId;
 	}
 	public String getDescription() {
 		return description;
@@ -119,5 +122,55 @@ public class Transaction {
 	}
 	public void setModified(Date modified) {
 		this.modified = modified;
+	}
+	
+	@Override
+	public String toString() {
+		try {
+			return toJson().toString();
+		}
+		catch (JSONException e){return "Error converting to JSON";}
+	}
+
+	
+	//The following are calculated convenience methods, and are not stored in the DB.
+	public long getAmount(){
+		long total = 0;
+		for (Split split : splits) {
+			total += split.getAmount();
+		}
+		return total;
+	}
+	public String getFrom(Map<Integer, Source> s){
+		if (splits.size() == 0){
+			return null;
+		}
+		else if (splits.size() == 1){
+			return s.get(splits.get(0).getFromSource()).getName();
+		}
+		else {
+			Set<String> sources = new HashSet<String>();
+			for (Split split : splits) {
+				sources.add(s.get(split.getFromSource()).getName());
+			}
+			if (sources.size() == 1) return sources.toArray(new String[1])[0];
+			else return "MULTIPLE";
+		}
+	}
+	public String getTo(Map<Integer, Source> s){
+		if (splits.size() == 0){
+			return null;
+		}
+		else if (splits.size() == 1){
+			return s.get(splits.get(0).getToSource()).getName();
+		}
+		else {
+			Set<String> sources = new HashSet<String>();
+			for (Split split : splits) {
+				sources.add(s.get(split.getToSource()).getName());
+			}
+			if (sources.size() == 1) return sources.toArray(new String[1])[0];
+			else return "MULTIPLE";
+		}
 	}
 }

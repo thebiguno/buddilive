@@ -72,5 +72,28 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		}];
 		
 		this.callParent(arguments);
+	},
+	
+	"setTransaction": function(transaction){
+		transaction = (transaction ? transaction : {});
+		
+		this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.date, "Y-m-d", true));
+		this.down("combobox[itemId='description']").setValue(transaction.description);
+		this.down("textfield[itemId='number']").setValue(transaction.number);
+	
+		//Remove all the split editors
+		while (this.items.length > 1) this.remove(this.items.get(1));
+
+		var splits = (transaction.splits ? transaction.splits : []);
+		if (splits && splits.length > 0){
+			//Add a new split editor for each split
+			for (var i = 0; i < splits.length; i++){
+				this.add({"xtype": "spliteditor", "value": splits[i]});
+			}
+		}
+		else {
+			//If the passed in splits are empty, add an empty editor
+			this.add({"xtype": "spliteditor"});
+		}
 	}
 });

@@ -3,9 +3,8 @@ Ext.define("BuddiLive.controller.transaction.List", {
 
 	"init": function() {
 		this.control({
-			"accounttree": {
-				//"celldblclick": this.editTransactions,
-				//"selectionchange": this.selectionChange
+			"transactionlist": {
+				"selectionchange": this.selectionChange
 			},
 			"accounttree button[itemId='add']": {
 				"click": this.add
@@ -26,7 +25,7 @@ Ext.define("BuddiLive.controller.transaction.List", {
 	
 	"selectionChange": function(selectionModel, selected){
 		var panel = selectionModel.view.panel;
-		var selectedType = selected.length > 0 ? selected[0].raw.type : null;
-		panel.down("button[itemId='editTransactions']").setDisabled(selectedType != "account");
+		var transaction = selected.length > 0 ? selected[0].raw : null;
+		panel.down("transactioneditor").setTransaction(transaction);
 	}
 });

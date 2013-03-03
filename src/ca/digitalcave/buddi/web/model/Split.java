@@ -9,14 +9,17 @@ import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class Split {
 	private Long id;
-	private Long transaction_id;
-	private int user_id;
+	private Long transactionId;
+	private int userId;
 	private long amount;
-	private int from_source;
-	private int to_source;
+	private int fromSource;
+	private int toSource;
 	private String memo;
 	private Date created;
 	private Date modified;
+	
+	private String fromSourceName;
+	private String toSourceName;
 	
 	public Split() {
 	}
@@ -49,16 +52,16 @@ public class Split {
 		this.id = id;
 	}
 	public Long getTransactionId() {
-		return transaction_id;
+		return transactionId;
 	}
 	public void setTransactionId(Long transactionId) {
-		this.transaction_id = transactionId;
+		this.transactionId = transactionId;
 	}
 	public int getUserId() {
-		return user_id;
+		return userId;
 	}
 	public void setUserId(int userId) {
-		this.user_id = userId;
+		this.userId = userId;
 	}
 	public long getAmount() {
 		return amount;
@@ -67,16 +70,16 @@ public class Split {
 		this.amount = amount;
 	}
 	public int getFromSource() {
-		return from_source;
+		return fromSource;
 	}
 	public void setFromSource(int fromSource) {
-		this.from_source = fromSource;
+		this.fromSource = fromSource;
 	}
 	public int getToSource() {
-		return to_source;
+		return toSource;
 	}
 	public void setToSource(int toSource) {
-		this.to_source = toSource;
+		this.toSource = toSource;
 	}
 	public String getMemo() {
 		return memo;
@@ -95,5 +98,20 @@ public class Split {
 	}
 	public void setModified(Date modified) {
 		this.modified = modified;
+	}
+	
+	@Override
+	public String toString() {
+		try {
+			return toJson().toString();
+		}
+		catch (JSONException e){return "Error converting to JSON";}
+	}
+	
+	public String getFromSourceName() {
+		return fromSourceName;
+	}
+	public String getToSourceName() {
+		return toSourceName;
 	}
 }

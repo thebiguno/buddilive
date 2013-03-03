@@ -4,7 +4,7 @@
 	<resultMap id="transaction" type="ca.digitalcave.buddi.web.model.Transaction">
 		<id column="t_id" property="id" />
 		<result column="uuid" property="uuid"/>
-		<result column="user_id" property="user_id"/>
+		<result column="user_id" property="userId"/>
 		<result column="description" property="description"/>
 		<result column="number" property="number"/>
 		<result column="date" property="date"/>
@@ -13,23 +13,32 @@
 		<result column="t_modified" property="modified"/>
 		<collection property="splits" javaType="list" ofType="ca.digitalcave.buddi.web.model.Split">
 			<id column="s_id" property="id" />
-			<result column="t.id" property="transaction_id"/>
+			<result column="t.id" property="transactionId"/>
 			<result column="amount" property="amount"/>
-			<result column="from_source" property="from_source"/>
-			<result column="to_source" property="to_source"/>
+			<result column="from_source" property="fromSource"/>
+			<result column="to_source" property="toSource"/>
 			<result column="memo" property="memo"/>
 			<result column="s_created" property="created"/>
 			<result column="s_modified" property="modified"/>
+			
+			<result column="from_source_name" property="fromSourceName"/>
+			<result column="to_source_name" property="toSourceName"/>
 		</collection>
 	</resultMap>
 	
 	<select id="selectTransactions" resultMap="transaction">
 		SELECT 
 			t.id t_id, t.uuid, t.user_id, t.description, t.number, t.date, t.deleted, t.created t_created, t.modified t_modified, 
-			s.id s_id, s.amount, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified 
+			s.id s_id, s.amount, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified,
+			fs.name from_source_name, ts.name to_source_name
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
+		INNER JOIN sources fs ON fs.id = s.from_source
+		INNER JOIN sources ts ON ts.id = s.to_source
 		WHERE t.user_id = #{user.id}
+		<if test="_parameter.containsKey('source')">
+			AND (s.from_source = #{source.id} OR s.to_source = #{source.id})
+		</if>
 	</select>
 	
 	<insert id="insertTransaction">

@@ -99,6 +99,14 @@ public class Source {
 		this.type = type;
 	}
 	
+	@Override
+	public String toString() {
+		try {
+			return toJson().toString();
+		}
+		catch (JSONException e){return "Error converting to JSON";}
+	}
+	
 	//Convenience methods
 	public boolean isAccount(){
 		return "D".equals(getType()) || "C".equals(getType());

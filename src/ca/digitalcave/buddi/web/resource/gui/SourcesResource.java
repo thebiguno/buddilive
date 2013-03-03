@@ -16,7 +16,8 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
-import ca.digitalcave.buddi.web.model.Source;
+import ca.digitalcave.buddi.web.model.Account;
+import ca.digitalcave.buddi.web.model.Category;
 import ca.digitalcave.buddi.web.model.User;
 
 public class SourcesResource extends ServerResource {
@@ -32,14 +33,32 @@ public class SourcesResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Source> sources = sqlSession.getMapper(Sources.class).selectSources(user);
+			final boolean isIncome = getRequest().getResourceRef().getBaseRef().toString().endsWith("from");
+			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user, false);
+			final List<Category> categories = sqlSession.getMapper(Sources.class).selectCategories(user, isIncome);
 			
 			final JSONArray data = new JSONArray();
-			for (Source s : sources) {
-				final JSONObject type = new JSONObject();
-				type.put("value", s.getId());
-				type.put("text", s.getName());
-				data.put(type);
+			
+			for (Account a : accounts) {
+				final JSONObject account = new JSONObject();
+				account.put("value", a.getId());
+				account.put("text", a.getName());
+				account.put("deleted", a.isDeleted());
+				account.put("red", "C".equals(a.getType()));
+				data.put(account);
+			}
+			
+			JSONObject separator = new JSONObject();
+			separator.put("text", "-----");
+			data.put(separator);
+			
+			for (Category c : categories) {
+				final JSONObject category = new JSONObject();
+				category.put("value", c.getId());
+				category.put("text", c.getName());
+				category.put("deleted", c.isDeleted());
+				category.put("red", "E".equals(c.getType()));
+				data.put(category);
 			}
 			
 			final JSONObject result = new JSONObject();

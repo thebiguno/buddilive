@@ -93,7 +93,7 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		}
 		
 		if (selectedType == "account"){
-			panel.up("panel[itemId='myAccounts']").down("transactionlist").getStore().load();
+			panel.up("panel[itemId='myAccounts']").down("transactionlist").getStore().load({"params": {"source": selectedItem.id}});
 		}
 	}
 });

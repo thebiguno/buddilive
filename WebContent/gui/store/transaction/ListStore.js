@@ -9,8 +9,7 @@ Ext.define("BuddiLive.store.transaction.ListStore", {
 		"url": "gui/transactions.json",
 		"reader": {
 			"type": "json",
-			"root": "children"
+			"root": "data"
 		}
-	},
-	"autoload": true
+	}
 });
