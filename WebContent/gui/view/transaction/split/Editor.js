@@ -1,28 +1,9 @@
-Ext.override(Ext.form.NumberField, {
-	"forcePrecision" : false,
-
-	"valueToRaw": function(value) {
-		var me = this, decimalSeparator = me.decimalSeparator;
-		value = me.parseValue(value);
-		value = me.fixPrecision(value);
-		value = Ext.isNumber(value) ? value : parseFloat(String(value).replace(decimalSeparator, '.'));
-		if (isNaN(value)){
-			value = '';
-		}
-		else {
-			value = me.forcePrecision ? value.toFixed(me.decimalPrecision) : parseFloat(value);
-			value = String(value).replace(".", decimalSeparator);
-		}
-		return value;
-	}
-});
-
 Ext.define('BuddiLive.view.transaction.split.Editor', {
 	"extend": "Ext.panel.Panel",
 	"alias": "widget.spliteditor",
 	
 	"requires": [
-		"BuddiLive.view.shared.LazyCombobox"
+		"BuddiLive.view.transaction.split.SourceCombobox"
 	],
 	
 	"initComponent": function(){
@@ -46,7 +27,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"value": v.amount / 100
 			},
 			{
-				"xtype": "lazycombobox",
+				"xtype": "sourcecombobox",
 				"itemId": "from",
 				"flex": 1,
 				"emptyText": "From",
@@ -55,7 +36,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 			},
 			{"xtype": "panel", "html": "<img style='padding-top: 3px;' src='img/arrow.png'/>", "border": false, "width": 25, "height": 25},
 			{
-				"xtype": "lazycombobox",
+				"xtype": "sourcecombobox",
 				"itemId": "to",
 				"flex": 1,
 				"emptyText": "To",

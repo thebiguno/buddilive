@@ -3,8 +3,18 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 
 	"init": function() {
 		this.control({
-			"transactionlist button[itemId='recordTransaction']": {"click": this.recordTransaction}
+			"transactionlist button[itemId='recordTransaction']": {"click": this.recordTransaction},
+			"transactionlist button[itemId='clearTransaction']": {"click": this.clearTransaction},
+			"transactionlist button[itemId='deleteTransaction']": {"click": this.deleteTransaction},
+			"transactionlist field": {"keypress": this.validateFields},
+			"transactionlist field": {"blur": this.validateFields}
 		});
+	},
+	
+	"validateFields": function(component){
+		var editor = component.up("transactioneditor");
+		var enabled = editor.validate();
+		editor.down("button[itemId='recordTransaction']").setDisabled(!enabled);
 	},
 	
 	"recordTransaction": function(component){
@@ -15,6 +25,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			return;
 		}
 		request.action = "insert";
+		
+		//Disable the button before submitting to prevent double clicks
+		editor.down("button[itemId='recordTransaction']").disable();
 
 		var conn = new Ext.data.Connection();
 		conn.request({
@@ -33,5 +46,17 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 				BuddiLive.app.error(response);
 			}
 		});
+	},
+	
+	"clearTransaction": function(component){
+		//TODO check if there is data here... if so, verify
+		
+		var editor = component.up("transactioneditor");
+		editor.setTransaction();
+	},
+	
+	"deleteTransaction": function(component){
+		var editor = component.up("transactioneditor");
+		
 	}
 });

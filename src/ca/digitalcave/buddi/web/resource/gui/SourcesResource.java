@@ -38,26 +38,39 @@ public class SourcesResource extends ServerResource {
 			final List<Category> categories = sqlSession.getMapper(Sources.class).selectCategories(user, isIncome);
 			
 			final JSONArray data = new JSONArray();
+			final StringBuilder sb = new StringBuilder();
+			
+			JSONObject separator = new JSONObject();
+			separator.put("text", "--- Accounts ---");
+			separator.put("value", "");
+			separator.put("style", "color: #bbbbbb");
+			data.put(separator);
 			
 			for (Account a : accounts) {
 				final JSONObject account = new JSONObject();
 				account.put("value", a.getId());
 				account.put("text", a.getName());
-				account.put("deleted", a.isDeleted());
-				account.put("red", "C".equals(a.getType()));
+				if (a.isDeleted()) sb.append(" text-decoration: line-through;");
+				if ("C".equals(a.getType())) sb.append(" color: #dd2222");
+				account.put("style", sb.toString());
+				sb.setLength(0);
 				data.put(account);
 			}
 			
-			JSONObject separator = new JSONObject();
-			separator.put("text", "-----");
+			separator = new JSONObject();
+			separator.put("text", "--- Budget Categories ---");
+			separator.put("value", "");
+			separator.put("style", "color: #bbbbbb");
 			data.put(separator);
 			
 			for (Category c : categories) {
 				final JSONObject category = new JSONObject();
 				category.put("value", c.getId());
 				category.put("text", c.getName());
-				category.put("deleted", c.isDeleted());
-				category.put("red", "E".equals(c.getType()));
+				if (c.isDeleted()) sb.append(" text-decoration: line-through;");
+				if ("E".equals(c.getType())) sb.append(" color: #dd2222");
+				category.put("style", sb.toString());
+				sb.setLength(0);
 				data.put(category);
 			}
 			

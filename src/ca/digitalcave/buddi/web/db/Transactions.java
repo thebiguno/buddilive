@@ -12,10 +12,12 @@ import ca.digitalcave.buddi.web.model.User;
 
 public interface Transactions {
 	public Transaction selectTransaction(@Param("user") User user, @Param("id") Long id);
-	public Transaction selectTransaction(@Param("user") User user, @Param("id") String uuid);
+//	public Transaction selectTransaction(@Param("user") User user, @Param("uuid") String uuid);
 	
 	public List<Transaction> selectTransactions(@Param("user") User user);
 	public List<Transaction> selectTransactions(@Param("user") User user, @Param("source") Source source);
+	
+	public List<String> selectDescriptions(@Param("user") User user);
 	
 	public Integer insertTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);
 	public Integer insertSplit(@Param("user") User user, @Param("split") Split split);

@@ -41,6 +41,12 @@
 		</if>
 	</select>
 	
+	<select id="selectDescriptions" resultType="string">
+		SELECT DISTINCT description 
+		FROM transactions
+		WHERE user_id = #{user.id}
+	</select>
+	
 	<insert id="insertTransaction">
 		<selectKey keyProperty="transaction.id" resultType="long" order="BEFORE">
 			SELECT coalesce(max(id), 0) + 1 from transactions

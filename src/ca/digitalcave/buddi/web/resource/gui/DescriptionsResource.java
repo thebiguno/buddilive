@@ -38,29 +38,29 @@ public class DescriptionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user);
+			final List<String> descriptions = sqlSession.getMapper(Transactions.class).selectDescriptions(user);
 			
 			final JSONArray data = new JSONArray();
-			for (Transaction t : transactions) {
-				final JSONObject transaction = new JSONObject();
-				transaction.put("id", t.getId());
-				transaction.put("date", t.getDate());
-				transaction.put("description", t.getDescription());
-				transaction.put("number", t.getNumber());
-				transaction.put("deleted", t.isDeleted());
-				final JSONArray splits = new JSONArray();
-				for (Split s : t.getSplits()) {
-					final JSONObject split = new JSONObject();
-					split.put("id", s.getId());
-					split.put("name", s.getAmount());
-					split.put("from", s.getFromSource());
-					split.put("to", s.getToSource());
-					split.put("memo", s.getMemo());
-					splits.put(split);
-				}
-				transaction.put("splits", splits);
-				data.put(transaction);
-			}
+//			for (Transaction t : transactions) {
+//				final JSONObject transaction = new JSONObject();
+//				transaction.put("id", t.getId());
+//				transaction.put("date", t.getDate());
+//				transaction.put("description", t.getDescription());
+//				transaction.put("number", t.getNumber());
+//				transaction.put("deleted", t.isDeleted());
+//				final JSONArray splits = new JSONArray();
+//				for (Split s : t.getSplits()) {
+//					final JSONObject split = new JSONObject();
+//					split.put("id", s.getId());
+//					split.put("name", s.getAmount());
+//					split.put("from", s.getFromSource());
+//					split.put("to", s.getToSource());
+//					split.put("memo", s.getMemo());
+//					splits.put(split);
+//				}
+//				transaction.put("splits", splits);
+//				data.put(transaction);
+//			}
 			
 			final JSONObject result = new JSONObject();
 			result.put("data", data);

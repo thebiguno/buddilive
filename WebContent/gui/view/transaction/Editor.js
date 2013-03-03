@@ -23,6 +23,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"xtype": "datefield",
 						"itemId": "date",
 						"flex": 1,
+						"enableKeyEvents": true,
 						"emptyText": "Date"
 					},
 					{
@@ -30,6 +31,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"itemId": "description",
 						"flex": 2,
 						"emptyText": "Description",
+						"enableKeyEvents": true,
 						"store": Ext.create("BuddiLive.store.transaction.DescriptionStore")
 					},
 					{
@@ -63,12 +65,15 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 				{
 					"text": "Record",
 					"icon": "img/tick-circle.png",
-					"itemId": "recordTransaction"
+					"itemId": "recordTransaction",
+					"disabled": true
 				}
 			]
 		}];
 		
 		this.callParent(arguments);
+		
+		this.setTransaction();
 	},
 	
 	"getTransaction": function(transaction){
@@ -108,5 +113,18 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		
 		this.down("textfield[itemId='number']").focus();
 		this.down("datefield[itemId='date']").focus(true, 100);
+	},
+	
+	"validate": function(){
+		if (!Ext.isDate(this.down("datefield[itemId='date']").getValue())) return false;
+		if (this.down("combobox[itemId='description']").getValue().length == 0) return false;
+		if (this.items.length <= 1) return false;
+		
+		for (var i = 1;  i < this.items.length; i++){
+			var split = this.items.get(i).getSplit();
+			if (split.amount == 0) return false;
+			if (!split.from || !split.to) return false;
+		}
+		return true;
 	}
 });
