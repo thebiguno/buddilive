@@ -84,6 +84,15 @@
 		</choose>
 		ORDER BY c.type DESC, c.name
 	</select>
+	
+	<select id="selectCategoryPeriods" resultType="string">
+		SELECT DISTINCT
+			period_type
+		FROM SOURCES 
+		WHERE 
+			user_id = #{user.id}
+			AND period_type IS NOT NULL
+	</select>
 
 	<select id="selectSource" resultType="ca.digitalcave.buddi.web.model.Source">
 		SELECT * FROM sources 

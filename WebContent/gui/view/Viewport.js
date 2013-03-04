@@ -3,6 +3,7 @@ Ext.define("BuddiLive.view.Viewport", {
 	
 	"requires": [
 		"BuddiLive.view.account.Tree",
+		"BuddiLive.view.budget.Panel",
 		"BuddiLive.view.budget.Tree",
 		"BuddiLive.view.report.Panel",
 		"BuddiLive.view.transaction.List",
@@ -38,20 +39,9 @@ Ext.define("BuddiLive.view.Viewport", {
 						]
 					},
 					{
-						"xtype": "panel",
-						"layout": "border",
+						"xtype": "budgetpanel",
 						"title": "My Budget",
-						"itemId": "myBudget",
-						"items": [
-							{
-								"xtype": "budgettree",
-								"region": "west"
-							},
-							{
-								"xtype": "transactionlist",
-								"region": "center"
-							}
-						]
+						"itemId": "myBudget"
 					}
 				]
 			}

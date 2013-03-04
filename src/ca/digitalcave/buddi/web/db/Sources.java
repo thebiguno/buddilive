@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.web.db;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -18,6 +19,8 @@ public interface Sources {
 	public List<AccountType> selectAccountTypes(@Param("user") User user, @Param("showBalance") boolean showBalance);
 	
 	public List<Category> selectCategories(@Param("user") User user, @Param("income") Boolean income);
+	public List<Category> selectCategories(@Param("user") User user, @Param("date") Date date);
+	public List<String> selectCategoryPeriods(@Param("user") User user);
 	
 	public Source selectSource(@Param("user") User user, @Param("id") int id);
 	public List<Source> selectSources(@Param("user") User user);

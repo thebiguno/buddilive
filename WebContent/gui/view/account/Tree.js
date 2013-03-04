@@ -6,10 +6,10 @@ Ext.define('BuddiLive.view.account.Tree', {
 	],
 	
 	"initComponent": function(){
-		this.layout = "fit";
 		this.rootVisible = false;
 		this.border = false;
 		this.store = Ext.create("BuddiLive.store.account.TreeStore");
+		
 		this.columns = [
 			{
 				"text": "Name",
@@ -33,6 +33,7 @@ Ext.define('BuddiLive.view.account.Tree', {
 				}
 			}
 		];
+		
 		this.dockedItems = [{
 			"xtype": "toolbar",
 			"dock": "top",

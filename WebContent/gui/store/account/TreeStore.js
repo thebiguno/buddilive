@@ -11,6 +11,5 @@ Ext.define("BuddiLive.store.account.TreeStore", {
 			"type": "json",
 			"root": "children"
 		}
-	},
-	"autoload": true
+	}
 });
