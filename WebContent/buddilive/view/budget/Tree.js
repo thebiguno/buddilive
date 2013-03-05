@@ -14,9 +14,21 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		this.width = "100%";
 		this.plugins = [
 			Ext.create("Ext.grid.plugin.CellEditing", {
-				"clicksToEdit": 1
+				"clicksToEdit": 1,
+				"listeners": {
+					"edit": function(editor, data){
+						//TODO commit data to DB
+					}
+				}
 			})
 		];
+		
+		var numberCellRenderer = function(value, metaData, record){
+			if (value == null || value == 0){
+				return "-";
+			}
+			return value;
+		};
 		
 		this.columns = [
 			{
@@ -32,7 +44,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 			{
 				"text": "Previous",
 				"dataIndex": "previous",
-				"flex": 1
+				"flex": 1,
+				"renderer": numberCellRenderer
 			},
 			{
 				"text": "Current",
@@ -44,17 +57,20 @@ Ext.define('BuddiLive.view.budget.Tree', {
 					"keyNavEnabled": false,
 					"mouseWheelEnabled": false,
 					"emptyText": "0.00"
-				}
+				},
+				"renderer": numberCellRenderer
 			},
 			{
 				"text": "Actual",
 				"dataIndex": "actual",
-				"flex": 1
+				"flex": 1,
+				"renderer": numberCellRenderer
 			},
 			{
 				"text": "Difference",
 				"dataIndex": "difference",
-				"flex": 1
+				"flex": 1,
+				"renderer": numberCellRenderer
 			}
 		];
 		
