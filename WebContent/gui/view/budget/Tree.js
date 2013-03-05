@@ -8,7 +8,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 	"initComponent": function(){
 		this.rootVisible = false;
 		this.border = false;
-		this.store = Ext.create("BuddiLive.store.budget.TreeStore");
+		this.store = Ext.create("BuddiLive.store.budget.TreeStore", {"periodType": this.initialConfig.period});
 		this.title = this.initialConfig.period;
 		this.flex = 1;
 		this.width = "100%";
@@ -20,8 +20,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"flex": 2,
 				"xtype": "treecolumn",
 				"renderer": function(value, metaData, record){
-					if (!record.raw.debit) metaData.style += " color: #D10000;";
-					if (record.raw.deleted == true) metaData.style += " text-decoration: line-through;";
+					metaData.style = record.raw.style;
 					return value;
 				}
 			},
@@ -73,7 +72,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				}
 			]
 		}];
-		
+
 		this.callParent(arguments);
 	}
 });

@@ -22,5 +22,6 @@ public interface Transactions {
 	public Integer insertTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);
 	public Integer insertSplit(@Param("user") User user, @Param("split") Split split);
 	
+	public Integer deleteTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);
 	public Integer deleteSplits(@Param("user") User user, @Param("transaction") Transaction transaction);
 }

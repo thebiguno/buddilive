@@ -6,8 +6,11 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"transactionlist button[itemId='recordTransaction']": {"click": this.recordTransaction},
 			"transactionlist button[itemId='clearTransaction']": {"click": this.clearTransaction},
 			"transactionlist button[itemId='deleteTransaction']": {"click": this.deleteTransaction},
-			"transactionlist field": {"keypress": this.validateFields},
-			"transactionlist field": {"blur": this.validateFields}
+			"transactionlist field": {
+				"blur": this.validateFields,
+				"select": this.validateFields,
+				"keypress": this.validateFields
+			}
 		});
 	},
 	
@@ -57,6 +60,28 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	
 	"deleteTransaction": function(component){
 		var editor = component.up("transactioneditor");
-		
+		var list = editor.up("transactionlist");
+		var selection = list.getSelectionModel().getSelection();
+		if (selection.length > 0){
+			var id = selection[0].raw.id;
+			
+			var conn = new Ext.data.Connection();
+			conn.request({
+				"url": "gui/transactions",
+				"headers": {
+					"Accept": "application/json"
+				},
+				"method": "POST",
+				"jsonData": {"action": "delete", "id": id},
+				"success": function(response){
+					editor.setTransaction();
+					editor.up("transactionlist").getStore().reload();
+					editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
+				},
+				"failure": function(response){
+					BuddiLive.app.error(response);
+				}
+			});
+		}
 	}
 });

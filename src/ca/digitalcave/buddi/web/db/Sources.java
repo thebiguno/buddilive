@@ -18,8 +18,13 @@ public interface Sources {
 	
 	public List<AccountType> selectAccountTypes(@Param("user") User user, @Param("showBalance") boolean showBalance);
 	
+	public Category selectCategory(@Param("user") User user, @Param("id") Integer id);
+	
+	public List<Category> selectCategories(@Param("user") User user);
 	public List<Category> selectCategories(@Param("user") User user, @Param("income") Boolean income);
+	public List<Category> selectCategories(@Param("user") User user, @Param("periodType") String periodType);
 	public List<Category> selectCategories(@Param("user") User user, @Param("date") Date date);
+	
 	public List<String> selectCategoryPeriods(@Param("user") User user);
 	
 	public Source selectSource(@Param("user") User user, @Param("id") int id);
@@ -29,5 +34,6 @@ public interface Sources {
 	public Integer insertCategory(@Param("user") User user, @Param("category") Category category);
 	
 	public Integer updateAccount(@Param("user") User user, @Param("account") Account account);
+	public Integer updateCategory(@Param("user") User user, @Param("category") Category category);
 	public Integer updateSourceDeleted(@Param("user") User user, @Param("source") Source source);
 }

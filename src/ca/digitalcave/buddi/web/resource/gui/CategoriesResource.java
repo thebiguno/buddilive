@@ -19,8 +19,7 @@ import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.web.db.util.DatabaseException;
-import ca.digitalcave.buddi.web.model.Account;
-import ca.digitalcave.buddi.web.model.AccountType;
+import ca.digitalcave.buddi.web.model.Category;
 import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.util.FormatUtil;
 
@@ -37,34 +36,11 @@ public class CategoriesResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountTypes(user, true);
+			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, getQuery().getFirstValue("periodType")));
 			
 			final JSONArray data = new JSONArray();
-			for (AccountType t : accountsByType) {
-				final JSONObject type = new JSONObject();
-				type.put("name", t.getAccountType());
-				type.put("expanded", true);
-				type.put("debit", "D".equals(t.getType()));
-				type.put("nodeType", "type");
-				type.put("icon", "img/folder-open-table.png");
-				final JSONArray accounts = new JSONArray();
-				for (Account a : t.getAccounts()) {
-					final JSONObject account = new JSONObject();
-					account.put("id", a.getId());
-					account.put("name", a.getName());
-					account.put("balance", FormatUtil.formatCurrency(a.getBalance()));
-					account.put("type", a.getType());
-					account.put("accountType", a.getAccountType());
-					account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance()));
-					account.put("debit", "D".equals(a.getType()));
-					account.put("deleted", a.isDeleted());
-					account.put("leaf", true);
-					account.put("nodeType", "account");
-					account.put("icon", "img/table.png");
-					accounts.put(account);
-				}
-				type.put("children", accounts);
-				data.put(type);
+			for (Category c : categories) {
+				data.put(getJsonObject(c));
 			}
 			
 			final JSONObject result = new JSONObject();
@@ -79,6 +55,31 @@ public class CategoriesResource extends ServerResource {
 			sqlSession.close();
 		}
 	}
+	
+	private JSONObject getJsonObject(Category category) throws JSONException {
+		final JSONObject result = new JSONObject();
+		result.put("id", category.getId());
+		result.put("name", category.getName());
+		result.put("periodType", category.getPeriodType());
+		result.put("type", category.getType());
+		result.put("parent", category.getParent());
+		final StringBuilder sb = new StringBuilder();
+		if (category.isDeleted()) sb.append(" text-decoration: line-through;");
+		if (!category.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+		result.put("style", sb.toString());
+		sb.setLength(0);
+		result.put("icon", "img/folder-open-table.png");
+		if (category.getChildren() != null){
+			result.put("expanded", true);
+			for (Category child : category.getChildren()) {
+				result.accumulate("children", getJsonObject(child));
+			}
+		}
+		else {
+			result.put("leaf", true);
+		}
+		return result;
+	}
 
 	@Override
 	protected Representation post(Representation entity, Variant variant) throws ResourceException {
@@ -89,21 +90,21 @@ public class CategoriesResource extends ServerResource {
 			final JSONObject request = new JSONObject(entity.getText());
 			final String action = request.optString("action");
 			
-			final Account account = new Account(request);
+			final Category category = new Category(request);
 			
 			if ("insert".equals(action)){
-				ConstraintsChecker.checkInsertAccount(account, user, sqlSession);
-				int count = sqlSession.getMapper(Sources.class).insertAccount(user, account);
+				ConstraintsChecker.checkInsertCategory(category, user, sqlSession);
+				int count = sqlSession.getMapper(Sources.class).insertCategory(user, category);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 			} 
 			else if ("delete".equals(action) || "undelete".equals(action)){
-				account.setDeleted("delete".equals(action));
-				int count = sqlSession.getMapper(Sources.class).updateSourceDeleted(user, account);
+				category.setDeleted("delete".equals(action));
+				int count = sqlSession.getMapper(Sources.class).updateSourceDeleted(user, category);
 				if (count != 1) throw new DatabaseException(String.format("Delete / undelete failed; expected 1 row, returned %s", count));
 			}
 			else if ("update".equals(action)){
-				ConstraintsChecker.checkUpdateAccount(account, user, sqlSession);
-				int count = sqlSession.getMapper(Sources.class).updateAccount(user, account);
+				ConstraintsChecker.checkUpdateCategory(category, user, sqlSession);
+				int count = sqlSession.getMapper(Sources.class).updateCategory(user, category);
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else {

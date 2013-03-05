@@ -22,6 +22,7 @@ import ca.digitalcave.buddi.web.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.web.resource.gui.AccountsResource;
 import ca.digitalcave.buddi.web.resource.gui.CategoriesResource;
 import ca.digitalcave.buddi.web.resource.gui.DescriptionsResource;
+import ca.digitalcave.buddi.web.resource.gui.ParentsResource;
 import ca.digitalcave.buddi.web.resource.gui.PeriodsResource;
 import ca.digitalcave.buddi.web.resource.gui.SourcesResource;
 import ca.digitalcave.buddi.web.resource.gui.TransactionsResource;
@@ -52,6 +53,7 @@ public class BuddiApplication extends Application{
 		router.attach("/gui/accounts", new BuddiAuthenticator(this, getContext(), false, AccountsResource.class));
 		router.attach("/gui/categories", new BuddiAuthenticator(this, getContext(), false, CategoriesResource.class));
 		router.attach("/gui/categories/periods", new BuddiAuthenticator(this, getContext(), false, PeriodsResource.class));
+		router.attach("/gui/categories/parents", new BuddiAuthenticator(this, getContext(), false, ParentsResource.class));
 		router.attach("/gui/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
 		router.attach("/gui/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
 		router.attach("/gui/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));

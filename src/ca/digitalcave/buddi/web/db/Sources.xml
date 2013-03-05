@@ -71,17 +71,28 @@
 		ORDER BY a.type DESC, a.account_type, a.name
 	</select>
 
+	<select id="selectCategory" resultMap="category">
+		SELECT 
+			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
+			c.period_type c_period_type, c.parent c_parent 
+		FROM sources c
+		WHERE user_id = #{user.id}
+			AND id = #{id}
+	</select>
+
 	<select id="selectCategories" resultMap="category">
 		SELECT 
 			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent 
 		FROM sources c
 		WHERE user_id = #{user.id} 
-		<choose>
-			<when test="income == null">AND (type = 'I' OR type = 'E')</when>
-			<when test="income">AND type = 'I'</when>
-			<otherwise>AND type = 'E'</otherwise>
-		</choose>
+		<if test="_parameter.containsKey('periodType') and periodType != ''">AND period_type = #{periodType}</if>
+		<if test="_parameter.containsKey('income')">
+			<choose>
+				<when test="income == true">AND type = 'I'</when>
+				<when test="income == false">AND type = 'E'</when>
+			</choose>
+		</if>
 		ORDER BY c.type DESC, c.name
 	</select>
 	
@@ -166,8 +177,8 @@
 			#{category.startDate},
 			<choose><when test="category.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			#{category.type},
-			#{category.periodType,jdbcType=VARCHAR},
-			#{category.parent,jdbcType=INT},
+			#{category.periodType},
+			#{category.parent,jdbcType=INTEGER},
 			CURRENT_TIMESTAMP,
 			CURRENT_TIMESTAMP
 		)
@@ -186,6 +197,19 @@
 			start_balance = #{account.startBalance,jdbcType=BIGINT},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{account.id} AND user_id = #{user.id}
+	</insert>
+	<insert id="updateCategory">
+		UPDATE sources
+		SET
+			uuid = #{category.uuid},
+			name = #{category.name},
+			deleted = <choose><when test="category.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			parent = #{category.parent,jdbcType=INTEGER},
+			modified = CURRENT_TIMESTAMP
+			--Note that we do not allow you to update period_type and type.  This is intentional; 
+			-- changing these values on the fly could compromise DB referential integrity, since
+			-- parents must be the same type / period_type as their children.
+		WHERE id = #{category.id} AND user_id = #{user.id}
 	</insert>
 	<update id="updateSourceDeleted">
 		UPDATE sources 

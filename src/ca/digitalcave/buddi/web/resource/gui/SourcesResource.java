@@ -19,6 +19,7 @@ import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.model.Account;
 import ca.digitalcave.buddi.web.model.Category;
 import ca.digitalcave.buddi.web.model.User;
+import ca.digitalcave.buddi.web.util.FormatUtil;
 
 public class SourcesResource extends ServerResource {
 
@@ -43,7 +44,7 @@ public class SourcesResource extends ServerResource {
 			JSONObject separator = new JSONObject();
 			separator.put("text", "--- Accounts ---");
 			separator.put("value", "");
-			separator.put("style", "color: #bbbbbb");
+			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
 			data.put(separator);
 			
 			for (Account a : accounts) {
@@ -51,7 +52,7 @@ public class SourcesResource extends ServerResource {
 				account.put("value", a.getId());
 				account.put("text", a.getName());
 				if (a.isDeleted()) sb.append(" text-decoration: line-through;");
-				if ("C".equals(a.getType())) sb.append(" color: #dd2222");
+				if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 				account.put("style", sb.toString());
 				sb.setLength(0);
 				data.put(account);
@@ -60,7 +61,7 @@ public class SourcesResource extends ServerResource {
 			separator = new JSONObject();
 			separator.put("text", "--- Budget Categories ---");
 			separator.put("value", "");
-			separator.put("style", "color: #bbbbbb");
+			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
 			data.put(separator);
 			
 			for (Category c : categories) {
@@ -68,7 +69,7 @@ public class SourcesResource extends ServerResource {
 				category.put("value", c.getId());
 				category.put("text", c.getName());
 				if (c.isDeleted()) sb.append(" text-decoration: line-through;");
-				if ("E".equals(c.getType())) sb.append(" color: #dd2222");
+				if (!c.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 				category.put("style", sb.toString());
 				sb.setLength(0);
 				data.put(category);

@@ -7,6 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class FormatUtil {
+	public static String HTML_RED = "#dd2222";
+	public static String HTML_GRAY = "#bbbbbb";
+	
 	public static String formatDateTime(Date date){
 		if (date == null) return null;
 		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date);

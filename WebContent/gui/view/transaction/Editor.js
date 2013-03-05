@@ -117,13 +117,14 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 	
 	"validate": function(){
 		if (!Ext.isDate(this.down("datefield[itemId='date']").getValue())) return false;
-		if (this.down("combobox[itemId='description']").getValue().length == 0) return false;
+		var description = this.down("combobox[itemId='description']").getValue();
+		if (description == null || description.length == 0) return false;
 		if (this.items.length <= 1) return false;
 		
 		for (var i = 1;  i < this.items.length; i++){
 			var split = this.items.get(i).getSplit();
 			if (split.amount == 0) return false;
-			if (!split.from || !split.to) return false;
+			if (!split.fromSource || !split.toSource) return false;
 		}
 		return true;
 	}

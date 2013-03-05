@@ -3,14 +3,17 @@ Ext.define("BuddiLive.store.budget.TreeStore", {
 	"requires": [
 		"BuddiLive.model.budget.TreeModel"
 	],
-	"model": "BuddiLive.model.budget.TreeModel",
-	"proxy": {
-		"type": "ajax",
-		"url": "gui/categories.json",
-		"reader": {
-			"type": "json",
-			"root": "children"
-		}
+	"constructor": function(config){
+		this.model = "BuddiLive.model.budget.TreeModel";
+		this.proxy = {
+			"type": "ajax",
+			"url": "gui/categories.json?periodType=" + config.periodType,
+			"reader": {
+				"type": "json",
+				"root": "children"
+			}
+		};
+		this.autoload = true;
+		this.callParent(config);
 	},
-	"autoload": true
 });

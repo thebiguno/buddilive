@@ -40,11 +40,15 @@ public class AccountsResource extends ServerResource {
 			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountTypes(user, true);
 			
 			final JSONArray data = new JSONArray();
+			final StringBuilder sb = new StringBuilder();
 			for (AccountType t : accountsByType) {
 				final JSONObject type = new JSONObject();
 				type.put("name", t.getAccountType());
 				type.put("expanded", true);
-				type.put("debit", "D".equals(t.getType()));
+				type.put("debit", t.isDebit());
+				if (!t.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+				type.put("style", sb.toString());
+				sb.setLength(0);
 				type.put("nodeType", "type");
 				type.put("icon", "img/folder-open-table.png");
 				final JSONArray accounts = new JSONArray();
@@ -56,8 +60,15 @@ public class AccountsResource extends ServerResource {
 					account.put("type", a.getType());
 					account.put("accountType", a.getAccountType());
 					account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance()));
-					account.put("debit", "D".equals(a.getType()));
+					account.put("debit", a.isDebit());
 					account.put("deleted", a.isDeleted());
+					if (a.isDeleted()) sb.append(" text-decoration: line-through;");
+					if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+					account.put("style", sb.toString());
+					sb.setLength(0);
+					if (!a.isDebit() ^ a.getBalance() < 0) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+					account.put("balanceStyle", sb.toString());
+					sb.setLength(0);
 					account.put("leaf", true);
 					account.put("nodeType", "account");
 					account.put("icon", "img/table.png");

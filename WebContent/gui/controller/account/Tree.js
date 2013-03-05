@@ -3,9 +3,7 @@ Ext.define("BuddiLive.controller.account.Tree", {
 
 	"init": function() {
 		this.control({
-			"accounttree": {
-				"selectionchange": this.selectionChange
-			},
+			"accounttree": {"selectionchange": this.selectionChange},
 			"accounttree button[itemId='addAccount']": {"click": this.addAccount},
 			"accounttree button[itemId='editAccount']": {"click": this.editAccount},
 			"accounttree button[itemId='deleteAccount']": {"click": this.deleteAccount}
@@ -86,10 +84,10 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		panel.down("button[itemId='editAccount']").setDisabled(selectedType != "account");
 		panel.down("button[itemId='deleteAccount']").setDisabled(selectedType != "account");
 		if (selectedType == "account" && selected[0].raw.deleted){
-			panel.down("button[itemId='deleteAccount']").setText("Undelete Account");
+			panel.down("button[itemId='deleteAccount']").setTooltip("Undelete Account");
 		}
 		else {
-			panel.down("button[itemId='deleteAccount']").setText("Delete Account");
+			panel.down("button[itemId='deleteAccount']").setTooltip("Delete Account");
 		}
 		
 		if (selectedType == "account"){

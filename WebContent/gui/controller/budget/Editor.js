@@ -1,34 +1,38 @@
-Ext.define("BuddiLive.controller.account.Editor", {
+Ext.define("BuddiLive.controller.budget.Editor", {
 	"extend": "Ext.app.Controller",
 
 	"init": function() {
 		this.control({
-			"accounteditor component": {"blur": this.updateButtons},
-			"accounteditor button[itemId='ok']": {"click": this.ok},
-			"accounteditor button[itemId='cancel']": {"click": this.cancel}
+			"budgeteditor component": {
+				"blur": this.updateButtons,
+				"select": this.updateButtons,
+				"keyup": this.updateButtons
+			},
+			"budgeteditor button[itemId='ok']": {"click": this.ok},
+			"budgeteditor button[itemId='cancel']": {"click": this.cancel}
 		});
 	},
 	
 	"cancel": function(component){
-		component.up("accounteditor").close();
+		component.up("budgeteditor").close();
 	},
 	
 	"ok": function(component){
-		var window = component.up("accounteditor");
-		var grid = window.initialConfig.grid;
+		var window = component.up("budgeteditor");
+		var panel = window.initialConfig.panel;
 		var selected = window.initialConfig.selected;
 
 		var request = {};
 		request.action = (selected ? "update" : "insert");
 		if (selected) request.id = selected.id;
 		request.name = window.down("textfield[itemId='name']").getValue();
-		request.accountType = window.down("textfield[itemId='accountType']").getValue();
+		request.periodType = window.down("textfield[itemId='periodType']").getValue();
+		request.parent = window.down("combobox[itemId='parent']").getValue();
 		request.type = window.down("combobox[itemId='type']").getValue();
-		request.startBalance = window.down("numberfield[itemId='startBalance']").getValue();
 
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "gui/accounts",
+			"url": "gui/categories",
 			"headers": {
 				"Accept": "application/json"
 			},
@@ -36,7 +40,7 @@ Ext.define("BuddiLive.controller.account.Editor", {
 			"jsonData": request,
 			"success": function(response){
 				window.close();
-				grid.getStore().reload();
+				panel.reload();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);
@@ -45,12 +49,12 @@ Ext.define("BuddiLive.controller.account.Editor", {
 	},
 	
 	"updateButtons": function(component){
-		var window = component.up("accounteditor");
+		var window = component.up("budgeteditor");
 		var ok = window.down("button[itemId='ok']");
 		var name = window.down("textfield[itemId='name']");
-		var accountType = window.down("textfield[itemId='accountType']");
+		var periodType = window.down("textfield[itemId='periodType']");
 		var type = window.down("combobox[itemId='type']");
 		
-		ok.setDisabled(name.getValue().length == 0 || accountType.getValue().length == 0 || type.getValue().length == 0);
+		ok.setDisabled(name.getValue().length == 0 || periodType.getValue().length == 0 || type.getValue().length == 0);
 	}
 });

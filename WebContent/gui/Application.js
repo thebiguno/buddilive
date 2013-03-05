@@ -14,6 +14,7 @@ Ext.application({
 	"controllers": [
 		"account.Tree",
 		"account.Editor",
+		"budget.Editor",
 		"budget.Panel",
 		"transaction.List",
 		"transaction.Editor",

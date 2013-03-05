@@ -2,7 +2,8 @@ Ext.define('BuddiLive.view.account.Tree', {
 	"extend": "Ext.tree.Panel",
 	"alias": "widget.accounttree",
 	"requires": [
-		"BuddiLive.store.account.TreeStore"
+		"BuddiLive.store.account.TreeStore",
+		"BuddiLive.view.account.Editor"
 	],
 	
 	"initComponent": function(){
@@ -17,8 +18,7 @@ Ext.define('BuddiLive.view.account.Tree', {
 				"flex": 3,
 				"xtype": "treecolumn",
 				"renderer": function(value, metaData, record){
-					if (!record.raw.debit) metaData.style += " color:#D10000;";
-					if (record.raw.deleted == true) metaData.style += " text-decoration: line-through;";
+					metaData.style = record.raw.style;
 					return value;
 				}
 			},
@@ -28,7 +28,7 @@ Ext.define('BuddiLive.view.account.Tree', {
 				"flex": 1,
 				"align": "right",
 				"renderer": function(value, metaData, record){
-					if (!record.raw.debit ^ record.raw.balance < 0) metaData.style = 'color:#D10000;' 
+					metaData.style = record.raw.balanceStyle 
 					return value;
 				}
 			}
@@ -51,7 +51,7 @@ Ext.define('BuddiLive.view.account.Tree', {
 				},
 				{
 					"tooltip": "Delete Account",
-					"icon": "img/table--pencil.png",
+					"icon": "img/table--minus.png",
 					"itemId": "deleteAccount",
 					"disabled": true
 				}

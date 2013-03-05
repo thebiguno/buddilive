@@ -43,4 +43,8 @@ public class Account extends Source {
 	public Long getBalance() {
 		return balance;
 	}
+	
+	public boolean isDebit(){
+		return "D".equals(getType());
+	}
 }

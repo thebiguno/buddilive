@@ -1,6 +1,8 @@
 package ca.digitalcave.buddi.web.db.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -24,7 +26,25 @@ public class ConstraintsChecker {
 			if (parent.getUserId() != category.getUserId()){
 				throw new DatabaseException("The userId of a parent category must match the userId of the child category");
 			}
+			//Check for loops / non matching types in the parentage
+			final List<Category> categories = sqlSession.getMapper(Sources.class).selectCategories(user);
+			final Map<Integer, Category> categoryMap = new HashMap<Integer, Category>();
+			for (Category c : categories) {
+				categoryMap.put(c.getId(), c);
+			}
+			Category p = category;
+			while (p.getParent() != null){
+				p = categoryMap.get(p.getParent());
+				if (p.getId() == category.getId()) throw new DatabaseException("Loop detected in category parentage");
+				if (!p.getType().equals(category.getType())) throw new DatabaseException("The type of a parent must match the type of the child");
+				if (!p.getPeriodType().equals(category.getPeriodType())) throw new DatabaseException("The period of a parent must match the period of the child");
+			}
 		}
+	}
+
+	public static void checkUpdateCategory(Category category, User user, SqlSession sqlSession) throws DatabaseException {
+		if (category.getId() == null) throw new DatabaseException("The id must be set to perform an update");
+		checkInsertCategory(category, user, sqlSession);
 	}
 	
 	public static void checkInsertAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException {

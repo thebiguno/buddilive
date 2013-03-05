@@ -99,12 +99,11 @@ public class TransactionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final JSONObject request = new JSONObject(entity.getText());
-			final String action = request.optString("action");
-			
-			final Transaction transaction = new Transaction(request);
+			final JSONObject json = new JSONObject(entity.getText());
+			final String action = json.optString("action");
 			
 			if ("insert".equals(action)){
+				final Transaction transaction = new Transaction(json);
 				ConstraintsChecker.checkInsertTransaction(transaction, user, sqlSession);
 				
 				int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
@@ -117,6 +116,7 @@ public class TransactionsResource extends ServerResource {
 				}
 			} 
 			else if ("update".equals(action)){
+				final Transaction transaction = new Transaction(json);
 				ConstraintsChecker.checkUpdateTransaction(transaction, user, sqlSession);
 				
 				int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
@@ -131,6 +131,12 @@ public class TransactionsResource extends ServerResource {
 					count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
 					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 				}
+			}
+			else if ("delete".equals(action)){
+				final Transaction transaction = new Transaction();
+				transaction.setId(json.getLong("id"));
+				int count = sqlSession.getMapper(Transactions.class).deleteTransaction(user, transaction);
+				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");

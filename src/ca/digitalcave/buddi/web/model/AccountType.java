@@ -26,4 +26,8 @@ public class AccountType {
 	public void setAccountType(String accountType) {
 		this.accountType = accountType;
 	}
+	
+	public boolean isDebit(){
+		return "D".equals(getType());
+	}
 }
