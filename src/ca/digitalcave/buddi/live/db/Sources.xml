@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ca.digitalcave.buddi.live.db.Sources">
+	<resultMap id="source" type="ca.digitalcave.buddi.live.model.Source">
+		<id column="s_id" property="id" />
+		<result column="s_user_id" property="userId"/>
+		<result column="s_uuid" property="uuid"/>
+		<result column="s_name" property="name"/>
+		<result column="s_start_date" property="startDate"/>
+		<result column="s_deleted" property="deleted" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		<result column="s_type" property="type"/>
+		<result column="s_period_type" property="periodType"/>
+		<result column="s_created" property="created"/>
+		<result column="s_modified" property="modified"/>
+	</resultMap>
+
+	<resultMap id="account" type="ca.digitalcave.buddi.live.model.Account" extends="source">
+		<result column="a_account_type" property="accountType" />
+		<result column="a_start_balance" property="startBalance"/>
+		<result column="a_balance" property="balance"/>
+	</resultMap>
+
+	<resultMap id="category" type="ca.digitalcave.buddi.live.model.Category" extends="source">
+		<result column="c_period_type" property="periodType" />
+		<result column="c_parent" property="parent"/>
+		<result column="e_amount" property="currentAmount"/>
+		<result column="e_amount_prev" property="previousAmount"/>
+	</resultMap>
+	
+	<resultMap id="accountsByType" type="ca.digitalcave.buddi.live.model.AccountType">
+		<id column="a_account_type" property="accountType" />
+		<id column="a_type" property="type" />
+		<collection property="accounts" resultMap="account"/>
+	</resultMap>	
+	
+	
+	<select id="selectAccountTypes" resultMap="accountsByType">
+		SELECT 
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.account_type a_account_type, a.start_balance a_start_balance, 
+			<if test="showBalance">
+			coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as a_balance
+			</if>
+		FROM sources a
+		<if test="showBalance">
+		LEFT JOIN splits to_splits ON to_splits.to_source = a.id
+		LEFT JOIN splits from_splits ON from_splits.from_source = a.id
+		</if>
+		WHERE user_id = #{user.id} AND (type = 'D' OR type = 'C')
+		GROUP BY 
+			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified
+		ORDER BY a.type DESC, a.account_type, a.name
+	</select>
+	
+	<select id="selectAccounts" resultMap="account">
+		SELECT 
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.account_type a_account_type, a.start_balance a_start_balance 
+			<if test="showBalance">
+			, coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as a_balance
+			</if>
+		FROM sources a
+		<if test="showBalance">
+		LEFT JOIN splits to_splits ON to_splits.to_source = a.id
+		LEFT JOIN splits from_splits ON from_splits.from_source = a.id
+		</if>
+		WHERE 
+			user_id = #{user.id}
+			<if test="_parameter.containsKey('accountType')">
+			AND account_type = #{accountType}
+			</if>
+			AND (type = 'D' OR type = 'C')
+		ORDER BY a.type DESC, a.account_type, a.name
+	</select>
+
+	<select id="selectCategory" resultMap="category">
+		SELECT 
+			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
+			c.period_type c_period_type, c.parent c_parent 
+		FROM sources c
+		WHERE user_id = #{user.id}
+			AND id = #{id}
+	</select>
+
+	<select id="selectCategories" resultMap="category">
+		SELECT 
+			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
+			c.period_type c_period_type, c.parent c_parent
+			<if test="_parameter.containsKey('categoryPeriod')">
+			, ce.amount e_amount, pe.amount e_amount_prev
+			</if> 
+		FROM sources c
+		<if test="_parameter.containsKey('categoryPeriod')">
+			LEFT JOIN entries ce ON ce.category = c.id AND ce.date = #{categoryPeriod.currentDate}
+			LEFT JOIN entries pe ON pe.category = c.id AND pe.date = #{categoryPeriod.previousDate}
+		</if>
+		WHERE user_id = #{user.id}
+		<if test="_parameter.containsKey('categoryPeriod')">AND period_type = #{categoryPeriod.periodType}</if>
+		<if test="_parameter.containsKey('periodType') and periodType != ''">AND period_type = #{periodType}</if>
+		<if test="_parameter.containsKey('income')">
+			<choose>
+				<when test="income == true">AND type = 'I'</when>
+				<when test="income == false">AND type = 'E'</when>
+			</choose>
+		</if>
+		ORDER BY c.type DESC, c.name
+	</select>
+	
+	<select id="selectCategoryPeriods" resultType="string">
+		SELECT DISTINCT
+			period_type
+		FROM SOURCES 
+		WHERE 
+			user_id = #{user.id}
+			AND period_type IS NOT NULL
+	</select>
+
+	<select id="selectSource" resultType="ca.digitalcave.buddi.live.model.Source">
+		SELECT * FROM sources 
+		WHERE user_id = #{user.id}
+			<if test="id != null">
+				and id = #{id}
+			</if>
+	</select>
+	
+	<select id="selectSources" resultMap="source">
+		SELECT 
+			s.id s_id, s.user_id s_user_id, s.uuid s_uuid, s.name s_name, s.start_date s_start_date, s.deleted s_deleted, s.type s_type, s.created s_created, s.modified s_modified
+		FROM sources s
+		WHERE user_id = #{user.id}
+	</select>
+	
+	<insert id="insertAccount">
+		<selectKey keyProperty="account.id" resultType="int" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from sources
+		</selectKey>
+		INSERT INTO sources (
+			id,
+			user_id,
+			uuid,
+			name,
+			start_date,
+			deleted,
+			type,
+			account_type,
+			start_balance,
+			created,
+			modified
+		)
+		VALUES (
+			#{account.id},
+			#{user.id},
+			#{account.uuid},
+			#{account.name},
+			#{account.startDate},
+			<choose><when test="account.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			#{account.type},
+			#{account.accountType,jdbcType=VARCHAR},
+			#{account.startBalance,jdbcType=BIGINT},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+	
+	<insert id="insertCategory">
+		<selectKey keyProperty="category.id" resultType="int" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from sources
+		</selectKey>
+		INSERT INTO sources (
+			id,
+			user_id,
+			uuid,
+			name,
+			start_date,
+			deleted,
+			type,
+			period_type,
+			parent,
+			created,
+			modified
+		)
+		VALUES (
+			#{category.id},
+			#{user.id},
+			#{category.uuid},
+			#{category.name},
+			#{category.startDate},
+			<choose><when test="category.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			#{category.type},
+			#{category.periodType},
+			#{category.parent,jdbcType=INTEGER},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+
+
+	<insert id="updateAccount">
+		UPDATE sources
+		SET
+			uuid = #{account.uuid},
+			name = #{account.name},
+			start_date = #{account.startDate},
+			deleted = <choose><when test="account.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			type = #{account.type},
+			account_type = #{account.accountType},
+			start_balance = #{account.startBalance,jdbcType=BIGINT},
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{account.id} AND user_id = #{user.id}
+	</insert>
+	<insert id="updateCategory">
+		UPDATE sources
+		SET
+			uuid = #{category.uuid},
+			name = #{category.name},
+			deleted = <choose><when test="category.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			parent = #{category.parent,jdbcType=INTEGER},
+			modified = CURRENT_TIMESTAMP
+			--Note that we do not allow you to update period_type and type.  This is intentional; 
+			-- changing these values on the fly could compromise DB referential integrity, since
+			-- parents must be the same type / period_type as their children.
+		WHERE id = #{category.id} AND user_id = #{user.id}
+	</insert>
+	<update id="updateSourceDeleted">
+		UPDATE sources 
+		SET 
+			deleted = <choose><when test="source.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, 
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{source.id} AND user_id = #{user.id}
+	</update>
+
+</mapper>

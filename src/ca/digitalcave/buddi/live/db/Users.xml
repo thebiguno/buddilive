@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ca.digitalcave.buddi.live.db.Users">
+	<select id="selectUser" resultType="ca.digitalcave.buddi.live.model.User">
+		SELECT 
+			id,
+			identifier,
+			credentials,
+			email,
+			premium,
+			created,
+			modified
+		FROM users 
+		WHERE identifier = #{identifier}
+	</select>
+	
+	<insert id="insertUser">
+		<selectKey keyProperty="user.id" resultType="int" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from users
+		</selectKey>
+		INSERT INTO users
+			(id, identifier, credentials, uuid, email, premium, created, modified)
+		VALUES
+			(#{user.id}, #{user.identifier}, #{user.credentials}, #{user.uuid}, #{user.email,jdbcType=VARCHAR}, <choose><when test="user.premium == true">'Y'</when><otherwise>'N'</otherwise></choose>, current_timestamp, current_timestamp)
+	</insert>
+</mapper>
