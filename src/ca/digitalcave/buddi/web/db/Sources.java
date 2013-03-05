@@ -23,7 +23,7 @@ public interface Sources {
 	public List<Category> selectCategories(@Param("user") User user);
 	public List<Category> selectCategories(@Param("user") User user, @Param("income") Boolean income);
 	public List<Category> selectCategories(@Param("user") User user, @Param("periodType") String periodType);
-	public List<Category> selectCategories(@Param("user") User user, @Param("period") CategoryPeriod categoryPeriod);
+	public List<Category> selectCategories(@Param("user") User user, @Param("categoryPeriod") CategoryPeriod categoryPeriod);
 	
 	public List<String> selectCategoryPeriods(@Param("user") User user);
 	

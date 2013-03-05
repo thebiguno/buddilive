@@ -15,31 +15,23 @@ public class CategoryPeriod {
 		this.date = date;
 	}
 	
-	public Date getStartOfBudgetPeriod() {
+	public Date getCurrentDate(){
 		return categoryPeriods.getStartOfBudgetPeriod(date);
 	}
 	
-	public Date getEndOfBudgetPeriod() {
-		return categoryPeriods.getEndOfBudgetPeriod(date);
+	public Date getPreviousDate(){
+		return categoryPeriods.getBudgetPeriodOffset(date, -1);
 	}
 	
-	public Date getBudgetPeriodOffset(int offset) {
-		return categoryPeriods.getBudgetPeriodOffset(date, offset);
-	}
-	
-	public long getDaysInPeriod() {
-		return categoryPeriods.getDaysInPeriod(date);
-	}
-	
-	public String getDateFormat() {
-		return categoryPeriods.getDateFormat();
+	public String getPeriodType(){
+		return categoryPeriods.toString();
 	}
 	
 	public static enum CategoryPeriods {
-		WEEK,
-		SEMI_MONTH,
 		MONTH,
+		WEEK,
 		QUARTER,
+		SEMI_MONTH,
 		SEMI_YEAR,
 		YEAR;
 		

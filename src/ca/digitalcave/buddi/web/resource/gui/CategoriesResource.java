@@ -39,8 +39,8 @@ public class CategoriesResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-//			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, getQuery().getFirstValue("periodType")));
-			CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.MONTH, new Date());
+//			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, ));
+			CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(getQuery().getFirstValue("periodType")), new Date());
 			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp));
 			
 			final JSONArray data = new JSONArray();

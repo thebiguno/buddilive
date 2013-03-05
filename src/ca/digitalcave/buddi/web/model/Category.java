@@ -12,9 +12,11 @@ public class Category extends Source {
 	private String periodType;
 	private Integer parent;
 	
-	//The following are used in Java, but are not populated from the DB
+	//The following are used in Java, but are not directly mapped to the DB
 	private List<Category> children;
-	private List<Entry> entries;
+
+	private long previousAmount;
+	private long currentAmount;
 
 	public Category() {}
 	
@@ -87,4 +89,16 @@ public class Category extends Source {
 		return "I".equals(getType());
 	}
 
+	public long getPreviousAmount() {
+		return previousAmount;
+	}
+	public void setPreviousAmount(long previousAmount) {
+		this.previousAmount = previousAmount;
+	}
+	public long getCurrentAmount() {
+		return currentAmount;
+	}
+	public void setCurrentAmount(long currentAmount) {
+		this.currentAmount = currentAmount;
+	}
 }

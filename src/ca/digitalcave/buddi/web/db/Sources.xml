@@ -23,7 +23,8 @@
 	<resultMap id="category" type="ca.digitalcave.buddi.web.model.Category" extends="source">
 		<result column="c_period_type" property="periodType" />
 		<result column="c_parent" property="parent"/>
-		<result column="e_amount" property="parent"/>
+		<result column="e_amount" property="currentAmount"/>
+		<result column="e_amount_prev" property="previousAmount"/>
 	</resultMap>
 	
 	<resultMap id="accountsByType" type="ca.digitalcave.buddi.web.model.AccountType">
@@ -86,13 +87,15 @@
 			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent
 			<if test="_parameter.containsKey('categoryPeriod')">
-			,e.amount e_amount
+			, ce.amount e_amount, pe.amount e_amount_prev
 			</if> 
 		FROM sources c
 		<if test="_parameter.containsKey('categoryPeriod')">
-			LEFT JOIN entries e ON e.category = c.id AND e.date = #{categoryPeriod.startOfBudgetPeriod}
+			LEFT JOIN entries ce ON ce.category = c.id AND ce.date = #{categoryPeriod.currentDate}
+			LEFT JOIN entries pe ON pe.category = c.id AND pe.date = #{categoryPeriod.previousDate}
 		</if>
-		WHERE user_id = #{user.id} 
+		WHERE user_id = #{user.id}
+		<if test="_parameter.containsKey('categoryPeriod')">AND period_type = #{categoryPeriod.periodType}</if>
 		<if test="_parameter.containsKey('periodType') and periodType != ''">AND period_type = #{periodType}</if>
 		<if test="_parameter.containsKey('income')">
 			<choose>
