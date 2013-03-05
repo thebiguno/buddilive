@@ -16,6 +16,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
+import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.security.BuddiVerifier;
 import ca.digitalcave.buddi.web.util.CryptoUtil;
 import ca.digitalcave.buddi.web.util.FormatUtil;
@@ -77,14 +78,15 @@ public class IndexResource extends ServerResource {
 			return new EmptyRepresentation();
 		}
 		
-		if (getClientInfo().getUser() == null){
+		final User user = (User) getRequest().getClientInfo().getUser();
+		if (user == null){
 			final BuddiApplication application = (BuddiApplication) getApplication();
-			final TemplateRepresentation result = new TemplateRepresentation("login.html.ftl", application.getFreemarkerConfiguration(), null, MediaType.TEXT_HTML);
+			final TemplateRepresentation result = new TemplateRepresentation("login.html", application.getFreemarkerConfiguration(), null, MediaType.TEXT_HTML);
 			return result;
 		}
 		else {
 			final BuddiApplication application = (BuddiApplication) getApplication();
-			final TemplateRepresentation result = new TemplateRepresentation("index.html.ftl", application.getFreemarkerConfiguration(), null, MediaType.TEXT_HTML);
+			final TemplateRepresentation result = new TemplateRepresentation("index.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
 			return result;
 		}
 	}

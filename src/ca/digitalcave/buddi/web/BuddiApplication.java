@@ -14,6 +14,8 @@ import org.restlet.engine.application.Encoder;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
+import org.restlet.routing.Template;
+import org.restlet.routing.TemplateRoute;
 
 import ca.digitalcave.buddi.web.db.migrate.Migration;
 import ca.digitalcave.buddi.web.resource.IndexResource;
@@ -22,6 +24,7 @@ import ca.digitalcave.buddi.web.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.web.resource.gui.AccountsResource;
 import ca.digitalcave.buddi.web.resource.gui.CategoriesResource;
 import ca.digitalcave.buddi.web.resource.gui.DescriptionsResource;
+import ca.digitalcave.buddi.web.resource.gui.JavascriptI18nResource;
 import ca.digitalcave.buddi.web.resource.gui.ParentsResource;
 import ca.digitalcave.buddi.web.resource.gui.PeriodsResource;
 import ca.digitalcave.buddi.web.resource.gui.SourcesResource;
@@ -50,6 +53,10 @@ public class BuddiApplication extends Application{
 		getTunnelService().setExtensionsTunnel(true);
 
 		final Router router = new Router(getContext());
+		//Handles main page + login / logout
+		router.attach("/", new BuddiAuthenticator(this, getContext(), true, IndexResource.class));
+		
+		//Handles the desktop GUI stuff
 		router.attach("/gui/accounts", new BuddiAuthenticator(this, getContext(), false, AccountsResource.class));
 		router.attach("/gui/categories", new BuddiAuthenticator(this, getContext(), false, CategoriesResource.class));
 		router.attach("/gui/categories/periods", new BuddiAuthenticator(this, getContext(), false, PeriodsResource.class));
@@ -58,19 +65,20 @@ public class BuddiApplication extends Application{
 		router.attach("/gui/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
 		router.attach("/gui/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/gui/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
+		
+		//Handles non-GUI data import / export
 		router.attach("/data/import", new BuddiAuthenticator(this, getContext(), false, ImportDataResource.class));
 		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
-//		router.attach("/data/sources/", new BuddiAuthenticator(this, getContext(), false, SourcesDataResource.class));
 		
-//		router.attach("/script/{name}", new BuddiAuthenticator(this, getContext(), false, ScriptResource.class));
-//		router.attach("/parameters", new BuddiAuthenticator(this, getContext(), false, ParametersResource.class));
+		//Public data and binary data which should not be filtered through freemarker
+		router.attach("/img", new Directory(getContext(), "war:///img"));
+		router.attach("/extjs", new Directory(getContext(), "war:///extjs"));
+		router.attach("/touch", new Directory(getContext(), "war:///touch"));
+		
+		//Everything else is filtered through Freemarker, passing in the user object (locales + preferences)
+		final TemplateRoute route = router.attach("/", new BuddiAuthenticator(this, getContext(), true, JavascriptI18nResource.class));
+		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
-		final Directory directory = new Directory(getContext(), "war:///");
-		directory.setListingAllowed(true);
-		
-		router.attach("/", new BuddiAuthenticator(this, getContext(), true, IndexResource.class));
-		router.attachDefault(directory);
-		
 		final Encoder encoder = new Encoder(getContext());
 		encoder.setNext(router);
 		
@@ -113,7 +121,7 @@ public class BuddiApplication extends Application{
 		freemarkerConfiguration.setDateFormat("yyyy'-'MM'-'dd");
 		freemarkerConfiguration.setDateTimeFormat("yyyy'-'MM'-'dd' 'HH:mm");
 		freemarkerConfiguration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-		freemarkerConfiguration.setServletContextForTemplateLoading(getContext().getServerDispatcher().getContext().getAttributes().get("org.restlet.ext.servlet.ServletContext"), "/WEB-INF/ftl/");
+		freemarkerConfiguration.setServletContextForTemplateLoading(getContext().getServerDispatcher().getContext().getAttributes().get("org.restlet.ext.servlet.ServletContext"), "/");
 		this.freemarkerConfiguration = freemarkerConfiguration;
 
 		setStatusService(new BuddiStatusService());
