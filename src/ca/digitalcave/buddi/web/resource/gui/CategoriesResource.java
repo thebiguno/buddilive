@@ -63,6 +63,7 @@ public class CategoriesResource extends ServerResource {
 		result.put("periodType", category.getPeriodType());
 		result.put("type", category.getType());
 		result.put("parent", category.getParent());
+		result.put("deleted", category.isDeleted());
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");
 		if (!category.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");

@@ -7,7 +7,8 @@ Ext.define('BuddiLive.view.budget.Editor', {
 	
 	"initComponent": function(){
 		var s = this.initialConfig.selected
-
+		var editor = this;
+		
 		this.title = (s ? "Edit Budget Category" : "Add Budget Category");
 		this.layout = "fit";
 		this.modal = true;
@@ -38,7 +39,19 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"fieldLabel": "Parent Category",
 						"emptyText": "Parent",
 						"value": (s ? s.parent : null),
-						"url": "gui/categories/parents.json" + (s ? "?exclude=" + s.id : "")
+						"url": "gui/categories/parents.json" + (s ? "?exclude=" + s.id : ""),
+						"listeners": {
+							"change": function(){
+								var parent = editor.down("combobox[itemId='parent']");
+								if (parent.getValue() != null && (parent.getValue() + "").length > 0){
+									editor.down("combobox[itemId='periodType']").setValue(parent.getStore().findRecord("value", parent.getValue()).raw.periodType);
+									editor.down("combobox[itemId='type']").setValue(parent.getStore().findRecord("value", parent.getValue()).raw.type);
+								}
+								editor.down("combobox[itemId='periodType']").setDisabled(parent.getValue() != null);
+								editor.down("combobox[itemId='type']").setDisabled(parent.getValue() != null);
+								
+							}
+						}
 					},
 					{
 						"xtype": "combobox",

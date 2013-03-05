@@ -74,6 +74,8 @@ public class ParentsResource extends ServerResource {
 			sb.setLength(0);
 			item.put("text", StringUtils.repeat("\u00a0", level) + category.getName());
 			item.put("income", category.isIncome());
+			item.put("type", category.getType());
+			item.put("periodType", category.getPeriodType());
 			array.put(item);
 			if (category.getChildren() != null) getJsonArray(array, category.getChildren(), exclude, level + 1);
 		}
