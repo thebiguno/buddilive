@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.web.db;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -8,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import ca.digitalcave.buddi.web.model.Account;
 import ca.digitalcave.buddi.web.model.AccountType;
 import ca.digitalcave.buddi.web.model.Category;
+import ca.digitalcave.buddi.web.model.CategoryPeriod;
 import ca.digitalcave.buddi.web.model.Source;
 import ca.digitalcave.buddi.web.model.User;
 
@@ -23,7 +23,7 @@ public interface Sources {
 	public List<Category> selectCategories(@Param("user") User user);
 	public List<Category> selectCategories(@Param("user") User user, @Param("income") Boolean income);
 	public List<Category> selectCategories(@Param("user") User user, @Param("periodType") String periodType);
-	public List<Category> selectCategories(@Param("user") User user, @Param("date") Date date);
+	public List<Category> selectCategories(@Param("user") User user, @Param("period") CategoryPeriod categoryPeriod);
 	
 	public List<String> selectCategoryPeriods(@Param("user") User user);
 	

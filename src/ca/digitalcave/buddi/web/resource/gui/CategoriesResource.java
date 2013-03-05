@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.web.resource.gui;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -20,6 +21,8 @@ import ca.digitalcave.buddi.web.db.Sources;
 import ca.digitalcave.buddi.web.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.web.db.util.DatabaseException;
 import ca.digitalcave.buddi.web.model.Category;
+import ca.digitalcave.buddi.web.model.CategoryPeriod;
+import ca.digitalcave.buddi.web.model.CategoryPeriod.CategoryPeriods;
 import ca.digitalcave.buddi.web.model.User;
 import ca.digitalcave.buddi.web.util.FormatUtil;
 
@@ -36,7 +39,9 @@ public class CategoriesResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, getQuery().getFirstValue("periodType")));
+//			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, getQuery().getFirstValue("periodType")));
+			CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.MONTH, new Date());
+			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp));
 			
 			final JSONArray data = new JSONArray();
 			for (Category c : categories) {

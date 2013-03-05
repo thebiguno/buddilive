@@ -17,7 +17,7 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.web.BuddiApplication;
 import ca.digitalcave.buddi.web.db.Sources;
-import ca.digitalcave.buddi.web.model.CategoryPeriods;
+import ca.digitalcave.buddi.web.model.CategoryPeriod.CategoryPeriods;
 import ca.digitalcave.buddi.web.model.User;
 
 public class PeriodsResource extends ServerResource {

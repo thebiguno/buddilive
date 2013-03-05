@@ -14,6 +14,7 @@ public class Entry {
 	private Date date;
 	private Date created;
 	private Date modified;
+	private CategoryPeriod period;
 	
 	public Entry(){}
 	public Entry(JSONObject json) throws JSONException {
@@ -69,5 +70,11 @@ public class Entry {
 	}
 	public void setModified(Date modified) {
 		this.modified = modified;
+	}
+	public CategoryPeriod getPeriod() {
+		return period;
+	}
+	public void setPeriod(CategoryPeriod period) {
+		this.period = period;
 	}
 }

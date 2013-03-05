@@ -14,6 +14,7 @@ public class Category extends Source {
 	
 	//The following are used in Java, but are not populated from the DB
 	private List<Category> children;
+	private List<Entry> entries;
 
 	public Category() {}
 	
