@@ -24,7 +24,7 @@ import ca.digitalcave.buddi.live.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.live.resource.gui.AccountsResource;
 import ca.digitalcave.buddi.live.resource.gui.CategoriesResource;
 import ca.digitalcave.buddi.live.resource.gui.DescriptionsResource;
-import ca.digitalcave.buddi.live.resource.gui.JavascriptI18nResource;
+import ca.digitalcave.buddi.live.resource.gui.FreemarkerResource;
 import ca.digitalcave.buddi.live.resource.gui.ParentsResource;
 import ca.digitalcave.buddi.live.resource.gui.PeriodsResource;
 import ca.digitalcave.buddi.live.resource.gui.SourcesResource;
@@ -76,7 +76,7 @@ public class BuddiApplication extends Application{
 		router.attach("/touch", new Directory(getContext(), "war:///touch"));
 		
 		//Everything else is filtered through Freemarker, passing in the user object (locales + preferences)
-		final TemplateRoute route = router.attach("/", new BuddiAuthenticator(this, getContext(), true, JavascriptI18nResource.class));
+		final TemplateRoute route = router.attach("/", new BuddiAuthenticator(this, getContext(), true, FreemarkerResource.class));
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
 		final Encoder encoder = new Encoder(getContext());

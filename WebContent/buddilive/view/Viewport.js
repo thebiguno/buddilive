@@ -35,13 +35,13 @@ Ext.define("BuddiLive.view.Viewport", {
 							{
 								"xtype": "transactionlist",
 								"region": "center"
-							}/* TODO Adsense
+							}/*
 							,{
 								"xtype": "panel",
 								"region": "north",
 								"height": 60,
 								"border": false,
-								"html": "<iframe id='adsensetop' src='gui/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe>",
+								"html": "<iframe id='adsensetop' src='buddilive/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe>",
 								"listeners": {
 									"afterrender": function(){
 										window.setInterval(function(){

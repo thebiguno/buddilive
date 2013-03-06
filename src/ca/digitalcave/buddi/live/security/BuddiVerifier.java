@@ -57,7 +57,7 @@ public class BuddiVerifier implements Verifier {
 			}
 			catch (Throwable t){}
 		}
-		
+
 		if (request.getChallengeResponse() == null) {
 			return RESULT_MISSING;
 		} 
