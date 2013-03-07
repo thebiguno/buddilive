@@ -55,12 +55,14 @@
 		)
 	</insert>
 	
-	<delete id="deleteEntry">
-		DELETE FROM entries e
-		INNER JOIN sources s ON e.category = s.id
-		WHERE 
-			e.category = #{entry.categoryId} 
-			AND e.date = #{entry.date}
-			AND s.user_id = #{user.id}
-	</delete>
+	<update id="updateEntry">
+		UPDATE entries
+		SET
+			amount = #{entry.amount},
+			modified = CURRENT_TIMESTAMP
+		WHERE
+			id = #{entry.id}
+			AND category = #{entry.categoryId} 
+			AND date = #{entry.date}
+	</update>
 </mapper>

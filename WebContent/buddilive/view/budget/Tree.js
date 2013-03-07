@@ -54,7 +54,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 					"hideTrigger": true,
 					"keyNavEnabled": false,
 					"mouseWheelEnabled": false,
-					"emptyText": "0.00"
+					"emptyText": "0.00",
+					"fieldStyle": "text-align: right;"
 				},
 				"renderer": numberCellRenderer
 			},
@@ -104,6 +105,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 
 		this.callParent(arguments);
 		
+		//Load some of the contents of the loaded data packet into the GUI, and persist state for future requests
 		this.getStore().addListener("load", function(store, records){
 			budgetTree.down("textfield[itemId='currentPeriod']").setValue(store.proxy.reader.rawData.period);
 			budgetTree.currentDate = store.proxy.reader.rawData.date;	//ISO Date string, will be used as current reference when passing nextPeriod / previousPeriod

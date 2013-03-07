@@ -40,13 +40,12 @@ public class EntriesResource extends ServerResource {
 			
 			if ("insert".equals(action)){
 				ConstraintsChecker.checkInsertEntry(entry, user, sqlSession);
-				int count = sqlSession.getMapper(Entries.class).insertEntry(user, entry);
+				int count = sqlSession.getMapper(Entries.class).insertEntry(entry);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 			} 
 			else if ("update".equals(action)){
 				ConstraintsChecker.checkUpdateEntry(entry, user, sqlSession);
-				sqlSession.getMapper(Entries.class).deleteEntry(user, entry);
-				int count = sqlSession.getMapper(Entries.class).insertEntry(user, entry);
+				int count = sqlSession.getMapper(Entries.class).updateEntry(entry);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 			} 
 			else {

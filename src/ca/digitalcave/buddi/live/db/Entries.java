@@ -13,7 +13,7 @@ public interface Entries {
 	public Entry selectEntry(@Param("user") User user, @Param("id") Long id);
 	public Entry selectEntry(@Param("user") User user, @Param("date") Date date, @Param("categoryId") Integer categoryId);
 	
-	public Integer insertEntry(@Param("user") User user, @Param("entry") Entry entry);
+	public Integer insertEntry(@Param("entry") Entry entry);
 	
-	public Integer deleteEntry(@Param("user") User user, @Param("entry") Entry entry);
+	public Integer updateEntry(@Param("entry") Entry entry);
 }
