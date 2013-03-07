@@ -1,6 +1,8 @@
 package ca.digitalcave.buddi.live.model;
 
 import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.UUID;
 
 import org.json.JSONException;
@@ -18,6 +20,7 @@ public class User extends org.restlet.security.User {
 	private boolean premium = false;
 	private Date created;
 	private Date modified;
+	private String locale;
 	
 	public User() {
 	}
@@ -91,6 +94,22 @@ public class User extends org.restlet.security.User {
 	}
 	public void setPremium(boolean premium) {
 		this.premium = premium;
+	}
+	public String getLocale() {
+		return locale;
+	}
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+	
+	public ResourceBundle getTranslation(){
+		if (locale == null) return ResourceBundle.getBundle("buddi");
+		
+		final String[] splitLocale = locale.split("_");
+		if (splitLocale.length == 0) return ResourceBundle.getBundle("buddi");
+		else if (splitLocale.length == 1) return ResourceBundle.getBundle("buddi", new Locale(splitLocale[0]));
+		else if (splitLocale.length == 2) return ResourceBundle.getBundle("buddi", new Locale(splitLocale[0], splitLocale[1]));
+		else return ResourceBundle.getBundle("buddi", new Locale(splitLocale[0], splitLocale[1], splitLocale[2]));
 	}
 	
 	@Override

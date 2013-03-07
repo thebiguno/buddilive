@@ -89,15 +89,11 @@ public class ConstraintsChecker {
 	public static void checkInsertEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
 		if (entry.getCategoryId() == 0) throw new DatabaseException("The category id must be set");
 		if (entry.getDate() == null) throw new DatabaseException("The date must be set");
-
-		final Entry existingEntry = sqlSession.getMapper(Entries.class).selectEntry(user, entry.getDate(), entry.getCategoryId());
-		if (existingEntry != null && existingEntry.getId() != entry.getId()) throw new DatabaseException("An existing entry for the same date / category already exists, but with a different ID.  Perform an update instead of an insert.");
 		
 		if (sqlSession.getMapper(Sources.class).selectCategory(user, entry.getCategoryId()) == null) throw new DatabaseException("The specified category is not valid");
 	}
 	public static void checkUpdateEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
-		if (entry.getId() == null) throw new DatabaseException("The id must be set");
-		if (sqlSession.getMapper(Entries.class).selectEntry(user, entry.getId()) == null) throw new DatabaseException("Could not find an entry to update");
+		if (sqlSession.getMapper(Entries.class).selectEntry(user, entry) == null) throw new DatabaseException("Could not find an entry to update");
 		checkInsertEntry(entry, user, sqlSession);
 	}
 }

@@ -37,16 +37,23 @@ public class EntriesResource extends ServerResource {
 			final String action = request.optString("action");
 			
 			final Entry entry = new Entry(request);
+			final Entry existingEntry = sqlSession.getMapper(Entries.class).selectEntry(user, entry);
 			
-			if ("insert".equals(action)){
-				ConstraintsChecker.checkInsertEntry(entry, user, sqlSession);
-				int count = sqlSession.getMapper(Entries.class).insertEntry(entry);
-				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
-			} 
-			else if ("update".equals(action)){
-				ConstraintsChecker.checkUpdateEntry(entry, user, sqlSession);
-				int count = sqlSession.getMapper(Entries.class).updateEntry(entry);
-				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+			//We only look for updates here... it is easier to just rely on the logical keys of user / category / date rather than force the GUI to send
+			// the primary key ID all the time.
+			if ("update".equals(action)){
+				if (existingEntry == null){
+					//New entry
+					ConstraintsChecker.checkInsertEntry(entry, user, sqlSession);
+					int count = sqlSession.getMapper(Entries.class).insertEntry(user, entry);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+				}
+				else {
+					//Update entry
+					ConstraintsChecker.checkUpdateEntry(entry, user, sqlSession);
+					int count = sqlSession.getMapper(Entries.class).updateEntry(user, entry);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+				}
 			} 
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");

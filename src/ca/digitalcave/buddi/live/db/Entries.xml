@@ -12,24 +12,27 @@
 
 	<select id="selectEntry" resultMap="entry">
 		SELECT 
-			e.id e_id,
-			e.category e_category,
-			e.amount e_amount,
-			e.date e_date,
-			e.created e_created,
-			e.modified e_modified
-		FROM entries e
-		INNER JOIN sources s ON e.category = s.id
+			id e_id,
+			category e_category,
+			amount e_amount,
+			date e_date,
+			created e_created,
+			modified e_modified
+		FROM entries
 		WHERE 
-			s.user_id = #{user.id}
+			user_id = #{user.id}
+			<if test="_parameter.containsKey('entry')">
+			AND category = #{entry.categoryId}
+			AND date = #{entry.date}
+			</if>
 			<if test="_parameter.containsKey('id')">
-			AND e.id = #{id}
+			AND id = #{id}
 			</if>
 			<if test="_parameter.containsKey('categoryId')">
-			AND e.category = #{categoryId}
+			AND category = #{categoryId}
 			</if>
 			<if test="_parameter.containsKey('date')">
-			AND e.date = #{date}
+			AND date = #{date}
 			</if>
 	</select>
 	
@@ -39,6 +42,7 @@
 		</selectKey>
 		INSERT INTO entries (
 			id,
+			user_id,
 			category,
 			amount,
 			date,
@@ -47,6 +51,7 @@
 		)
 		VALUES (
 			#{entry.id},
+			#{user.id},
 			#{entry.categoryId},
 			#{entry.amount},
 			#{entry.date},
@@ -61,7 +66,7 @@
 			amount = #{entry.amount},
 			modified = CURRENT_TIMESTAMP
 		WHERE
-			id = #{entry.id}
+			user_id = #{user.id}
 			AND category = #{entry.categoryId} 
 			AND date = #{entry.date}
 	</update>

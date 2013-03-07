@@ -13,14 +13,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 	},
 	
 	"editCell": function(editor, data){
-		var request = {};
-		if (data.record.raw.currentId){
-			request.id = data.record.raw.currentId;
-			request.action = "update";
-		}
-		else {
-			request.action = "insert";
-		}
+		var request = {"action": "update"};
 		request.categoryId = data.record.raw.id;
 		request.date = data.record.raw.currentDate;
 		request.amount = data.value;

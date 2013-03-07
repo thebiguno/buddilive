@@ -72,10 +72,8 @@ public class CategoriesResource extends ServerResource {
 		result.put("type", category.getType());
 		result.put("parent", category.getParent());
 		result.put("deleted", category.isDeleted());
-		result.put("currentId", category.getCurrentEntry().getId());
 		result.put("currentDate", FormatUtil.formatDate(categoryPeriod.getCurrentDate()));
 		result.put("currentAmount", category.getCurrentEntry().getAmount());
-		result.put("previousId", category.getPreviousEntry().getId());
 		result.put("previousDate", FormatUtil.formatDate(categoryPeriod.getPreviousDate()));
 		result.put("previousAmount", category.getPreviousEntry().getAmount());
 
