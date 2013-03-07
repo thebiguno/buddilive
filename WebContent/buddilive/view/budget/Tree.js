@@ -6,6 +6,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 	],
 	
 	"initComponent": function(){
+		var budgetTree = this;
 		this.rootVisible = false;
 		this.border = false;
 		this.store = Ext.create("BuddiLive.store.budget.TreeStore", {"periodType": this.initialConfig.period});
@@ -14,20 +15,15 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		this.width = "100%";
 		this.plugins = [
 			Ext.create("Ext.grid.plugin.CellEditing", {
-				"clicksToEdit": 1,
-				"listeners": {
-					"edit": function(editor, data){
-						//TODO commit data to DB
-					}
-				}
+				"clicksToEdit": 1
 			})
 		];
 		
 		var numberCellRenderer = function(value, metaData, record){
-			if (value == null || value == 0){
+			if (value == null || value == 0 || isNaN(value)){
 				return "-";
 			}
-			return value;
+			return value.toFixed(2);
 		};
 		
 		this.columns = [
@@ -43,14 +39,16 @@ Ext.define('BuddiLive.view.budget.Tree', {
 			},
 			{
 				"text": "Previous",
-				"dataIndex": "previous",
+				"dataIndex": "previousAmount",
 				"flex": 1,
+				"align": "right",
 				"renderer": numberCellRenderer
 			},
 			{
 				"text": "Current",
-				"dataIndex": "current",
+				"dataIndex": "currentAmount",
 				"flex": 1,
+				"align": "right",
 				"editor": {
 					"xtype": "numberfield",
 					"hideTrigger": true,
@@ -64,12 +62,14 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"text": "Actual",
 				"dataIndex": "actual",
 				"flex": 1,
+				"align": "right",
 				"renderer": numberCellRenderer
 			},
 			{
 				"text": "Difference",
 				"dataIndex": "difference",
 				"flex": 1,
+				"align": "right",
 				"renderer": numberCellRenderer
 			}
 		];
@@ -80,6 +80,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 			"items": [
 				"->",
 				{
+					"xtype": "button",
 					"tooltip": "Previous Period",
 					"icon": "img/calendar-previous.png",
 					"itemId": "previousPeriod"
@@ -90,10 +91,10 @@ Ext.define('BuddiLive.view.budget.Tree', {
 					"itemId": "currentPeriod",
 					"disabled": true,
 					"disabledCls": "",
-					"style": "color: black",
-					"value": "TODO 2012-01-01 to 2012-02-01"
+					"style": "color: black"
 				},
 				{
+					"xtype": "button",
 					"tooltip": "Next Period",
 					"icon": "img/calendar-next.png",
 					"itemId": "nextPeriod"
@@ -102,5 +103,10 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		}];
 
 		this.callParent(arguments);
+		
+		this.getStore().addListener("load", function(store, records){
+			budgetTree.down("textfield[itemId='currentPeriod']").setValue(store.proxy.reader.rawData.period);
+			budgetTree.currentDate = store.proxy.reader.rawData.date;	//ISO Date string, will be used as current reference when passing nextPeriod / previousPeriod
+		});
 	}
 });

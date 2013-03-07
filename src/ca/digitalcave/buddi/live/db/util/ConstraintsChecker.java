@@ -6,9 +6,11 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
+import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
+import ca.digitalcave.buddi.live.model.Entry;
 import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
@@ -83,4 +85,30 @@ public class ConstraintsChecker {
 		if (transaction.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertTransaction(transaction, user, sqlSession);
 	}
+	
+	public static void checkInsertEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
+		if (entry.getCategoryId() == 0) throw new DatabaseException("The category id must be set");
+		if (entry.getDate() == null) throw new DatabaseException("The date must be set");
+		
+		final Entry existingEntry = sqlSession.getMapper(Entries.class).selectEntry(user, entry.getDate(), entry.getCategoryId());
+		if (existingEntry != null && existingEntry.getId() != entry.getId()) throw new DatabaseException("An existing entry for the same date / category already exists, but with a different ID.  Perform an update instead of an insert.");
+		
+		final Category category = sqlSession.getMapper(Sources.class).selectCategory(user, entry.getCategoryId());
+		if (category == null)  throw new DatabaseException("The specified category is not valid");
+	}
+	public static void checkUpdateEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
+		if (entry.getId() == null) throw new DatabaseException("The id must be set to perform an update");
+		checkInsertEntry(entry, user, sqlSession);
+	}
+
+	public static void checkDeleteEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
+		if (entry.getId() == null) throw new DatabaseException("The id must be set");
+		
+		final Entry existingEntry = sqlSession.getMapper(Entries.class).selectEntry(user, entry.getId());
+		if (existingEntry == null) throw new DatabaseException("Could not find an entry to delete");
+		
+		final Category category = sqlSession.getMapper(Sources.class).selectCategory(user, existingEntry.getCategoryId());
+		if (category == null)  throw new DatabaseException("The specified category is not valid");
+	}
+
 }

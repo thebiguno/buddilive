@@ -1,19 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.live.db.Entries">
-	<select id="selectUser" resultType="ca.digitalcave.buddi.live.model.Entry">
+	<resultMap id="entry" type="ca.digitalcave.buddi.live.model.Entry">
+		<id column="e_id" property="id" />
+		<result column="e_category" property="categoryId"/>
+		<result column="e_amount" property="amount"/>
+		<result column="e_date" property="date"/>
+		<result column="e_created" property="created"/>
+		<result column="e_modified" property="modified"/>
+	</resultMap>
+
+	<select id="selectEntry" resultMap="entry">
 		SELECT 
+			e.id e_id,
+			e.category e_category,
+			e.amount e_amount,
+			e.date e_date,
+			e.created e_created,
+			e.modified e_modified
+		FROM entries e
+		INNER JOIN sources s ON e.category = s.id
+		WHERE 
+			s.user_id = #{user.id}
+			<if test="_parameter.containsKey('id')">
+			AND e.id = #{id}
+			</if>
+			<if test="_parameter.containsKey('categoryId')">
+			AND e.category = #{categoryId}
+			</if>
+			<if test="_parameter.containsKey('date')">
+			AND e.date = #{date}
+			</if>
+	</select>
+	
+	<insert id="insertEntry">
+		<selectKey keyProperty="entry.id" resultType="long" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from entries
+		</selectKey>
+		INSERT INTO entries (
 			id,
 			category,
 			amount,
 			date,
 			created,
 			modified
-		FROM entries e
+		)
+		VALUES (
+			#{entry.id},
+			#{entry.categoryId},
+			#{entry.amount},
+			#{entry.date},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+	
+	<delete id="deleteEntry">
+		DELETE FROM entries e
 		INNER JOIN sources s ON e.category = s.id
 		WHERE 
-			s.user_id = #{user.id}
-			AND e.category = #{category.id}
-			AND e.date = #{date}
-	</select>
+			e.category = #{entry.categoryId} 
+			AND e.date = #{entry.date}
+			AND s.user_id = #{user.id}
+	</delete>
 </mapper>

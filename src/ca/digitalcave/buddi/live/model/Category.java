@@ -15,8 +15,8 @@ public class Category extends Source {
 	//The following are used in Java, but are not directly mapped to the DB
 	private List<Category> children;
 
-	private long previousAmount;
-	private long currentAmount;
+	private Entry previousEntry;
+	private Entry currentEntry;
 
 	public Category() {}
 	
@@ -89,16 +89,16 @@ public class Category extends Source {
 		return "I".equals(getType());
 	}
 
-	public long getPreviousAmount() {
-		return previousAmount;
+	public Entry getCurrentEntry() {
+		return currentEntry;
 	}
-	public void setPreviousAmount(long previousAmount) {
-		this.previousAmount = previousAmount;
+	public void setCurrentEntry(Entry currentEntry) {
+		this.currentEntry = currentEntry;
 	}
-	public long getCurrentAmount() {
-		return currentAmount;
+	public Entry getPreviousEntry() {
+		return previousEntry;
 	}
-	public void setCurrentAmount(long currentAmount) {
-		this.currentAmount = currentAmount;
+	public void setPreviousEntry(Entry previousEntry) {
+		this.previousEntry = previousEntry;
 	}
 }

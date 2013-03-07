@@ -19,9 +19,9 @@ public class Entry {
 	public Entry(){}
 	public Entry(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getLong("id") : null);
-		this.setCategoryId(json.has("categoryId") && json.getString("categoryId").length() > 0 ? json.getInt("categoryId") : null);
-		this.setAmount(json.has("amount") && json.getString("amount").length() > 0 ? json.getLong("amount") : null);
-		this.setDate(json.has("date") ? FormatUtil.parseDate(json.getString("date")) : null);
+		this.setCategoryId(json.getInt("categoryId"));	//This field is required
+		this.setAmount(json.optLong("amount"));	//This field is required, but can be zero
+		this.setDate(FormatUtil.parseDate(json.getString("date")));	//This field is required
 	}
 	
 	public JSONObject toJson() throws JSONException {
@@ -76,5 +76,13 @@ public class Entry {
 	}
 	public void setPeriod(CategoryPeriod period) {
 		this.period = period;
+	}
+	
+	@Override
+	public String toString() {
+		try {
+			return toJson().toString();
+		}
+		catch (JSONException e){return "Error converting to JSON";}
 	}
 }

@@ -91,9 +91,11 @@
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_entry_id"/>
 			</column>
 			<column name="category" type="int">
-				<constraints foreignKeyName="pk_source_id" />
+				<constraints nullable="false" foreignKeyName="pk_source_id" deleteCascade="true"/>
 			</column>
-			<column name="amount" type="bigint"/>
+			<column name="amount" type="bigint">
+				<constraints nullable="false"/>
+			</column>
 			<column name="date" type="date">
 				<constraints nullable="false"/>
 			</column>

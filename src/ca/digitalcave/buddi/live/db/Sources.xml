@@ -23,8 +23,18 @@
 	<resultMap id="category" type="ca.digitalcave.buddi.live.model.Category" extends="source">
 		<result column="c_period_type" property="periodType" />
 		<result column="c_parent" property="parent"/>
-		<result column="e_amount" property="currentAmount"/>
-		<result column="e_amount_prev" property="previousAmount"/>
+		<association property="previousEntry" javaType="ca.digitalcave.buddi.live.model.Entry">
+			<id column="pe_id" property="id"/>
+			<result column="s_id" property="categoryId"/>
+			<result column="pe_amount" property="amount"/>
+			<result column="pe_date" property="date"/>
+		</association>
+		<association property="currentEntry" javaType="ca.digitalcave.buddi.live.model.Entry">
+			<id column="ce_id" property="id"/>
+			<result column="s_id" property="categoryId"/>
+			<result column="ce_amount" property="amount"/>
+			<result column="ce_date" property="date"/>
+		</association>
 	</resultMap>
 	
 	<resultMap id="accountsByType" type="ca.digitalcave.buddi.live.model.AccountType">
@@ -87,7 +97,7 @@
 			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent
 			<if test="_parameter.containsKey('categoryPeriod')">
-			, ce.amount e_amount, pe.amount e_amount_prev
+			, ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.date ce_date, pe.date pe_date
 			</if> 
 		FROM sources c
 		<if test="_parameter.containsKey('categoryPeriod')">

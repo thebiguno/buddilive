@@ -7,7 +7,12 @@ Ext.define('BuddiLive.model.budget.TreeModel', {
 		"accountType",
 		"startBalance",
 		"deleted", 
-		"balance", 
+		"previousId",
+		"previousAmount",
+		"previousDate",
+		"currentId",
+		"currentAmount",
+		"currentDate",
 		"nodeType"
 	]
 });

@@ -10,9 +10,9 @@ public class CategoryPeriod {
 	private final CategoryPeriods categoryPeriods;
 	private final Date date;
 	
-	public CategoryPeriod(CategoryPeriods categoryPeriods, Date date) {
+	public CategoryPeriod(CategoryPeriods categoryPeriods, Date date, int offset) {
 		this.categoryPeriods = categoryPeriods;
-		this.date = date;
+		this.date = categoryPeriods.getBudgetPeriodOffset(date == null ? new Date() : date, offset);
 	}
 	
 	public Date getCurrentDate(){
@@ -23,6 +23,10 @@ public class CategoryPeriod {
 		return categoryPeriods.getBudgetPeriodOffset(date, -1);
 	}
 	
+	public CategoryPeriods getCategoryPeriods(){
+		return categoryPeriods;
+	}
+
 	public String getPeriodType(){
 		return categoryPeriods.toString();
 	}
