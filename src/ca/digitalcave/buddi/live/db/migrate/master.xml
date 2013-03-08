@@ -40,7 +40,7 @@
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_sources_id"/>
 			</column>
 			<column name="user_id" type="int">
-				<constraints  nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
+				<constraints  nullable="false"/>
 			</column>
 			<column name="uuid" type="varchar(64)">
 				<constraints nullable="false" unique="true" uniqueConstraintName="uc_sources_uuid"/>
@@ -75,6 +75,8 @@
 				<constraints foreignKeyName="pk_source_id" />
 			</column>
 		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_users_sources" referencedTableName="users" referencedColumnNames="id" baseTableName="sources" baseColumnNames="user_id" onDelete="CASCADE"/>
 	</changeSet>
 	<changeSet id="create sources check constraints" author="wyatt">
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_deleted CHECK (deleted IN ('Y', 'N'))</sql>
@@ -91,10 +93,10 @@
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_entry_id"/>
 			</column>
 			<column name="category" type="int">
-				<constraints nullable="false" foreignKeyName="pk_source_id" deleteCascade="true"/>
+				<constraints nullable="false"/>
 			</column>
 			<column name="user_id" type="int">
-				<constraints  nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
+				<constraints  nullable="false"/>
 			</column>
 			<column name="amount" type="decimal(14,2)">
 				<constraints nullable="false"/>
@@ -109,6 +111,9 @@
 				<constraints nullable="false"/>
 			</column>
 		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_sources_entries" referencedTableName="sources" referencedColumnNames="id" baseTableName="entries" baseColumnNames="category" onDelete="CASCADE"/>
+		<addForeignKeyConstraint constraintName="fk_users_entries" referencedTableName="users" referencedColumnNames="id" baseTableName="entries" baseColumnNames="user_id" onDelete="CASCADE"/>
 	</changeSet>
 	
 	<changeSet id="create transactions" author="wyatt">
@@ -120,7 +125,7 @@
 				<constraints nullable="false" unique="true" uniqueConstraintName="uc_transaction_uuid"/>
 			</column>
 			<column name="user_id" type="int">
-				<constraints nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
+				<constraints nullable="false"/>
 			</column>
 			<column name="description" type="varchar(256)">
 				<constraints nullable="false"/>
@@ -139,6 +144,8 @@
 				<constraints nullable="false"/>
 			</column>
 		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_users_transactions" referencedTableName="users" referencedColumnNames="id" baseTableName="transactions" baseColumnNames="user_id" onDelete="CASCADE"/>
 	</changeSet>
 	<changeSet id="create transactions check constraints" author="wyatt">
 		<sql>ALTER TABLE transactions ADD CONSTRAINT cc_transactions_deleted CHECK (deleted IN ('Y', 'N'))</sql>
@@ -150,16 +157,16 @@
 				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_split_id"/>
 			</column>
 			<column name="transaction_id" type="bigint">
-				<constraints nullable="false" foreignKeyName="pk_transaction_id" deleteCascade="true"/>
+				<constraints nullable="false"/>
 			</column>
 			<column name="amount" type="decimal(14,2)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="from_source" type="int">
-				<constraints nullable="false" foreignKeyName="pk_sources_id" deleteCascade="true"/>
+				<constraints nullable="false"/>
 			</column>
 			<column name="to_source" type="int">
-				<constraints nullable="false" foreignKeyName="pk_sources_id" deleteCascade="true"/>
+				<constraints nullable="false"/>
 			</column>
 			<column name="memo" type="varchar(1024)"/>
 			<column name="created" type="timestamp">
@@ -169,6 +176,10 @@
 				<constraints nullable="false"/>
 			</column>
 		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_transactions_splits" referencedTableName="transactions" referencedColumnNames="id" baseTableName="splits" baseColumnNames="transaction_id" onDelete="CASCADE"/>
+		<addForeignKeyConstraint constraintName="fk_fromsources_splits" referencedTableName="sources" referencedColumnNames="id" baseTableName="splits" baseColumnNames="from_source" onDelete="CASCADE"/>
+		<addForeignKeyConstraint constraintName="fk_tosourcs_splits" referencedTableName="sources" referencedColumnNames="id" baseTableName="splits" baseColumnNames="to_source" onDelete="CASCADE"/>
 	</changeSet>
 
 </databaseChangeLog>
