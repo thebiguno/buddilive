@@ -1,5 +1,7 @@
 package ca.digitalcave.buddi.live.model;
 
+import java.math.BigDecimal;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -7,17 +9,17 @@ import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class Account extends Source {
 	private String accountType;
-	private Long startBalance;
+	private BigDecimal startBalance;
 
 	//The following are used for temporary results from the DB, but are not persisted.
-	private Long balance;
+	private BigDecimal balance;
 	
 	public Account() {}
 	
 	public Account(JSONObject json) throws JSONException {
 		super(json);
 		this.setAccountType(json.optString("accountType", null));
-		this.setStartBalance(FormatUtil.parseCurrency(json.optString("startBalance")));
+		this.setStartBalance(FormatUtil.parseCurrency(json.optString("startBalance", null)));
 	}
 	
 	public JSONObject toJson() throws JSONException {
@@ -34,13 +36,13 @@ public class Account extends Source {
 	public void setAccountType(String accountType) {
 		this.accountType = accountType;
 	}
-	public Long getStartBalance() {
+	public BigDecimal getStartBalance() {
 		return startBalance;
 	}
-	public void setStartBalance(Long startBalance) {
+	public void setStartBalance(BigDecimal startBalance) {
 		this.startBalance = startBalance;
 	}
-	public Long getBalance() {
+	public BigDecimal getBalance() {
 		return balance;
 	}
 	

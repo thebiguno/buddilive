@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -134,10 +135,10 @@ public class Transaction {
 
 	
 	//The following are calculated convenience methods, and are not stored in the DB.
-	public long getAmount(){
-		long total = 0;
+	public BigDecimal getAmount(){
+		BigDecimal total = BigDecimal.ZERO;
 		for (Split split : splits) {
-			total += split.getAmount();
+			total = total.add(split.getAmount());		//TODO calculate this in the DB
 		}
 		return total;
 	}

@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource.gui;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -66,7 +67,7 @@ public class AccountsResource extends ServerResource {
 					if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 					account.put("style", sb.toString());
 					sb.setLength(0);
-					if (!a.isDebit() ^ a.getBalance() < 0) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+					if (!a.isDebit() ^ a.getBalance().compareTo(BigDecimal.ZERO) < 0) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 					account.put("balanceStyle", sb.toString());
 					sb.setLength(0);
 					account.put("leaf", true);

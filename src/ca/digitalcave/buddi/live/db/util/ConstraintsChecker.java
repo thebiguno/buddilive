@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live.db.util;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class ConstraintsChecker {
 		if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		if (transaction.getDate() == null) throw new DatabaseException("The transaction date must be set");
 		for (Split split : transaction.getSplits()) {
-			if (split.getAmount() == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
+			if (split.getAmount().compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
 			
 			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
 			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());

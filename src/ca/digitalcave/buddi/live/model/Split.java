@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.json.JSONException;
@@ -11,7 +12,7 @@ public class Split {
 	private Long id;
 	private Long transactionId;
 	private int userId;
-	private long amount;
+	private BigDecimal amount;
 	private int fromSource;
 	private int toSource;
 	private String memo;
@@ -63,10 +64,10 @@ public class Split {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
-	public long getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
-	public void setAmount(long amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 	public int getFromSource() {

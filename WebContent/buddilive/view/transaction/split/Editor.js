@@ -24,7 +24,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"keyNavEnabled": false,
 				"mouseWheelEnabled": false,
 				"emptyText": "0.00 (Amount)",
-				"value": v.amount / 100
+				"value": v.amount
 			},
 			{
 				"xtype": "sourcecombobox",
@@ -82,7 +82,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 	
 	"getSplit": function(){
 		var s = {};
-		s.amount = this.down("numberfield[itemId='amount']").getValue() * 100;
+		s.amount = this.down("numberfield[itemId='amount']").getValue();
 		s.fromSource = this.down("combo[itemId='from']").getValue();
 		s.toSource = this.down("combo[itemId='to']").getValue();
 		s.memo = this.down("textfield[itemId='memo']").getValue();

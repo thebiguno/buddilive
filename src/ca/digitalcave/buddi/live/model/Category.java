@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +16,7 @@ public class Category extends Source {
 	//The following are used in Java, but are not directly mapped to the DB
 	private List<Category> children;
 	
-	private Long periodBalance;
+	private BigDecimal periodBalance;
 
 	private Entry previousEntry;
 	private Entry currentEntry;
@@ -58,10 +59,10 @@ public class Category extends Source {
 	public void setChildren(List<Category> children) {
 		this.children = children;
 	}
-	public Long getPeriodBalance() {
+	public BigDecimal getPeriodBalance() {
 		return periodBalance;
 	}
-	public void setPeriodBalance(Long periodBalance) {
+	public void setPeriodBalance(BigDecimal periodBalance) {
 		this.periodBalance = periodBalance;
 	}
 	

@@ -96,7 +96,7 @@
 			<column name="user_id" type="int">
 				<constraints  nullable="false" foreignKeyName="pk_users_id" deleteCascade="true"/>
 			</column>
-			<column name="amount" type="bigint">
+			<column name="amount" type="decimal(14,2)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="date" type="date">
@@ -152,7 +152,7 @@
 			<column name="transaction_id" type="bigint">
 				<constraints nullable="false" foreignKeyName="pk_transaction_id" deleteCascade="true"/>
 			</column>
-			<column name="amount" type="bigint">
+			<column name="amount" type="decimal(14,2)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="from_source" type="int">
