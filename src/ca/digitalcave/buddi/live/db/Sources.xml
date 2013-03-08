@@ -108,17 +108,14 @@
 			LEFT JOIN entries ce ON ce.category = c.id AND ce.date = #{categoryPeriod.currentPeriodStartDate} AND ce.user_id = #{user.id}
 			LEFT JOIN entries pe ON pe.category = c.id AND pe.date = #{categoryPeriod.previousPeriodStartDate} AND pe.user_id = #{user.id}
 			<if test="showActual">
-			LEFT JOIN splits to_splits ON to_splits.to_source = c.id 
-			LEFT JOIN splits from_splits ON from_splits.from_source = c.id
-			LEFT JOIN transactions t ON (t.id = to_splits.transaction_id OR t.id = from_splits.transaction_id)
+			LEFT JOIN transactions t ON t.date >= #{categoryPeriod.currentPeriodStartDate} AND t.date &lt;= #{categoryPeriod.currentPeriodEndDate}
+			LEFT JOIN splits to_splits ON to_splits.to_source = c.id AND to_splits.transaction_id = t.id 
+			LEFT JOIN splits from_splits ON from_splits.from_source = c.id AND from_splits.transaction_id = t.id
 			</if>
 		</if>
 		WHERE c.user_id = #{user.id}
 		<if test="_parameter.containsKey('categoryPeriod')">
 			AND period_type = #{categoryPeriod.periodType}
-			<if test="showActual">
-				AND ((t.date >= #{categoryPeriod.currentPeriodStartDate} AND t.date &lt;= #{categoryPeriod.currentPeriodEndDate}) OR t.id IS NULL) 
-			</if>
 		</if>
 		<if test="_parameter.containsKey('periodType') and periodType != ''">AND period_type = #{periodType}</if>
 		<if test="_parameter.containsKey('income')">
