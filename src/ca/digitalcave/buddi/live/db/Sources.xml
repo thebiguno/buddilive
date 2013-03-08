@@ -226,7 +226,7 @@
 	</insert>
 
 
-	<insert id="updateAccount">
+	<update id="updateAccount">
 		UPDATE sources
 		SET
 			uuid = #{account.uuid},
@@ -238,8 +238,8 @@
 			start_balance = #{account.startBalance,jdbcType=BIGINT},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{account.id} AND user_id = #{user.id}
-	</insert>
-	<insert id="updateCategory">
+	</update>
+	<update id="updateCategory">
 		UPDATE sources
 		SET
 			uuid = #{category.uuid},
@@ -251,7 +251,7 @@
 			-- changing these values on the fly could compromise DB referential integrity, since
 			-- parents must be the same type / period_type as their children.
 		WHERE id = #{category.id} AND user_id = #{user.id}
-	</insert>
+	</update>
 	<update id="updateSourceDeleted">
 		UPDATE sources 
 		SET 
