@@ -20,7 +20,7 @@ public class Entry {
 	public Entry(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setCategoryId(json.getInt("categoryId"));	//This field is required
-		this.setAmount(json.optLong("amount"));	//This field is required, but can be zero
+		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")));	//This field is required, but can be zero
 		this.setDate(FormatUtil.parseDate(json.getString("date")));	//This field is required
 	}
 	

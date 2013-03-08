@@ -37,21 +37,38 @@ public class FormatUtil {
 		}
 	}
 	
+	/**
+	 * Convert a currency string (in dollars + cents, i.e. "123.45") to the DB-friendly long
+	 * value (i.e. 12345).
+	 * @param value
+	 * @return
+	 */
 	public static Long parseCurrency(String value){
 		if (value == null) return null;
-		final String numbers = value.replaceAll("[^0-9]", "");
+		final String numbers = value.replaceAll("[^0-9.,]", "");
 		if (numbers.length() == 0) return null;
 		try {
-			return Long.parseLong(numbers);
+			final NumberFormat f = DecimalFormat.getInstance();	//TODO pass in locale
+			f.setMaximumFractionDigits(2);
+			f.setMinimumFractionDigits(2);
+			return (long) (f.parse(value).doubleValue() * 100);
 		}
 		catch (NumberFormatException e){
 			return null;
 		}
+		catch (ParseException e){
+			return null;
+		}
 	}
 	
+	/**
+	 * Convert a long value from the DB (i.e. 12345) to a currency string (i.e. "123.45").
+	 * @param value
+	 * @return
+	 */
 	public static String formatCurrency(Long value){
 		if (value == null) return null;
-		final NumberFormat f = DecimalFormat.getInstance();
+		final NumberFormat f = DecimalFormat.getInstance();	//TODO pass in locale
 		f.setMaximumFractionDigits(2);
 		f.setMinimumFractionDigits(2);
 		return f.format((double) value / 100.0);

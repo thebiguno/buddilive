@@ -20,10 +20,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		];
 		
 		var numberCellRenderer = function(value, metaData, record){
-			if (value == null || value == 0 || isNaN(value)){
-				return "-";
-			}
-			return value.toFixed(2);
+			if (value == null || value.length == 0 || value == "0.00") return "-";
+			else return value;
 		};
 		
 		this.columns = [
@@ -50,11 +48,9 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"flex": 1,
 				"align": "right",
 				"editor": {
-					"xtype": "numberfield",
-					"hideTrigger": true,
-					"keyNavEnabled": false,
-					"mouseWheelEnabled": false,
+					"xtype": "textfield",
 					"emptyText": "0.00",
+					
 					"fieldStyle": "text-align: right;"
 				},
 				"renderer": numberCellRenderer

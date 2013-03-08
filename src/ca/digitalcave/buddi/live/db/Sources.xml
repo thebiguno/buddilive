@@ -23,6 +23,7 @@
 	<resultMap id="category" type="ca.digitalcave.buddi.live.model.Category" extends="source">
 		<result column="c_period_type" property="periodType" />
 		<result column="c_parent" property="parent"/>
+		<result column="c_period_balance" property="periodBalance"/>
 		<association property="previousEntry" javaType="ca.digitalcave.buddi.live.model.Entry">
 			<id column="pe_id" property="id"/>
 			<result column="s_id" property="categoryId"/>
@@ -98,11 +99,19 @@
 			c.period_type c_period_type, c.parent c_parent
 			<if test="_parameter.containsKey('categoryPeriod')">
 			, ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.date ce_date, pe.date pe_date
+				<if test="showActual">
+				, coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as c_period_balance
+				</if>
 			</if> 
 		FROM sources c
 		<if test="_parameter.containsKey('categoryPeriod')">
-			LEFT JOIN entries ce ON ce.category = c.id AND ce.date = #{categoryPeriod.currentDate} AND ce.user_id = #{user.id}
-			LEFT JOIN entries pe ON pe.category = c.id AND pe.date = #{categoryPeriod.previousDate} AND pe.user_id = #{user.id}
+			LEFT JOIN entries ce ON ce.category = c.id AND ce.date = #{categoryPeriod.currentPeriodStartDate} AND ce.user_id = #{user.id}
+			LEFT JOIN entries pe ON pe.category = c.id AND pe.date = #{categoryPeriod.previousPeriodStartDate} AND pe.user_id = #{user.id}
+			<if test="showActual">
+			LEFT JOIN splits to_splits ON to_splits.to_source = c.id 
+			LEFT JOIN splits from_splits ON from_splits.from_source = c.id
+			LEFT JOIN transactions t ON (t.id = to_splits.transaction_id OR t.id = from_splits.transaction_id) AND t.date >= #{categoryPeriod.currentPeriodStartDate} AND t.date &lt;= #{categoryPeriod.currentPeriodEndDate}
+			</if>
 		</if>
 		WHERE c.user_id = #{user.id}
 		<if test="_parameter.containsKey('categoryPeriod')">AND period_type = #{categoryPeriod.periodType}</if>
@@ -113,7 +122,14 @@
 				<when test="income == false">AND type = 'E'</when>
 			</choose>
 		</if>
+		GROUP BY
+			c.id, c.user_id, c.uuid, c.name, c.start_date, c.deleted, c.type, c.created, c.modified,
+			c.period_type, c.parent
+			<if test="_parameter.containsKey('categoryPeriod')">
+			, ce.id, pe.id, ce.amount, pe.amount, ce.date, pe.date
+			</if>
 		ORDER BY c.type DESC, c.name
+
 	</select>
 	
 	<select id="selectCategoryPeriods" resultType="string">

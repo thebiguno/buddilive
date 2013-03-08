@@ -15,11 +15,14 @@ public class CategoryPeriod {
 		this.date = categoryPeriods.getBudgetPeriodOffset(date == null ? new Date() : date, offset);
 	}
 	
-	public Date getCurrentDate(){
+	public Date getCurrentPeriodStartDate(){
+		return categoryPeriods.getStartOfBudgetPeriod(date);
+	}
+	public Date getCurrentPeriodEndDate(){
 		return categoryPeriods.getStartOfBudgetPeriod(date);
 	}
 	
-	public Date getPreviousDate(){
+	public Date getPreviousPeriodStartDate(){
 		return categoryPeriods.getBudgetPeriodOffset(date, -1);
 	}
 	

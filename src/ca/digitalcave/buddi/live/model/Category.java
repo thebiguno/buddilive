@@ -14,6 +14,8 @@ public class Category extends Source {
 	
 	//The following are used in Java, but are not directly mapped to the DB
 	private List<Category> children;
+	
+	private Long periodBalance;
 
 	private Entry previousEntry;
 	private Entry currentEntry;
@@ -55,6 +57,12 @@ public class Category extends Source {
 	}
 	public void setChildren(List<Category> children) {
 		this.children = children;
+	}
+	public Long getPeriodBalance() {
+		return periodBalance;
+	}
+	public void setPeriodBalance(Long periodBalance) {
+		this.periodBalance = periodBalance;
 	}
 	
 	/**

@@ -39,7 +39,7 @@ public class CategoriesResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(getQuery().getFirstValue("periodType")), FormatUtil.parseDate(getQuery().getFirstValue("date")), Integer.parseInt(getQuery().getFirstValue("offset", "0")));
-			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp));
+			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp, true));
 			
 			final JSONArray data = new JSONArray();
 			for (Category c : categories) {
@@ -47,8 +47,8 @@ public class CategoriesResource extends ServerResource {
 			}
 			
 			final JSONObject result = new JSONObject();
-			result.put("period", FormatUtil.formatDate(cp.getCurrentDate()) + " - " + FormatUtil.formatDate(cp.getCategoryPeriods().getEndOfBudgetPeriod(cp.getCurrentDate())));
-			result.put("date", FormatUtil.formatDate(cp.getCurrentDate()));
+			result.put("period", FormatUtil.formatDate(cp.getCurrentPeriodStartDate()) + " - " + FormatUtil.formatDate(cp.getCurrentPeriodEndDate()));
+			result.put("date", FormatUtil.formatDate(cp.getCurrentPeriodStartDate()));
 			result.put("children", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
@@ -72,10 +72,11 @@ public class CategoriesResource extends ServerResource {
 		result.put("type", category.getType());
 		result.put("parent", category.getParent());
 		result.put("deleted", category.isDeleted());
-		result.put("currentDate", FormatUtil.formatDate(categoryPeriod.getCurrentDate()));
-		result.put("currentAmount", category.getCurrentEntry().getAmount());
-		result.put("previousDate", FormatUtil.formatDate(categoryPeriod.getPreviousDate()));
-		result.put("previousAmount", category.getPreviousEntry().getAmount());
+		result.put("currentDate", FormatUtil.formatDate(categoryPeriod.getCurrentPeriodStartDate()));
+		result.put("currentAmount", FormatUtil.formatCurrency(category.getCurrentEntry().getAmount()));
+		result.put("previousDate", FormatUtil.formatDate(categoryPeriod.getPreviousPeriodStartDate()));
+		result.put("previousAmount", FormatUtil.formatCurrency(category.getPreviousEntry().getAmount()));
+		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance()));
 
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");

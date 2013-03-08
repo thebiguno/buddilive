@@ -87,6 +87,7 @@ public class ConstraintsChecker {
 	}
 	
 	public static void checkInsertEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
+		if (entry.getAmount() == null) throw new DatabaseException("Invalid amount detected");
 		if (entry.getCategoryId() == 0) throw new DatabaseException("The category id must be set");
 		if (entry.getDate() == null) throw new DatabaseException("The date must be set");
 		

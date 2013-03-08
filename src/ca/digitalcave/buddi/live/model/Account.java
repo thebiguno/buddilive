@@ -17,12 +17,12 @@ public class Account extends Source {
 	public Account(JSONObject json) throws JSONException {
 		super(json);
 		this.setAccountType(json.optString("accountType", null));
-		this.setStartBalance(json.optLong("startBalance") == 0 ? null : json.optLong("startBalance"));
+		this.setStartBalance(FormatUtil.parseCurrency(json.optString("startBalance")));
 	}
 	
 	public JSONObject toJson() throws JSONException {
 		JSONObject result = super.toJson();
-		result.put("startBalance", this.getStartBalance());
+		result.put("startBalance", FormatUtil.formatCurrency(this.getStartBalance()));
 		result.put("balance", FormatUtil.formatCurrency(this.getBalance()));
 		result.put("accountType", this.getAccountType());
 		return result;
