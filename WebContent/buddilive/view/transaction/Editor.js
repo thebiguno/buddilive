@@ -20,6 +20,11 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 				},
 				"items": [
 					{
+						"xtype": "hidden",
+						"itemId": "id",
+						"hidden": true
+					},
+					{
 						"xtype": "datefield",
 						"itemId": "date",
 						"flex": 1,
@@ -78,6 +83,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 	
 	"getTransaction": function(transaction){
 		var t = {};
+		t.id = this.down("hidden[itemId='id']").getValue();
 		t.date = Ext.Date.format(this.down("datefield[itemId='date']").getValue(), "Y-m-d");
 		t.description = this.down("combobox[itemId='description']").getValue();
 		t.number = this.down("textfield[itemId='number']").getValue();
@@ -92,6 +98,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 	"setTransaction": function(transaction){
 		transaction = (transaction ? transaction : {});
 		
+		this.down("hidden[itemId='id']").setValue(transaction.id);
 		this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.date, "Y-m-d", true));
 		this.down("combobox[itemId='description']").setValue(transaction.description);
 		this.down("textfield[itemId='number']").setValue(transaction.number);

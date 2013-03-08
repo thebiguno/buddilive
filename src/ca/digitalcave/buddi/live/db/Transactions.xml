@@ -39,6 +39,7 @@
 		<if test="_parameter.containsKey('source')">
 			AND (s.from_source = #{source.id} OR s.to_source = #{source.id})
 		</if>
+		ORDER BY t.date DESC
 	</select>
 	
 	<select id="selectDescriptions" resultType="string">
@@ -67,6 +68,17 @@
 		)
 		values (#{split.id}, #{split.transactionId}, #{split.amount}, #{split.fromSource}, #{split.toSource}, #{split.memo,jdbcType=VARCHAR}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
+	
+	<update id="updateTransaction">
+		UPDATE transactions
+		SET 
+			description = #{transaction.description},
+			number = #{transaction.number},
+			date = #{transaction.date},
+			deleted = <choose><when test="transaction.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{transaction.id} AND user_id = #{user.id}
+	</update>
 	
 	<delete id="deleteTransaction">
 		DELETE FROM transactions

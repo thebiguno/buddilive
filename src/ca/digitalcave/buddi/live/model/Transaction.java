@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +31,7 @@ public class Transaction {
 	public Transaction() {
 	}
 	public Transaction(JSONObject json) throws JSONException {
-		this.setId(json.has("id") ? json.getLong("id") : null);
+		this.setId(StringUtils.isNotBlank(json.optString("id", null)) ? Long.parseLong(json.getString("id")) : null);
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		this.setDescription(json.getString("description"));
 		this.setNumber(json.has("number") ? json.getString("number") : null);

@@ -119,7 +119,7 @@ public class TransactionsResource extends ServerResource {
 				final Transaction transaction = new Transaction(json);
 				ConstraintsChecker.checkUpdateTransaction(transaction, user, sqlSession);
 				
-				int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
+				int count = sqlSession.getMapper(Transactions.class).updateTransaction(user, transaction);
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 
 				//To update, we delete all splits associated with the given transaction, and re-insert them according to the given data packet.

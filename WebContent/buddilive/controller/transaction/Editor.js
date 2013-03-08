@@ -27,7 +27,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		if (request.date == null || request.description == null || request.splits.length == 0){
 			return;
 		}
-		request.action = "insert";
+		request.action = (request.id ? "update" : "insert");
 		
 		//Disable the button before submitting to prevent double clicks
 		editor.down("button[itemId='recordTransaction']").disable();
