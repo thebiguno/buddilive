@@ -53,20 +53,27 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 			},
 			{
 				"xtype": "button",
-				"icon": "img/plus-circle.png",
-				"itemId": "addSplit",
-				"tooltip": "Add split",
-				"padding": "2 5 2 5",
-				"margin": "0 5 0 0"
-			},
-			{
-				"xtype": "button",
 				"icon": "img/minus-circle.png",
 				"itemId": "removeSplit",
 				"tooltip": "Remove split",
 				"padding": "2 5 2 5",
 				"margin": "0 5 0 0",
 				"hidden": true
+			},
+			{
+				"xtype": "tbspacer",
+				"itemId": "addSpacer",
+				"width": 28,
+				"padding": "2 5 2 5",
+				"margin": "0 5 0 0"
+			},
+			{
+				"xtype": "button",
+				"icon": "img/plus-circle.png",
+				"itemId": "addSplit",
+				"tooltip": "Add split",
+				"padding": "2 5 2 5",
+				"margin": "0 5 0 0"
 			}
 		];
 		

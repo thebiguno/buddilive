@@ -29,6 +29,7 @@ Ext.define("BuddiLive.controller.transaction.split.Editor", {
 		for (var i = 0; i < splitEditors.length; i++){
 			splitEditors[i].down("button[itemId='removeSplit']").setVisible(visible);
 			splitEditors[i].down("button[itemId='addSplit']").setVisible(i == splitEditors.length - 1);
+			splitEditors[i].down("tbspacer[itemId='addSpacer']").setVisible(i != splitEditors.length - 1);
 		}
 	}
 });
