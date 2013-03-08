@@ -19,7 +19,7 @@ public class CategoryPeriod {
 		return categoryPeriods.getStartOfBudgetPeriod(date);
 	}
 	public Date getCurrentPeriodEndDate(){
-		return categoryPeriods.getStartOfBudgetPeriod(date);
+		return categoryPeriods.getEndOfBudgetPeriod(date);
 	}
 	
 	public Date getPreviousPeriodStartDate(){
