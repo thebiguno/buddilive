@@ -77,8 +77,8 @@ echo '{
 			"number": "Cheque #12345",
 			"splits": [{
 				"amount": "456.78",
-				"fromSource": 1,
-				"toSource": 9,
+				"fromId": 1,
+				"toId": 9,
 				"memo": "Lots of candy"
 			}]
 		},
@@ -87,8 +87,8 @@ echo '{
 			"description": "Target",
 			"splits": [{
 				"amount": "40.56",
-				"fromSource": 3,
-				"toSource": 9,
+				"fromId": 3,
+				"toId": 9,
 				"memo": "More candy, this time on credit"
 			}]
 		},
@@ -97,8 +97,8 @@ echo '{
 			"description": "Visa Bill",
 			"splits": [{
 				"amount": "40.56",
-				"fromSource": 1,
-				"toSource": 3,
+				"fromId": 1,
+				"toId": 3,
 				"memo": "Paying off Visa bill"
 			}]
 		}

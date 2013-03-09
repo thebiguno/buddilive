@@ -28,8 +28,8 @@ public class Split {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setTransactionId(json.has("transactionId") ? json.getLong("transactionId") : null);
 		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")));
-		this.setFromSource(json.getInt("fromSource"));
-		this.setToSource(json.getInt("toSource"));
+		this.setFromSource(json.getInt("fromId"));
+		this.setToSource(json.getInt("toId"));
 		this.setMemo(json.optString("memo", null));
 	}
 	
@@ -39,8 +39,8 @@ public class Split {
 		result.put("transactionId", this.getTransactionId());
 		result.put("userId", this.getUserId());
 		result.put("amount", FormatUtil.formatCurrency(this.getAmount()));
-		result.put("fromSource", this.getFromSource());
-		result.put("toSource", this.getToSource());
+		result.put("fromId", this.getFromSource());
+		result.put("toId", this.getToSource());
 		result.put("memo", this.getMemo());
 		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
 		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));

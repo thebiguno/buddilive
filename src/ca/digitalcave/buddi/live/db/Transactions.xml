@@ -41,11 +41,14 @@
 		</if>
 		ORDER BY t.date DESC
 	</select>
-	
-	<select id="selectDescriptions" resultType="string">
-		SELECT DISTINCT description 
-		FROM transactions
-		WHERE user_id = #{user.id}
+
+	<select id="selectDescriptions" resultMap="transaction">
+		SELECT 
+			t.description, t.number, s.amount, s.from_source, s.to_source
+		FROM transactions t
+		LEFT JOIN splits s ON s.transaction_id = t.id
+		WHERE t.deleted = 'N' AND t.user_id = #{user.id}
+		ORDER BY t.date DESC
 	</select>
 	
 	<insert id="insertTransaction">

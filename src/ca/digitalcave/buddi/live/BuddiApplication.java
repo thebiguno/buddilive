@@ -64,7 +64,7 @@ public class BuddiApplication extends Application{
 		router.attach("/gui/categories/entries", new BuddiAuthenticator(this, getContext(), false, EntriesResource.class));
 		router.attach("/gui/categories/parents", new BuddiAuthenticator(this, getContext(), false, ParentsResource.class));
 		router.attach("/gui/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
-		router.attach("/gui/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
+		router.attach("/gui/transactions/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
 		router.attach("/gui/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/gui/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		

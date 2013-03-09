@@ -17,7 +17,7 @@ public interface Transactions {
 	public List<Transaction> selectTransactions(@Param("user") User user);
 	public List<Transaction> selectTransactions(@Param("user") User user, @Param("source") Source source);
 	
-	public List<String> selectDescriptions(@Param("user") User user);
+	public List<Transaction> selectDescriptions(@Param("user") User user);
 	
 	public Integer insertTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);
 	public Integer insertSplit(@Param("user") User user, @Param("split") Split split);

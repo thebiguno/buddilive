@@ -2,6 +2,8 @@ package ca.digitalcave.buddi.live.resource.gui;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
@@ -21,7 +23,6 @@ import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
-import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 
@@ -38,29 +39,22 @@ public class DescriptionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<String> descriptions = sqlSession.getMapper(Transactions.class).selectDescriptions(user);
+			final Map<String, Transaction> transactionsByDescription = new TreeMap<String, Transaction>();
+			final List<Transaction> descriptions = sqlSession.getMapper(Transactions.class).selectDescriptions(user);
+			for (Transaction transaction : descriptions) {
+				if (transactionsByDescription.get(transaction.getDescription()) == null){
+					transactionsByDescription.put(transaction.getDescription(), transaction);
+				}
+			}
 			
 			final JSONArray data = new JSONArray();
-//			for (Transaction t : transactions) {
-//				final JSONObject transaction = new JSONObject();
-//				transaction.put("id", t.getId());
-//				transaction.put("date", t.getDate());
-//				transaction.put("description", t.getDescription());
-//				transaction.put("number", t.getNumber());
-//				transaction.put("deleted", t.isDeleted());
-//				final JSONArray splits = new JSONArray();
-//				for (Split s : t.getSplits()) {
-//					final JSONObject split = new JSONObject();
-//					split.put("id", s.getId());
-//					split.put("name", s.getAmount());
-//					split.put("from", s.getFromSource());
-//					split.put("to", s.getToSource());
-//					split.put("memo", s.getMemo());
-//					splits.put(split);
-//				}
-//				transaction.put("splits", splits);
-//				data.put(transaction);
-//			}
+			for (String description : transactionsByDescription.keySet()) {
+				final JSONObject transaction = new JSONObject();
+				final Transaction t = transactionsByDescription.get(description);
+				transaction.put("description", description);
+				transaction.put("transaction", t.toJson());
+				data.put(transaction);
+			}
 			
 			final JSONObject result = new JSONObject();
 			result.put("data", data);

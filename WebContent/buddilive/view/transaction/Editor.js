@@ -3,8 +3,8 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 	"alias": "widget.transactioneditor",
 	
 	"requires": [
-		"BuddiLive.view.transaction.split.Editor",
-		"BuddiLive.store.transaction.DescriptionStore"
+		"BuddiLive.view.transaction.DescriptionCombobox",
+		"BuddiLive.view.transaction.split.Editor"
 	],
 	
 	"initComponent": function(){
@@ -32,12 +32,11 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"emptyText": "Date"
 					},
 					{
-						"xtype": "combobox",
+						"xtype": "descriptioncombobox",
 						"itemId": "description",
 						"flex": 2,
 						"emptyText": "Description",
-						"enableKeyEvents": true,
-						"store": Ext.create("BuddiLive.store.transaction.DescriptionStore")
+						"enableKeyEvents": true
 					},
 					{
 						"xtype": "textfield",
