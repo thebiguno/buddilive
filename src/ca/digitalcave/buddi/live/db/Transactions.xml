@@ -41,6 +41,13 @@
 		</if>
 		ORDER BY t.date DESC
 	</select>
+	
+	<select id="selectTransactionCount" resultType="int">
+		SELECT 
+			count(id)
+		FROM transactions
+		WHERE user_id = #{user.id} AND uuid = #{uuid}
+	</select>
 
 	<select id="selectDescriptions" resultMap="transaction">
 		SELECT 

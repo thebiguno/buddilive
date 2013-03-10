@@ -83,8 +83,8 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 	"getSplit": function(){
 		var s = {};
 		s.amount = this.down("numberfield[itemId='amount']").getValue();
-		s.fromSource = this.down("combo[itemId='from']").getValue();
-		s.toSource = this.down("combo[itemId='to']").getValue();
+		s.fromId = this.down("combo[itemId='from']").getValue();
+		s.toId = this.down("combo[itemId='to']").getValue();
 		s.memo = this.down("textfield[itemId='memo']").getValue();
 		return s;
 	}

@@ -19,7 +19,8 @@ import org.restlet.routing.TemplateRoute;
 
 import ca.digitalcave.buddi.live.db.migrate.Migration;
 import ca.digitalcave.buddi.live.resource.IndexResource;
-import ca.digitalcave.buddi.live.resource.data.ImportDataResource;
+import ca.digitalcave.buddi.live.resource.data.BackupResource;
+import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.live.resource.gui.AccountsResource;
 import ca.digitalcave.buddi.live.resource.gui.CategoriesResource;
@@ -69,7 +70,8 @@ public class BuddiApplication extends Application{
 		router.attach("/gui/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		
 		//Handles non-GUI data import / export
-		router.attach("/data/import", new BuddiAuthenticator(this, getContext(), false, ImportDataResource.class));
+		router.attach("/data/backup", new BuddiAuthenticator(this, getContext(), false, BackupResource.class));
+		router.attach("/data/restore", new BuddiAuthenticator(this, getContext(), false, RestoreResource.class));
 		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
 		
 		//Public data and binary data which should not be filtered through freemarker

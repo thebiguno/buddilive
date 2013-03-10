@@ -130,7 +130,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		for (var i = 1;  i < this.items.length; i++){
 			var split = this.items.get(i).getSplit();
 			if (split.amount == 0) return false;
-			if (!split.fromSource || !split.toSource) return false;
+			if (!split.fromId || !split.toId) return false;
 		}
 		return true;
 	}

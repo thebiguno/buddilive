@@ -52,7 +52,7 @@ public class EntriesResource extends ServerResource {
 					//Update entry
 					ConstraintsChecker.checkUpdateEntry(entry, user, sqlSession);
 					int count = sqlSession.getMapper(Entries.class).updateEntry(user, entry);
-					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+					if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 				}
 			} 
 			else {

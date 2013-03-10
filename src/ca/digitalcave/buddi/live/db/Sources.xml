@@ -40,7 +40,7 @@
 	
 	<resultMap id="accountsByType" type="ca.digitalcave.buddi.live.model.AccountType">
 		<id column="a_account_type" property="accountType" />
-		<id column="a_type" property="type" />
+		<id column="s_type" property="type" />
 		<collection property="accounts" resultMap="account"/>
 	</resultMap>	
 	
@@ -61,6 +61,22 @@
 		GROUP BY 
 			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified
 		ORDER BY a.type DESC, a.account_type, a.name
+	</select>
+	
+	<select id="selectAccount" resultMap="account">
+		SELECT 
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.account_type a_account_type, a.start_balance a_start_balance 
+		FROM sources a
+		WHERE 
+			user_id = #{user.id} 
+			<if test="_parameter.containsKey('id')">
+				AND id = #{id}
+			</if>
+			<if test="_parameter.containsKey('uuid')">
+				AND uuid = #{uuid}
+			</if>
+			AND type IN ('D', 'C')
 	</select>
 	
 	<select id="selectAccounts" resultMap="account">
@@ -90,7 +106,13 @@
 			c.period_type c_period_type, c.parent c_parent 
 		FROM sources c
 		WHERE user_id = #{user.id}
-			AND id = #{id}
+			<if test="_parameter.containsKey('id')">
+				AND id = #{id}
+			</if>
+			<if test="_parameter.containsKey('uuid')">
+				AND uuid = #{uuid}
+			</if>
+			AND type IN ('I', 'E')
 	</select>
 
 	<select id="selectCategories" resultMap="category">
@@ -113,7 +135,7 @@
 			LEFT JOIN splits from_splits ON from_splits.from_source = c.id AND from_splits.transaction_id = t.id
 			</if>
 		</if>
-		WHERE c.user_id = #{user.id}
+		WHERE c.user_id = #{user.id} AND type IN ('I', 'E')
 		<if test="_parameter.containsKey('categoryPeriod')">
 			AND period_type = #{categoryPeriod.periodType}
 		</if>
@@ -146,8 +168,11 @@
 	<select id="selectSource" resultType="ca.digitalcave.buddi.live.model.Source">
 		SELECT * FROM sources 
 		WHERE user_id = #{user.id}
-			<if test="id != null">
-				and id = #{id}
+			<if test="_parameter.containsKey('id')">
+				AND id = #{id}
+			</if>
+			<if test="_parameter.containsKey('uuid')">
+				AND uuid = #{uuid}
 			</if>
 	</select>
 	

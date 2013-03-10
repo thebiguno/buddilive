@@ -10,6 +10,17 @@
 		<result column="e_modified" property="modified"/>
 	</resultMap>
 
+	<select id="selectEntries" resultMap="entry">
+		--Used for backup
+		SELECT 
+			category e_category,
+			date e_date,
+			amount e_amount
+		FROM entries
+		WHERE 
+			user_id = #{user.id}
+	</select>
+	
 	<select id="selectEntry" resultMap="entry">
 		SELECT 
 			id e_id,
