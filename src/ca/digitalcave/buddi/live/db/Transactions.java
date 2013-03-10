@@ -12,7 +12,7 @@ import ca.digitalcave.buddi.live.model.User;
 
 public interface Transactions {
 	public Transaction selectTransaction(@Param("user") User user, @Param("id") Long id);
-//	public Transaction selectTransaction(@Param("user") User user, @Param("uuid") String uuid);
+	public int selectTransactionCount(@Param("user") User user, @Param("uuid") String uuid);
 	
 	public List<Transaction> selectTransactions(@Param("user") User user);
 	public List<Transaction> selectTransactions(@Param("user") User user, @Param("source") Source source);
