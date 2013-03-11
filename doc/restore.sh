@@ -123,6 +123,53 @@ echo '
             "category": "4378588d-e8ef-443b-88f2-81fc9277ac46", 
             "date": "2013-04-01"
         }
+    ], 
+    "transactions": [
+        {
+            "date": "2013-03-10", 
+            "deleted": true, 
+            "description": "Wal-Mart", 
+            "number": "", 
+            "splits": [
+                {
+                    "amount": "42.54", 
+                    "from": "3a26c3ea-f101-4f35-86a7-7b3ba438a79e", 
+                    "memo": "", 
+                    "to": "4378588d-e8ef-443b-88f2-81fc9277ac46"
+                }
+            ], 
+            "uuid": "022fc0f1-309e-4faf-8650-7808707e7e18"
+        }, 
+        {
+            "date": "2013-03-09", 
+            "deleted": true, 
+            "description": "Esso", 
+            "number": "", 
+            "splits": [
+                {
+                    "amount": "10.00", 
+                    "from": "3a26c3ea-f101-4f35-86a7-7b3ba438a79e", 
+                    "memo": "", 
+                    "to": "138b95ff-4425-4eaa-9997-627c4f230a6a"
+                }
+            ], 
+            "uuid": "904957e4-2886-4ae2-9b1a-2ce114aecea7"
+        }, 
+        {
+            "date": "2013-03-08", 
+            "deleted": true, 
+            "description": "Esso", 
+            "number": "", 
+            "splits": [
+                {
+                    "amount": "5.00", 
+                    "from": "3a26c3ea-f101-4f35-86a7-7b3ba438a79e", 
+                    "memo": "", 
+                    "to": "d52f3bce-72bc-42fb-a80a-4f9aaef1e95f"
+                }
+            ], 
+            "uuid": "c017a7e9-64fd-4e47-b3f7-e8115cb2dce1"
+        }
     ]
 }
 ' | curl -d @- -u 'foo@example.com:password' http://localhost:8080/data/restore | jsonlint; echo ''
