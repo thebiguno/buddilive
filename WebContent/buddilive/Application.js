@@ -36,7 +36,7 @@ Ext.application({
 		}
 		else if (error.responseText != null){
 			title = (error.statusText ? error.statusText : "Error");	//TODO i18n
-			var json = Ext.decode(error.responseText, false);
+			var json = Ext.decode(error.responseText, true);
 			if (json == null){
 				message = error.responseText;
 			}
