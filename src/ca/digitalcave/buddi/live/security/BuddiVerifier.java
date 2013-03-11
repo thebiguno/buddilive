@@ -56,7 +56,7 @@ public class BuddiVerifier implements Verifier {
 				catch (Throwable e){}
 				
 				if (expiry == null || expiry.after(new Date())) {
-					request.setChallengeResponse(new ChallengeResponse(ChallengeScheme.CUSTOM, token.getString("identifier"), token.getString("password")));
+					request.setChallengeResponse(new ChallengeResponse(ChallengeScheme.CUSTOM, token.getString("identifier"), token.getString("credentials")));
 				}
 			}
 			catch (Throwable t){}

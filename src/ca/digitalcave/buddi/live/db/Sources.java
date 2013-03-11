@@ -1,7 +1,9 @@
 package ca.digitalcave.buddi.live.db;
 
 import java.util.List;
+import java.util.Map;
 
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 import ca.digitalcave.buddi.live.model.Account;
@@ -21,6 +23,9 @@ public interface Sources {
 	
 	public Category selectCategory(@Param("user") User user, @Param("id") Integer id);
 	public Category selectCategory(@Param("user") User user, @Param("uuid") String uuid);
+	
+	@MapKey("id")
+	public Map<Integer, Category> selectCategoriesByParentId(@Param("user") User user);
 	
 	public List<Category> selectCategories(@Param("user") User user);
 	public List<Category> selectCategories(@Param("user") User user, @Param("income") Boolean income);

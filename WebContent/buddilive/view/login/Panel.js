@@ -6,6 +6,8 @@ Ext.define('BuddiLive.view.login.Panel', {
 	],
 		
 	"initComponent": function(){
+		var panel = this;
+		
 		this.title = "Buddi Live Login";	//TODO i18n
 		this.renderTo = "form";
 		this.layout = "fit";
@@ -26,7 +28,8 @@ Ext.define('BuddiLive.view.login.Panel', {
 					"listeners": {
 						"specialkey": function(field, event) {
 							if (event.getKey() == event.ENTER) {
-								panel.down("form").getForm().submit();
+								var login = panel.down("button[itemId='login']");
+								login.fireEvent("click", login);
 							}
 						}
 					}
@@ -34,17 +37,15 @@ Ext.define('BuddiLive.view.login.Panel', {
 				"items": [
 					{
 						"xtype": "textfield",
-						"name": "user",
 						"allowBlank": false,
-						"itemId": "username",
+						"itemId": "identifier",
 						"fieldLabel": "Username"	//TODO i18n
 					},
 					{
 						"xtype": "textfield",
-						"name": "password",
 						"inputType": "password", 
 						"allowBlank": false,
-						"itemId": "password",
+						"itemId": "credentials",
 						"fieldLabel": "Password"	//TODO i18n
 					}
 				]
@@ -57,13 +58,13 @@ Ext.define('BuddiLive.view.login.Panel', {
 				"items": [
 					{
 						"xtype": "button",
-						"text": "Create New Account",	//TODO i18n
-						"itemId": "createAccount"
+						"itemId": "createAccount",
+						"text": "Create New Account"	//TODO i18n
 					},
 					"->",
 					{
 						"xtype": "button",
-						"formbind": true,
+						"itemId": "login",
 						"text": "Login"		//TODO i18n
 					}
 				]

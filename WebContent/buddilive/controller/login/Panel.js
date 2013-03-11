@@ -13,55 +13,24 @@ Ext.define("BuddiLive.controller.login.Panel", {
 	},
 	
 	"login": function(button){
-		var window = button.up("window");
-		var form = window.down("form");
-		if (form.getForm().isValid() == false){
-			Ext.MessageBox.show({
-				"title": "${translation("CREATE_USER_NOT_VALID_TITLE")?json_string}",
-				"msg": "${translation("CREATE_USER_NOT_VALID")?json_string}",
-				"buttons": Ext.MessageBox.OK
-			});
-			return;
-		}
-		if (form.down("checkbox[itemId='agree']").getValue() == false){
-			Ext.MessageBox.show({
-				"title": "${translation("CREATE_USER_AGREEMENT_REQUIRED_TITLE")?json_string}",
-				"msg": "${translation("CREATE_USER_AGREEMENT_REQUIRED")?json_string}",
-				"buttons": Ext.MessageBox.OK
-			});
-			return;
-		}
-		var request = {"action": "insert"};
-		request.identifier = form.down("textfield[itemId='identifier']").getValue();
-		request.credentials = form.down("textfield[itemId='password']").getValue();
-		request.email = form.down("textfield[itemId='email']").getValue();
-		request.locale = form.down("textfield[itemId='locale']").getValue();
+		var panel = button.up("loginpanel");
+		var request = {"action": "login"};
+		request.identifier = panel.down("textfield[itemId='identifier']").getValue();
+		request.credentials = panel.down("textfield[itemId='credentials']").getValue();
+
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "data/users",
+			"url": ".",
 			"headers": {
 				"Accept": "application/json"
 			},
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
-				window.close();
+				window.location.href += "";
 			},
 			"failure": function(response){
-				var title = (response.statusText ? response.statusText : "Error");	//TODO i18n
-				var message = "Unknown error";	//TODO i18n
-				var json = Ext.decode(response.responseText, true);
-				if (json == null){
-					message = error.responseText;
-				}
-				else {
-					message = json.msg;
-				}
-				Ext.MessageBox.show({
-					"title": title,
-					"msg": message,
-					"buttons": Ext.MessageBox.OK
-				});
+				alert("failure");
 			}
 		});
 	}

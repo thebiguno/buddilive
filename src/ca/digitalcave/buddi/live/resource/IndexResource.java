@@ -4,7 +4,6 @@ import java.util.Calendar;
 
 import org.json.JSONObject;
 import org.restlet.data.CookieSetting;
-import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.engine.util.Base64;
@@ -22,11 +21,10 @@ import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class IndexResource extends ServerResource {
-	private static final int DAYS = 7;
-
 	@Override
 	protected void doInit() throws ResourceException {
 		getVariants().add(new Variant(MediaType.TEXT_HTML));
+		getVariants().add(new Variant(MediaType.APPLICATION_JSON));
 	}
 	
 	@Override
@@ -52,17 +50,12 @@ public class IndexResource extends ServerResource {
 	@Override
 	protected Representation post(Representation entity, Variant variant) throws ResourceException {
 		try {
-			final Form form = new Form(entity);
-						
-			final JSONObject token = new JSONObject();
-			token.put("identifier", form.getFirstValue("user"));
-			token.put("password", form.getFirstValue("password"));
-
+			final JSONObject token = new JSONObject(entity.getText());
 			token.put("clientIp", getRequest().getClientInfo().getAddress());
 			
-			final Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DAY_OF_MONTH, DAYS);
-			token.put("expiry", FormatUtil.formatDateTime(cal.getTime()));
+//			final Calendar cal = Calendar.getInstance();
+//			cal.add(Calendar.DAY_OF_MONTH, 1);
+//			token.put("expiry", FormatUtil.formatDateTime(cal.getTime()));
 			
 			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, Base64.encode(CryptoUtil.encrypt(token.toString().getBytes(), BuddiVerifier.COOKIE_PASSWORD.toCharArray()), false));
 			c.setAccessRestricted(true);

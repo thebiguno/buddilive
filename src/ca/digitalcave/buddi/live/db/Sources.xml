@@ -115,7 +115,13 @@
 			AND type IN ('I', 'E')
 	</select>
 
+	<select id="selectCategoriesByParentId" resultMap="category">
+		<include refid="selectCategoriesGeneric"/>
+	</select>
 	<select id="selectCategories" resultMap="category">
+		<include refid="selectCategoriesGeneric"/>
+	</select>
+	<sql id="selectCategoriesGeneric">
 		SELECT 
 			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent
@@ -154,7 +160,7 @@
 			</if>
 		ORDER BY c.type DESC, c.name
 
-	</select>
+	</sql>
 	
 	<select id="selectCategoryPeriods" resultType="string">
 		SELECT DISTINCT

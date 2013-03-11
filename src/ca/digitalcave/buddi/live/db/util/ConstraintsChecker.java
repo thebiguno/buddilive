@@ -1,7 +1,6 @@
 package ca.digitalcave.buddi.live.db.util;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,14 +30,10 @@ public class ConstraintsChecker {
 				throw new DatabaseException("The userId of a parent category must match the userId of the child category");
 			}
 			//Check for loops / non matching types in the parentage
-			final List<Category> categories = sqlSession.getMapper(Sources.class).selectCategories(user);
-			final Map<Integer, Category> categoryMap = new HashMap<Integer, Category>();
-			for (Category c : categories) {
-				categoryMap.put(c.getId(), c);
-			}
+			final Map<Integer, Category> categories = sqlSession.getMapper(Sources.class).selectCategoriesByParentId(user);
 			Category p = category;
 			while (p.getParent() != null){
-				p = categoryMap.get(p.getParent());
+				p = categories.get(p.getParent());
 				if (p.getId() == category.getId()) throw new DatabaseException("Loop detected in category parentage");
 				if (!p.getType().equals(category.getType())) throw new DatabaseException("The type of a parent must match the type of the child");
 				if (!p.getPeriodType().equals(category.getPeriodType())) throw new DatabaseException("The period of a parent must match the period of the child");
