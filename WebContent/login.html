@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>Buddi Live</title>
+		<title>Buddi Live</title>	<!-- TODO i18n -->
 		<link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all-gray.css">
 		<link rel="icon" type="image/png" href="img/favicon.png"/>
 		<script type="text/javascript" src="extjs/bootstrap.js"></script>
@@ -14,7 +14,7 @@
 				"launch": function() {
 					// This is fired as soon as the page is ready
 					var panel = Ext.widget("panel", {
-						"title": "Buddi Live Login",
+						"title": "Buddi Live Login",	//TODO i18n
 						"renderTo": "form",
 						"layout": "fit",
 						"items": {
@@ -35,29 +35,180 @@
 							},
 							"items": [
 								{
+									"xtype": "label",
+									"text": "Welcome to Buddi Live.  Please log in, or sign up for an account."
+								},
+								{
 									"xtype": "textfield",
 									"name": "user",
 									"allowBlank": false,
-									"fieldLabel": "Username"
+									"fieldLabel": "Username"	//TODO i18n
 								},
 								{
 									"xtype": "textfield",
 									"name": "password",
 									"inputType": "password", 
 									"allowBlank": false,
-									"fieldLabel": "Password"
-								},
-								{
-									"xtype": "checkbox",
-									"name": "secure",
-									"fieldLabel": "Secure Login"
+									"fieldLabel": "Password"	//TODO i18n
 								}
 							],
 							"buttons": [
 								{
 									"xtype": "button",
+									"text": "Create New Account",	//TODO i18n
+									"handler": function(){
+										Ext.widget("window", {
+											"modal": true,
+											"layout": "fit",
+											"width": 500,
+											"buttons": [
+												{
+													"text": "OK",	//TODO i18n
+													"itemId": "ok",
+													"listeners": {
+														"click": function(button){
+															var window = button.up("window");
+															var form = window.down("form");
+															if (form.getForm().isValid() == false){
+																Ext.MessageBox.show({
+																	"title": "${translation("CREATE_USER_NOT_VALID_TITLE")?json_string}",
+																	"msg": "${translation("CREATE_USER_NOT_VALID")?json_string}",
+																	"buttons": Ext.MessageBox.OK
+																});
+																return;
+															}
+															if (form.down("checkbox[itemId='agree']").getValue() == false){
+																Ext.MessageBox.show({
+																	"title": "${translation("CREATE_USER_AGREEMENT_REQUIRED_TITLE")?json_string}",
+																	"msg": "${translation("CREATE_USER_AGREEMENT_REQUIRED")?json_string}",
+																	"buttons": Ext.MessageBox.OK
+																});
+																return;
+															}
+															var request = {};
+															request.identifier = form.down("textfield[itemId='identifier']").getValue();
+															request.password = form.down("textfield[itemId='password']").getValue();
+															request.email = form.down("textfield[itemId='email']").getValue();
+															request.locale = form.down("textfield[itemId='locale']").getValue();
+															var conn = new Ext.data.Connection();
+															conn.request({
+																"url": "data/users.json",
+																"headers": {
+																	"Accept": "application/json"
+																},
+																"method": "POST",
+																"jsonData": request,
+																"success": function(response){
+																	window.close();
+																},
+																"failure": function(response){
+																	var title = (response.statusText ? response.statusText : "Error");	//TODO i18n
+																	var message = "Unknown error";	//TODO i18n
+																	var json = Ext.decode(response.responseText, true);
+																	if (json == null){
+																		message = error.responseText;
+																	}
+																	else {
+																		message = json.msg;
+																	}
+																	Ext.MessageBox.show({
+																		"title": title,
+																		"msg": message,
+																		"buttons": Ext.MessageBox.OK
+																	});
+																}
+															});
+														}
+													}
+												},
+												{
+													"text": "Cancel",	//TODO i18n
+													"itemId": "cancel",
+													"listeners": {
+														"click": function(button){
+															button.up("window").close();
+														}
+													}
+												}
+											],
+											"items": {
+												"xtype": "form",
+												"layout": "form",
+												"bodyPadding": 5,
+												"items": [
+													{
+														"xtype": "hidden",
+														"itemId": "id"
+													},
+													{
+														"xtype": "textfield",
+														"itemId": "identifier",
+														"fieldLabel": "${translation("CREATE_USER_USERNAME")?json_string}",
+														"allowBlank": false,
+														"emptyText": "user@example.com",
+														"vtype": "email"
+													},
+													{
+														"xtype": "textfield",
+														"itemId": "password",
+														"fieldLabel": "${translation("CREATE_USER_PASSWORD")?json_string}",
+														"allowBlank": false
+													},
+													{
+														"xtype": "textfield",
+														"itemId": "email",
+														"fieldLabel": "${translation("CREATE_USER_EMAIL")?json_string}",
+														"emptyText": "user@example.com",
+														"vtype": "email"
+													},
+													{
+														"xtype": "combobox",
+														"itemId": "locale",
+														"fieldLabel": "${translation("CREATE_USER_LOCALE")?json_string}",
+														"editable": false,
+														"value": "${locale?json_string}",
+														"forceSelection": true,
+														"store": new Ext.data.Store({
+															"fields": ["text", "value"],
+															"data": [
+																{"text": "Deutsch", "value": "de"},
+																{"text": "English", "value": "en"},
+																{"text": "English (US)", "value": "en_US"},
+																{"text": "Español", "value": "es"},
+																{"text": "Español (Mexico)", "value": "es_MX"},
+																{"text": "Francais", "value": "fr"},
+																{"text": "Italiano", "value": "it"},
+																{"text": "Nederlands", "value": "nl"},	//Dutch
+																{"text": "Norsk", "value": "no"},	//Norwegian
+																{"text": "Portugues", "value": "pt"},
+																{"text": "Portugues (Brasil)", "value": "pt-BR"},
+																{"text": "Svenska", "value": "sv"},	//Swedish
+																{"text": "ελληνικά", "value": "el"},	//Greek
+																{"text": "עִבְרִית", "value": "he"},	//Hebrew
+																{"text": "ру́сский", "value": "ru"},	//Russian
+																{"text": "српски", "value": "sr"}	//Serbian
+															]
+														}),
+														"queryMode": "local",
+														"valueField": "value"
+													},
+													{
+														"xtype": "checkbox",
+														"itemId": "agree",
+														"boxLabel": "${translation("CREATE_USER_AGREE")?json_string}",
+														"allowBlank": false
+													}
+												
+												]
+											}
+										}).show();
+									}
+								},
+								"->",
+								{
+									"xtype": "button",
 									"formbind": true,
-									"text": "Login",
+									"text": "Login",		//TODO i18n
 									"handler": function(){
 										panel.down("form").getForm().submit();
 									}
@@ -71,8 +222,8 @@
 	</head>
 	<body>
 		<div style="height: 100%; margin: 0 auto -2em;">
-			<div id="form" style="width: 300px; margin-top: 50px; margin-right: 50px; float: right;"></div>
-			<div style="float: left; width:100%; border-bottom: 1px solid black;"><img src="img/logo.png"/> Welcome to Buddi Live.  Please log in, or sign up for an account.</div>
+			<div id="form" style="width: 400px; margin-top: 50px; margin-left: auto; margin-right: auto; "></div>
+			<div style="float: left; width:100%; border-bottom: 1px solid black;"><img src="img/logo.png"/></div>
 		</div>
 		<div style="width: 100%; height: 2em; border-top: 1px solid black; text-align: right; padding-right: 50px;">&copy; Wyatt Olson  <a href='http://digitalcave.ca'>http://digitalcave.ca</a></div>
 	</body>

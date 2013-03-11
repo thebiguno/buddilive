@@ -6,7 +6,6 @@
 		<result column="s_user_id" property="userId"/>
 		<result column="s_uuid" property="uuid"/>
 		<result column="s_name" property="name"/>
-		<result column="s_start_date" property="startDate"/>
 		<result column="s_deleted" property="deleted" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
 		<result column="s_type" property="type"/>
 		<result column="s_period_type" property="periodType"/>
@@ -17,6 +16,7 @@
 	<resultMap id="account" type="ca.digitalcave.buddi.live.model.Account" extends="source">
 		<result column="a_account_type" property="accountType" />
 		<result column="a_start_balance" property="startBalance"/>
+		<result column="a_start_date" property="startDate"/>
 		<result column="a_balance" property="balance"/>
 	</resultMap>
 
@@ -47,7 +47,7 @@
 	
 	<select id="selectAccountTypes" resultMap="accountsByType">
 		SELECT 
-			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
 			a.account_type a_account_type, a.start_balance a_start_balance, 
 			<if test="showBalance">
 			coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as a_balance
@@ -65,7 +65,7 @@
 	
 	<select id="selectAccount" resultMap="account">
 		SELECT 
-			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
 			a.account_type a_account_type, a.start_balance a_start_balance 
 		FROM sources a
 		WHERE 
@@ -81,7 +81,7 @@
 	
 	<select id="selectAccounts" resultMap="account">
 		SELECT 
-			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date s_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
+			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
 			a.account_type a_account_type, a.start_balance a_start_balance 
 			<if test="showBalance">
 			, coalesce(a.start_balance, 0) + coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as a_balance
@@ -102,7 +102,7 @@
 
 	<select id="selectCategory" resultMap="category">
 		SELECT 
-			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
+			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent 
 		FROM sources c
 		WHERE user_id = #{user.id}
@@ -117,7 +117,7 @@
 
 	<select id="selectCategories" resultMap="category">
 		SELECT 
-			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.start_date s_start_date, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
+			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent
 			<if test="_parameter.containsKey('categoryPeriod')">
 			, ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.date ce_date, pe.date pe_date
@@ -178,7 +178,7 @@
 	
 	<select id="selectSources" resultMap="source">
 		SELECT 
-			s.id s_id, s.user_id s_user_id, s.uuid s_uuid, s.name s_name, s.start_date s_start_date, s.deleted s_deleted, s.type s_type, s.created s_created, s.modified s_modified
+			s.id s_id, s.user_id s_user_id, s.uuid s_uuid, s.name s_name, s.start_date a_start_date, s.deleted s_deleted, s.type s_type, s.created s_created, s.modified s_modified
 		FROM sources s
 		WHERE user_id = #{user.id}
 	</select>
@@ -224,7 +224,6 @@
 			user_id,
 			uuid,
 			name,
-			start_date,
 			deleted,
 			type,
 			period_type,
@@ -237,7 +236,6 @@
 			#{user.id},
 			#{category.uuid},
 			#{category.name},
-			#{category.startDate},
 			<choose><when test="category.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			#{category.type},
 			#{category.periodType},

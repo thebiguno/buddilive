@@ -13,7 +13,6 @@ public class Source {
 	private int userId;
 	private String uuid;
 	private String name;
-	private Date startDate;
 	private boolean deleted;
 	private Date created;
 	private Date modified;
@@ -25,7 +24,6 @@ public class Source {
 		this.setId(json.has("id") ? json.getInt("id") : null);
 		this.setUuid(json.optString("uuid", UUID.randomUUID().toString()));
 		this.setName(json.optString("name", null));
-		this.setStartDate(FormatUtil.parseDate(json.optString("startDate", "1900-01-01")));
 		this.setDeleted(json.optBoolean("deleted", false));
 		this.setType(json.optString("type", null));
 	}
@@ -36,7 +34,6 @@ public class Source {
 		result.put("userId", this.getUserId());
 		result.put("uuid", this.getUuid());
 		result.put("name", this.getName());
-		result.put("startDate", FormatUtil.formatDateTime((Date) this.getStartDate()));
 		result.put("deleted", this.isDeleted());
 		result.put("type", this.getType());
 		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
@@ -67,12 +64,6 @@ public class Source {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public Date getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
 	}
 	public boolean isDeleted() {
 		return deleted;

@@ -2,6 +2,7 @@ package ca.digitalcave.buddi.live.security;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
 import org.restlet.Request;
@@ -10,6 +11,7 @@ import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Cookie;
 import org.restlet.engine.util.Base64;
+import org.restlet.ext.servlet.ServletUtils;
 import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
@@ -35,6 +37,8 @@ public class BuddiVerifier implements Verifier {
 	
 	public int verify(Request request, Response response) {
 		final Cookie cookieUser = request.getCookies().getFirst(COOKIE_NAME);
+		final String requestLocale = ServletUtils.getRequest(request).getLocale().toString();
+		
 		if (cookieUser != null){
 			try {
 				final JSONObject token = new JSONObject(new String(CryptoUtil.decrypt(Base64.decode(cookieUser.getValue()), COOKIE_PASSWORD.toCharArray())));
@@ -59,6 +63,7 @@ public class BuddiVerifier implements Verifier {
 		}
 
 		if (request.getChallengeResponse() == null) {
+			request.getClientInfo().setUser(new User(requestLocale));
 			return RESULT_MISSING;
 		} 
 		else {
@@ -73,6 +78,9 @@ public class BuddiVerifier implements Verifier {
 				if (user != null){
 					final String storedSecret = user.getCredentials();
 					if (CryptoUtil.verify(storedSecret, secret)){
+						user.setAuthenticated(true);
+						//Fallback to browser locale if it is not set in the user object
+						if (StringUtils.isBlank(user.getLocale())) user.setLocale(requestLocale);
 						request.getClientInfo().setUser(user);
 						return RESULT_VALID;
 					}
@@ -81,6 +89,8 @@ public class BuddiVerifier implements Verifier {
 			finally {
 				sqlSession.close();
 			}
+			
+			request.getClientInfo().setUser(new User(requestLocale));
 			return RESULT_INVALID;
 		}
 	}

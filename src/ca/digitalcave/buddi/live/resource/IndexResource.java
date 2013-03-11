@@ -30,6 +30,26 @@ public class IndexResource extends ServerResource {
 	}
 	
 	@Override
+	protected Representation get(Variant variant) throws ResourceException {
+		
+		//Handle Logout
+		if (getQuery().getFirst("logout") != null) {
+			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, "");
+			c.setAccessRestricted(true);
+			c.setMaxAge(0);
+			getResponse().getCookieSettings().add(c);
+			
+			getResponse().redirectSeeOther(".");
+			return new EmptyRepresentation();
+		}
+		
+		final BuddiApplication application = (BuddiApplication) getApplication();
+		final User user = (User) getRequest().getClientInfo().getUser();
+		final TemplateRepresentation result = new TemplateRepresentation(user.isAuthenticated() ? "index.html" : "login.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
+		return result;
+	}
+	
+	@Override
 	protected Representation post(Representation entity, Variant variant) throws ResourceException {
 		try {
 			final Form form = new Form(entity);
@@ -61,33 +81,6 @@ public class IndexResource extends ServerResource {
 			return new EmptyRepresentation();
 		} catch (Exception e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
-	}
-	
-	@Override
-	protected Representation get(Variant variant) throws ResourceException {
-		
-		//Handle Logout
-		if (getQuery().getFirst("logout") != null) {
-			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, "");
-			c.setAccessRestricted(true);
-			c.setMaxAge(0);
-			getResponse().getCookieSettings().add(c);
-			
-			getResponse().redirectSeeOther(".");
-			return new EmptyRepresentation();
-		}
-		
-		final User user = (User) getRequest().getClientInfo().getUser();
-		if (user == null){
-			final BuddiApplication application = (BuddiApplication) getApplication();
-			final TemplateRepresentation result = new TemplateRepresentation("login.html", application.getFreemarkerConfiguration(), null, MediaType.TEXT_HTML);
-			return result;
-		}
-		else {
-			final BuddiApplication application = (BuddiApplication) getApplication();
-			final TemplateRepresentation result = new TemplateRepresentation("index.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
-			return result;
 		}
 	}
 }

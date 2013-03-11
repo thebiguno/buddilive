@@ -21,14 +21,19 @@ public class User extends org.restlet.security.User {
 	private Date created;
 	private Date modified;
 	private String locale;
+	private boolean authenticated = false;
 	
 	public User() {
 	}
+	public User(String locale){
+		this.locale = locale;
+	}
 	public User(JSONObject json) throws JSONException{
-		this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha256Hash(1, new byte[0], json.getString("identifier")));
-		this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(1, CryptoUtil.getRandomSalt(), json.getString("credentials")));
+		if (json.optString("identifier", null) != null)this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha256Hash(1, new byte[0], json.getString("identifier")));
+		if (json.optString("credentials", null) != null) this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(1, CryptoUtil.getRandomSalt(), json.getString("credentials")));
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
-		this.setEmail(json.has("email") ? json.getString("email") : null);
+		if (json.optString("email", null) != null) this.setEmail(json.getString("email"));
+		if (json.optString("locale", null) != null) this.setLocale(json.getString("locale"));
 		this.setPremium(false);
 
 	}
@@ -39,6 +44,7 @@ public class User extends org.restlet.security.User {
 		result.put("identifier", this.getIdentifier());
 		result.put("credentials", this.getCredentials());
 		result.put("email", this.getEmail());
+		result.put("locale", this.getLocale());
 		result.put("created", FormatUtil.formatDateTime(this.getCreated()));
 		result.put("modified", FormatUtil.formatDateTime(this.getModified()));
 		
@@ -100,6 +106,12 @@ public class User extends org.restlet.security.User {
 	}
 	public void setLocale(String locale) {
 		this.locale = locale;
+	}
+	public boolean isAuthenticated() {
+		return authenticated;
+	}
+	public void setAuthenticated(boolean authenticated) {
+		this.authenticated = authenticated;
 	}
 	
 	public ResourceBundle getTranslation(){

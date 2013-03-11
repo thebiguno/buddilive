@@ -3,7 +3,6 @@ package ca.digitalcave.buddi.live.resource.data;
 import java.io.IOException;
 
 import org.apache.ibatis.session.SqlSession;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -33,9 +32,7 @@ public class UsersDataResource extends ServerResource {
 			throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
 		}
 		try {
-			final JSONArray result = new JSONArray();
-			result.put(user.toJson());
-			return new JsonRepresentation(result);
+			return new JsonRepresentation(user.toJson());
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -47,12 +44,30 @@ public class UsersDataResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
-			final JSONArray request = new JSONArray(entity.getText());
-			for (int i = 0; i < request.length(); i++) {
-				final JSONObject user = request.getJSONObject(i);
-
-				final Integer count = sqlSession.getMapper(Users.class).insertUser(new User(user));
+			final JSONObject request = new JSONObject(entity.getText());
+			final User user = new User(request);
+			if ("insert".equals(request.getString("action"))){
+				final Integer count = sqlSession.getMapper(Users.class).insertUser(user);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+			}
+			else {
+				final User secureUser = (User) getClientInfo().getUser();
+				if (!secureUser.isAuthenticated()) throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
+				if ("update".equals(request.getString("action"))){
+					secureUser.setCredentials(user.getCredentials());
+					secureUser.setEmail(user.getEmail());
+					secureUser.setLocale(user.getLocale());
+					secureUser.setPremium(user.isPremium());
+					final Integer count = sqlSession.getMapper(Users.class).updateUser(secureUser);
+					if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+				}
+				else if ("delete".equals(request.getString("action"))){
+					final Integer count = sqlSession.getMapper(Users.class).deleteUser(secureUser);
+					if (count != 1) throw new DatabaseException(String.format("Delete failed; expected 1 row, returned %s", count));
+				}
+				else {
+					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
+				}
 			}
 			
 			sqlSession.commit();

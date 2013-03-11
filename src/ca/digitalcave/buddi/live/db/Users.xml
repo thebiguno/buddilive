@@ -7,6 +7,7 @@
 			identifier,
 			credentials,
 			email,
+			locale,
 			premium,
 			created,
 			modified
@@ -19,8 +20,24 @@
 			SELECT coalesce(max(id), 0) + 1 from users
 		</selectKey>
 		INSERT INTO users
-			(id, identifier, credentials, uuid, email, premium, created, modified)
+			(id, identifier, credentials, uuid, email, locale, premium, created, modified)
 		VALUES
-			(#{user.id}, #{user.identifier}, #{user.credentials}, #{user.uuid}, #{user.email,jdbcType=VARCHAR}, <choose><when test="user.premium == true">'Y'</when><otherwise>'N'</otherwise></choose>, current_timestamp, current_timestamp)
+			(#{user.id}, #{user.identifier}, #{user.credentials}, #{user.uuid}, #{user.email,jdbcType=VARCHAR}, #{user.locale,jdbcType=VARCHAR}, <choose><when test="user.premium == true">'Y'</when><otherwise>'N'</otherwise></choose>, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 	</insert>
+	
+	<update id="updateUser">
+		UPDATE users
+		SET
+			<if test="user.credentials != null">credentials = #{user.credentials},</if>
+			<if test="user.email != null">email = #{user.email},</if>
+			<if test="user.locale != null">locale = #{user.locale},</if>
+			premium = <choose><when test="user.premium == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			modified = CURRENT_TIMESTAMP
+		WHERE identifier = #{user.identifier}
+	</update>
+	
+	<delete id="deleteUser">
+		DELETE FROM users
+		WHERE identifier = #{user.identifier}
+	</delete>
 </mapper>

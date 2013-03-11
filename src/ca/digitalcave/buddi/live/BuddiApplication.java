@@ -72,7 +72,7 @@ public class BuddiApplication extends Application{
 		//Handles non-GUI data import / export
 		router.attach("/data/backup", new BuddiAuthenticator(this, getContext(), false, BackupResource.class));
 		router.attach("/data/restore", new BuddiAuthenticator(this, getContext(), false, RestoreResource.class));
-		router.attach("/data/users/", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
+		router.attach("/data/users", new BuddiAuthenticator(this, getContext(), true, UsersDataResource.class));
 		
 		//Public data and binary data which should not be filtered through freemarker
 		router.attach("/img", new Directory(getContext(), "war:///img"));

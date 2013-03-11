@@ -1,8 +1,6 @@
 package ca.digitalcave.buddi.live.util;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,20 +45,6 @@ public class FormatUtil {
 	public static BigDecimal parseCurrency(String value){
 		if (value == null || value.length() == 0) return null;
 		return new BigDecimal(value);
-//		final String numbers = value.replaceAll("[^0-9.,]", "");
-//		if (numbers.length() == 0) return null;
-//		try {
-//			final NumberFormat f = DecimalFormat.getInstance();	//TODO pass in locale
-//			f.setMaximumFractionDigits(2);
-//			f.setMinimumFractionDigits(2);
-//			return (long) (f.parse(value).doubleValue() * 100);
-//		}
-//		catch (NumberFormatException e){
-//			return null;
-//		}
-//		catch (ParseException e){
-//			return null;
-//		}
 	}
 	
 	/**
@@ -70,9 +54,6 @@ public class FormatUtil {
 	 */
 	public static String formatCurrency(BigDecimal value){
 		if (value == null) return null;
-//		final NumberFormat f = DecimalFormat.getInstance();	//TODO pass in locale
-//		f.setMaximumFractionDigits(2);
-//		f.setMinimumFractionDigits(2);
 		return value.toPlainString();
 	}
 }
