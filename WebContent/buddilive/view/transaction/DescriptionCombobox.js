@@ -12,9 +12,9 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 		this.valueField = "description";
 	
 		this.initialSetValue = (this.value != null);	//If there is a default value, set it once the store is loaded.
-		this.editable = false;
+		this.editable = true;
 		this.triggerAction = "all";
-		//this.queryMode = "local";
+		this.queryMode = "local";
 
 		//this.listConfig = {
 		//	"itemTpl": "<div style='{style}'>{description}</div>"
