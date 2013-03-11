@@ -43,6 +43,7 @@ Ext.define("BuddiLive.view.Viewport", {
 								"region": "west",
 								"stateful": true,
 								"stateId": "accounttree",
+								"width": 300,
 								"split": true
 							},
 							{
