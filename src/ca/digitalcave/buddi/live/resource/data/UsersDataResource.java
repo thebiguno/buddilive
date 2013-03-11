@@ -15,6 +15,7 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
+import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 
@@ -38,7 +39,7 @@ public class UsersDataResource extends ServerResource {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
-
+	
 	@Override
 	protected Representation post(Representation entity, Variant variant) throws ResourceException {
 		final BuddiApplication application = (BuddiApplication) getApplication();
@@ -47,6 +48,7 @@ public class UsersDataResource extends ServerResource {
 			final JSONObject request = new JSONObject(entity.getText());
 			final User user = new User(request);
 			if ("insert".equals(request.getString("action"))){
+				ConstraintsChecker.checkInsertUser(user, sqlSession);
 				final Integer count = sqlSession.getMapper(Users.class).insertUser(user);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 			}

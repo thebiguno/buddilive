@@ -85,14 +85,14 @@
 																});
 																return;
 															}
-															var request = {};
+															var request = {"action": "insert"};
 															request.identifier = form.down("textfield[itemId='identifier']").getValue();
-															request.password = form.down("textfield[itemId='password']").getValue();
+															request.credentials = form.down("textfield[itemId='password']").getValue();
 															request.email = form.down("textfield[itemId='email']").getValue();
 															request.locale = form.down("textfield[itemId='locale']").getValue();
 															var conn = new Ext.data.Connection();
 															conn.request({
-																"url": "data/users.json",
+																"url": "data/users",
 																"headers": {
 																	"Accept": "application/json"
 																},

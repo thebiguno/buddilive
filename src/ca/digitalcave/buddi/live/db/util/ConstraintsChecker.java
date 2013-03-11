@@ -9,6 +9,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.Sources;
+import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.Entry;
@@ -97,5 +98,9 @@ public class ConstraintsChecker {
 	public static void checkUpdateEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
 		if (sqlSession.getMapper(Entries.class).selectEntry(user, entry) == null) throw new DatabaseException("Could not find an entry to update");
 		checkInsertEntry(entry, user, sqlSession);
+	}
+	
+	public static void checkInsertUser(User user, SqlSession sqlSession) throws DatabaseException {
+		if (sqlSession.getMapper(Users.class).selectUser(user.getIdentifier()) != null) throw new DatabaseException("The user name already exists");
 	}
 }

@@ -1,5 +1,6 @@
 Ext.define("BuddiLive.view.Viewport", {
 	"extend": "Ext.container.Viewport",
+	"alias": "widget.buddiviewport",
 	
 	"requires": [
 		"BuddiLive.view.account.Tree",
@@ -18,6 +19,18 @@ Ext.define("BuddiLive.view.Viewport", {
 				"xtype": "tabpanel",
 				"layout": "fit",
 				"region": "west",
+				"dockedItems": [{
+					"xtype": "toolbar",
+					"dock": "top",
+					"items": [
+						"->",
+						{
+							"tooltip": "${translation("LOGOUT")?json_string}",
+							"icon": "img/door-open-out.png",
+							"itemId": "logout"
+						}
+					]
+				}],
 				"items": [
 					{
 						"xtype": "panel",
@@ -61,7 +74,7 @@ Ext.define("BuddiLive.view.Viewport", {
 				]
 			}
 		];
-
+		
 		this.callParent();
 	}
 });

@@ -53,28 +53,20 @@ public class IndexResource extends ServerResource {
 	protected Representation post(Representation entity, Variant variant) throws ResourceException {
 		try {
 			final Form form = new Form(entity);
-			
-			boolean secure = "on".equals(form.getFirstValue("secure"));
 						
 			final JSONObject token = new JSONObject();
 			token.put("identifier", form.getFirstValue("user"));
 			token.put("password", form.getFirstValue("password"));
 
-			if (secure){
-				token.put("clientIp", getRequest().getClientInfo().getAddress());
-				
-				final Calendar cal = Calendar.getInstance();
-				cal.add(Calendar.DAY_OF_MONTH, DAYS);
-				token.put("expiry", FormatUtil.formatDateTime(cal.getTime()));
-			}
+			token.put("clientIp", getRequest().getClientInfo().getAddress());
+			
+			final Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DAY_OF_MONTH, DAYS);
+			token.put("expiry", FormatUtil.formatDateTime(cal.getTime()));
 			
 			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, Base64.encode(CryptoUtil.encrypt(token.toString().getBytes(), BuddiVerifier.COOKIE_PASSWORD.toCharArray()), false));
 			c.setAccessRestricted(true);
-			if (secure) {
-				c.setMaxAge(-1);					//Clear on browser close
-			} else {
-				c.setMaxAge(60 * 60 * 24 * 365);	//One year
-			}
+			c.setMaxAge(60 * 60 * 24);	//One day
 			
 			getResponse().getCookieSettings().add(c);
 			getResponse().redirectSeeOther(".");

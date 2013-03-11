@@ -115,10 +115,16 @@ public class RestoreResource extends ServerResource {
 					final Category category = new Category();
 					category.setUuid(c.getString("uuid"));
 					category.setName(c.getString("name"));
-					category.setStartDate(FormatUtil.parseDate(c.getString("startDate")));
 					category.setDeleted(c.optBoolean("deleted", false));
 					category.setType(c.getString("type"));
-					category.setParent(sourceIDsByUUID.get(jsonObject.optString("uuid")));
+					//We support either implied parentage, via recursive "categories" objects, or explicit
+					// parentage, via the 'parent' entry.  Implied parentage is recommended, as it will 
+					// ensure that parents are loaded before their children are.  If you use explicit
+					// parentage, you need to make sure the parent category is loaded before its children are, 
+					// or else the parentage for a given node may be lost.
+					final Integer impliedParent = sourceIDsByUUID.get(jsonObject.optString("uuid"));
+					final Integer explicitParent = sourceIDsByUUID.get(c.optString("parent"));
+					category.setParent(impliedParent != null ? impliedParent : explicitParent);
 					category.setPeriodType(c.getString("periodType"));
 
 					ConstraintsChecker.checkInsertCategory(category, user, sqlSession);
@@ -192,7 +198,7 @@ public class RestoreResource extends ServerResource {
 						split.setAmount(FormatUtil.parseCurrency(s.getString("amount")));
 						split.setFromSource(fromSource);
 						split.setToSource(toSource);
-						split.setMemo(s.getString("memo"));
+						split.setMemo(s.optString("memo", ""));
 						transaction.getSplits().add(split);
 					}
 

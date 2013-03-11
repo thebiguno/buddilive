@@ -90,7 +90,6 @@ public class BackupResource extends ServerResource {
 		final JSONObject c = new JSONObject();
 		c.put("uuid", category.getUuid());
 		c.put("name", category.getName());
-		c.put("startDate", FormatUtil.formatDateTime((Date) category.getStartDate()));
 		if (category.isDeleted()) c.put("deleted", category.isDeleted());
 		c.put("type", category.getType());
 		c.put("parent", sourceUUIDsById.get(category.getParent()));
