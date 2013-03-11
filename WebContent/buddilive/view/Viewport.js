@@ -22,7 +22,7 @@ Ext.define("BuddiLive.view.Viewport", {
 					{
 						"xtype": "panel",
 						"layout": "border",
-						"title": "My Accounts",
+						"title": "${translation("MY_ACCOUNTS")?json_string}",
 						"itemId": "myAccounts",
 						"items": [
 							{
@@ -55,7 +55,7 @@ Ext.define("BuddiLive.view.Viewport", {
 					},
 					{
 						"xtype": "budgetpanel",
-						"title": "My Budget",
+						"title": "${translation("MY_BUDGET")?json_string}",
 						"itemId": "myBudget"
 					}
 				]

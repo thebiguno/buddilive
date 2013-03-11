@@ -9,8 +9,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		var budgetTree = this;
 		this.rootVisible = false;
 		this.border = false;
-		this.store = Ext.create("BuddiLive.store.budget.TreeStore", {"periodType": this.initialConfig.period});
-		this.title = this.initialConfig.period;
+		this.store = Ext.create("BuddiLive.store.budget.TreeStore", {"periodType": this.initialConfig.periodValue});
+		this.title = this.initialConfig.periodText;
 		this.flex = 1;
 		this.width = "100%";
 		this.plugins = [
@@ -26,7 +26,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		
 		this.columns = [
 			{
-				"text": "Name",
+				"text": "Name",	//TODO i18n
 				"dataIndex": "name",
 				"flex": 2,
 				"xtype": "treecolumn",
@@ -36,14 +36,14 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				}
 			},
 			{
-				"text": "Previous",
+				"text": "Previous",	//TODO i18n
 				"dataIndex": "previousAmount",
 				"flex": 1,
 				"align": "right",
 				"renderer": numberCellRenderer
 			},
 			{
-				"text": "Current",
+				"text": "Current",	//TODO i18n
 				"dataIndex": "currentAmount",
 				"flex": 1,
 				"align": "right",
@@ -56,14 +56,14 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"renderer": numberCellRenderer
 			},
 			{
-				"text": "Actual",
+				"text": "Actual",	//TODO i18n
 				"dataIndex": "actual",
 				"flex": 1,
 				"align": "right",
 				"renderer": numberCellRenderer
 			},
 			{
-				"text": "Difference",
+				"text": "Difference",	//TODO i18n
 				"dataIndex": "difference",
 				"flex": 1,
 				"align": "right",
@@ -77,8 +77,13 @@ Ext.define('BuddiLive.view.budget.Tree', {
 			"items": [
 				"->",
 				{
+					"xtype": "label",
+					"text": "${translation("CURRENT_BUDGET_PERIOD")?json_string}"
+				},
+				" ",
+				{
 					"xtype": "button",
-					"tooltip": "Previous Period",
+					"tooltip": "${translation("PREVIOUS_BUDGET_PERIOD")?json_string}",
 					"icon": "img/calendar-previous.png",
 					"itemId": "previousPeriod"
 				},
@@ -92,7 +97,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				},
 				{
 					"xtype": "button",
-					"tooltip": "Next Period",
+					"tooltip": "${translation("NEXT_BUDGET_PERIOD")?json_string}",
 					"icon": "img/calendar-next.png",
 					"itemId": "nextPeriod"
 				}

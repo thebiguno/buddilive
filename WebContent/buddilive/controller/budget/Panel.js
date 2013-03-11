@@ -27,7 +27,8 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 					for (var i = 0; i < json.data.length; i++){
 						budgetPanel.add({
 							"xtype": "budgettree",
-							"period": json.data[i]
+							"periodText": json.data[i].text,
+							"periodValue": json.data[i].value
 						});
 					}
 					budgetPanel.setActiveTab(0);

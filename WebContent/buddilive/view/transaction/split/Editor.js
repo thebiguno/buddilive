@@ -23,14 +23,14 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"hideTrigger": true,
 				"keyNavEnabled": false,
 				"mouseWheelEnabled": false,
-				"emptyText": "0.00 (Amount)",
+				"emptyText": "0.00 (Amount)",	//TODO i18n
 				"value": v.amount
 			},
 			{
 				"xtype": "sourcecombobox",
 				"itemId": "from",
 				"flex": 1,
-				"emptyText": "From",
+				"emptyText": "From",	//TODO i18n
 				"url": "gui/sources/from.json",
 				"value": v.fromId
 			},
@@ -39,7 +39,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "sourcecombobox",
 				"itemId": "to",
 				"flex": 1,
-				"emptyText": "To",
+				"emptyText": "To",	//TODO i18n
 				"url": "gui/sources/to.json",
 				"value": v.toId
 			},
@@ -47,7 +47,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "textfield",
 				"itemId": "memo",
 				"flex": 2,
-				"emptyText": "Memo",
+				"emptyText": "Memo",	//TODO i18n
 				"padding": "0 5 0 5",
 				"value": v.memo
 			},
@@ -55,7 +55,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "button",
 				"icon": "img/minus-circle.png",
 				"itemId": "removeSplit",
-				"tooltip": "Remove split",
+				"tooltip": "Remove split",	//TODO i18n
 				"padding": "2 5 2 5",
 				"margin": "0 5 0 0",
 				"hidden": true
@@ -71,7 +71,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "button",
 				"icon": "img/plus-circle.png",
 				"itemId": "addSplit",
-				"tooltip": "Add split",
+				"tooltip": "Add split",	//TODO i18n
 				"padding": "2 5 2 5",
 				"margin": "0 5 0 0"
 			}

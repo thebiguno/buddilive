@@ -8,7 +8,7 @@ Ext.define('BuddiLive.view.account.Editor', {
 	"initComponent": function(){
 		var s = this.initialConfig.selected
 
-		this.title = (s ? "Edit Account" : "Add Account");
+		this.title = (s ? "Edit Account" : "Add Account");	//TODO i18n
 		this.layout = "fit";
 		this.modal = true;
 		this.width = 400;
@@ -27,17 +27,17 @@ Ext.define('BuddiLive.view.account.Editor', {
 						"xtype": "textfield",
 						"itemId": "name",
 						"value": (s ? s.name : null),
-						"fieldLabel": "Name",
+						"fieldLabel": "${translation("ACCOUNT_EDITOR_NAME")?json_string}",
 						"allowBlank": false,
-						"emptyText": "TD Savings, Visa Gold, Cash in Wallet, etc"
+						"emptyText": "TD Savings, Visa Gold, Cash in Wallet, etc"	//TODO i18n
 					},
 					{
 						"xtype": "textfield",
 						"itemId": "accountType",
 						"value": (s ? s.accountType : null),
-						"fieldLabel": "Account Type",
+						"fieldLabel": "${translation("ACCOUNT_EDITOR_TYPE")?json_string}",
 						"allowBlank": false,
-						"emptyText": "Credit Card, Savings, etc"
+						"emptyText": "Credit Card, Savings, etc"	//TODO i18n
 					},
 					{
 						"xtype": "combobox",
@@ -49,8 +49,8 @@ Ext.define('BuddiLive.view.account.Editor', {
 						"store": new Ext.data.Store({
 							"fields": ["text", "value"],
 							"data": [
-								{"text": "Debit", "value": "D"},
-								{"text": "Credit", "value": "C"}
+								{"text": "Debit", "value": "D"},	//TODO i18n
+								{"text": "Credit", "value": "C"}	//TODO i18n
 							]
 						}),
 						"queryMode": "local",
@@ -60,7 +60,7 @@ Ext.define('BuddiLive.view.account.Editor', {
 						"xtype": "numberfield",
 						"itemId": "startBalance",
 						"value": (s ? s.startBalance : null),
-						"fieldLabel": "Starting Balance",
+						"fieldLabel": "${translation("ACCOUNT_EDITOR_STARTING_BALANCE")?json_string}",
 						"hideTrigger": true,
 						"keyNavEnabled": false,
 						"mouseWheelEnabled": false,
@@ -72,12 +72,12 @@ Ext.define('BuddiLive.view.account.Editor', {
 		];
 		this.buttons = [
 			{
-				"text": "OK",
+				"text": "OK",	//TODO i18n
 				"itemId": "ok",
 				"disabled": true
 			},
 			{
-				"text": "Cancel",
+				"text": "Cancel",	//TODO i18n
 				"itemId": "cancel"
 			}
 		]

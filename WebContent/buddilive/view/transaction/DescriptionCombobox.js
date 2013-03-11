@@ -16,10 +16,6 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 		this.triggerAction = "all";
 		this.queryMode = "local";
 
-		//this.listConfig = {
-		//	"itemTpl": "<div style='{style}'>{description}</div>"
-		//};
-	
 		this.store = {
 			"autoLoad": true,
 			"fields": ["description"],

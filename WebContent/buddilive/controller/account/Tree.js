@@ -52,7 +52,7 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		else {
 			Ext.MessageBox.show({
 				"title": "Delete Account",
-				"msg": "Are you sure you want to delete this account?",
+				"msg": "Are you sure you want to delete this account?",	//TODO i18n
 				"buttons": Ext.MessageBox.YESNO,
 				"fn": function(buttonId){
 					var request = {"action": "delete", "id": selected.id};
@@ -84,10 +84,10 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		panel.down("button[itemId='editAccount']").setDisabled(selectedType != "account");
 		panel.down("button[itemId='deleteAccount']").setDisabled(selectedType != "account");
 		if (selectedType == "account" && selected[0].raw.deleted){
-			panel.down("button[itemId='deleteAccount']").setTooltip("Undelete Account");
+			panel.down("button[itemId='deleteAccount']").setTooltip("Undelete Account");	//TODO i18n
 		}
 		else {
-			panel.down("button[itemId='deleteAccount']").setTooltip("Delete Account");
+			panel.down("button[itemId='deleteAccount']").setTooltip("Delete Account");	//TODO i18n
 		}
 		
 		if (selectedType == "account"){

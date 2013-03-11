@@ -9,7 +9,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 		var s = this.initialConfig.selected
 		var editor = this;
 		
-		this.title = (s ? "Edit Budget Category" : "Add Budget Category");
+		this.title = (s ? "Edit Budget Category" : "Add Budget Category");	//TODO i18n
 		this.layout = "fit";
 		this.modal = true;
 		this.width = 400;
@@ -28,15 +28,15 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"xtype": "textfield",
 						"itemId": "name",
 						"value": (s ? s.name : null),
-						"fieldLabel": "Name",
+						"fieldLabel": "Name",	//TODO i18n
 						"allowBlank": false,
 						"enableKeyEvents": true,
-						"emptyText": "Salary, Groceries, Auto Insurance, etc"
+						"emptyText": "Salary, Groceries, Auto Insurance, etc"	//TODO i18n
 					},
 					{
 						"xtype": "parentcombobox",
 						"itemId": "parent",
-						"fieldLabel": "Parent Category",
+						"fieldLabel": "Parent Category",	//TODO i18n
 						"emptyText": "Parent",
 						"value": (s ? s.parent : null),
 						"url": "gui/categories/parents.json" + (s ? "?exclude=" + s.id : ""),
@@ -58,18 +58,18 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"itemId": "periodType",
 						"value": "MONTH",
 						"hidden": s != null,
-						"fieldLabel": "Period Type",
+						"fieldLabel": "Period Type",	//TODO i18n
 						"editable": false,
 						"allowBlank": false,
 						"store": new Ext.data.Store({
 							"fields": ["text", "value"],
 							"data": [
-								{"text": "Week", "value": "WEEK"},
-								{"text": "Semi Month", "value": "SEMI_MONTH"},
-								{"text": "Month", "value": "MONTH"},
-								{"text": "Quarter", "value": "QUERTER"},
-								{"text": "Semi Year", "value": "SEMI_YEAR"},
-								{"text": "Year", "value": "YEAR"}
+								{"text": "${translation("BUDGET_CATEGORY_TYPE_WEEK")?json_string}", "value": "WEEK"},
+								{"text": "${translation("BUDGET_CATEGORY_TYPE_SEMI_MONTH")?json_string}", "value": "SEMI_MONTH"},
+								{"text": "${translation("BUDGET_CATEGORY_TYPE_MONTH")?json_string}", "value": "MONTH"},
+								{"text": "${translation("BUDGET_CATEGORY_TYPE_QUARTER")?json_string}", "value": "QUERTER"},
+								{"text": "${translation("BUDGET_CATEGORY_TYPE_SEMI_YEAR")?json_string}", "value": "SEMI_YEAR"},
+								{"text": "${translation("BUDGET_CATEGORY_TYPE_YEAR")?json_string}", "value": "YEAR"}
 							]
 						}),
 						"queryMode": "local",
@@ -80,14 +80,14 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"itemId": "type",
 						"value": "E",
 						"hidden": s != null,
-						"fieldLabel": "Type",
+						"fieldLabel": "Type",	//TODO i18n
 						"editable": false,
 						"allowBlank": false,
 						"store": new Ext.data.Store({
 							"fields": ["text", "value"],
 							"data": [
-								{"text": "Income", "value": "I"},
-								{"text": "Expense", "value": "E"}
+								{"text": "Income", "value": "I"},	//TODO i18n
+								{"text": "Expense", "value": "E"}	//TODO i18n
 							]
 						}),
 						"queryMode": "local",
@@ -98,12 +98,12 @@ Ext.define('BuddiLive.view.budget.Editor', {
 		];
 		this.buttons = [
 			{
-				"text": "OK",
+				"text": "OK",	//TODO i18n
 				"itemId": "ok",
 				"disabled": true
 			},
 			{
-				"text": "Cancel",
+				"text": "Cancel",	//TODO i18n
 				"itemId": "cancel"
 			}
 		]

@@ -11,32 +11,32 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.border = false;
 		this.columns = [
 			{
-				"text": "Date",
+				"text": "Date",	//TODO i18n
 				"dataIndex": "date",
 				"flex": 1
 			},
 			{
-				"text": "Description",
+				"text": "Description",	//TODO i18n
 				"dataIndex": "description",
 				"flex": 1
 			},
 			{
-				"text": "Number",
+				"text": "Number",	//TODO i18n
 				"dataIndex": "number",
 				"flex": 1
 			},
 			{
-				"text": "Amount",
+				"text": "Amount",	//TODO i18n
 				"dataIndex": "amount",
 				"flex": 1
 			},
 			{
-				"text": "From",
+				"text": "From",	//TODO i18n
 				"dataIndex": "from",
 				"flex": 1
 			},
 			{
-				"text": "To",
+				"text": "To",	//TODO i18n
 				"dataIndex": "to",
 				"flex": 1
 			}
@@ -49,7 +49,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 					"->",
 					{
 						"xtype": "textfield",
-						"emptyText": "Search"
+						"emptyText": "Search"	//TODO i18n
 					},
 					{
 						"xtype": "button",

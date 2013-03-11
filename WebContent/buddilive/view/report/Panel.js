@@ -3,7 +3,7 @@ Ext.define('BuddiLive.view.report.Panel', {
 	"alias": "widget.reportpanel",
 	
 	"initComponent": function(){
-		this.title = "My Reports";
+		this.title = "My Reports";	//TODO i18n
 		this.items = [
 			
 		];

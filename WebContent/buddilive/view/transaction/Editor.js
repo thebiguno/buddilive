@@ -29,20 +29,20 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"itemId": "date",
 						"flex": 1,
 						"enableKeyEvents": true,
-						"emptyText": "Date"
+						"emptyText": "Date"	//TODO i18n
 					},
 					{
 						"xtype": "descriptioncombobox",
 						"itemId": "description",
 						"flex": 2,
-						"emptyText": "Description",
+						"emptyText": "Description",	//TODO i18n
 						"enableKeyEvents": true
 					},
 					{
 						"xtype": "textfield",
 						"itemId": "number",
 						"flex": 1,
-						"emptyText": "Number",
+						"emptyText": "Number",	//TODO i18n
 						"padding": "5"
 					}
 				]
@@ -55,19 +55,19 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 			"dock": "bottom",
 			"items": [
 				{
-					"text": "Delete",
+					"text": "Delete",	//TODO i18n
 					"icon": "img/minus-circle.png",
 					"itemId": "deleteTransaction",
 					"disabled": true
 				},
 				"->",
 				{
-					"text": "Clear",
+					"text": "Clear",	//TODO i18n
 					"icon": "img/exclamation-circle.png",
 					"itemId": "clearTransaction"
 				},
 				{
-					"text": "Record",
+					"text": "Record",	//TODO i18n
 					"icon": "img/tick-circle.png",
 					"itemId": "recordTransaction",
 					"disabled": true
