@@ -35,7 +35,7 @@ public class SourcesResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final boolean isIncome = getRequest().getResourceRef().getBaseRef().toString().endsWith("from");
-			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user, false);
+			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
 			final List<Category> categories = sqlSession.getMapper(Sources.class).selectCategories(user, isIncome);
 			
 			final JSONArray data = new JSONArray();

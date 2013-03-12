@@ -16,10 +16,11 @@ import ca.digitalcave.buddi.live.model.User;
 
 public interface Sources {
 	public Account selectAccount(@Param("user") User user, @Param("uuid") String uuid);
-	public List<Account> selectAccounts(@Param("user") User user, @Param("accountType") String accountType, @Param("showBalance") boolean showBalance);
-	public List<Account> selectAccounts(@Param("user") User user, @Param("showBalance") boolean showBalance);
 	
-	public List<AccountType> selectAccountTypes(@Param("user") User user, @Param("showBalance") boolean showBalance);
+	public List<Account> selectAccounts(@Param("user") User user);
+	public List<Account> selectAccounts(@Param("user") User user, @Param("accountType") String accountType);
+	
+	public List<AccountType> selectAccountTypes(@Param("user") User user);
 	
 	public Category selectCategory(@Param("user") User user, @Param("id") Integer id);
 	public Category selectCategory(@Param("user") User user, @Param("uuid") String uuid);

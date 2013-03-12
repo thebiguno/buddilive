@@ -175,6 +175,8 @@
 			<column name="modified" type="timestamp">
 				<constraints nullable="false"/>
 			</column>
+			<column name="from_balance" type="decimal(14,2)"/>
+			<column name="to_balance" type="decimal(14,2)"/>
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="fk_transactions_splits" referencedTableName="transactions" referencedColumnNames="id" baseTableName="splits" baseColumnNames="transaction_id" onDelete="CASCADE"/>

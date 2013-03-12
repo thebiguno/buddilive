@@ -1,7 +1,6 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -38,7 +37,7 @@ public class AccountsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountTypes(user, true);
+			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountTypes(user);
 			
 			final JSONArray data = new JSONArray();
 			final StringBuilder sb = new StringBuilder();
@@ -57,7 +56,7 @@ public class AccountsResource extends ServerResource {
 					final JSONObject account = new JSONObject();
 					account.put("id", a.getId());
 					account.put("name", a.getName());
-					account.put("balance", FormatUtil.formatCurrency(a.getBalance()));
+//					account.put("balance", FormatUtil.formatCurrency(a.getBalance()));	//TODO Pull this from the splits associated with the account
 					account.put("type", a.getType());
 					account.put("accountType", a.getAccountType());
 					account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance()));
@@ -67,7 +66,7 @@ public class AccountsResource extends ServerResource {
 					if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 					account.put("style", sb.toString());
 					sb.setLength(0);
-					if (!a.isDebit() ^ a.getBalance().compareTo(BigDecimal.ZERO) < 0) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+//					if (!a.isDebit() ^ a.getBalance().compareTo(BigDecimal.ZERO) < 0) sb.append(" color: " + FormatUtil.HTML_RED + ";");	//TODO Pull this from the splits associated with the account
 					account.put("balanceStyle", sb.toString());
 					sb.setLength(0);
 					account.put("leaf", true);

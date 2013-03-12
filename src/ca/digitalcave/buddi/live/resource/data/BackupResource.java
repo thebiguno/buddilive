@@ -43,7 +43,7 @@ public class BackupResource extends ServerResource {
 
 		try {
 			final JSONObject result = new JSONObject();
-			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user, false);
+			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
 			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user));
 			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user);
 			final List<Entry> entries = sqlSession.getMapper(Entries.class).selectEntries(user);

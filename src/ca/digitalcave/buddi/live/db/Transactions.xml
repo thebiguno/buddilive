@@ -39,7 +39,14 @@
 		<if test="_parameter.containsKey('source')">
 			AND (s.from_source = #{source.id} OR s.to_source = #{source.id})
 		</if>
-		ORDER BY t.date DESC
+		ORDER BY t.date DESC,
+		<if test="_parameter.containsKey('source')">
+			CASE 
+				WHEN s.from_source = fs.id THEN fs.type
+				WHEN s.to_source = fs.id THEN ts.type
+			END DESC,		--We sort by the associated source, with 'D' sorting higher than 'C'.  TODO verify this compared with existing Buddi
+		</if>
+		t.description
 	</select>
 	
 	<select id="selectTransactionCount" resultType="int">

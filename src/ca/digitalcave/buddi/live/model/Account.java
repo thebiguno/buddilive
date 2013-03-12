@@ -13,9 +13,6 @@ public class Account extends Source {
 	private BigDecimal startBalance;
 	private Date startDate;
 
-	//The following are used for temporary results from the DB, but are not persisted.
-	private BigDecimal balance;
-	
 	public Account() {}
 	
 	public Account(JSONObject json) throws JSONException {
@@ -29,7 +26,6 @@ public class Account extends Source {
 		JSONObject result = super.toJson();
 		result.put("startBalance", FormatUtil.formatCurrency(this.getStartBalance()));
 		result.put("startDate", FormatUtil.formatDateTime((Date) this.getStartDate()));
-		result.put("balance", FormatUtil.formatCurrency(this.getBalance()));
 		result.put("accountType", this.getAccountType());
 		return result;
 	}
@@ -51,9 +47,6 @@ public class Account extends Source {
 	}
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
-	}
-	public BigDecimal getBalance() {
-		return balance;
 	}
 	
 	public boolean isDebit(){
