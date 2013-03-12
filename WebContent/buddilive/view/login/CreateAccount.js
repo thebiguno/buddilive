@@ -2,6 +2,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 	"extend": "Ext.window.Window",
 	"alias": "widget.createaccount",
 	"requires": [
+		"BuddiLive.view.login.ClickLabel",
 		"BuddiLive.view.login.PasswordField"
 	],
 		
@@ -21,7 +22,8 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 						"items": [
 							{
 								"xtype": "hidden",
-								"itemId": "id"
+								"itemId": "id",
+								"hidden": true
 							},
 							{
 								"xtype": "textfield",
@@ -36,13 +38,6 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 								"itemId": "password",
 								"fieldLabel": "${translation("CREATE_USER_PASSWORD")?json_string}",
 								"allowBlank": false
-							},
-							{
-								"xtype": "textfield",
-								"itemId": "email",
-								"fieldLabel": "${translation("CREATE_USER_EMAIL")?json_string}",
-								"emptyText": "user@example.com",
-								"vtype": "email"
 							},
 							{
 								"xtype": "combobox",
@@ -76,11 +71,91 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 								"valueField": "value"
 							},
 							{
-								"xtype": "checkbox",
-								"itemId": "agree",
-								"boxLabel": "${translation("CREATE_USER_AGREE")?json_string}",
-								"allowBlank": false
-							}
+								"xtype": "panel",
+								"border": false,
+								"layout": "hbox",
+								"items": [
+									{
+										"xtype": "checkbox",
+										"itemId": "email",
+										"fieldLabel": " ",
+										"labelSeparator": "",
+										"boxLabel": "${translation("CREATE_USER_REMEMBER_EMAIL")?json_string}"
+									},
+									{
+										"xtype": "clicklabel",
+										"flex": 1,
+										"text": "${translation("CREATE_USER_WHAT_IS_THIS")?json_string}",
+										"listeners": {
+											"click": function(){
+												Ext.MessageBox.show({
+													"title": "${translation("CREATE_USER_REMEMBER_EMAIL")?json_string}",
+													"msg": "${translation("CREATE_USER_WHAT_IS_REMEMBER_EMAIL")?json_string}",
+													"buttons": Ext.MessageBox.OK
+												});
+											}
+										}
+									}
+								]
+							},
+							{
+								"xtype": "panel",
+								"border": false,
+								"layout": "hbox",
+								"items": [
+									{
+										"xtype": "checkbox",
+										"itemId": "encrypt",
+										"fieldLabel": " ",
+										"labelSeparator": "",
+										"boxLabel": "${translation("CREATE_USER_ENCRYPT_DATA")?json_string}"
+									},
+									{
+										"xtype": "clicklabel",
+										"flex": 1,
+										"text": "${translation("CREATE_USER_WHAT_IS_THIS")?json_string}",
+										"listeners": {
+											"click": function(){
+												Ext.MessageBox.show({
+													"title": "${translation("CREATE_USER_ENCRYPT_DATA")?json_string}",
+													"msg": "${translation("CREATE_USER_WHAT_IS_ENCRYPT_DATA")?json_string}",
+													"buttons": Ext.MessageBox.OK
+												});
+											}
+										}
+									}
+								]
+							},
+							{
+								"xtype": "panel",
+								"border": false,
+								"layout": "hbox",
+								"items": [
+									{
+										"xtype": "checkbox",
+										"itemId": "agree",
+										"fieldLabel": " ",
+										"labelSeparator": "",
+										//"boxLabel": "${translation("CREATE_USER_AGREE")?json_string}",
+										"allowBlank": false
+									},
+									{
+										"xtype": "clicklabel",
+										"flex": 1,
+										"style": "padding-left: 4px; padding-top: 3px;",
+										"html": "${translation("CREATE_USER_AGREE")?json_string}",
+										"listeners": {
+											"click": function(){
+												Ext.MessageBox.show({
+													"title": "${translation("CREATE_USER_TERMS_AND_CONDITIONS_TITLE")?json_string}",
+													"msg": "${translation("CREATE_USER_TERMS_AND_CONDITIONS")?json_string}",
+													"buttons": Ext.MessageBox.OK
+												});
+											}
+										}
+									}
+								]
+							},
 						
 						]
 					}

@@ -34,7 +34,7 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 		var request = {"action": "insert"};
 		request.identifier = form.down("textfield[itemId='identifier']").getValue();
 		request.credentials = form.down("textfield[itemId='password']").getValue();
-		request.email = form.down("textfield[itemId='email']").getValue();
+		request.email = form.down("checkbox[itemId='email']").getValue();
 		request.locale = form.down("textfield[itemId='locale']").getValue();
 		var conn = new Ext.data.Connection();
 		conn.request({
