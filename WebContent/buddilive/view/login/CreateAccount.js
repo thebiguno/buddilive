@@ -32,7 +32,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 								"vtype": "email"
 							},
 							{
-								"xtype": "textfield",
+								"xtype": "passwordfield",
 								"itemId": "password",
 								"fieldLabel": "${translation("CREATE_USER_PASSWORD")?json_string}",
 								"allowBlank": false

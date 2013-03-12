@@ -1,4 +1,4 @@
-package ca.digitalcave.buddi.live.resource.gui;
+package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
 import java.util.HashMap;

@@ -23,7 +23,7 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 			"proxy": {
 				"type": "ajax",
 				"autoAbort": true, 
-				"url": "gui/transactions/descriptions.json",
+				"url": "buddilive/transactions/descriptions.json",
 				"reader": {
 					"type": "json",
 					"root": "data"

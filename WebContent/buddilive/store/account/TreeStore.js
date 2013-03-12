@@ -6,7 +6,7 @@ Ext.define("BuddiLive.store.account.TreeStore", {
 	"model": "BuddiLive.model.account.TreeModel",
 	"proxy": {
 		"type": "ajax",
-		"url": "gui/accounts.json",
+		"url": "buddilive/accounts.json",
 		"reader": {
 			"type": "json",
 			"root": "children"

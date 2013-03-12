@@ -3,6 +3,7 @@ package ca.digitalcave.buddi.live.service;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Application;
 import org.restlet.Request;
@@ -11,6 +12,7 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
 import org.restlet.service.StatusService;
 
@@ -38,26 +40,31 @@ public class BuddiStatusService extends StatusService {
 		
 		final Variant variant = request.getClientInfo().getPreferredVariant(variants, Application.getCurrent().getMetadataService());
 		
-		if (variant.getMediaType().isCompatible(MediaType.APPLICATION_JSON) ||
-				variant.getMediaType().isCompatible(MediaType.APPLICATION_JAVASCRIPT)) {
+		if (variant.getMediaType().isCompatible(MediaType.APPLICATION_JSON) || variant.getMediaType().isCompatible(MediaType.APPLICATION_JAVASCRIPT)) {
 			response.setStatus(status);
-			final Representation result = getJsonRepresentation(false, status.getName(), status.getDescription());
-			return result;
-		} else {
+			return getJsonRepresentation(status.getName(), status.getDescription());
+		}
+		else if (variant.getMediaType().isCompatible(MediaType.TEXT_HTML)){
+			return new StringRepresentation(String.format("<html><head><title>%s</title><body><h1>%s - %s</h1><p>%s</p></body></html>", status.getName(), status.getCode(), status.getName(), status.getDescription()), MediaType.TEXT_HTML);
+		}
+		else {
 			response.setStatus(status);
 			return super.getRepresentation(status, request, response);
 		}
 	}
 	
-	public static Representation getJsonRepresentation(boolean success, String title, String message) {
+	private static Representation getJsonRepresentation(String title, String message) {
 		try {
 			final JSONObject object = new JSONObject();
-			object.put("success", success);
+			object.put("success", false);
 			if (message != null) {
 				object.put("msg", message);
 			}
+			if (title != null) {
+				object.put("title", title);
+			}
 			return new JsonRepresentation(object);
-		} catch (Exception e) {
+		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
 	}

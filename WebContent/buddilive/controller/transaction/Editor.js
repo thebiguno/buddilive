@@ -34,7 +34,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "gui/transactions",
+			"url": "buddilive/transactions",
 			"headers": {
 				"Accept": "application/json"
 			},
@@ -67,7 +67,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			
 			var conn = new Ext.data.Connection();
 			conn.request({
-				"url": "gui/transactions",
+				"url": "buddilive/transactions",
 				"headers": {
 					"Accept": "application/json"
 				},

@@ -6,7 +6,7 @@ Ext.define("BuddiLive.store.transaction.ListStore", {
 	"model": "BuddiLive.model.transaction.ListModel",
 	"proxy": {
 		"type": "ajax",
-		"url": "gui/transactions.json",
+		"url": "buddilive/transactions.json",
 		"reader": {
 			"type": "json",
 			"root": "data"

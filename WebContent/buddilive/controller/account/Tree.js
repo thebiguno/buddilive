@@ -34,7 +34,7 @@ Ext.define("BuddiLive.controller.account.Tree", {
 			var request = {"action": "undelete", "id": selected.id};
 			var conn = new Ext.data.Connection();
 			conn.request({
-				"url": "gui/accounts",
+				"url": "buddilive/accounts",
 				"headers": {
 					"Accept": "application/json"
 				},
@@ -58,7 +58,7 @@ Ext.define("BuddiLive.controller.account.Tree", {
 					var request = {"action": "delete", "id": selected.id};
 					var conn = new Ext.data.Connection();
 					conn.request({
-						"url": "gui/accounts",
+						"url": "buddilive/accounts",
 						"headers": {
 							"Accept": "application/json"
 						},

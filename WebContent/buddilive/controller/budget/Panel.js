@@ -16,7 +16,7 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 		budgetPanel.removeAll();
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "gui/categories/periods",
+			"url": "buddilive/categories/periods",
 			"headers": {
 				"Accept": "application/json"
 			},
@@ -63,7 +63,7 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 		var request = {"action": selected.deleted ? "undelete" : "delete", "id": selected.id};
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "gui/categories",
+			"url": "buddilive/categories",
 			"headers": {
 				"Accept": "application/json"
 			},

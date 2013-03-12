@@ -28,7 +28,7 @@ Ext.define("BuddiLive.controller.account.Editor", {
 
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "gui/accounts",
+			"url": "buddilive/accounts",
 			"headers": {
 				"Accept": "application/json"
 			},

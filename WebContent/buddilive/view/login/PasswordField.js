@@ -1,6 +1,6 @@
 Ext.define("BuddiLive.view.login.PasswordField", {
 	"extend": "Ext.form.FieldContainer",
-	"alias": "widget.buddipasswordfield",
+	"alias": "widget.passwordfield",
 
 	"initComponent": function(){
 		this.passwordStrengthColorId = Ext.id();

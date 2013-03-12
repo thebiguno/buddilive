@@ -19,18 +19,19 @@ import org.restlet.routing.TemplateRoute;
 
 import ca.digitalcave.buddi.live.db.migrate.Migration;
 import ca.digitalcave.buddi.live.resource.IndexResource;
+import ca.digitalcave.buddi.live.resource.buddilive.AccountsResource;
+import ca.digitalcave.buddi.live.resource.buddilive.CategoriesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.CreateAccountResource;
+import ca.digitalcave.buddi.live.resource.buddilive.DescriptionsResource;
+import ca.digitalcave.buddi.live.resource.buddilive.EntriesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.FreemarkerResource;
+import ca.digitalcave.buddi.live.resource.buddilive.ParentsResource;
+import ca.digitalcave.buddi.live.resource.buddilive.PeriodsResource;
+import ca.digitalcave.buddi.live.resource.buddilive.SourcesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.resource.data.UsersDataResource;
-import ca.digitalcave.buddi.live.resource.gui.AccountsResource;
-import ca.digitalcave.buddi.live.resource.gui.CategoriesResource;
-import ca.digitalcave.buddi.live.resource.gui.DescriptionsResource;
-import ca.digitalcave.buddi.live.resource.gui.EntriesResource;
-import ca.digitalcave.buddi.live.resource.gui.FreemarkerResource;
-import ca.digitalcave.buddi.live.resource.gui.ParentsResource;
-import ca.digitalcave.buddi.live.resource.gui.PeriodsResource;
-import ca.digitalcave.buddi.live.resource.gui.SourcesResource;
-import ca.digitalcave.buddi.live.resource.gui.TransactionsResource;
 import ca.digitalcave.buddi.live.security.AddressFilter;
 import ca.digitalcave.buddi.live.security.BuddiAuthenticator;
 import ca.digitalcave.buddi.live.service.BuddiStatusService;
@@ -59,15 +60,16 @@ public class BuddiApplication extends Application{
 		router.attach("/", new BuddiAuthenticator(this, getContext(), true, IndexResource.class));
 		
 		//Handles the desktop GUI stuff
-		router.attach("/gui/accounts", new BuddiAuthenticator(this, getContext(), false, AccountsResource.class));
-		router.attach("/gui/categories", new BuddiAuthenticator(this, getContext(), false, CategoriesResource.class));
-		router.attach("/gui/categories/periods", new BuddiAuthenticator(this, getContext(), false, PeriodsResource.class));
-		router.attach("/gui/categories/entries", new BuddiAuthenticator(this, getContext(), false, EntriesResource.class));
-		router.attach("/gui/categories/parents", new BuddiAuthenticator(this, getContext(), false, ParentsResource.class));
-		router.attach("/gui/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
-		router.attach("/gui/transactions/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
-		router.attach("/gui/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
-		router.attach("/gui/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
+		router.attach("/buddilive/createaccount", new BuddiAuthenticator(this, getContext(), true, CreateAccountResource.class));
+		router.attach("/buddilive/accounts", new BuddiAuthenticator(this, getContext(), false, AccountsResource.class));
+		router.attach("/buddilive/categories", new BuddiAuthenticator(this, getContext(), false, CategoriesResource.class));
+		router.attach("/buddilive/categories/periods", new BuddiAuthenticator(this, getContext(), false, PeriodsResource.class));
+		router.attach("/buddilive/categories/entries", new BuddiAuthenticator(this, getContext(), false, EntriesResource.class));
+		router.attach("/buddilive/categories/parents", new BuddiAuthenticator(this, getContext(), false, ParentsResource.class));
+		router.attach("/buddilive/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
+		router.attach("/buddilive/transactions/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
+		router.attach("/buddilive/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
+		router.attach("/buddilive/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		
 		//Handles non-GUI data import / export
 		router.attach("/data/backup", new BuddiAuthenticator(this, getContext(), false, BackupResource.class));

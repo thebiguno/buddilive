@@ -1,4 +1,4 @@
-package ca.digitalcave.buddi.live.resource.gui;
+package ca.digitalcave.buddi.live.resource.buddilive;
 
 import org.restlet.data.MediaType;
 import org.restlet.ext.freemarker.TemplateRepresentation;

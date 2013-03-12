@@ -31,7 +31,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "from",
 				"flex": 1,
 				"emptyText": "From",	//TODO i18n
-				"url": "gui/sources/from.json",
+				"url": "buddilive/sources/from.json",
 				"value": v.fromId
 			},
 			{"xtype": "panel", "html": "<img style='padding-top: 3px;' src='img/arrow.png'/>", "border": false, "width": 25, "height": 25},
@@ -40,7 +40,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "to",
 				"flex": 1,
 				"emptyText": "To",	//TODO i18n
-				"url": "gui/sources/to.json",
+				"url": "buddilive/sources/to.json",
 				"value": v.toId
 			},
 			{

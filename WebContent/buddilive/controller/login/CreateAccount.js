@@ -1,4 +1,4 @@
-Ext.define("BuddiLive.controller.login.Editor", {
+Ext.define("BuddiLive.controller.login.CreateAccount", {
 	"extend": "Ext.app.Controller",
 
 	"init": function() {
@@ -38,13 +38,19 @@ Ext.define("BuddiLive.controller.login.Editor", {
 		request.locale = form.down("textfield[itemId='locale']").getValue();
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "data/users",
+			"url": "buddilive/createaccount",
 			"headers": {
 				"Accept": "application/json"
 			},
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
+				var json = Ext.decode(response.responseText, true);
+				Ext.MessageBox.show({
+					"title": json.title,
+					"msg": json.message,
+					"buttons": Ext.MessageBox.OK
+				});
 				window.close();
 			},
 			"failure": function(response){

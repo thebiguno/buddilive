@@ -1,4 +1,4 @@
-package ca.digitalcave.buddi.live.resource.gui;
+package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.util.HashSet;
 import java.util.Set;

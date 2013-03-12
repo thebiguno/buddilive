@@ -18,32 +18,37 @@ public class CryptoUtil {
 	private static final String STRONG_KEY_ALGORITHM = "PBKDF2WithHmacSHA1";
 	private static final String STRONG_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
 
-	public static byte[] encrypt(byte[] bytes, char[] password) throws Exception {
-		// generate some random salt
-		final byte[] salt = new byte[8];
-		SecureRandom.getInstance(SALT_ALGORITHM).nextBytes(salt);
+	public static byte[] encrypt(byte[] bytes, char[] password) throws CryptoException {
+		try {
+			// generate some random salt
+			final byte[] salt = new byte[8];
+			SecureRandom.getInstance(SALT_ALGORITHM).nextBytes(salt);
 
-		final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
-		final PBEKeySpec keySpec = new PBEKeySpec(password, salt, 65525, 256);
-		final Key tmp = keyFactory.generateSecret(keySpec);
-		final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
+			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
+			final PBEKeySpec keySpec = new PBEKeySpec(password, salt, 65525, 256);
+			final Key tmp = keyFactory.generateSecret(keySpec);
+			final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
 
-		final Cipher c = Cipher.getInstance(STRONG_CIPHER_ALGORITHM);
-		c.init(Cipher.ENCRYPT_MODE, key);
-		final AlgorithmParameters p = c.getParameters();
+			final Cipher c = Cipher.getInstance(STRONG_CIPHER_ALGORITHM);
+			c.init(Cipher.ENCRYPT_MODE, key);
+			final AlgorithmParameters p = c.getParameters();
 
-		final byte[] iv = p.getParameterSpec(IvParameterSpec.class).getIV();
-		final byte[] out = c.doFinal(bytes);
+			final byte[] iv = p.getParameterSpec(IvParameterSpec.class).getIV();
+			final byte[] out = c.doFinal(bytes);
 
-		final byte[] result = new byte[out.length + iv.length + salt.length];
-		System.arraycopy(salt, 0, result, 0, salt.length);
-		System.arraycopy(iv, 0, result, salt.length, iv.length);
-		System.arraycopy(out, 0, result, salt.length + iv.length, out.length);
+			final byte[] result = new byte[out.length + iv.length + salt.length];
+			System.arraycopy(salt, 0, result, 0, salt.length);
+			System.arraycopy(iv, 0, result, salt.length, iv.length);
+			System.arraycopy(out, 0, result, salt.length + iv.length, out.length);
 
-		return result;
+			return result;
+		}
+		catch (Exception e){
+			throw new CryptoException(e);
+		}
 	}
 
-	public static byte[] decrypt(byte[] bytes, char[] password) throws Exception {
+	public static byte[] decrypt(byte[] bytes, char[] password) throws CryptoException {
 		// recoven the salt
 		final byte[] salt = new byte[8];
 		System.arraycopy(bytes, 0, salt, 0, salt.length);
@@ -56,14 +61,19 @@ public class CryptoUtil {
 		final byte[] in = new byte[bytes.length - iv.length - salt.length];
 		System.arraycopy(bytes, salt.length + iv.length, in, 0, in.length);
 
-		final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
-		final PBEKeySpec keySpec = new PBEKeySpec(password, salt, 65525, 256);
-		final Key tmp = keyFactory.generateSecret(keySpec);
-		final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
+		try {
+			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
+			final PBEKeySpec keySpec = new PBEKeySpec(password, salt, 65525, 256);
+			final Key tmp = keyFactory.generateSecret(keySpec);
+			final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
 
-		final Cipher c = Cipher.getInstance(STRONG_CIPHER_ALGORITHM);
-		c.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-		return c.doFinal(in);
+			final Cipher c = Cipher.getInstance(STRONG_CIPHER_ALGORITHM);
+			c.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+			return c.doFinal(in);
+		}
+		catch (Exception e){
+			throw new CryptoException(e);
+		}
 	}
 
 	/**
@@ -198,6 +208,20 @@ public class CryptoUtil {
 			start = System.currentTimeMillis();
 			System.out.println(getHash("SHA-1", 16777215, salt, test));
 			System.out.println(System.currentTimeMillis() - start);
+		}
+	}
+	
+	public static class CryptoException extends Exception {
+		private static final long serialVersionUID = 1L;
+		public CryptoException() {}
+		public CryptoException(String message){
+			super(message);
+		}
+		public CryptoException(Throwable throwable){
+			super(throwable);
+		}
+		public CryptoException(String message, Throwable throwable){
+			super(message, throwable);
 		}
 	}
 }

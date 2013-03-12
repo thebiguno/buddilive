@@ -20,7 +20,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 	
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "gui/categories/entries",
+			"url": "buddilive/categories/entries",
 			"headers": {
 				"Accept": "application/json"
 			},
