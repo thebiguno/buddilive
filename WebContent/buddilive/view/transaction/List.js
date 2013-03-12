@@ -59,7 +59,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 			},
 			{
 				"xtype": "transactioneditor",
-				"dock": "top"
+				"dock": "bottom"
 			}
 		];
 		
