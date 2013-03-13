@@ -3,7 +3,8 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 	"alias": "widget.spliteditor",
 	
 	"requires": [
-		"BuddiLive.view.transaction.split.SourceCombobox"
+		"BuddiLive.view.transaction.split.FromCombobox",
+		"BuddiLive.view.transaction.split.ToCombobox"
 	],
 	
 	"initComponent": function(){
@@ -27,20 +28,18 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"value": v.amount
 			},
 			{
-				"xtype": "sourcecombobox",
+				"xtype": "fromcombobox",
 				"itemId": "from",
 				"flex": 1,
 				"emptyText": "From",	//TODO i18n
-				"url": "buddilive/sources/from.json",
 				"value": v.fromId
 			},
 			{"xtype": "panel", "html": "<img style='padding-top: 3px;' src='img/arrow.png'/>", "border": false, "width": 25, "height": 25},
 			{
-				"xtype": "sourcecombobox",
+				"xtype": "tocombobox",
 				"itemId": "to",
 				"flex": 1,
 				"emptyText": "To",	//TODO i18n
-				"url": "buddilive/sources/to.json",
 				"value": v.toId
 			},
 			{

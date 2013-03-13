@@ -1,8 +1,10 @@
-Ext.define("BuddiLive.view.transaction.split.SourceCombobox", {
+Ext.define("BuddiLive.view.transaction.split.ToCombobox", {
 	"extend": "Ext.form.field.ComboBox",
-	"alias": "widget.sourcecombobox",
+	"alias": "widget.tocombobox",
 	"requires": [
+		"BuddiLive.store.transaction.split.ToComboboxStore"
 	],
+	"store": "transaction.split.ToComboboxStore",
 	
 	"initComponent": function(){
 		var combo = this;
@@ -20,19 +22,8 @@ Ext.define("BuddiLive.view.transaction.split.SourceCombobox", {
 			"itemTpl": "<div style='{style}'>{text}</div>"
 		};
 	
-		this.store = {
-			"autoLoad": true,
-			"fields": ["value", "text", "style"],
-			"remoteFilter": false,
-			"proxy": {
-				"type": "ajax",
-				"autoAbort": true, 
-				"url": this.url,
-				"reader": {
-					"type": "json",
-					"root": "data"
-				}
-			},
+	
+	/*
 			"listeners": {
 				"load": function(){
 					//Once the store is initially loaded, set the default value.
@@ -42,8 +33,7 @@ Ext.define("BuddiLive.view.transaction.split.SourceCombobox", {
 					}
 				}
 			}
-		};
-		
+	*/
 		this.callParent(arguments);
 		
 		this.addListener("select", function(){
