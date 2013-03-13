@@ -17,6 +17,7 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
+import ca.digitalcave.buddi.live.db.util.MassUpdater;
 import ca.digitalcave.buddi.live.model.User;
 
 public class UsersDataResource extends ServerResource {

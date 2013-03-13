@@ -81,6 +81,7 @@ public class BuddiVerifier implements Verifier {
 						user.setAuthenticated(true);
 						//Fallback to browser locale if it is not set in the user object
 						if (StringUtils.isBlank(user.getLocale())) user.setLocale(requestLocale);
+						user.setPlaintextIdentifier(identifier);
 						request.getClientInfo().setUser(user);
 						return RESULT_VALID;
 					}

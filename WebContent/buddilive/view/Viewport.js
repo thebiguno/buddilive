@@ -25,7 +25,8 @@ Ext.define("BuddiLive.view.Viewport", {
 					"items": [
 						"->",
 						{
-							"tooltip": "${translation("LOGOUT")?json_string}",
+							"text": "${translation("LOGOUT")?json_string}",
+							"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",
 							"icon": "img/door-open-out.png",
 							"itemId": "logout"
 						}

@@ -13,7 +13,8 @@ import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class User extends org.restlet.security.User {
 	private Integer id;
-	private String identifier;
+	private String identifier;	//Hashed, recovered from DB
+	private String plaintextIdentifier;	//Not hashed, injected by BuddiVerifier
 	private String credentials;
 	private String email;
 	private String uuid;
@@ -32,7 +33,9 @@ public class User extends org.restlet.security.User {
 		if (json.optString("identifier", null) != null)this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha256Hash(1, new byte[0], json.getString("identifier")));
 		if (json.optString("credentials", null) != null) this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(1, CryptoUtil.getRandomSalt(), json.getString("credentials")));
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
+		//Prefer the email param, but if that is missing we can fill it in via the identifier if the storeEmail option is set.
 		if (json.optString("email", null) != null) this.setEmail(json.getString("email"));
+		else if (json.optBoolean("storeEmail", false)) this.setEmail(json.getString("identifier"));
 		if (json.optString("locale", null) != null) this.setLocale(json.getString("locale"));
 		this.setPremium(false);
 
@@ -112,6 +115,12 @@ public class User extends org.restlet.security.User {
 	}
 	public void setAuthenticated(boolean authenticated) {
 		this.authenticated = authenticated;
+	}
+	public String getPlaintextIdentifier() {
+		return plaintextIdentifier;
+	}
+	public void setPlaintextIdentifier(String plaintextIdentifier) {
+		this.plaintextIdentifier = plaintextIdentifier;
 	}
 	
 	public ResourceBundle getTranslation(){

@@ -25,7 +25,7 @@ import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
-public class CreateAccountResource extends ServerResource {
+public class CreateUserResource extends ServerResource {
 
 	//Use a random UUID as the nonce secret, which will be generated at each server start.
 	private static final String nonceSecret = UUID.randomUUID().toString();
@@ -49,7 +49,7 @@ public class CreateAccountResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 				sqlSession.commit();
 
-				getResponse().redirectSeeOther(".");
+				getResponse().redirectSeeOther("..");
 				return new EmptyRepresentation();
 			}
 			else {
@@ -84,7 +84,7 @@ public class CreateAccountResource extends ServerResource {
 				final HtmlEmail email = new HtmlEmail();
 				email.addTo(identifier);
 				email.setSubject(user.getTranslation().getString("CREATE_USER_EMAIL_SUBJECT"));
-				email.setMsg(String.format(user.getTranslation().getString("CREATE_USER_EMAIL_BODY"), url));
+				email.setMsg(String.format(user.getTranslation().getString("CREATE_USER_EMAIL_BODY"), getRequest().getClientInfo().getAddress(), url));
 				email.setFrom("no-reply@digitalcave.ca", "Buddi Live Account Creation");
 				email.setHostName("localhost");
 				email.send();
