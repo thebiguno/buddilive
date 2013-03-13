@@ -14,8 +14,16 @@ Ext.define('BuddiLive.view.transaction.List', {
 			{
 				"flex": 1,
 				"renderer": function(value, metadata, record){
-					return "<table><tr><td>" + record.raw.date + "</td><td>" + record.raw.description + "</td><td>" + record.raw.number + "</td></tr>"
-					+ "<tr><td>" + record.raw.from + " -> " + record.raw.to + "</td><td>" + record.raw.amount + "</td><td>" + record.raw.balance + "</td></tr></table>";
+					return 	"<table style='table-layout: fixed; width: 100%;'><tr>" +
+								"<td style='width: 100px;'>" + record.raw.date + "</td>" +
+								"<td colspan='3'>" + record.raw.description + "</td>" +
+								"<td style='width: 300px;>" + record.raw.number + "</td>" +
+							"</tr><tr>" +
+								"<td colspan='2'>" + record.raw.from + " -> " + record.raw.to + "</td>" +
+								"<td>" + record.raw.amount + "</td>" +
+								"<td>" + record.raw.amount + "</td>" +
+								"<td>" + record.raw.balance + "</td>" + 
+							"</tr></table>";
 				}
 			}
 		];
