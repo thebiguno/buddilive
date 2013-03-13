@@ -12,7 +12,7 @@ import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 
-public class MassUpdater {
+public class BalanceUpdater {
 
 	public static void updateBalances(User user, SqlSession sqlSession) throws DatabaseException {
 		//Update all balances, starting from the earliest split which has a null balance, and moving forward updating each one in turn.

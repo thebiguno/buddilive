@@ -20,7 +20,7 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
-import ca.digitalcave.buddi.live.db.util.MassUpdater;
+import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.AccountType;
 import ca.digitalcave.buddi.live.model.User;
@@ -123,7 +123,7 @@ public class AccountsResource extends ServerResource {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
 			}
 			
-			MassUpdater.updateBalances(user, sqlSession);
+			BalanceUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();
