@@ -12,41 +12,14 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.border = false;
 		this.columns = [
 			{
-				"text": "Date",	//TODO i18n
-				"dataIndex": "date",
-				"flex": 1
-			},
-			{
-				"text": "Description",	//TODO i18n
-				"dataIndex": "description",
-				"flex": 1
-			},
-			{
-				"text": "Number",	//TODO i18n
-				"dataIndex": "number",
-				"flex": 1
-			},
-			{
-				"text": "Amount",	//TODO i18n
-				"dataIndex": "amount",
-				"flex": 1
-			},
-			{
-				"text": "From",	//TODO i18n
-				"dataIndex": "from",
-				"flex": 1
-			},
-			{
-				"text": "To",	//TODO i18n
-				"dataIndex": "to",
-				"flex": 1
-			},
-			{
-				"text": "Balance",	//TODO i18n
-				"dataIndex": "balance",
-				"flex": 1
+				"flex": 1,
+				"renderer": function(value, metadata, record){
+					return "<table><tr><td>" + record.raw.date + "</td><td>" + record.raw.description + "</td><td>" + record.raw.number + "</td></tr>"
+					+ "<tr><td>" + record.raw.from + " -> " + record.raw.to + "</td><td>" + record.raw.amount + "</td><td>" + record.raw.balance + "</td></tr></table>";
+				}
 			}
 		];
+		
 		this.dockedItems = [
 			{
 				"xtype": "toolbar",
