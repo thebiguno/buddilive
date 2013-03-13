@@ -129,4 +129,8 @@ public class Split {
 	public String getToSourceName() {
 		return toSourceName;
 	}
+	
+	public boolean isDebit(Source source){
+		return this.getToSource() == source.getId() && "D".equals(source.getType());
+	}
 }

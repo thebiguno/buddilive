@@ -10,21 +10,51 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.layout = "fit";
 		this.store = Ext.create("BuddiLive.store.transaction.ListStore");
 		this.border = false;
+		this.stateId = "transactionlist";
+		this.stateful = true;
 		this.columns = [
 			{
+			"text": "Date",	//TODO i18n
+				"dataIndex": "date",
+				"flex": 1
+			},
+			{
+				"text": "Description",	//TODO i18n
+				"dataIndex": "description",
+				"flex": 1
+			},
+			{
+				"text": "Number",	//TODO i18n
+				"dataIndex": "number",
+				"flex": 1
+			},
+			{
+				"text": "From / To",	//TODO i18n
 				"flex": 1,
 				"renderer": function(value, metadata, record){
-					return 	"<table style='table-layout: fixed; width: 100%;'><tr>" +
-								"<td style='width: 100px;'>" + record.raw.date + "</td>" +
-								"<td colspan='3'>" + record.raw.description + "</td>" +
-								"<td style='width: 300px;>" + record.raw.number + "</td>" +
-							"</tr><tr>" +
-								"<td colspan='2'>" + record.raw.from + " -> " + record.raw.to + "</td>" +
-								"<td>" + record.raw.amount + "</td>" +
-								"<td>" + record.raw.amount + "</td>" +
-								"<td>" + record.raw.balance + "</td>" + 
-							"</tr></table>";
+					return record.raw.from + " -> " + record.raw.to;
 				}
+			},
+			{
+				"text": "Debit",	//TODO i18n
+				"dataIndex": "amount",
+				"flex": 1,
+				"renderer": function(value, metadata, record){
+					return (record.raw.debit ? value : "");
+				}
+			},
+			{
+				"text": "Credit",	//TODO i18n
+				"dataIndex": "amount",
+				"flex": 1,
+				"renderer": function(value, metadata, record){
+					return (record.raw.debit ? "" : value);
+				}
+			},
+			{
+				"text": "Balance",	//TODO i18n
+				"dataIndex": "balance",
+				"flex": 1
 			}
 		];
 		

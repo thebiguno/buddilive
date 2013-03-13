@@ -175,4 +175,20 @@ public class Transaction {
 			else return "MULTIPLE";
 		}
 	}
+	
+	/**
+	 * Is the transaction a debit?  If all splits agree, then we return the value of the splits.  Otherwise we return null.
+	 * @param source
+	 * @return
+	 */
+	public Boolean isDebit(Source source){
+		Boolean result = null;
+		for (Split s : getSplits()) {
+			final boolean lineResult = s.isDebit(source);
+			if (result == null) result = lineResult;
+			else if (result != lineResult) return null;
+		}
+		return result;
+		
+	}
 }

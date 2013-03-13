@@ -42,13 +42,7 @@ public class TransactionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final Source source = new Source();
-			try {
-				source.setId(Integer.parseInt(getQuery().getFirstValue("source")));
-			}
-			catch (Throwable e){
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
-			}
+			final Source source = sqlSession.getMapper(Sources.class).selectSource(user, Integer.parseInt(getQuery().getFirstValue("source")));
 			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, source);
 			final List<Source> sources = sqlSession.getMapper(Sources.class).selectSources(user);
 			final Map<Integer, Source> sourcesMap = new HashMap<Integer, Source>();
@@ -63,6 +57,7 @@ public class TransactionsResource extends ServerResource {
 				transaction.put("number", t.getNumber());
 				transaction.put("deleted", t.isDeleted());
 				transaction.put("amount", FormatUtil.formatCurrency(t.getAmount()));
+				transaction.put("debit", t.isDebit(source));
 				transaction.put("from", t.getFrom(sourcesMap));
 				transaction.put("to", t.getTo(sourcesMap));
 				final JSONArray splits = new JSONArray();
@@ -72,6 +67,7 @@ public class TransactionsResource extends ServerResource {
 					split.put("amount", s.getAmount());
 					split.put("fromId", s.getFromSource());
 					split.put("toId", s.getToSource());
+					split.put("debit", s.isDebit(source));
 					split.put("from", s.getFromSourceName());
 					split.put("to", s.getToSourceName());
 					split.put("memo", s.getMemo());
@@ -87,6 +83,9 @@ public class TransactionsResource extends ServerResource {
 			result.put("data", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
+		}
+		catch (NumberFormatException e){
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
