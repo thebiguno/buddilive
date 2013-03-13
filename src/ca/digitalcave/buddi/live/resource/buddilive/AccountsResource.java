@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -19,6 +20,7 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
+import ca.digitalcave.buddi.live.db.util.MassUpdater;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.AccountType;
 import ca.digitalcave.buddi.live.model.User;
@@ -56,7 +58,7 @@ public class AccountsResource extends ServerResource {
 					final JSONObject account = new JSONObject();
 					account.put("id", a.getId());
 					account.put("name", a.getName());
-//					account.put("balance", FormatUtil.formatCurrency(a.getBalance()));	//TODO Pull this from the splits associated with the account
+					account.put("balance", FormatUtil.formatCurrency(a.getBalance()));	//TODO Pull this from the splits associated with the account
 					account.put("type", a.getType());
 					account.put("accountType", a.getAccountType());
 					account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance()));
@@ -66,7 +68,7 @@ public class AccountsResource extends ServerResource {
 					if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 					account.put("style", sb.toString());
 					sb.setLength(0);
-//					if (!a.isDebit() ^ a.getBalance().compareTo(BigDecimal.ZERO) < 0) sb.append(" color: " + FormatUtil.HTML_RED + ";");	//TODO Pull this from the splits associated with the account
+					if (!a.isDebit() ^ (a.getBalance() == null || a.getBalance().compareTo(BigDecimal.ZERO) < 0)) sb.append(" color: " + FormatUtil.HTML_RED + ";");	//TODO Pull this from the splits associated with the account
 					account.put("balanceStyle", sb.toString());
 					sb.setLength(0);
 					account.put("leaf", true);
@@ -120,6 +122,8 @@ public class AccountsResource extends ServerResource {
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
 			}
+			
+			MassUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

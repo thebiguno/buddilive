@@ -13,6 +13,8 @@ public class Account extends Source {
 	private BigDecimal startBalance;
 	private Date startDate;
 
+	private BigDecimal balance;
+	
 	public Account() {}
 	
 	public Account(JSONObject json) throws JSONException {
@@ -25,6 +27,7 @@ public class Account extends Source {
 	public JSONObject toJson() throws JSONException {
 		JSONObject result = super.toJson();
 		result.put("startBalance", FormatUtil.formatCurrency(this.getStartBalance()));
+		result.put("balance", FormatUtil.formatCurrency(this.getBalance()));
 		result.put("startDate", FormatUtil.formatDateTime((Date) this.getStartDate()));
 		result.put("accountType", this.getAccountType());
 		return result;
@@ -51,5 +54,11 @@ public class Account extends Source {
 	
 	public boolean isDebit(){
 		return "D".equals(getType());
+	}
+	public BigDecimal getBalance() {
+		return balance;
+	}
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
 	}
 }

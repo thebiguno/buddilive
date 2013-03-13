@@ -40,7 +40,6 @@ public class BackupResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
-
 		try {
 			final JSONObject result = new JSONObject();
 			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);

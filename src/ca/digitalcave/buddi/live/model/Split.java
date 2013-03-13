@@ -18,7 +18,9 @@ public class Split {
 	private String memo;
 	private Date created;
 	private Date modified;
-	
+	private BigDecimal fromBalance;
+	private BigDecimal toBalance;
+
 	private String fromSourceName;
 	private String toSourceName;
 	
@@ -87,6 +89,18 @@ public class Split {
 	}
 	public void setMemo(String memo) {
 		this.memo = memo;
+	}
+	public BigDecimal getFromBalance() {
+		return fromBalance;
+	}
+	public void setFromBalance(BigDecimal fromBalance) {
+		this.fromBalance = fromBalance;
+	}
+	public BigDecimal getToBalance() {
+		return toBalance;
+	}
+	public void setToBalance(BigDecimal toBalance) {
+		this.toBalance = toBalance;
 	}
 	public Date getCreated() {
 		return created;

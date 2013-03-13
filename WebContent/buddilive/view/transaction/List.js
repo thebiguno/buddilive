@@ -6,6 +6,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 	],
 	
 	"initComponent": function(){
+		var transactionList = this;
 		this.layout = "fit";
 		this.store = Ext.create("BuddiLive.store.transaction.ListStore");
 		this.border = false;
@@ -39,6 +40,11 @@ Ext.define('BuddiLive.view.transaction.List', {
 				"text": "To",	//TODO i18n
 				"dataIndex": "to",
 				"flex": 1
+			},
+			{
+				"text": "Balance",	//TODO i18n
+				"dataIndex": "balance",
+				"flex": 1
 			}
 		];
 		this.dockedItems = [
@@ -64,5 +70,9 @@ Ext.define('BuddiLive.view.transaction.List', {
 		];
 		
 		this.callParent(arguments);
+		
+		this.getStore().addListener("load", function(store){
+			transactionList.getView().scrollBy(0, 10000000, false);
+		});
 	}
 });

@@ -48,7 +48,7 @@
 	<select id="selectAccount" resultMap="account">
 		SELECT 
 			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
-			a.account_type a_account_type, a.start_balance a_start_balance 
+			a.account_type a_account_type, a.start_balance a_start_balance, a.balance a_balance
 		FROM sources a
 		WHERE 
 			user_id = #{user.id} 
@@ -64,7 +64,7 @@
 	<select id="selectAccounts" resultMap="account">
 		SELECT 
 			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
-			a.account_type a_account_type, a.start_balance a_start_balance 
+			a.account_type a_account_type, a.start_balance a_start_balance, a.balance a_balance
 		FROM sources a
 		WHERE 
 			user_id = #{user.id}
@@ -78,17 +78,17 @@
 	<select id="selectAccountTypes" resultMap="accountsByType">
 		SELECT 
 			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
-			a.account_type a_account_type, a.start_balance a_start_balance
+			a.account_type a_account_type, a.start_balance a_start_balance, a.balance a_balance
 		FROM sources a
 		WHERE 
-			auser_id = #{user.id} 
+			a.user_id = #{user.id} 
 			AND (a.type = 'D' OR a.type = 'C')
 		GROUP BY 
-			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.period_type, a.parent, a.created, a.modified
+			a.id, a.user_id, a.uuid, a.name, a.start_date, a.deleted, a.type, a.account_type, a.start_balance, a.balance, a.period_type, a.parent, a.created, a.modified
 		ORDER BY 
 			a.type DESC, a.account_type, a.name
 	</select>
-
+	
 	<select id="selectCategory" resultMap="category">
 		SELECT 
 			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
@@ -251,6 +251,7 @@
 			type = #{account.type},
 			account_type = #{account.accountType},
 			start_balance = #{account.startBalance,jdbcType=BIGINT},
+			balance = #{account.balance,jdbcType=BIGINT},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{account.id} AND user_id = #{user.id}
 	</update>

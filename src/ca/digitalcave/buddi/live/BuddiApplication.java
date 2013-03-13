@@ -18,13 +18,13 @@ import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
 import ca.digitalcave.buddi.live.db.migrate.Migration;
+import ca.digitalcave.buddi.live.resource.FreemarkerResource;
 import ca.digitalcave.buddi.live.resource.IndexResource;
 import ca.digitalcave.buddi.live.resource.buddilive.AccountsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.CategoriesResource;
-import ca.digitalcave.buddi.live.resource.buddilive.CreateAccountResource;
+import ca.digitalcave.buddi.live.resource.buddilive.CreateUserResource;
 import ca.digitalcave.buddi.live.resource.buddilive.DescriptionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.EntriesResource;
-import ca.digitalcave.buddi.live.resource.buddilive.FreemarkerResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ParentsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.PeriodsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.SourcesResource;
@@ -60,7 +60,7 @@ public class BuddiApplication extends Application{
 		router.attach("/", new BuddiAuthenticator(this, getContext(), true, IndexResource.class));
 		
 		//Handles the desktop GUI stuff
-		router.attach("/buddilive/createaccount", new BuddiAuthenticator(this, getContext(), true, CreateAccountResource.class));
+		router.attach("/buddilive/createaccount", new BuddiAuthenticator(this, getContext(), true, CreateUserResource.class));
 		router.attach("/buddilive/accounts", new BuddiAuthenticator(this, getContext(), false, AccountsResource.class));
 		router.attach("/buddilive/categories", new BuddiAuthenticator(this, getContext(), false, CategoriesResource.class));
 		router.attach("/buddilive/categories/periods", new BuddiAuthenticator(this, getContext(), false, PeriodsResource.class));
