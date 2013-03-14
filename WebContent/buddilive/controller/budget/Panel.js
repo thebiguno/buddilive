@@ -4,10 +4,7 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 	"init": function() {
 		this.control({
 			
-			"budgetpanel": {"afterrender": this.load},
-			"budgetpanel button[itemId='addCategory']": {"click": this.addCategory},
-			"budgetpanel button[itemId='editCategory']": {"click": this.editCategory},
-			"budgetpanel button[itemId='deleteCategory']": {"click": this.deleteCategory}
+			"budgetpanel": {"afterrender": this.load}
 		});
 	},
 	
@@ -33,45 +30,6 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 					}
 					budgetPanel.setActiveTab(0);
 				}
-			},
-			"failure": function(response){
-				BuddiLive.app.error(response);
-			}
-		});
-	},
-	
-	"addCategory": function(component){
-		var panel = component.up("budgetpanel");
-		Ext.widget("budgeteditor", {
-			"panel": panel
-		}).show();
-	},
-	"editCategory": function(component){
-		var panel = component.up("budgetpanel");
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
-		Ext.widget("budgeteditor", {
-			"panel": panel,
-			"selected": selected
-		}).show();
-	},
-	"deleteCategory": function(component){
-		var panel = component.up("budgetpanel");
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
-		
-		if (selected == null) return;
-		
-		var request = {"action": selected.deleted ? "undelete" : "delete", "id": selected.id};
-		var conn = new Ext.data.Connection();
-		conn.request({
-			"url": "buddilive/categories",
-			"headers": {
-				"Accept": "application/json"
-			},
-			"method": "POST",
-			"jsonData": request,
-			"success": function(response){
-				window.close();
-				panel.reload();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

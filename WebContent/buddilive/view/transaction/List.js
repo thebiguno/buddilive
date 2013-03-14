@@ -12,6 +12,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.border = false;
 		this.stateId = "transactionlist";
 		this.stateful = true;
+		this.header = false;
 		
 		this.features = [
 			{

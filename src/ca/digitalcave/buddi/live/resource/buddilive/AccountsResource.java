@@ -73,7 +73,7 @@ public class AccountsResource extends ServerResource {
 					sb.setLength(0);
 					account.put("leaf", true);
 					account.put("nodeType", "account");
-					account.put("icon", "img/table.png");
+					account.put("icon", "img/table-money.png");
 					accounts.put(account);
 				}
 				type.put("children", accounts);

@@ -17,21 +17,61 @@ Ext.define("BuddiLive.view.Viewport", {
 		this.items = [
 			{
 				"xtype": "tabpanel",
+				"itemId": "budditabpanel",
 				"layout": "fit",
 				"region": "west",
-				"dockedItems": [{
-					"xtype": "toolbar",
-					"dock": "top",
-					"items": [
-						"->",
-						{
-							"text": "${translation("LOGOUT")?json_string}",
-							"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",
-							"icon": "img/door-open-out.png",
-							"itemId": "logout"
-						}
-					]
-				}],
+				"dockedItems": [
+					{
+						"xtype": "toolbar",
+						"dock": "top",
+						"items": [
+							{
+								"tooltip": "${translation("NEW_ACCOUNT")?json_string}",
+								"icon": "img/bank--plus.png",
+								"itemId": "addAccount"
+							},
+							{
+								"tooltip": "${translation("MODIFY_ACCOUNT")?json_string}",
+								"icon": "img/bank--pencil.png",
+								"itemId": "editAccount",
+								"disabled": true
+							},
+							{
+								"tooltip": "${translation("DELETE_ACCOUNT")?json_string}",
+								"icon": "img/bank--minus.png",
+								"itemId": "deleteAccount",
+								"disabled": true
+							},
+							{
+								"tooltip": "${translation("NEW_BUDGET_CATEGORY")?json_string}",
+								"icon": "img/table--plus.png",
+								"itemId": "addCategory",
+								"hidden": true
+							},
+							{
+								"tooltip": "${translation("MODIFY_BUDGET_CATEGORY")?json_string}",
+								"icon": "img/table--pencil.png",
+								"itemId": "editCategory",
+								"disabled": true,
+								"hidden": true
+							},
+							{
+								"tooltip": "${translation("DELETE_BUDGET_CATEGORY")?json_string}",
+								"icon": "img/table--minus.png",
+								"itemId": "deleteCategory",
+								"disabled": true,
+								"hidden": true
+							},
+							"->",
+							{
+								"text": "${translation("LOGOUT")?json_string}",
+								"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",
+								"icon": "img/door-open-out.png",
+								"itemId": "logout"
+							}
+						]
+					}
+				],
 				"items": [
 					{
 						"xtype": "panel",

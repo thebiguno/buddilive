@@ -33,30 +33,6 @@ Ext.define('BuddiLive.view.account.Tree', {
 				}
 			}
 		];
-		
-		this.dockedItems = [{
-			"xtype": "toolbar",
-			"dock": "top",
-			"items": [
-				{
-					"tooltip": "${translation("NEW_ACCOUNT")?json_string}",
-					"icon": "img/table--plus.png",
-					"itemId": "addAccount"
-				},
-				{
-					"tooltip": "${translation("MODIFY_ACCOUNT")?json_string}",
-					"icon": "img/table--pencil.png",
-					"itemId": "editAccount",
-					"disabled": true
-				},
-				{
-					"tooltip": "${translation("DELETE_ACCOUNT")?json_string}",
-					"icon": "img/table--minus.png",
-					"itemId": "deleteAccount",
-					"disabled": true
-				}
-			]
-		}];
 	
 		this.callParent(arguments);
 	}

@@ -40,13 +40,14 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 		var selected = panel.getActiveTab().getSelectionModel().getSelection();
 		var disabled = selected.length > 0;
 
-		panel.down("button[itemId='editCategory']").setDisabled(!selected);
-		panel.down("button[itemId='deleteCategory']").setDisabled(!selected);
+		var viewport = panel.up("buddiviewport");
+		viewport.down("button[itemId='editCategory']").setDisabled(!selected);
+		viewport.down("button[itemId='deleteCategory']").setDisabled(!selected);
 		if (selected && selected[0].raw.deleted){
-			panel.down("button[itemId='deleteCategory']").setTooltip("Undelete Budget Category");
+			viewport.down("button[itemId='deleteCategory']").setTooltip("Undelete Budget Category");
 		}
 		else {
-			panel.down("button[itemId='deleteCategory']").setTooltip("Delete Budget Category");
+			viewport.down("button[itemId='deleteCategory']").setTooltip("Delete Budget Category");
 		}
 	},
 	

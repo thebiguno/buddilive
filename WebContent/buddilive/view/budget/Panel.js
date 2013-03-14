@@ -8,30 +8,6 @@ Ext.define('BuddiLive.view.budget.Panel', {
 	
 	"initComponent": function(){
 		this.layout = "vbox";
-		this.dockedItems = [{
-			"xtype": "toolbar",
-			"dock": "top",
-			"items": [
-				{
-					"tooltip": "${translation("NEW_BUDGET_CATEGORY")?json_string}",
-					"icon": "img/table--plus.png",
-					"itemId": "addCategory"
-				},
-				{
-					"tooltip": "${translation("MODIFY_BUDGET_CATEGORY")?json_string}",
-					"icon": "img/table--pencil.png",
-					"itemId": "editCategory",
-					"disabled": true
-				},
-				{
-					"tooltip": "${translation("DELETE_BUDGET_CATEGORY")?json_string}",
-					"icon": "img/table--minus.png",
-					"itemId": "deleteCategory",
-					"disabled": true
-				}
-			]
-		}];
-		
 		this.callParent(arguments);
 	},
 	
