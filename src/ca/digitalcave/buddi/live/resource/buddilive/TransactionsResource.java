@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,24 +58,27 @@ public class TransactionsResource extends ServerResource {
 				transaction.put("number", t.getNumber());
 				transaction.put("deleted", t.isDeleted());
 				transaction.put("amount", FormatUtil.formatCurrency(t.getAmount()));
-				transaction.put("debit", t.isDebit(source));
 				transaction.put("from", t.getFrom(sourcesMap));
 				transaction.put("to", t.getTo(sourcesMap));
 				final JSONArray splits = new JSONArray();
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
-					split.put("amount", s.getAmount());
+					split.put("amount", FormatUtil.formatCurrency(s.getAmount()));
+					split.put("amountIsDebit", s.isDebit(source));
+					split.put("amountStyle", s.isDebit(source) && s.getAmount().compareTo(BigDecimal.ZERO) > 0 ? "color: " + FormatUtil.HTML_RED + ";" : "");
 					split.put("fromId", s.getFromSource());
 					split.put("toId", s.getToSource());
 					split.put("debit", s.isDebit(source));
 					split.put("from", s.getFromSourceName());
 					split.put("to", s.getToSourceName());
+					split.put("balance", FormatUtil.formatCurrency(s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance()));
 					split.put("memo", s.getMemo());
 					splits.put(split);
 				}
 				final Split s = t.getSplits().get(t.getSplits().size() - 1);	//Last split; we assume an increasing progression here... TODO is this right?
 				transaction.put("balance", FormatUtil.formatCurrency(s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance()));
+				transaction.put("amountStyle", t.isSplitDebitsConsistent(source) ? splits.getJSONObject(0).getString("amountStyle") : false);
 				transaction.put("splits", splits);
 				data.put(transaction);
 			}

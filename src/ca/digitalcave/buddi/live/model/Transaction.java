@@ -177,18 +177,18 @@ public class Transaction {
 	}
 	
 	/**
-	 * Is the transaction a debit?  If all splits agree, then we return the value of the splits.  Otherwise we return null.
+	 * Do all the split debit / credit assessments agree?  Returns true by definition if there is 1 split, or if all splits have the same 
+	 * debit / credit value.  Returns false if there are zero splits.
 	 * @param source
 	 * @return
 	 */
-	public Boolean isDebit(Source source){
-		Boolean result = null;
+	public boolean isSplitDebitsConsistent(Source source){
+		if (getSplits().size() == 0) return false;
+		boolean lineResult = getSplits().get(0).isDebit(source);
 		for (Split s : getSplits()) {
-			final boolean lineResult = s.isDebit(source);
-			if (result == null) result = lineResult;
-			else if (result != lineResult) return null;
+			if (lineResult != s.isDebit(source)) return false;
 		}
-		return result;
+		return true;
 		
 	}
 }

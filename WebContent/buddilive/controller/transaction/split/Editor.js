@@ -14,7 +14,8 @@ Ext.define("BuddiLive.controller.transaction.split.Editor", {
 	"init": function() {
 		this.control({
 			"spliteditor button[itemId='addSplit']": {"click": this.addSplit},
-			"spliteditor button[itemId='removeSplit']": {"click": this.removeSplit}
+			"spliteditor button[itemId='removeSplit']": {"click": this.removeSplit},
+			"spliteditor": {"updateButtons": this.updateButtons}
 		});
 	},
 	

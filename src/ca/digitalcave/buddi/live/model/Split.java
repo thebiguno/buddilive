@@ -131,6 +131,6 @@ public class Split {
 	}
 	
 	public boolean isDebit(Source source){
-		return this.getToSource() == source.getId() && "D".equals(source.getType());
+		return (this.getFromSource() == source.getId() && "D".equals(source.getType())) || (this.getFromSource() == source.getId() && "C".equals(source.getType()));
 	}
 }

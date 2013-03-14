@@ -12,49 +12,63 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.border = false;
 		this.stateId = "transactionlist";
 		this.stateful = true;
+		
+		this.features = [
+			{
+				"ftype": "rowbody",
+				"getAdditionalData": function(data, rowIndex, record, orig){
+					var rowBody = "";
+					var s = record.raw.splits;
+					var headerCt = this.view.headerCt, colspan = headerCt.getColumnCount();
+					for (var i = 0; i < s.length; i++){
+						rowBody += "<div style='padding: 2px; height: 20px; width: 100%;'>"
+								+ "<span style='display: inline-block; width: 23%;'></span>"
+								+ "<span style='display: inline-block; width: 26%;'><i>" + s[i].from + " &rarr; " + s[i].to + "</i></span>" 
+								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (s[i].amountIsDebit ? s[i].amount : "") + "</span>" 
+								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (!s[i].amountIsDebit ? s[i].amount : "") + "</span>" 
+								+ "<span style='display: inline-block; text-align: right; width: 20%;'>" + s[i].balance + "</span>"
+								+ "</div>";
+					}
+					return {
+						"rowBody": rowBody,
+						"rowBodyCls": "",
+						"rowBodyColspan": colspan
+					};
+				}
+			},
+			{
+				"ftype": "rowwrap"	//Makes the extra rows look like normal rows
+			}
+		];
+		
 		this.columns = [
 			{
 			"text": "Date",	//TODO i18n
 				"dataIndex": "date",
-				"flex": 1
+				"flex": 20
 			},
 			{
 				"text": "Description",	//TODO i18n
 				"dataIndex": "description",
-				"flex": 1
-			},
-			{
-				"text": "Number",	//TODO i18n
-				"dataIndex": "number",
-				"flex": 1
-			},
-			{
-				"text": "From / To",	//TODO i18n
-				"flex": 1,
+				"flex": 30,
 				"renderer": function(value, metadata, record){
-					return record.raw.from + " -> " + record.raw.to;
+					return "<b>" + value + "</b>";
 				}
 			},
 			{
 				"text": "Debit",	//TODO i18n
-				"dataIndex": "amount",
-				"flex": 1,
-				"renderer": function(value, metadata, record){
-					return (record.raw.debit ? value : "");
-				}
+				"flex": 15,
+				"align": "right"
 			},
 			{
 				"text": "Credit",	//TODO i18n
-				"dataIndex": "amount",
-				"flex": 1,
-				"renderer": function(value, metadata, record){
-					return (record.raw.debit ? "" : value);
-				}
+				"flex": 15,
+				"align": "right"
 			},
 			{
 				"text": "Balance",	//TODO i18n
-				"dataIndex": "balance",
-				"flex": 1
+				"flex": 20,
+				"align": "right"
 			}
 		];
 		

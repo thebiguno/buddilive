@@ -9,12 +9,22 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 	
 	"initComponent": function(){
 		var v = this.initialConfig.value ? this.initialConfig.value : {};
+		var splitEditor = this;
 		this.layout = "hbox";
 		this.border = false;
 		this.width = "100%";
+		this.height = 28;
 		this.defaults = {
 			"padding": "0 0 5 5"
 		};
+		
+		this.listeners = {
+			"boxready": function(){
+				//Needed when there are multiple splits loaded from setTransaction()
+				splitEditor.fireEvent("updateButtons", splitEditor.up("transactioneditor"));
+			}
+		};
+		
 		this.items = [
 			{
 				"xtype": "numberfield",

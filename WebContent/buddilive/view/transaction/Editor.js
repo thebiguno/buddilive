@@ -9,10 +9,16 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 	
 	"initComponent": function(){
 		this.layout = "vbox";
+		this.border = false;
 		this.items = [
+			{"xtype": "spliteditor"}
+		];
+		
+		this.dockedItems = [
 			{
 				"xtype": "panel",
 				"width": "100%",
+				"dock": "top",
 				"layout": "hbox",
 				"border": false,
 				"defaults": {
@@ -47,33 +53,31 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 					}
 				]
 			},
-			{"xtype": "spliteditor"}
+			{
+				"xtype": "toolbar",
+				"dock": "bottom",
+				"items": [
+					{
+						"text": "Delete",	//TODO i18n
+						"icon": "img/minus-circle.png",
+						"itemId": "deleteTransaction",
+						"disabled": true
+					},
+					"->",
+					{
+						"text": "Clear",	//TODO i18n
+						"icon": "img/exclamation-circle.png",
+						"itemId": "clearTransaction"
+					},
+					{
+						"text": "Record",	//TODO i18n
+						"icon": "img/tick-circle.png",
+						"itemId": "recordTransaction",
+						"disabled": true
+					}
+				]
+			}
 		];
-		
-		this.dockedItems = [{
-			"xtype": "toolbar",
-			"dock": "bottom",
-			"items": [
-				{
-					"text": "Delete",	//TODO i18n
-					"icon": "img/minus-circle.png",
-					"itemId": "deleteTransaction",
-					"disabled": true
-				},
-				"->",
-				{
-					"text": "Clear",	//TODO i18n
-					"icon": "img/exclamation-circle.png",
-					"itemId": "clearTransaction"
-				},
-				{
-					"text": "Record",	//TODO i18n
-					"icon": "img/tick-circle.png",
-					"itemId": "recordTransaction",
-					"disabled": true
-				}
-			]
-		}];
 		
 		this.callParent(arguments);
 		
@@ -88,13 +92,14 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		t.number = this.down("textfield[itemId='number']").getValue();
 		t.splits = [];
 		
-		for (var i = 1;  i < this.items.length; i++){
+		for (var i = 0;  i < this.items.length; i++){
 			t.splits.push(this.items.get(i).getSplit());
 		}
 		return t;
 	},
 	
 	"setTransaction": function(transaction){
+		Ext.suspendLayouts();
 		transaction = (transaction ? transaction : {});
 		
 		this.down("hidden[itemId='id']").setValue(transaction.id);
@@ -103,7 +108,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		this.down("textfield[itemId='number']").setValue(transaction.number);
 	
 		//Remove all the split editors
-		while (this.items.length > 1) this.remove(this.items.get(1));
+		while (this.items.length > 0) this.remove(this.items.get(0));
 
 		var splits = (transaction.splits ? transaction.splits : []);
 		if (splits && splits.length > 0){
@@ -119,6 +124,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		
 		this.down("textfield[itemId='number']").focus();
 		this.down("datefield[itemId='date']").focus(true, 100);
+		Ext.resumeLayouts(true);
 	},
 	
 	"validate": function(){
