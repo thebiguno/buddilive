@@ -32,7 +32,7 @@
 		<result column="to_source_name" property="toSourceName"/>
 	</resultMap>
 	
-	<select id="selectTransactions" resultMap="transaction">
+	<select id="selectTransactions" resultMap="transaction" resultOrdered="true">
 		SELECT 
 			t.id t_id, t.uuid, t.user_id t_user_id, t.description, t.number, t.date, t.deleted, t.created t_created, t.modified t_modified, 
 			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance,
@@ -63,7 +63,7 @@
 		WHERE user_id = #{user.id} AND uuid = #{uuid}
 	</select>
 
-	<select id="selectDescriptions" resultMap="transaction">
+	<select id="selectDescriptions" resultMap="transaction" resultOrdered="true">
 		SELECT 
 			t.description, t.number, s.amount, s.from_source, s.to_source
 		FROM transactions t
