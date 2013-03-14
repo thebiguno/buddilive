@@ -36,13 +36,11 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 	},
 	
 	"selectionChange": function(selectionModel, selected){
-		var panel = selectionModel.view.panel.up("budgetpanel");
-		var selected = panel.getActiveTab().getSelectionModel().getSelection();
-		var disabled = selected.length > 0;
+		var enabled = selected && selected.length > 0;
 
-		var viewport = panel.up("buddiviewport");
-		viewport.down("button[itemId='editCategory']").setDisabled(!selected);
-		viewport.down("button[itemId='deleteCategory']").setDisabled(!selected);
+		var viewport = selectionModel.view.panel.up("buddiviewport");
+		viewport.down("button[itemId='editCategory']").setDisabled(!enabled);
+		viewport.down("button[itemId='deleteCategory']").setDisabled(!enabled);
 		if (selected && selected[0].raw.deleted){
 			viewport.down("button[itemId='deleteCategory']").setTooltip("Undelete Budget Category");
 		}

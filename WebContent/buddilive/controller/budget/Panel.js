@@ -10,7 +10,6 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 	
 	"load": function(component){
 		var budgetPanel = (component.xtype == 'budgetpanel' ? component : component.up("budgetpanel"));
-		budgetPanel.removeAll();
 		var conn = new Ext.data.Connection();
 		conn.request({
 			"url": "buddilive/categories/periods",
@@ -20,16 +19,13 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 			"method": "GET",
 			"success": function(response){
 				var json = Ext.decode(response.responseText, true);
+				Ext.suspendLayouts();
 				if (json != null){
 					for (var i = 0; i < json.data.length; i++){
-						budgetPanel.add({
-							"xtype": "budgettree",
-							"periodText": json.data[i].text,
-							"periodValue": json.data[i].value
-						});
+						budgetPanel.down("budgettree[itemId='" + json.data[i].value + "']").setVisible(json.data[i].visible);
 					}
-					budgetPanel.setActiveTab(0);
 				}
+				Ext.resumeLayouts(true);
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

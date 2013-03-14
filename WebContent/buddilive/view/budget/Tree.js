@@ -9,6 +9,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		var budgetTree = this;
 		this.rootVisible = false;
 		this.border = false;
+		this.itemId = this.initialConfig.periodValue;
 		this.store = Ext.create("BuddiLive.store.budget.TreeStore", {"periodType": this.initialConfig.periodValue});
 		this.title = this.initialConfig.periodText;
 		this.flex = 1;

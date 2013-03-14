@@ -27,13 +27,13 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	
 	"addAccount": function(component){
-		var grid = component.up("accounttree");
+		var grid = component.up("buddiviewport").down("accounttree");
 		Ext.widget("accounteditor", {
 			"grid": grid
 		}).show();
 	},
 	"editAccount": function(component){
-		var grid = component.up("accounttree");
+		var grid = component.up("buddiviewport").down("accounttree");
 		var selected = grid.getSelectionModel().getSelection()[0].raw;
 		Ext.widget("accounteditor", {
 			"grid": grid,
@@ -41,7 +41,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 		}).show();
 	},
 	"deleteAccount": function(component){
-		var grid = component.up("accounttree");
+		var grid = component.up("buddiviewport").down("accounttree");
 		var selected = grid.getSelectionModel().getSelection()[0].raw;
 		
 		if (selected == null) return;
@@ -94,22 +94,31 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	
 	"addCategory": function(component){
-		var panel = component.up("budgetpanel");
+		var panel = component.up("buddiviewport").down("budgetpanel");
 		Ext.widget("budgeteditor", {
 			"panel": panel
 		}).show();
 	},
 	"editCategory": function(component){
-		var panel = component.up("budgetpanel");
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
-		Ext.widget("budgeteditor", {
-			"panel": panel,
-			"selected": selected
-		}).show();
+		var panel = component.up("buddiviewport").down("budgetpanel");
+		var budgetTrees = Ext.ComponentQuery.query("budgettree", panel);
+		for (var i = 0; i < budgetTrees.length; i++){
+			if (!budgetTrees[i].collapsed){
+				var selected = budgetTrees[i].getSelectionModel().getSelection()[0].raw;
+				Ext.widget("budgeteditor", {
+					"panel": panel,
+					"selected": selected
+				}).show();
+			}
+		}
 	},
 	"deleteCategory": function(component){
-		var panel = component.up("budgetpanel");
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+		var panel = component.up("buddiviewport").down("budgetpanel");
+		var budgetTrees = Ext.ComponentQuery.query("budgettree", panel);
+		var selected = null;
+		for (var i = 0; i < budgetTrees.length; i++){
+			if (!budgetTrees[i].collapsed) selected = budgetTrees[i].getSelectionModel().getSelection()[0].raw;
+		}
 		
 		if (selected == null) return;
 		
