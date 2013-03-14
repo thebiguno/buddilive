@@ -12,6 +12,15 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.border = false;
 		this.stateId = "transactionlist";
 		this.stateful = true;
+		this.viewConfig = {
+			"stripeRows": true
+		};
+		
+		this.plugins = [
+			{
+				"ptype": "bufferedrenderer"
+			}
+		]
 		
 		this.features = [
 			{
@@ -97,6 +106,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.callParent(arguments);
 		
 		this.getStore().addListener("load", function(store){
+			//TODO Clean this up a bit...
 			transactionList.getView().scrollBy(0, 10000000, false);
 		});
 	}

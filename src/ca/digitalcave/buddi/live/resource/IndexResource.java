@@ -1,7 +1,5 @@
 package ca.digitalcave.buddi.live.resource;
 
-import java.util.Calendar;
-
 import org.json.JSONObject;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.MediaType;
@@ -18,7 +16,6 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
-import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class IndexResource extends ServerResource {
 	@Override
@@ -53,13 +50,9 @@ public class IndexResource extends ServerResource {
 			final JSONObject token = new JSONObject(entity.getText());
 			token.put("clientIp", getRequest().getClientInfo().getAddress());
 			
-//			final Calendar cal = Calendar.getInstance();
-//			cal.add(Calendar.DAY_OF_MONTH, 1);
-//			token.put("expiry", FormatUtil.formatDateTime(cal.getTime()));
-			
 			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, Base64.encode(CryptoUtil.encrypt(token.toString().getBytes(), BuddiVerifier.COOKIE_PASSWORD.toCharArray()), false));
 			c.setAccessRestricted(true);
-			c.setMaxAge(60 * 60 * 24);	//One day
+			c.setMaxAge(-1);	//Browser close
 			
 			getResponse().getCookieSettings().add(c);
 			getResponse().redirectSeeOther(".");
