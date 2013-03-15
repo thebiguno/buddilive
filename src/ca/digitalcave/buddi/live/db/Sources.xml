@@ -104,7 +104,7 @@
 			AND type IN ('I', 'E')
 	</select>
 
-	<select id="selectCategoriesByParentId" resultMap="category">
+	<select id="selectCategoriesMap" resultMap="category">
 		<include refid="selectCategoriesGeneric"/>
 	</select>
 	<select id="selectCategories" resultMap="category">
@@ -169,13 +169,6 @@
 			<if test="_parameter.containsKey('uuid')">
 				AND uuid = #{uuid}
 			</if>
-	</select>
-	
-	<select id="selectSources" resultMap="source">
-		SELECT 
-			s.id s_id, s.user_id s_user_id, s.uuid s_uuid, s.name s_name, s.start_date a_start_date, s.deleted s_deleted, s.type s_type, s.created s_created, s.modified s_modified
-		FROM sources s
-		WHERE user_id = #{user.id}
 	</select>
 	
 	<insert id="insertAccount">

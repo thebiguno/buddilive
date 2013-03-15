@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.live.db;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -26,19 +25,17 @@ public interface Sources {
 	public Category selectCategory(@Param("user") User user, @Param("id") Integer id);
 	public Category selectCategory(@Param("user") User user, @Param("uuid") String uuid);
 	
-	@MapKey("id")
-	public Map<Integer, Category> selectCategoriesByParentId(@Param("user") User user);
-	
 	public List<Category> selectCategories(@Param("user") User user);
 	public List<Category> selectCategories(@Param("user") User user, @Param("income") Boolean income);
 	public List<Category> selectCategories(@Param("user") User user, @Param("periodType") String periodType);
 	public List<Category> selectCategories(@Param("user") User user, @Param("categoryPeriod") CategoryPeriod categoryPeriod, @Param("showActual") boolean showActual);
 	
+	@MapKey("id")
+	public Map<Integer, Category> selectCategoriesMap(@Param("user") User user);
+	
 	public List<String> selectCategoryPeriods(@Param("user") User user);
 	
 	public Source selectSource(@Param("user") User user, @Param("id") int id);
-//	public Source selectSource(@Param("user") User user, @Param("uuid") String uuid);
-	public List<Source> selectSources(@Param("user") User user);
 	
 	public Integer insertAccount(@Param("user") User user, @Param("account") Account account);
 	public Integer insertCategory(@Param("user") User user, @Param("category") Category category);

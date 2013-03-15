@@ -130,6 +130,11 @@ public class Split {
 		return toSourceName;
 	}
 	
+	/**
+	 * Should the amount appear on the debit or credit side in the display?
+	 * @param source
+	 * @return
+	 */
 	public boolean isDebit(Source source){
 		return (this.getFromSource() == source.getId() && "D".equals(source.getType())) || (this.getFromSource() == source.getId() && "C".equals(source.getType()));
 	}

@@ -1,12 +1,8 @@
 package ca.digitalcave.buddi.live.model;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
@@ -136,59 +132,59 @@ public class Transaction {
 
 	
 	//The following are calculated convenience methods, and are not stored in the DB.
-	public BigDecimal getAmount(){
-		BigDecimal total = BigDecimal.ZERO;
-		for (Split split : splits) {
-			total = total.add(split.getAmount());		//TODO calculate this in the DB
-		}
-		return total;
-	}
-	public String getFrom(Map<Integer, Source> s){
-		if (splits.size() == 0){
-			return null;
-		}
-		else if (splits.size() == 1){
-			return s.get(splits.get(0).getFromSource()).getName();
-		}
-		else {
-			Set<String> sources = new HashSet<String>();
-			for (Split split : splits) {
-				sources.add(s.get(split.getFromSource()).getName());
-			}
-			if (sources.size() == 1) return sources.toArray(new String[1])[0];
-			else return "MULTIPLE";
-		}
-	}
-	public String getTo(Map<Integer, Source> s){
-		if (splits.size() == 0){
-			return null;
-		}
-		else if (splits.size() == 1){
-			return s.get(splits.get(0).getToSource()).getName();
-		}
-		else {
-			Set<String> sources = new HashSet<String>();
-			for (Split split : splits) {
-				sources.add(s.get(split.getToSource()).getName());
-			}
-			if (sources.size() == 1) return sources.toArray(new String[1])[0];
-			else return "MULTIPLE";
-		}
-	}
-	
-	/**
-	 * Do all the split debit / credit assessments agree?  Returns true by definition if there is 1 split, or if all splits have the same 
-	 * debit / credit value.  Returns false if there are zero splits.
-	 * @param source
-	 * @return
-	 */
-	public boolean isSplitDebitsConsistent(Source source){
-		if (getSplits().size() == 0) return false;
-		boolean lineResult = getSplits().get(0).isDebit(source);
-		for (Split s : getSplits()) {
-			if (lineResult != s.isDebit(source)) return false;
-		}
-		return true;
-		
-	}
+//	public BigDecimal getAmount(){
+//		BigDecimal total = BigDecimal.ZERO;
+//		for (Split split : splits) {
+//			total = total.add(split.getAmount());		//TODO calculate this in the DB
+//		}
+//		return total;
+//	}
+//	public String getFrom(Map<Integer, Source> s){
+//		if (splits.size() == 0){
+//			return null;
+//		}
+//		else if (splits.size() == 1){
+//			return s.get(splits.get(0).getFromSource()).getName();
+//		}
+//		else {
+//			Set<String> sources = new HashSet<String>();
+//			for (Split split : splits) {
+//				sources.add(s.get(split.getFromSource()).getName());
+//			}
+//			if (sources.size() == 1) return sources.toArray(new String[1])[0];
+//			else return "MULTIPLE";
+//		}
+//	}
+//	public String getTo(Map<Integer, Source> s){
+//		if (splits.size() == 0){
+//			return null;
+//		}
+//		else if (splits.size() == 1){
+//			return s.get(splits.get(0).getToSource()).getName();
+//		}
+//		else {
+//			Set<String> sources = new HashSet<String>();
+//			for (Split split : splits) {
+//				sources.add(s.get(split.getToSource()).getName());
+//			}
+//			if (sources.size() == 1) return sources.toArray(new String[1])[0];
+//			else return "MULTIPLE";
+//		}
+//	}
+//	
+//	/**
+//	 * Do all the split debit / credit assessments agree?  Returns true by definition if there is 1 split, or if all splits have the same 
+//	 * debit / credit value.  Returns false if there are zero splits.
+//	 * @param source
+//	 * @return
+//	 */
+//	public boolean isSplitDebitsConsistent(Source source){
+//		if (getSplits().size() == 0) return false;
+//		boolean lineResult = getSplits().get(0).isDebit(source);
+//		for (Split s : getSplits()) {
+//			if (lineResult != s.isDebit(source)) return false;
+//		}
+//		return true;
+//		
+//	}
 }
