@@ -28,7 +28,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 							{
 								"xtype": "textfield",
 								"itemId": "identifier",
-								"fieldLabel": "${translation("CREATE_USER_USERNAME")?json_string}",
+								"fieldLabel": "${translation("USERNAME")?json_string}",
 								"allowBlank": false,
 								"emptyText": "user@example.com",
 								"vtype": "email"
@@ -36,13 +36,13 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 							{
 								"xtype": "passwordfield",
 								"itemId": "password",
-								"fieldLabel": "${translation("CREATE_USER_PASSWORD")?json_string}",
+								"fieldLabel": "${translation("PASSWORD")?json_string}",
 								"allowBlank": false
 							},
 							{
 								"xtype": "combobox",
 								"itemId": "locale",
-								"fieldLabel": "${translation("CREATE_USER_LOCALE")?json_string}",
+								"fieldLabel": "${translation("LANGUAGE")?json_string}",
 								"editable": false,
 								"value": "${locale?json_string}",
 								"forceSelection": true,
@@ -80,7 +80,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 										"itemId": "email",
 										"fieldLabel": " ",
 										"labelSeparator": "",
-										"boxLabel": "${translation("CREATE_USER_REMEMBER_EMAIL")?json_string}"
+										"boxLabel": "${translation("STORE_EMAIL")?json_string}"
 									},
 									{
 										"xtype": "clicklabel",
@@ -89,7 +89,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 										"listeners": {
 											"click": function(){
 												Ext.MessageBox.show({
-													"title": "${translation("CREATE_USER_REMEMBER_EMAIL")?json_string}",
+													"title": "${translation("STORE_EMAIL")?json_string}",
 													"msg": "${translation("CREATE_USER_WHAT_IS_REMEMBER_EMAIL")?json_string}",
 													"buttons": Ext.MessageBox.OK
 												});
@@ -108,7 +108,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 										"itemId": "encrypt",
 										"fieldLabel": " ",
 										"labelSeparator": "",
-										"boxLabel": "${translation("CREATE_USER_ENCRYPT_DATA")?json_string}"
+										"boxLabel": "${translation("ENCRYPT_DATA")?json_string}"
 									},
 									{
 										"xtype": "clicklabel",
@@ -117,7 +117,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 										"listeners": {
 											"click": function(){
 												Ext.MessageBox.show({
-													"title": "${translation("CREATE_USER_ENCRYPT_DATA")?json_string}",
+													"title": "${translation("ENCRYPT_DATA")?json_string}",
 													"msg": "${translation("CREATE_USER_WHAT_IS_ENCRYPT_DATA")?json_string}",
 													"buttons": Ext.MessageBox.OK
 												});
@@ -136,14 +136,13 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 										"itemId": "agree",
 										"fieldLabel": " ",
 										"labelSeparator": "",
-										//"boxLabel": "${translation("CREATE_USER_AGREE")?json_string}",
 										"allowBlank": false
 									},
 									{
 										"xtype": "clicklabel",
 										"flex": 1,
 										"style": "padding-left: 4px; padding-top: 3px;",
-										"html": "${translation("CREATE_USER_AGREE")?json_string}",
+										"html": "${translation("AGREE_TERMS_AND_CONDITIONS")?json_string}",
 										"listeners": {
 											"click": function(){
 												Ext.MessageBox.show({

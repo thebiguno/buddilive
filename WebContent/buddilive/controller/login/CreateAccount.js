@@ -17,8 +17,8 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 		var form = window.down("form");
 		if (form.getForm().isValid() == false){
 			Ext.MessageBox.show({
-				"title": "${translation("CREATE_USER_NOT_VALID_TITLE")?json_string}",
-				"msg": "${translation("CREATE_USER_NOT_VALID")?json_string}",
+				"title": "${translation("INVALID")?json_string}",
+				"msg": "${translation("ENTER_USERID_AND_PASSWORD")?json_string}",
 				"buttons": Ext.MessageBox.OK
 			});
 			return;
