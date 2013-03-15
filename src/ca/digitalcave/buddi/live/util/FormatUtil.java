@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import ca.digitalcave.buddi.live.model.Source;
+
 public class FormatUtil {
 	public static String HTML_RED = "#dd2222";
 	public static String HTML_GRAY = "#bbbbbb";
@@ -36,24 +38,25 @@ public class FormatUtil {
 		}
 	}
 	
-	/**
-	 * Convert a currency string (in dollars + cents, i.e. "123.45") to the DB-friendly long
-	 * value (i.e. 12345).
-	 * @param value
-	 * @return
-	 */
+
 	public static BigDecimal parseCurrency(String value){
 		if (value == null || value.length() == 0) return null;
 		return new BigDecimal(value);
 	}
 	
-	/**
-	 * Convert a long value from the DB (i.e. 12345) to a currency string (i.e. "123.45").
-	 * @param value
-	 * @return
-	 */
-	public static String formatCurrency(BigDecimal value){
+	public static String formatCurrency(BigDecimal value, Source s){
 		if (value == null) return null;
+		if ("C".equals(s.getType()) || "I".equals(s.getType())){
+			return value.negate().toPlainString();
+		}
 		return value.toPlainString();
+	}
+	
+	public static String formatStyle(BigDecimal value, Source s){
+		if (value.compareTo(BigDecimal.ZERO) <= 0 && "C".equals(s.getType())
+				|| value.compareTo(BigDecimal.ZERO) < 0 && "D".equals(s.getType())){
+			return "color: " + FormatUtil.HTML_RED + ";";
+		}
+		return "";
 	}
 }

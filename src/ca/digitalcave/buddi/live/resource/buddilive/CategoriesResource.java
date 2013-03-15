@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -74,10 +75,11 @@ public class CategoriesResource extends ServerResource {
 		result.put("parent", category.getParent());
 		result.put("deleted", category.isDeleted());
 		result.put("currentDate", FormatUtil.formatDate(categoryPeriod.getCurrentPeriodStartDate()));
-		result.put("currentAmount", FormatUtil.formatCurrency(category.getCurrentEntry().getAmount()));
+		result.put("currentAmount", FormatUtil.formatCurrency(category.getCurrentEntry().getAmount(), category));
 		result.put("previousDate", FormatUtil.formatDate(categoryPeriod.getPreviousPeriodStartDate()));
-		result.put("previousAmount", FormatUtil.formatCurrency(category.getPreviousEntry().getAmount()));
-		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance()));
+		result.put("previousAmount", FormatUtil.formatCurrency(category.getPreviousEntry().getAmount(), category));
+		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance(), category));
+		result.put("difference", FormatUtil.formatCurrency((category.getPreviousEntry().getAmount() != null ? category.getPreviousEntry().getAmount() : BigDecimal.ZERO).subtract(category.getPeriodBalance()), category));
 
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");

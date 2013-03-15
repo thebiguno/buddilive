@@ -55,15 +55,17 @@ public class TransactionsResource extends ServerResource {
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
-					split.put("amount", FormatUtil.formatCurrency(s.getAmount()));
+					split.put("amount", FormatUtil.formatCurrency(s.getAmount(), source));
 					split.put("amountIsDebit", s.isDebit(source));
-					split.put("amountStyle", s.isDebit(source) && s.getAmount().compareTo(BigDecimal.ZERO) > 0 ? "color: " + FormatUtil.HTML_RED + ";" : "");
+					split.put("amountStyle", FormatUtil.formatStyle(s.getAmount(), source));
 					split.put("fromId", s.getFromSource());
 					split.put("from", s.getFromSourceName());
 					split.put("toId", s.getToSource());
 					split.put("to", s.getToSourceName());
 					split.put("debit", s.isDebit(source));
-					split.put("balance", FormatUtil.formatCurrency(s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance()));
+					final BigDecimal balance = s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance();
+					split.put("balance", FormatUtil.formatCurrency(balance, source));
+					split.put("balanceStyle", FormatUtil.formatStyle(balance, source));
 					split.put("memo", s.getMemo());
 					transaction.append("splits", split);
 				}

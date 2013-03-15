@@ -49,7 +49,7 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 			}
 			
 			if (record.length > 0){
-				combo.up("transactioneditor").setTransaction(record[0].raw.transaction);
+				combo.up("transactioneditor").setTransaction(record[0].raw.transaction, true);
 			}
 			
 			//TODO Don't let them select two categories

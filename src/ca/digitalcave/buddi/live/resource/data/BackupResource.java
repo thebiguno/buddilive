@@ -79,7 +79,7 @@ public class BackupResource extends ServerResource {
 		a.put("startDate", FormatUtil.formatDate((Date) account.getStartDate()));
 		if (account.isDeleted()) a.put("deleted", account.isDeleted());
 		a.put("type", account.getType());
-		a.put("startBalance", FormatUtil.formatCurrency(account.getStartBalance()));
+		a.put("startBalance", account.getStartBalance().toPlainString());
 		a.put("accountType", account.getAccountType());
 		result.append("accounts", a);
 	}
@@ -105,7 +105,7 @@ public class BackupResource extends ServerResource {
 		final JSONObject e = new JSONObject();
 		e.put("date", FormatUtil.formatDate((Date) entry.getDate()));
 		e.put("category", sourceUUIDsById.get(entry.getCategoryId()));
-		e.put("amount", FormatUtil.formatCurrency(entry.getAmount()));
+		e.put("amount", entry.getAmount().toPlainString());
 		result.append("entries", e);
 	}
 	
@@ -119,7 +119,7 @@ public class BackupResource extends ServerResource {
 		if (transaction.getSplits() != null){
 			for (Split split : transaction.getSplits()) {
 				final JSONObject s = new JSONObject();
-				s.put("amount", FormatUtil.formatCurrency(split.getAmount()));
+				s.put("amount", split.getAmount().toPlainString());
 				s.put("from", sourceUUIDsById.get(split.getFromSource()));
 				s.put("to", sourceUUIDsById.get(split.getToSource()));
 				s.put("memo", split.getMemo());

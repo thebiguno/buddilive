@@ -98,14 +98,14 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		return t;
 	},
 	
-	"setTransaction": function(transaction){
+	"setTransaction": function(transaction, loadFromDescription){
 		Ext.suspendLayouts();
 		transaction = (transaction ? transaction : {});
 		
-		this.down("hidden[itemId='id']").setValue(transaction.id);
-		this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.date, "Y-m-d", true));
-		this.down("combobox[itemId='description']").setValue(transaction.description);
-		this.down("textfield[itemId='number']").setValue(transaction.number);
+		if (!loadFromDescription) this.down("hidden[itemId='id']").setValue(transaction.id);
+		if (!loadFromDescription && transaction && transaction.date) this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.date, "Y-m-d", true));
+		if (!loadFromDescription) this.down("combobox[itemId='description']").setValue(transaction.description);
+		if (!loadFromDescription) this.down("textfield[itemId='number']").setValue(transaction.number);
 	
 		//Remove all the split editors
 		while (this.items.length > 0) this.remove(this.items.get(0));
@@ -122,8 +122,6 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 			this.add({"xtype": "spliteditor"});
 		}
 		
-		this.down("textfield[itemId='number']").focus();
-		this.down("datefield[itemId='date']").focus(true, 100);
 		Ext.resumeLayouts(true);
 	},
 	
@@ -131,9 +129,9 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		if (!Ext.isDate(this.down("datefield[itemId='date']").getValue())) return false;
 		var description = this.down("combobox[itemId='description']").getValue();
 		if (description == null || description.length == 0) return false;
-		if (this.items.length <= 1) return false;
+		if (this.items.length == 0) return false;
 		
-		for (var i = 1;  i < this.items.length; i++){
+		for (var i = 0;  i < this.items.length; i++){
 			var split = this.items.get(i).getSplit();
 			if (split.amount == 0) return false;
 			if (!split.fromId || !split.toId) return false;
