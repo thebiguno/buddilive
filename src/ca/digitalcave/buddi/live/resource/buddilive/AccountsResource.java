@@ -58,19 +58,17 @@ public class AccountsResource extends ServerResource {
 					final JSONObject account = new JSONObject();
 					account.put("id", a.getId());
 					account.put("name", a.getName());
-					account.put("balance", FormatUtil.formatCurrency(a.getBalance()));	//TODO Pull this from the splits associated with the account
+					account.put("balance", FormatUtil.formatCurrency(a.getBalance(), a));
 					account.put("type", a.getType());
 					account.put("accountType", a.getAccountType());
-					account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance()));
+					account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance(), a));
 					account.put("debit", a.isDebit());
 					account.put("deleted", a.isDeleted());
 					if (a.isDeleted()) sb.append(" text-decoration: line-through;");
 					if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 					account.put("style", sb.toString());
 					sb.setLength(0);
-					if (!a.isDebit() ^ (a.getBalance() == null || a.getBalance().compareTo(BigDecimal.ZERO) < 0)) sb.append(" color: " + FormatUtil.HTML_RED + ";");	//TODO Pull this from the splits associated with the account
-					account.put("balanceStyle", sb.toString());
-					sb.setLength(0);
+					account.put("balanceStyle", FormatUtil.formatStyle(a.getBalance(), a));
 					account.put("leaf", true);
 					account.put("nodeType", "account");
 					account.put("icon", "img/table-money.png");

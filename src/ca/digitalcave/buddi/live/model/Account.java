@@ -26,8 +26,8 @@ public class Account extends Source {
 	
 	public JSONObject toJson() throws JSONException {
 		JSONObject result = super.toJson();
-		result.put("startBalance", FormatUtil.formatCurrency(this.getStartBalance()));
-		result.put("balance", FormatUtil.formatCurrency(this.getBalance()));
+		result.put("startBalance", this.getStartBalance().toPlainString());
+		result.put("balance", this.getBalance().toPlainString());
 		result.put("startDate", FormatUtil.formatDateTime((Date) this.getStartDate()));
 		result.put("accountType", this.getAccountType());
 		return result;

@@ -30,7 +30,7 @@ public class ConstraintsChecker {
 				throw new DatabaseException("The userId of a parent category must match the userId of the child category");
 			}
 			//Check for loops / non matching types in the parentage
-			final Map<Integer, Category> categories = sqlSession.getMapper(Sources.class).selectCategoriesByParentId(user);
+			final Map<Integer, Category> categories = sqlSession.getMapper(Sources.class).selectCategoriesMap(user);
 			Category p = category;
 			while (p.getParent() != null){
 				p = categories.get(p.getParent());

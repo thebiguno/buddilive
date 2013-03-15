@@ -65,11 +65,11 @@
 
 	<select id="selectDescriptions" resultMap="transaction" resultOrdered="true">
 		SELECT 
-			t.description, t.number, s.amount, s.from_source, s.to_source
+			t.id t_id, t.description, s.id s_id, s.amount, s.from_source, s.to_source
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		WHERE t.deleted = 'N' AND t.user_id = #{user.id}
-		ORDER BY t.date DESC
+		ORDER BY t.date DESC, t.description, s.id
 	</select>
 	
 	<select id="selectEarliestSplitWithoutBalances" resultMap="split">

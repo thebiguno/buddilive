@@ -45,7 +45,7 @@ public class ParentsResource extends ServerResource {
 			
 			final JSONObject item = new JSONObject();
 			item.put("value", "");
-			item.put("text", "Top Level");
+			item.put("text", "Top Level");	//TODO i18n
 			data.put(item);
 
 			

@@ -40,7 +40,7 @@ public class Split {
 		result.put("id", this.getId());
 		result.put("transactionId", this.getTransactionId());
 		result.put("userId", this.getUserId());
-		result.put("amount", FormatUtil.formatCurrency(this.getAmount()));
+		result.put("amount", this.getAmount().toPlainString());
 		result.put("fromId", this.getFromSource());
 		result.put("toId", this.getToSource());
 		result.put("memo", this.getMemo());
@@ -130,6 +130,11 @@ public class Split {
 		return toSourceName;
 	}
 	
+	/**
+	 * Should the amount appear on the debit or credit side in the display?
+	 * @param source
+	 * @return
+	 */
 	public boolean isDebit(Source source){
 		return (this.getFromSource() == source.getId() && "D".equals(source.getType())) || (this.getFromSource() == source.getId() && "C".equals(source.getType()));
 	}

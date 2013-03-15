@@ -35,7 +35,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 								+ "<span style='display: inline-block; width: 26%;'><i>" + s[i].from + " &rarr; " + s[i].to + "</i></span>" 
 								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (s[i].amountIsDebit ? s[i].amount : "") + "</span>" 
 								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (!s[i].amountIsDebit ? s[i].amount : "") + "</span>" 
-								+ "<span style='display: inline-block; text-align: right; width: 20%;'>" + s[i].balance + "</span>"
+								+ "<span style='display: inline-block; text-align: right; width: 20%; " + s[i].balanceStyle + "'>" + s[i].balance + "</span>"
 								+ "</div>";
 					}
 					return {
@@ -105,9 +105,14 @@ Ext.define('BuddiLive.view.transaction.List', {
 		
 		this.callParent(arguments);
 		
-		this.getStore().addListener("load", function(store){
+		this.getStore().addListener("load", function(store, records){
 			//TODO Clean this up a bit...
-			transactionList.getView().scrollBy(0, 10000000, false);
+			//transactionList.getView().focusRow(records.length - 1);
+			//transactionList.getSelectionModel().select(records[records.length - 1);
+			//transactionList.getView().scrollBy(0, -10000000, false);
+			//transactionList.getView().scrollBy(0, 10000000, false);
+			
+			//transactionList.down("datefield[itemId='date']").focus(true, 100);
 		});
 	}
 });

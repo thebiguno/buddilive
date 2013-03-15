@@ -21,7 +21,7 @@ Ext.define('BuddiLive.view.login.Panel', {
 				"xtype": "panel",
 				"layout": "form",
 				"border": false,
-				"margin": 10,
+				"margin": "10 10 30 10",
 				"defaults": {
 					"anchor": "100%",
 					"padding": 10,

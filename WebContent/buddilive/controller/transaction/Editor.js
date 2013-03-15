@@ -9,9 +9,19 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"transactionlist field": {
 				"blur": this.validateFields,
 				"select": this.validateFields,
-				"keypress": this.validateFields
+				"keypress": this.validateFields,
+				"specialkey": this.checkKeys
 			}
 		});
+	},
+	
+	"checkKeys": function(component, e){
+		this.validateFields(component);
+		var editor = component.up("transactioneditor");
+		var record = editor.down("button[itemId='recordTransaction']");
+		if (e.getKey() == e.ENTER && !record.isDisabled()){
+			record.fireEvent("click", record);
+		}
 	},
 	
 	"validateFields": function(component){
@@ -42,8 +52,8 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"jsonData": request,
 			"success": function(response){
 				editor.setTransaction();
-				editor.up("transactionlist").getStore().reload();
 				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
+				editor.up("transactionlist").getStore().reload();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);
