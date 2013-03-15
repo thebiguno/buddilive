@@ -20,7 +20,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 			{
 				"ptype": "bufferedrenderer"
 			}
-		]
+		];
 		
 		this.features = [
 			{
