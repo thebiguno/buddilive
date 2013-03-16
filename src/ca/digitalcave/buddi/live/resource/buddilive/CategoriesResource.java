@@ -20,12 +20,14 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
-import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.CategoryPeriod;
 import ca.digitalcave.buddi.live.model.CategoryPeriod.CategoryPeriods;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class CategoriesResource extends ServerResource {
 
@@ -45,7 +47,7 @@ public class CategoriesResource extends ServerResource {
 			
 			final JSONArray data = new JSONArray();
 			for (Category c : categories) {
-				data.put(getJsonObject(c, cp));
+				data.put(getJsonObject(c, cp, user));
 			}
 			
 			final JSONObject result = new JSONObject();
@@ -58,6 +60,9 @@ public class CategoriesResource extends ServerResource {
 		catch (NumberFormatException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
@@ -66,11 +71,11 @@ public class CategoriesResource extends ServerResource {
 		}
 	}
 	
-	private JSONObject getJsonObject(Category category, CategoryPeriod categoryPeriod) throws JSONException {
+	private JSONObject getJsonObject(Category category, CategoryPeriod categoryPeriod, User user) throws JSONException, CryptoException {
 		final JSONObject result = new JSONObject();
 		result.put("id", category.getId());
 		result.put("icon", "img/folder-open-table.png");
-		result.put("name", category.getName());
+		result.put("name", CryptoUtil.decryptWrapper(category.getName(), user));
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");
 		if (!category.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
@@ -99,7 +104,7 @@ public class CategoriesResource extends ServerResource {
 		if (category.getChildren() != null){
 			result.put("expanded", true);
 			for (Category child : category.getChildren()) {
-				result.append("children", getJsonObject(child, categoryPeriod));
+				result.append("children", getJsonObject(child, categoryPeriod, user));
 			}
 		}
 		else {
@@ -135,10 +140,10 @@ public class CategoriesResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			BalanceUpdater.updateBalances(user, sqlSession);
+			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

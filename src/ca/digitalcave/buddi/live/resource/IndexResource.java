@@ -4,7 +4,6 @@ import org.json.JSONObject;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.engine.util.Base64;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
@@ -50,7 +49,7 @@ public class IndexResource extends ServerResource {
 			final JSONObject token = new JSONObject(entity.getText());
 			token.put("clientIp", getRequest().getClientInfo().getAddress());
 			
-			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, Base64.encode(CryptoUtil.encrypt(token.toString().getBytes(), BuddiVerifier.COOKIE_PASSWORD.toCharArray()), false));
+			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, CryptoUtil.encrypt(token.toString(), BuddiVerifier.COOKIE_PASSWORD));
 			c.setAccessRestricted(true);
 			c.setMaxAge(-1);	//Browser close
 			

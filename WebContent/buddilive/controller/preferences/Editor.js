@@ -17,8 +17,18 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		var panel = window.initialConfig.panel;
 		var originalData = window.initialConfig.data;
 
+		if (window.down("checkbox[itemId='encrypt']").getValue() != originalData.encrypt && window.down("textfield[itemId='password']").getValue().length == 0){
+			Ext.MessageBox.show({
+				"title": "${translation("INVALID")?json_string}",
+				"msg": "${translation("ENTER_PASSWORD_TO_CHANGE_ENCRYPTION")?json_string}",
+				"buttons": Ext.MessageBox.OK
+			});
+			return;
+		}
+
 		var request = {"action": "update"};
 		request.encrypt = window.down("checkbox[itemId='encrypt']").getValue();
+		request.encryptPassword = window.down("textfield[itemId='password']").getValue();
 		request.locale = window.down("combobox[itemId='locale']").getValue();
 		request.dateFormat = window.down("combobox[itemId='dateFormat']").getValue();
 		request.currencySymbol = window.down("combobox[itemId='currencySymbol']").getValue();

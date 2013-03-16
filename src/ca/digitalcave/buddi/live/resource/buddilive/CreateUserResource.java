@@ -1,7 +1,6 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
@@ -20,15 +19,17 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class CreateUserResource extends ServerResource {
 
-	//Use a random UUID as the nonce secret, which will be generated at each server start.
-	private static final String nonceSecret = UUID.randomUUID().toString();
+	//Just re-use the cookie password.
+	private static final String nonceSecret = BuddiVerifier.COOKIE_PASSWORD;
 
 	@Override
 	protected void doInit() throws ResourceException {
@@ -42,11 +43,17 @@ public class CreateUserResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
 			if (getQuery().getFirst("nonce") != null) {
-				final JSONObject request = new JSONObject(new String(CryptoUtil.decrypt(CryptoUtil.decode(getQuery().getFirstValue("nonce")), nonceSecret.toCharArray())));
+				final JSONObject request = new JSONObject(CryptoUtil.decrypt(getQuery().getFirstValue("nonce"), nonceSecret));
 				final User user = new User(request);
 				ConstraintsChecker.checkInsertUser(user, sqlSession);
+				
 				final Integer count = sqlSession.getMapper(Users.class).insertUser(user);
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+
+				if (request.optBoolean("encrypt", false)) {
+					DataUpdater.turnOnEncryption(user, request.getString("credentials"), sqlSession);
+				}
+				
 				sqlSession.commit();
 
 				getResponse().redirectSeeOther("..");
@@ -80,7 +87,7 @@ public class CreateUserResource extends ServerResource {
 			final User user = new User(request);
 			final String identifier = request.getString("identifier");
 			if ("insert".equals(request.getString("action"))){
-				final String url = getRequest().getOriginalRef().addQueryParameter("nonce", CryptoUtil.encode(CryptoUtil.encrypt(request.toString().getBytes(), nonceSecret.toCharArray()))).toString();
+				final String url = getRequest().getOriginalRef().addQueryParameter("nonce", CryptoUtil.encrypt(request.toString(), nonceSecret)).toString();
 				final HtmlEmail email = new HtmlEmail();
 				email.addTo(identifier);
 				email.setSubject(user.getTranslation().getString("CREATE_USER_EMAIL_SUBJECT"));
@@ -97,7 +104,7 @@ public class CreateUserResource extends ServerResource {
 				return new JsonRepresentation(result);
 			}
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 		}
 		catch (EmailException e){

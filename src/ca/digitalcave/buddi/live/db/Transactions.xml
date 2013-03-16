@@ -108,7 +108,10 @@
 		INNER JOIN transactions t ON t.id = s.transaction_id
 		WHERE 
 			s.user_id = #{user.id}
+			<if test="_parameter.containsKey('account')">
 			AND #{account.id} IN (s.from_source, s.to_source)
+			</if>
+			<if test="_parameter.containsKey('date')">
 			AND t.date >= (
 				SELECT '1900-01-01' t_date FROM transactions t
 				UNION 
@@ -117,8 +120,8 @@
 				WHERE t.date &lt; #{date}
 				ORDER BY t_date DESC
 				FETCH FIRST 1 ROWS ONLY
-
 			)
+			</if>
 		ORDER BY 
 			t.date, t.description, s.id
 	</select>
@@ -160,6 +163,7 @@
 		SET 
 			from_balance = #{split.fromBalance,jdbcType=DECIMAL},
 			to_balance = #{split.toBalance,jdbcType=DECIMAL},
+			memo = #{split.memo,jdbcType=VARCHAR},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{split.id} AND user_id = #{user.id}
 	</update>

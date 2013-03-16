@@ -19,13 +19,15 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
-import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class TransactionsResource extends ServerResource {
@@ -49,8 +51,8 @@ public class TransactionsResource extends ServerResource {
 				final JSONObject transaction = new JSONObject();
 				transaction.put("id", t.getId());
 				transaction.put("date", FormatUtil.formatDate(t.getDate()));
-				transaction.put("description", t.getDescription());
-				transaction.put("number", t.getNumber());
+				transaction.put("description", CryptoUtil.decryptWrapper(t.getDescription(), user));
+				transaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
 				transaction.put("deleted", t.isDeleted());
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
@@ -59,14 +61,14 @@ public class TransactionsResource extends ServerResource {
 					split.put("amountInDebitColumn", s.isDebit(source));
 					split.put("amountStyle", (FormatUtil.isRed(s) ? FormatUtil.formatRed() : ""));
 					split.put("fromId", s.getFromSource());
-					split.put("from", s.getFromSourceName());
+					split.put("from", CryptoUtil.decryptWrapper(s.getFromSourceName(), user));
 					split.put("toId", s.getToSource());
-					split.put("to", s.getToSourceName());
+					split.put("to", CryptoUtil.decryptWrapper(s.getToSourceName(), user));
 					split.put("debit", s.isDebit(source));
 					final BigDecimal balance = s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance();
 					split.put("balance", FormatUtil.formatCurrency(balance));
 					split.put("balanceStyle", (FormatUtil.isRed(source, balance) ? FormatUtil.formatRed() : ""));
-					split.put("memo", s.getMemo());
+					split.put("memo", CryptoUtil.decryptWrapper(s.getMemo(), user));
 					transaction.append("splits", split);
 				}
 				data.put(transaction);
@@ -79,6 +81,9 @@ public class TransactionsResource extends ServerResource {
 		}
 		catch (NumberFormatException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -134,10 +139,10 @@ public class TransactionsResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			BalanceUpdater.updateBalances(user, sqlSession);
+			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

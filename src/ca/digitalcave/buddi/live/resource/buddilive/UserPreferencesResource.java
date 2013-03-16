@@ -15,10 +15,12 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
-import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class UserPreferencesResource extends ServerResource {
 
@@ -58,7 +60,14 @@ public class UserPreferencesResource extends ServerResource {
 			final String action = json.optString("action");
 			
 			if ("update".equals(action)){
-				//user.setEncryptionKey(encryptionKey);//TODO
+				if (json.optBoolean("encrypt", false) != user.isEncrypted()){
+					//First check that the password is correct
+					final String encryptPassword = json.getString("encryptPassword");
+					if (!CryptoUtil.verify(user.getCredentials(), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, user.getTranslation().getString("INCORRECT_PASSWORD"));
+
+					if (user.isEncrypted())DataUpdater.turnOffEncryption(user, sqlSession);
+					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
+				}
 				user.setLocale(json.optString("locale", null));
 				user.setDateFormat(json.optString("dateFormat", null));
 				final String currencySymbol = json.optString("currencySymbol", null);
@@ -74,10 +83,10 @@ public class UserPreferencesResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			BalanceUpdater.updateBalances(user, sqlSession);
+			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();
@@ -86,6 +95,9 @@ public class UserPreferencesResource extends ServerResource {
 		}
 		catch (DatabaseException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (IOException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);

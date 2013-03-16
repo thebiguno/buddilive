@@ -24,7 +24,20 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 						"fieldLabel": " ",
 						"labelSeparator": "",
 						"checked": d.encrypt,
-						"boxLabel": "${translation("ENCRYPT_DATA")?json_string}"
+						"boxLabel": "${translation("ENCRYPT_DATA")?json_string}",
+						"listeners": {
+							"change": function(checkbox){
+								checkbox.up("form").down("textfield[itemId='password']").setVisible(d.encrypt != checkbox.getValue());
+							}
+						}
+					},
+					{
+						"xtype": "textfield",
+						"inputType": "password", 
+						"allowBlank": false,
+						"itemId": "password",
+						"hidden": true,
+						"fieldLabel": "Password"	//TODO i18n
 					},
 					{
 						"xtype": "combobox",

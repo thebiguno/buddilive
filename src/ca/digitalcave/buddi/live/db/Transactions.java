@@ -23,6 +23,8 @@ public interface Transactions {
 	
 	public Split selectEarliestSplitWithoutBalances(@Param("user") User user, @Param("account") Account account);
 	public Split selectLatestSplit(@Param("user") User user, @Param("account") Account account);
+	
+	public List<Split> selectSplits(@Param("user") User user);
 	public List<Split> selectSplits(@Param("user") User user, @Param("account") Account account, @Param("date") Date date);
 	
 	public Integer insertTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);

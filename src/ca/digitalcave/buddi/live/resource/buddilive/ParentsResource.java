@@ -62,7 +62,7 @@ public class ParentsResource extends ServerResource {
 		}
 	}
 	
-	private void getJsonArray(JSONArray array, List<Category> categories, Category exclude, int level) throws JSONException {
+	private void getJsonArray(JSONArray array, List<Category> categories, Category exclude, int depth) throws JSONException {
 		final StringBuilder sb = new StringBuilder();
 		for (Category category : categories) {
 			if (exclude != null && (category.getId() == exclude.getId() || !category.getType().equals(exclude.getType()) || !category.getPeriodType().equals(exclude.getPeriodType()))) continue;
@@ -72,12 +72,12 @@ public class ParentsResource extends ServerResource {
 			if (!category.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 			item.put("style", sb.toString());
 			sb.setLength(0);
-			item.put("text", StringUtils.repeat("\u00a0", level) + category.getName());
+			item.put("text", StringUtils.repeat("\u00a0", depth * 2) + category.getName());
 			item.put("income", category.isIncome());
 			item.put("type", category.getType());
 			item.put("periodType", category.getPeriodType());
 			array.put(item);
-			if (category.getChildren() != null) getJsonArray(array, category.getChildren(), exclude, level + 1);
+			if (category.getChildren() != null) getJsonArray(array, category.getChildren(), exclude, depth + 1);
 		}
 	}
 }

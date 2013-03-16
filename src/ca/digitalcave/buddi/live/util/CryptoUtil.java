@@ -12,20 +12,44 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.restlet.engine.util.Base64;
+
+import ca.digitalcave.buddi.live.model.User;
+
 public class CryptoUtil {
 
-	private static final String SALT_ALGORITHM = "SHA1PRNG";
+	private static final String RNG_ALGORITHM = "SHA1PRNG";
 	private static final String STRONG_KEY_ALGORITHM = "PBKDF2WithHmacSHA1";
 	private static final String STRONG_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
+	private static final int DEFAULT_SALT_LENGTH = 2;
+	private static final int DEFAULT_ITERATIONS = 1;
+	private static final int KEY_LENGTH = 256;
 
-	public static byte[] encrypt(byte[] bytes, char[] password) throws CryptoException {
+	//Encrypts the given string if the user has encryption enabled, or passes the original value back in plaintext if encryption is not enabled.
+	public static String encryptWrapper(String value, User user) throws CryptoException {
+		if (user.isEncrypted()){
+			return encrypt(value, user.getDecryptedEncryptionKey());
+		}
+		return value;
+	}
+	
+	public static String decryptWrapper(String value, User user) throws CryptoException {
+		if (user.isEncrypted()){
+			return decrypt(value, user.getDecryptedEncryptionKey());
+		}
+		return value;
+	}
+	
+	public static String encrypt(String value, String password) throws CryptoException {
+		final int iterations = DEFAULT_ITERATIONS;
+		final int saltLength = DEFAULT_SALT_LENGTH;
 		try {
 			// generate some random salt
-			final byte[] salt = new byte[8];
-			SecureRandom.getInstance(SALT_ALGORITHM).nextBytes(salt);
+			final byte[] salt = new byte[saltLength];
+			SecureRandom.getInstance(RNG_ALGORITHM).nextBytes(salt);
 
 			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
-			final PBEKeySpec keySpec = new PBEKeySpec(password, salt, 65525, 256);
+			final PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LENGTH);
 			final Key tmp = keyFactory.generateSecret(keySpec);
 			final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
 
@@ -34,42 +58,49 @@ public class CryptoUtil {
 			final AlgorithmParameters p = c.getParameters();
 
 			final byte[] iv = p.getParameterSpec(IvParameterSpec.class).getIV();
-			final byte[] out = c.doFinal(bytes);
+			final byte[] out = c.doFinal(value.getBytes("UTF-8"));
 
-			final byte[] result = new byte[out.length + iv.length + salt.length];
-			System.arraycopy(salt, 0, result, 0, salt.length);
-			System.arraycopy(iv, 0, result, salt.length, iv.length);
-			System.arraycopy(out, 0, result, salt.length + iv.length, out.length);
-
-			return result;
+			final StringBuilder sb = new StringBuilder();
+			sb.append(iterations);
+			sb.append(":");
+			sb.append(encode(salt));
+			sb.append(":");
+			sb.append(encode(iv));
+			sb.append(":");
+			sb.append(encode(out));
+			
+			return sb.toString();
 		}
 		catch (Exception e){
 			throw new CryptoException(e);
 		}
 	}
 
-	public static byte[] decrypt(byte[] bytes, char[] password) throws CryptoException {
-		// recoven the salt
-		final byte[] salt = new byte[8];
-		System.arraycopy(bytes, 0, salt, 0, salt.length);
+	public static String decrypt(String value, String password) throws CryptoException {
+		String[] split = value.split(":");
+		if (split.length != 4) throw new CryptoException("Invalid cyphertext");
+		
+		// recover the salt
+		final int iterations = Integer.parseInt(split[0]);
+
+		// recover the salt
+		final byte[] salt = decode(split[1]);
 
 		// recover the iv
-		final byte[] iv = new byte[16];
-		System.arraycopy(bytes, salt.length, iv, 0, iv.length);
+		final byte[] iv = decode(split[2]);
 
 		// recover the cyphertext
-		final byte[] in = new byte[bytes.length - iv.length - salt.length];
-		System.arraycopy(bytes, salt.length + iv.length, in, 0, in.length);
+		final byte[] in = decode(split[3]);
 
 		try {
 			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
-			final PBEKeySpec keySpec = new PBEKeySpec(password, salt, 65525, 256);
+			final PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LENGTH);
 			final Key tmp = keyFactory.generateSecret(keySpec);
 			final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
 
 			final Cipher c = Cipher.getInstance(STRONG_CIPHER_ALGORITHM);
 			c.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-			return c.doFinal(in);
+			return new String(c.doFinal(in), "UTF-8");
 		}
 		catch (Exception e){
 			throw new CryptoException(e);
@@ -83,6 +114,9 @@ public class CryptoUtil {
 		return getHash("SHA-1", 0, salt, message);
 	}
 
+	public static String getSha256Hash(String message) {
+		return getSha256Hash(DEFAULT_ITERATIONS, getSecureRandom(), message);
+	}
 	/**
 	 * The resulting string is 64 characters for the hash + 7 for the algorithm + salt + iteration
 	 */
@@ -133,81 +167,26 @@ public class CryptoUtil {
 	}
 
 	public static String encode(byte[] bytes) {
-		final int base = 16;
-		final StringBuilder buf = new StringBuilder();
-		for (int i = 0; i < bytes.length; i++) {
-			int bi = 0xff & bytes[i];
-			int c = '0' + (bi/base) % base;
-			if (c > '9') 
-				c = 'a' + (c - '0' - 10);
-			buf.append((char) c);
-			c = '0' + bi % base;
-			if (c > '9')
-				c = 'a' + (c - '0' - 10);
-			buf.append((char) c);
-		}
-		return buf.toString();
+		return Base64.encode(bytes, false);
 	}
 
 	public static byte[] decode(String encoded) {
-		final char[] hex = encoded.toCharArray();
-		int length = hex.length / 2;
-		byte[] raw = new byte[length];
-		for (int i = 0; i < length; i++) {
-			int high = Character.digit(hex[i * 2], 16);
-			int low = Character.digit(hex[i * 2 + 1], 16);
-			int value = (high << 4) | low;
-			if (value > 127)
-				value -= 256;
-			raw[i] = (byte) value;
-		}
-		return raw;
+		return Base64.decode(encoded);
 	}
 
-	public static byte[] getRandomSalt() {
-		return getRandomSalt(2);
+	public static byte[] getSecureRandom() {
+		return getSecureRandom(DEFAULT_SALT_LENGTH);
 	}
 
-	public static byte[] getRandomSalt(int bytes) {
+	public static byte[] getSecureRandom(int bytes) {
 		final byte[] salt = new byte[bytes];
 		try {
-			final SecureRandom r = SecureRandom.getInstance(SALT_ALGORITHM);
+			final SecureRandom r = SecureRandom.getInstance(RNG_ALGORITHM);
 			r.nextBytes(salt);
 			return salt;
 		}
 		catch (NoSuchAlgorithmException e){
 			throw new RuntimeException(e);
-		}
-	}
-	
-	public static void main(String[] args) {
-		if (args.length == 0) {
-			final byte[] salt = getRandomSalt(2);
-			final String test = "password";
-	
-			long start = System.currentTimeMillis();
-			System.out.println(getHash("MD5", 0, salt, test));
-			System.out.println(System.currentTimeMillis() - start);
-	
-			start = System.currentTimeMillis();
-			System.out.println(getHash("SHA-1", 0, salt, test));
-			System.out.println(System.currentTimeMillis() - start);
-	
-			start = System.currentTimeMillis();
-			System.out.println(getHash("SHA-1", 255, salt, test));
-			System.out.println(System.currentTimeMillis() - start);
-	
-			start = System.currentTimeMillis();
-			System.out.println(getHash("SHA-1", 32767, salt, test));
-			System.out.println(System.currentTimeMillis() - start);
-	
-			start = System.currentTimeMillis();
-			System.out.println(getHash("SHA-1", 65535, salt, test));
-			System.out.println(System.currentTimeMillis() - start);
-	
-			start = System.currentTimeMillis();
-			System.out.println(getHash("SHA-1", 16777215, salt, test));
-			System.out.println(System.currentTimeMillis() - start);
 		}
 	}
 	

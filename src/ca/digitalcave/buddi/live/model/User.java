@@ -17,6 +17,7 @@ public class User extends org.restlet.security.User {
 	private String plaintextIdentifier;	//Not hashed, injected by BuddiVerifier
 	private String credentials;
 	private String encryptionKey;
+	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier
 	private String email;
 	private String uuid;
 	private boolean premium = false;
@@ -38,7 +39,7 @@ public class User extends org.restlet.security.User {
 	}
 	public User(JSONObject json) throws JSONException{
 		if (json.optString("identifier", null) != null)this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha256Hash(1, new byte[0], json.getString("identifier")));
-		if (json.optString("credentials", null) != null) this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(1, CryptoUtil.getRandomSalt(), json.getString("credentials")));
+		if (json.optString("credentials", null) != null) this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(json.getString("credentials")));
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		//Prefer the email param, but if that is missing we can fill it in via the identifier if the storeEmail option is set.
 		if (json.optString("email", null) != null) this.setEmail(json.getString("email"));
@@ -95,6 +96,12 @@ public class User extends org.restlet.security.User {
 	}
 	public void setEncryptionKey(String encryptionKey) {
 		this.encryptionKey = encryptionKey;
+	}
+	public String getDecryptedEncryptionKey() {
+		return decryptedEncryptionKey;
+	}
+	public void setDecryptedEncryptionKey(String decryptedEncryptionKey) {
+		this.decryptedEncryptionKey = decryptedEncryptionKey;
 	}
 	public boolean isEncrypted(){
 		return encryptionKey != null;

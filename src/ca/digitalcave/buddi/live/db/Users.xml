@@ -5,6 +5,7 @@
 		<id column="id" property="id" />
 		<result column="identifier" property="identifier"/>
 		<result column="credentials" property="credentials"/>
+		<result column="encryption_key" property="encryptionKey"/>
 		<result column="email" property="email"/>
 		<result column="premium" property="premium" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
 		<result column="locale" property="locale"/>
@@ -22,6 +23,7 @@
 			id,
 			identifier,
 			credentials,
+			encryption_key,
 			email,
 			premium,
 			locale,
@@ -87,6 +89,14 @@
 			show_reconciled = <choose><when test="user.showReconciled == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			currency_symbol = #{user.currencySymbol,jdbcType=VARCHAR},
+			modified = CURRENT_TIMESTAMP
+		WHERE identifier = #{user.identifier}
+	</update>
+	
+	<update id="updateUserEncryptionKey">
+		UPDATE users
+		SET
+			encryption_key = #{user.encryptionKey,jdbcType=VARCHAR},
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
 	</update>

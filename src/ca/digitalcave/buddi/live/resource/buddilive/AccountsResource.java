@@ -17,12 +17,14 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
-import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.AccountType;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class AccountsResource extends ServerResource {
@@ -56,7 +58,7 @@ public class AccountsResource extends ServerResource {
 					if (!a.isDeleted() || user.isShowDeleted()){
 						final JSONObject account = new JSONObject();
 						account.put("id", a.getId());
-						account.put("name", a.getName());
+						account.put("name", CryptoUtil.decryptWrapper(a.getName(), user));
 						account.put("balance", FormatUtil.formatCurrency(a.isDebit() ? a.getBalance() : a.getBalance().negate()));
 						account.put("type", a.getType());
 						account.put("accountType", a.getAccountType());
@@ -83,6 +85,9 @@ public class AccountsResource extends ServerResource {
 			result.put("children", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -119,10 +124,10 @@ public class AccountsResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "An action parameter must be specified.");
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			BalanceUpdater.updateBalances(user, sqlSession);
+			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

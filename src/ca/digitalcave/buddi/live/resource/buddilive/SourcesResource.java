@@ -1,9 +1,10 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -17,8 +18,11 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.model.Account;
+import ca.digitalcave.buddi.live.model.AccountType;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class SourcesResource extends ServerResource {
@@ -35,56 +39,80 @@ public class SourcesResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final boolean isIncome = getRequest().getResourceRef().getBaseRef().toString().endsWith("from");
-			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
-			final List<Category> categories = sqlSession.getMapper(Sources.class).selectCategories(user, isIncome);
-			
-			final JSONArray data = new JSONArray();
+			final List<AccountType> accountTypes = sqlSession.getMapper(Sources.class).selectAccountTypes(user);
+			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, isIncome));
+			final JSONObject result = new JSONObject();
+
 			final StringBuilder sb = new StringBuilder();
 			
 			JSONObject separator = new JSONObject();
 			separator.put("text", "--- Accounts ---");
 			separator.put("value", "");
 			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
-			data.put(separator);
+			result.append("data", separator);
 			
-			for (Account a : accounts) {
-				final JSONObject account = new JSONObject();
-				account.put("value", a.getId());
-				account.put("text", a.getName());
-				if (a.isDeleted()) sb.append(" text-decoration: line-through;");
-				if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
-				account.put("style", sb.toString());
-				sb.setLength(0);
-				data.put(account);
+			for (AccountType at : accountTypes) {
+				if (!at.isDeleted() || user.isShowDeleted()){
+					final JSONObject accountType = new JSONObject();
+					accountType.put("value", "");
+					accountType.put("text", at.getAccountType());
+					if (at.isDeleted()) sb.append(" text-decoration: line-through;");
+					if (!at.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+					accountType.put("style", sb.toString());
+					sb.setLength(0);
+					result.append("data", accountType);
+
+					for (Account a : at.getAccounts() != null ? at.getAccounts() : new ArrayList<Account>()) {
+						if (!a.isDeleted() || user.isShowDeleted()){
+							final JSONObject account = new JSONObject();
+							account.put("value", a.getId());
+							account.put("text", StringUtils.repeat("\u00a0", 2) + CryptoUtil.decryptWrapper(a.getName(), user));
+							if (a.isDeleted()) sb.append(" text-decoration: line-through;");
+							if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+							account.put("style", sb.toString());
+							sb.setLength(0);
+							result.append("data", account);
+						}
+					}
+				}
 			}
 			
 			separator = new JSONObject();
 			separator.put("text", "--- Budget Categories ---");
 			separator.put("value", "");
 			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
-			data.put(separator);
+			result.append("data", separator);
 			
-			for (Category c : categories) {
-				final JSONObject category = new JSONObject();
-				category.put("value", c.getId());
-				category.put("text", c.getName());
-				if (c.isDeleted()) sb.append(" text-decoration: line-through;");
-				if (!c.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
-				category.put("style", sb.toString());
-				sb.setLength(0);
-				data.put(category);
-			}
+			insertCategories(result, categories, user, 0);
 			
-			final JSONObject result = new JSONObject();
-			result.put("data", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 		finally {
 			sqlSession.close();
+		}
+	}
+	
+	private void insertCategories(JSONObject result, List<Category> categories, User user, int depth) throws JSONException, CryptoException {
+		final StringBuilder sb = new StringBuilder();
+		for (Category c : categories) {
+			if (!c.isDeleted() || user.isShowDeleted()){
+				final JSONObject category = new JSONObject();
+				category.put("value", c.getId());
+				category.put("text", StringUtils.repeat("\u00a0", depth * 2) + CryptoUtil.decryptWrapper(c.getName(), user));
+				if (c.isDeleted()) sb.append(" text-decoration: line-through;");
+				if (!c.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+				category.put("style", sb.toString());
+				sb.setLength(0);
+				result.append("data", category);
+				if (c.getChildren() != null) insertCategories(result, c.getChildren(), user, depth + 1);
+			}
 		}
 	}
 }

@@ -30,4 +30,12 @@ public class AccountType {
 	public boolean isDebit(){
 		return "D".equals(getType());
 	}
+	public boolean isDeleted(){
+		//return true if all accounts are deleted; return false if there is at least one valid account.
+		if (getAccounts() == null) return false;
+		for (Account a : getAccounts()) {
+			if (!a.isDeleted()) return false;
+		}
+		return true;
+	}
 }
