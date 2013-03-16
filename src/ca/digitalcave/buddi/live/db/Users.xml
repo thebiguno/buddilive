@@ -80,7 +80,7 @@
 		UPDATE users
 		SET
 			<if test="user.credentials != null">credentials = #{user.credentials},</if>
-			email = #{user.email},
+			email = #{user.email,jdbcType=VARCHAR},
 			locale = #{user.locale,jdbcType=VARCHAR},
 			date_format = #{user.dateFormat,jdbcType=VARCHAR},
 			show_cleared = <choose><when test="user.showCleared == true">'Y'</when><otherwise>'N'</otherwise></choose>,

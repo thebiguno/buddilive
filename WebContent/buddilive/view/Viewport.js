@@ -124,5 +124,10 @@ Ext.define("BuddiLive.view.Viewport", {
 		];
 		
 		this.callParent();
+	},
+	
+	"reload": function(){
+		//Reload the entire page
+		location.reload(true);
 	}
 });

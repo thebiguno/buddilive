@@ -97,7 +97,7 @@ public class User extends org.restlet.security.User {
 		this.encryptionKey = encryptionKey;
 	}
 	public boolean isEncrypted(){
-		return encryptionKey == null;
+		return encryptionKey != null;
 	}
 	public Date getCreated() {
 		return created;

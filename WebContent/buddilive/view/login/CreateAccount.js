@@ -161,11 +161,11 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 				],
 				"buttons": [
 					{
-						"text": "OK",	//TODO i18n
+						"text": "${translation("OK")?json_string}",
 						"itemId": "ok"
 					},
 					{
-						"text": "Cancel",	//TODO i18n
+						"text": "${translation("CANCEL")?json_string}",
 						"itemId": "cancel"
 					}
 				]

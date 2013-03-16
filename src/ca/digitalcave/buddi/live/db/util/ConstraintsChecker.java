@@ -100,6 +100,8 @@ public class ConstraintsChecker {
 	}
 	
 	public static void checkUpdateUserPreferences(User user, SqlSession sqlSession) throws DatabaseException {
-		
+		//TODO generate encryption keys / update encryption keys as needed
+		if (!user.isPremium()) user.setShowCleared(false);
+		if (!user.isPremium()) user.setShowReconciled(false);
 	}
 }

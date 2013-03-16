@@ -18,6 +18,7 @@ Ext.application({
 		"budget.Editor",
 		"budget.Panel",
 		"budget.Tree",
+		"preferences.Editor",
 		"transaction.List",
 		"transaction.Editor",
 		"transaction.split.Editor"

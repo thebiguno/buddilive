@@ -14,13 +14,10 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
-import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
-import ca.digitalcave.buddi.live.model.Split;
-import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 
 public class UserPreferencesResource extends ServerResource {
@@ -61,7 +58,16 @@ public class UserPreferencesResource extends ServerResource {
 			final String action = json.optString("action");
 			
 			if ("update".equals(action)){
-				//TODO insert JSON params into User object
+				//user.setEncryptionKey(encryptionKey);//TODO
+				user.setLocale(json.optString("locale", null));
+				user.setDateFormat(json.optString("dateFormat", null));
+				final String currencySymbol = json.optString("currencySymbol", null);
+				final boolean currencySymbolAfterAmount = json.optBoolean("currencySymbolAfterAmount", false);
+				user.setCurrencySymbol(currencySymbol == null ? null : (currencySymbolAfterAmount ? currencySymbol + "_" : "_" + currencySymbol));
+				user.setShowDeleted(json.optBoolean("showDeleted", true));
+				user.setShowCleared(json.optBoolean("showCleared", false));
+				user.setShowReconciled(json.optBoolean("showReconciled", false));
+				
 				ConstraintsChecker.checkUpdateUserPreferences(user, sqlSession);
 				
 				int count = sqlSession.getMapper(Users.class).updateUser(user);

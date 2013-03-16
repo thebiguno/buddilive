@@ -72,12 +72,12 @@ Ext.define('BuddiLive.view.account.Editor', {
 		];
 		this.buttons = [
 			{
-				"text": "OK",	//TODO i18n
+				"text": "${translation("OK")?json_string}",
 				"itemId": "ok",
 				"disabled": true
 			},
 			{
-				"text": "Cancel",	//TODO i18n
+				"text": "${translation("CANCEL")?json_string}",
 				"itemId": "cancel"
 			}
 		]

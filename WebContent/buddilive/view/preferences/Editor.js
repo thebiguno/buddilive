@@ -36,6 +36,7 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 						"store": new Ext.data.Store({
 							"fields": ["text", "value"],
 							"data": [
+								{"text": "${translation("USE_BROWSER_LOCALE_SETTINGS")?json_string}", "value": ""},
 								{"text": "Deutsch", "value": "de"},
 								{"text": "English", "value": "en"},
 								{"text": "English (US)", "value": "en_US"},
@@ -80,7 +81,7 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 					
 					{
 						"xtype": "combobox",
-						"itemId": "currency",
+						"itemId": "currencySymbol",
 						"fieldLabel": "${translation("CURRENCY_FORMAT")?json_string}",
 						"editable": true,
 						"value": d.currencySymbol,
@@ -112,7 +113,7 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 					},
 					{
 						"xtype": "checkbox",
-						"itemId": "currencyAfterAmount",
+						"itemId": "currencySymbolAfterAmount",
 						"fieldLabel": " ",
 						"labelSeparator": "",
 						"checked": d.currencySymbolAfterAmount,
@@ -147,12 +148,11 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 		];
 		this.buttons = [
 			{
-				"text": "OK",	//TODO i18n
-				"itemId": "ok",
-				"disabled": true
+				"text": "${translation("OK")?json_string}",
+				"itemId": "ok"
 			},
 			{
-				"text": "Cancel",	//TODO i18n
+				"text": "${translation("CANCEL")?json_string}",
 				"itemId": "cancel"
 			}
 		]
