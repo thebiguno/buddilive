@@ -9,6 +9,7 @@ Ext.define('BuddiLive.model.budget.TreeModel', {
 		"previousDate",
 		"currentAmount",
 		"currentDate",
-		"actual"
+		"actual",
+		"difference"
 	]
 });

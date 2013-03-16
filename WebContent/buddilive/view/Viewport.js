@@ -96,7 +96,8 @@ Ext.define("BuddiLive.view.Viewport", {
 							{
 								"xtype": "transactionlist",
 								"region": "center"
-							}/*
+							}
+							<#if premium>
 							,{
 								"xtype": "panel",
 								"region": "north",
@@ -111,7 +112,8 @@ Ext.define("BuddiLive.view.Viewport", {
 										}, 5000);
 									}
 								}
-							}*/
+							}
+							</#if>
 						]
 					},
 					{
@@ -128,6 +130,6 @@ Ext.define("BuddiLive.view.Viewport", {
 	
 	"reload": function(){
 		//Reload the entire page
-		location.reload(true);
+		location.reload();
 	}
 });

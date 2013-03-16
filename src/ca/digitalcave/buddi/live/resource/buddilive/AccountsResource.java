@@ -1,7 +1,6 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -18,9 +17,9 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
+import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
-import ca.digitalcave.buddi.live.db.util.BalanceUpdater;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.AccountType;
 import ca.digitalcave.buddi.live.model.User;
@@ -53,29 +52,31 @@ public class AccountsResource extends ServerResource {
 				sb.setLength(0);
 				type.put("nodeType", "type");
 				type.put("icon", "img/folder-open-table.png");
-				final JSONArray accounts = new JSONArray();
 				for (Account a : t.getAccounts()) {
-					final JSONObject account = new JSONObject();
-					account.put("id", a.getId());
-					account.put("name", a.getName());
-					account.put("balance", FormatUtil.formatCurrency(a.getBalance(), a));
-					account.put("type", a.getType());
-					account.put("accountType", a.getAccountType());
-					account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance(), a));
-					account.put("debit", a.isDebit());
-					account.put("deleted", a.isDeleted());
-					if (a.isDeleted()) sb.append(" text-decoration: line-through;");
-					if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
-					account.put("style", sb.toString());
-					sb.setLength(0);
-					account.put("balanceStyle", FormatUtil.formatStyle(a.getBalance(), a));
-					account.put("leaf", true);
-					account.put("nodeType", "account");
-					account.put("icon", "img/table-money.png");
-					accounts.put(account);
+					if (!a.isDeleted() || user.isShowDeleted()){
+						final JSONObject account = new JSONObject();
+						account.put("id", a.getId());
+						account.put("name", a.getName());
+						account.put("balance", FormatUtil.formatCurrency(a.isDebit() ? a.getBalance() : a.getBalance().negate()));
+						account.put("type", a.getType());
+						account.put("accountType", a.getAccountType());
+						account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance()));
+						account.put("debit", a.isDebit());
+						account.put("deleted", a.isDeleted());
+						if (a.isDeleted()) sb.append(" text-decoration: line-through;");
+						if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+						account.put("style", sb.toString());
+						sb.setLength(0);
+						account.put("balanceStyle", (FormatUtil.isRed(a, a.getBalance()) ? FormatUtil.formatRed() : ""));
+						account.put("leaf", true);
+						account.put("nodeType", "account");
+						account.put("icon", "img/table-money.png");
+						type.append("children", account);
+					}
 				}
-				type.put("children", accounts);
-				data.put(type);
+				if (type.has("children")){
+					data.put(type);
+				}
 			}
 			
 			final JSONObject result = new JSONObject();

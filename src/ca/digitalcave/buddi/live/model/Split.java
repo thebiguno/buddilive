@@ -15,6 +15,8 @@ public class Split {
 	private BigDecimal amount;
 	private int fromSource;
 	private int toSource;
+	private String fromType;
+	private String toType;
 	private String memo;
 	private Date created;
 	private Date modified;
@@ -102,6 +104,18 @@ public class Split {
 	public void setToBalance(BigDecimal toBalance) {
 		this.toBalance = toBalance;
 	}
+	public String getFromType() {
+		return fromType;
+	}
+	public void setFromType(String fromType) {
+		this.fromType = fromType;
+	}
+	public String getToType() {
+		return toType;
+	}
+	public void setToType(String toType) {
+		this.toType = toType;
+	}
 	public Date getCreated() {
 		return created;
 	}
@@ -113,6 +127,18 @@ public class Split {
 	}
 	public void setModified(Date modified) {
 		this.modified = modified;
+	}
+	
+	public boolean isInflow(){
+		if ("I".equals(getFromType())){
+			return this.getAmount().compareTo(BigDecimal.ZERO) >= 0;
+		}
+		if ("E".equals(getToType())){
+			return this.getAmount().compareTo(BigDecimal.ZERO) < 0;
+		}
+
+		//If neither sources are BudgetCategory, this is not an inflow.
+		return false;
 	}
 	
 	@Override

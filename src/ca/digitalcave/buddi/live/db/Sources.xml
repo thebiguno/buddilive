@@ -117,7 +117,10 @@
 			<if test="_parameter.containsKey('categoryPeriod')">
 			, ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.date ce_date, pe.date pe_date
 				<if test="showActual">
-				, coalesce(sum(to_splits.amount), 0) - coalesce(sum(from_splits.amount), 0) as c_period_balance
+				--We just add both of these, rather than subtracting as we do in accounts, because there can only be values in one 
+				-- of these fields, depending on whether this is a I or E category.  I categories are always in the from field,
+				-- and E categories are always in the to field.
+				, coalesce(sum(to_splits.amount), 0) + coalesce(sum(from_splits.amount), 0) as c_period_balance
 				</if>
 			</if> 
 		FROM sources c

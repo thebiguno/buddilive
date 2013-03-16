@@ -32,7 +32,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"flex": 2,
 				"xtype": "treecolumn",
 				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.style;
+					metaData.style = record.raw.nameStyle;
 					return value;
 				}
 			},
@@ -41,7 +41,10 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"dataIndex": "previousAmount",
 				"flex": 1,
 				"align": "right",
-				"renderer": numberCellRenderer
+				"renderer": function(value, metaData, record){
+					metaData.style = record.raw.previousAmountStyle;
+					return value;
+				}
 			},
 			{
 				"text": "Current",	//TODO i18n
@@ -54,21 +57,31 @@ Ext.define('BuddiLive.view.budget.Tree', {
 					
 					"fieldStyle": "text-align: right;"
 				},
-				"renderer": numberCellRenderer
+				"renderer": function(value, metaData, record){
+					metaData.style = record.raw.currentAmountStyle;
+					if (value == null || value == "" || value == "0.00") return "-"; 
+					return value;
+				}
 			},
 			{
-				"text": "Actual",	//TODO i18n
+				"text": "Actual Income / Expenses",	//TODO i18n
 				"dataIndex": "actual",
 				"flex": 1,
 				"align": "right",
-				"renderer": numberCellRenderer
+				"renderer": function(value, metaData, record){
+					metaData.style = record.raw.actualStyle;
+					return value;
+				}
 			},
 			{
-				"text": "Difference",	//TODO i18n
+				"text": "Amount Remaining",	//TODO i18n
 				"dataIndex": "difference",
 				"flex": 1,
 				"align": "right",
-				"renderer": numberCellRenderer
+				"renderer": function(value, metaData, record){
+					metaData.style = record.raw.differenceStyle;
+					return value;
+				}
 			}
 		];
 		

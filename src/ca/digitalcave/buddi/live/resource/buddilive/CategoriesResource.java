@@ -69,28 +69,37 @@ public class CategoriesResource extends ServerResource {
 	private JSONObject getJsonObject(Category category, CategoryPeriod categoryPeriod) throws JSONException {
 		final JSONObject result = new JSONObject();
 		result.put("id", category.getId());
+		result.put("icon", "img/folder-open-table.png");
 		result.put("name", category.getName());
-		result.put("periodType", category.getPeriodType());
-		result.put("type", category.getType());
-		result.put("parent", category.getParent());
-		result.put("deleted", category.isDeleted());
-		result.put("currentDate", FormatUtil.formatDate(categoryPeriod.getCurrentPeriodStartDate()));
-		result.put("currentAmount", FormatUtil.formatCurrency(category.getCurrentEntry().getAmount(), category));
-		result.put("previousDate", FormatUtil.formatDate(categoryPeriod.getPreviousPeriodStartDate()));
-		result.put("previousAmount", FormatUtil.formatCurrency(category.getPreviousEntry().getAmount(), category));
-		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance(), category));
-		result.put("difference", FormatUtil.formatCurrency((category.getPreviousEntry().getAmount() != null ? category.getPreviousEntry().getAmount() : BigDecimal.ZERO).subtract(category.getPeriodBalance()), category));
-
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");
 		if (!category.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
-		result.put("style", sb.toString());
+		result.put("nameStyle", sb.toString());
 		sb.setLength(0);
-		result.put("icon", "img/folder-open-table.png");
+		
+
+		result.put("currentDate", FormatUtil.formatDate(categoryPeriod.getCurrentPeriodStartDate()));
+		result.put("currentAmount", FormatUtil.formatCurrency(category.getCurrentEntry().getAmount()));
+		result.put("currentAmountStyle", (FormatUtil.isRed(category, category.getCurrentEntry().getAmount()) ? FormatUtil.formatRed() : ""));
+		
+		result.put("previousDate", FormatUtil.formatDate(categoryPeriod.getPreviousPeriodStartDate()));
+		result.put("previousAmount", FormatUtil.formatCurrency(category.getPreviousEntry().getAmount()));
+		result.put("previousAmountStyle", (FormatUtil.isRed(category, category.getPreviousEntry().getAmount()) ? FormatUtil.formatRed() : ""));
+		
+		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance()));
+		result.put("actualStyle", (FormatUtil.isRed(category, category.getPeriodBalance()) ? FormatUtil.formatRed() : ""));
+
+		final BigDecimal difference = (category.getPeriodBalance().subtract(category.getCurrentEntry().getAmount() != null ? category.getCurrentEntry().getAmount() : BigDecimal.ZERO));
+		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? difference : difference.negate()));
+		result.put("differenceStyle", (FormatUtil.isRed(category.isIncome() ? difference : difference.negate()) ? FormatUtil.formatRed() : ""));
+
+		result.put("parent", category.getParent());
+		result.put("deleted", category.isDeleted());
+
 		if (category.getChildren() != null){
 			result.put("expanded", true);
 			for (Category child : category.getChildren()) {
-				result.accumulate("children", getJsonObject(child, categoryPeriod));
+				result.append("children", getJsonObject(child, categoryPeriod));
 			}
 		}
 		else {

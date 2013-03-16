@@ -33,8 +33,8 @@ Ext.define('BuddiLive.view.transaction.List', {
 						rowBody += "<div style='padding: 2px; height: 20px; width: 100%;'>"
 								+ "<span style='display: inline-block; width: 23%;'></span>"
 								+ "<span style='display: inline-block; width: 26%;'><i>" + s[i].from + " &rarr; " + s[i].to + "</i></span>" 
-								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (s[i].amountIsDebit ? s[i].amount : "") + "</span>" 
-								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (!s[i].amountIsDebit ? s[i].amount : "") + "</span>" 
+								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (s[i].amountInDebitColumn ? s[i].amount : "") + "</span>" 
+								+ "<span style='display: inline-block; text-align: right; width: 15%; " + s[i].amountStyle + "'>" + (!s[i].amountInDebitColumn ? s[i].amount : "") + "</span>" 
 								+ "<span style='display: inline-block; text-align: right; width: 20%; " + s[i].balanceStyle + "'>" + s[i].balance + "</span>"
 								+ "</div>";
 					}
