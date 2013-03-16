@@ -8,7 +8,7 @@
 		<result column="description" property="description"/>
 		<result column="number" property="number"/>
 		<result column="date" property="date"/>
-		<result column="deleted" property="deleted"/>
+		<result column="deleted" property="deleted" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
 		<result column="t_created" property="created"/>
 		<result column="t_modified" property="modified"/>
 		<collection property="splits" resultMap="split"/>
