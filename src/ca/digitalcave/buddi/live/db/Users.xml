@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.live.db.Users">
-	<select id="selectUser" resultType="ca.digitalcave.buddi.live.model.User">
+	<resultMap id="user" type="ca.digitalcave.buddi.live.model.User">
+		<id column="id" property="id" />
+		<result column="identifier" property="identifier"/>
+		<result column="credentials" property="credentials"/>
+		<result column="email" property="email"/>
+		<result column="premium" property="premium" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		<result column="locale" property="locale"/>
+		<result column="date_format" property="dateFormat"/>
+		<result column="show_cleared" property="showCleared" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		<result column="show_reconciled" property="showReconciled" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		<result column="show_deleted" property="showDeleted" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		<result column="currency_symbol" property="currencySymbol"/>
+		<result column="created" property="created"/>
+		<result column="modified" property="modified"/>
+	</resultMap>
+	
+	<select id="selectUser" resultMap="user">
 		SELECT 
 			id,
 			identifier,
 			credentials,
 			email,
-			locale,
 			premium,
+			locale,
+			date_format,
+			show_cleared,
+			show_reconciled,
+			show_deleted,
+			currency_symbol,
 			created,
 			modified
 		FROM users 
@@ -20,18 +41,52 @@
 			SELECT coalesce(max(id), 0) + 1 from users
 		</selectKey>
 		INSERT INTO users
-			(id, identifier, credentials, uuid, email, locale, premium, created, modified)
+			(
+				id, 
+				identifier, 
+				credentials, 
+				uuid, 
+				email, 
+				premium, 
+				locale, 
+				date_format,
+				show_cleared,
+				show_reconciled,
+				show_deleted,
+				currency_symbol,
+				created, 
+				modified
+			)
 		VALUES
-			(#{user.id}, #{user.identifier}, #{user.credentials}, #{user.uuid}, #{user.email,jdbcType=VARCHAR}, #{user.locale,jdbcType=VARCHAR}, <choose><when test="user.premium == true">'Y'</when><otherwise>'N'</otherwise></choose>, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+			(
+				#{user.id}, 
+				#{user.identifier},
+				#{user.credentials},
+				#{user.uuid}, 
+				#{user.email,jdbcType=VARCHAR},
+				'N',
+				#{user.locale,jdbcType=VARCHAR},
+				#{user.dateFormat,jdbcType=VARCHAR},
+				'N',
+				'N',
+				'Y',
+				'$_',
+				CURRENT_TIMESTAMP, 
+				CURRENT_TIMESTAMP
+			)
 	</insert>
 	
 	<update id="updateUser">
 		UPDATE users
 		SET
 			<if test="user.credentials != null">credentials = #{user.credentials},</if>
-			<if test="user.email != null">email = #{user.email},</if>
-			<if test="user.locale != null">locale = #{user.locale},</if>
-			premium = <choose><when test="user.premium == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			email = #{user.email},
+			locale = #{user.locale,jdbcType=VARCHAR},
+			date_format = #{user.dateFormat,jdbcType=VARCHAR},
+			show_cleared = <choose><when test="user.showCleared == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			show_reconciled = <choose><when test="user.showReconciled == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			currency_symbol = #{user.currencySymbol,jdbcType=VARCHAR},
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
 	</update>

@@ -10,6 +10,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='addCategory']": {"click": this.addCategory},
 			"buddiviewport button[itemId='editCategory']": {"click": this.editCategory},
 			"buddiviewport button[itemId='deleteCategory']": {"click": this.deleteCategory},
+			"buddiviewport button[itemId='preferences']": {"click": this.editPreferences},
 			"buddiviewport button[itemId='logout']": {"click": this.logout}
 		});
 	},
@@ -134,6 +135,28 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"success": function(response){
 				window.close();
 				panel.reload();
+			},
+			"failure": function(response){
+				BuddiLive.app.error(response);
+			}
+		});
+	},
+	
+	"editPreferences": function(component){
+		var panel = component.up("buddiviewport");
+		var conn = new Ext.data.Connection();
+		conn.request({
+			"url": "buddilive/userpreferences",
+			"headers": {
+				"Accept": "application/json"
+			},
+			"method": "GET",
+			"success": function(response){
+				var data = Ext.decode(response.responseText);
+				Ext.widget("preferenceseditor", {
+					"panel": panel,
+					"data": data
+				}).show();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

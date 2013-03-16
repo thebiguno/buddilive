@@ -6,6 +6,7 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.account.Tree",
 		"BuddiLive.view.budget.Panel",
 		"BuddiLive.view.budget.Tree",
+		"BuddiLive.view.preferences.Editor",
 		"BuddiLive.view.report.Panel",
 		"BuddiLive.view.transaction.List",
 		"BuddiLive.view.transaction.Editor"
@@ -63,6 +64,11 @@ Ext.define("BuddiLive.view.Viewport", {
 								"hidden": true
 							},
 							"->",
+							{
+								"tooltip": "${translation("PREFERENCES")?json_string}",
+								"icon": "img/gear.png",
+								"itemId": "preferences"
+							},
 							{
 								"text": "${translation("LOGOUT")?json_string}",
 								"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",

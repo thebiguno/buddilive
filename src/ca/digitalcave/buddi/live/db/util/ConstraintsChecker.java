@@ -98,4 +98,8 @@ public class ConstraintsChecker {
 	public static void checkInsertUser(User user, SqlSession sqlSession) throws DatabaseException {
 		if (sqlSession.getMapper(Users.class).selectUser(user.getIdentifier()) != null) throw new DatabaseException("The user name already exists");
 	}
+	
+	public static void checkUpdateUserPreferences(User user, SqlSession sqlSession) throws DatabaseException {
+		
+	}
 }

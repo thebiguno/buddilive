@@ -16,12 +16,19 @@ public class User extends org.restlet.security.User {
 	private String identifier;	//Hashed, recovered from DB
 	private String plaintextIdentifier;	//Not hashed, injected by BuddiVerifier
 	private String credentials;
+	private String encryptionKey;
 	private String email;
 	private String uuid;
 	private boolean premium = false;
+	private String locale;
+	private String dateFormat;
+	private boolean showCleared;
+	private boolean showReconciled;
+	private boolean showDeleted;
+	private String currencySymbol;
 	private Date created;
 	private Date modified;
-	private String locale;
+	
 	private boolean authenticated = false;
 	
 	public User() {
@@ -83,7 +90,15 @@ public class User extends org.restlet.security.User {
 	public void setCredentials(String credentials) {
 		this.credentials = credentials;
 	}
-	
+	public String getEncryptionKey() {
+		return encryptionKey;
+	}
+	public void setEncryptionKey(String encryptionKey) {
+		this.encryptionKey = encryptionKey;
+	}
+	public boolean isEncrypted(){
+		return encryptionKey == null;
+	}
 	public Date getCreated() {
 		return created;
 	}
@@ -110,6 +125,36 @@ public class User extends org.restlet.security.User {
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
+	public String getDateFormat() {
+		return dateFormat;
+	}
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+	public String getCurrencySymbol() {
+		return currencySymbol;
+	}
+	public void setCurrencySymbol(String currencySymbol) {
+		this.currencySymbol = currencySymbol;
+	}
+	public boolean isShowCleared() {
+		return showCleared;
+	}
+	public void setShowCleared(boolean showCleared) {
+		this.showCleared = showCleared;
+	}
+	public boolean isShowDeleted() {
+		return showDeleted;
+	}
+	public void setShowDeleted(boolean showDeleted) {
+		this.showDeleted = showDeleted;
+	}
+	public boolean isShowReconciled() {
+		return showReconciled;
+	}
+	public void setShowReconciled(boolean showReconciled) {
+		this.showReconciled = showReconciled;
+	}
 	public boolean isAuthenticated() {
 		return authenticated;
 	}
@@ -121,6 +166,18 @@ public class User extends org.restlet.security.User {
 	}
 	public void setPlaintextIdentifier(String plaintextIdentifier) {
 		this.plaintextIdentifier = plaintextIdentifier;
+	}
+	
+	public String getCurrencySymbolString(){
+		return getCurrencySymbol().replaceAll("_", "");
+	}
+	public boolean isCurrencySymbolAfterAmount(){
+		return getCurrencySymbol().startsWith("_");
+	}
+	
+	public Date getToday(){
+		//Used for Freemarker
+		return new Date();
 	}
 	
 	public ResourceBundle getTranslation(){
