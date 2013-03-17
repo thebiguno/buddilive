@@ -64,7 +64,7 @@ public class BuddiVerifier implements Verifier {
 				
 				Date expiry = null;
 				try {
-					expiry = FormatUtil.parseDateTime(token.getString("expiry"));
+					expiry = FormatUtil.parseDateTimeInternal(token.getString("expiry"));
 				}
 				catch (Throwable e){}
 				

@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,8 +24,11 @@ import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
+import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class DescriptionsResource extends ServerResource {
 
@@ -40,20 +44,31 @@ public class DescriptionsResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final Map<String, Transaction> transactionsByDescription = new TreeMap<String, Transaction>();
-			final List<Transaction> descriptions = sqlSession.getMapper(Transactions.class).selectDescriptions(user);
-			for (Transaction transaction : descriptions) {
-				if (transactionsByDescription.get(transaction.getDescription()) == null){
-					transactionsByDescription.put(transaction.getDescription(), transaction);
+			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectDescriptions(user);
+			for (Transaction transaction : transactions) {
+				final String description = CryptoUtil.decryptWrapper(transaction.getDescription(), user);
+				if (transactionsByDescription.get(description) == null){
+					transactionsByDescription.put(description, transaction);
 				}
 			}
 			
 			final JSONArray data = new JSONArray();
 			for (String description : transactionsByDescription.keySet()) {
-				final JSONObject transaction = new JSONObject();
+				final JSONObject item = new JSONObject();
 				final Transaction t = transactionsByDescription.get(description);
+				item.put("description", description);
+				final JSONObject transaction = new JSONObject();
 				transaction.put("description", description);
-				transaction.put("transaction", t.toJson());
-				data.put(transaction);
+				transaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
+				for (Split s : t.getSplits() != null ? t.getSplits() : new ArrayList<Split>()) {
+					final JSONObject split = new JSONObject();
+					split.put("amount", s.getAmount().toPlainString());
+					split.put("fromId", s.getFromSource());
+					split.put("toId", s.getToSource());
+					transaction.append("splits", split);
+				}
+				item.put("transaction", transaction);
+				data.put(item);
 			}
 			
 			final JSONObject result = new JSONObject();
@@ -62,6 +77,9 @@ public class DescriptionsResource extends ServerResource {
 			return new JsonRepresentation(result);
 		}
 		catch (JSONException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (CryptoException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {
@@ -108,6 +126,9 @@ public class DescriptionsResource extends ServerResource {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		catch (IOException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (CryptoException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){

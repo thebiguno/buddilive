@@ -151,7 +151,7 @@
 		UPDATE transactions
 		SET 
 			description = #{transaction.description},
-			number = #{transaction.number},
+			number = #{transaction.number,jdbcType=VARCHAR},
 			date = #{transaction.date},
 			deleted = <choose><when test="transaction.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP

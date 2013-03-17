@@ -56,8 +56,8 @@ public class User extends org.restlet.security.User {
 		result.put("credentials", this.getCredentials());
 		result.put("email", this.getEmail());
 		result.put("locale", this.getLocale());
-		result.put("created", FormatUtil.formatDateTime(this.getCreated()));
-		result.put("modified", FormatUtil.formatDateTime(this.getModified()));
+		result.put("created", FormatUtil.formatDateTimeInternal(this.getCreated()));
+		result.put("modified", FormatUtil.formatDateTimeInternal(this.getModified()));
 		
 		return result;
 	}

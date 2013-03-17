@@ -37,6 +37,9 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		request.showCleared = window.down("checkbox[itemId='showCleared']").getValue();
 		request.showReconciled = window.down("checkbox[itemId='showReconciled']").getValue();
 
+		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": window});
+		mask.show();
+		
 		var conn = new Ext.data.Connection();
 		conn.request({
 			"url": "buddilive/userpreferences",
@@ -46,10 +49,12 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
+				mask.hide();
 				window.close();
 				panel.reload();
 			},
 			"failure": function(response){
+				mask.hide();
 				BuddiLive.app.error(response);
 			}
 		});

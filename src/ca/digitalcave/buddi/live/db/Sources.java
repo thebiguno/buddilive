@@ -36,6 +36,7 @@ public interface Sources {
 	public List<String> selectCategoryPeriods(@Param("user") User user);
 	
 	public Source selectSource(@Param("user") User user, @Param("id") int id);
+	public Integer selectSourceAssociatedCount(@Param("user") User user, @Param("source") Source source);
 	
 	public Integer insertAccount(@Param("user") User user, @Param("account") Account account);
 	public Integer insertCategory(@Param("user") User user, @Param("category") Category category);
@@ -43,4 +44,6 @@ public interface Sources {
 	public Integer updateAccount(@Param("user") User user, @Param("account") Account account);
 	public Integer updateCategory(@Param("user") User user, @Param("category") Category category);
 	public Integer updateSourceDeleted(@Param("user") User user, @Param("source") Source source);
+	
+	public Integer deleteSource(@Param("user") User user, @Param("source") Source source);
 }

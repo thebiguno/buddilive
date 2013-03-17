@@ -25,6 +25,9 @@ public class CategoryPeriod {
 	public Date getPreviousPeriodStartDate(){
 		return categoryPeriods.getBudgetPeriodOffset(date, -1);
 	}
+	public Date getPreviousPeriodEndDate(){
+		return categoryPeriods.getEndOfBudgetPeriod(categoryPeriods.getBudgetPeriodOffset(date, -1));
+	}
 	
 	public CategoryPeriods getCategoryPeriods(){
 		return categoryPeriods;
@@ -35,10 +38,10 @@ public class CategoryPeriod {
 	}
 	
 	public static enum CategoryPeriods {
-		MONTH,
 		WEEK,
-		QUARTER,
 		SEMI_MONTH,
+		MONTH,
+		QUARTER,
 		SEMI_YEAR,
 		YEAR;
 		

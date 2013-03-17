@@ -157,7 +157,7 @@
 	<select id="selectCategoryPeriods" resultType="string">
 		SELECT DISTINCT
 			period_type
-		FROM SOURCES 
+		FROM sources 
 		WHERE 
 			user_id = #{user.id}
 			AND period_type IS NOT NULL
@@ -172,6 +172,17 @@
 			<if test="_parameter.containsKey('uuid')">
 				AND uuid = #{uuid}
 			</if>
+	</select>
+	
+	<select id="selectSourceAssociatedCount" resultType="int">
+		SELECT 
+			count(*)
+		FROM (
+			SELECT splits.id FROM splits WHERE user_id = #{user.id} AND (from_source = #{source.id} OR to_source = #{source.id})
+			UNION ALL
+			SELECT sources.id FROM sources WHERE user_id = #{user.id} AND parent = #{source.id}
+		) all_references
+		
 	</select>
 	
 	<insert id="insertAccount">
@@ -271,5 +282,9 @@
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{source.id} AND user_id = #{user.id}
 	</update>
+	
+	<delete id="deleteSource">
+		DELETE FROM sources WHERE id = #{source.id} AND user_id = #{user.id}
+	</delete>
 
 </mapper>

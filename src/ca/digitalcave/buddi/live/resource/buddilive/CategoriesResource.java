@@ -42,7 +42,7 @@ public class CategoriesResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(getQuery().getFirstValue("periodType")), FormatUtil.parseDate(getQuery().getFirstValue("date")), Integer.parseInt(getQuery().getFirstValue("offset", "0")));
+			CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(getQuery().getFirstValue("periodType")), FormatUtil.parseDateInternal(getQuery().getFirstValue("date")), Integer.parseInt(getQuery().getFirstValue("offset", "0")));
 			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp, true));
 			
 			final JSONArray data = new JSONArray();
@@ -51,8 +51,9 @@ public class CategoriesResource extends ServerResource {
 			}
 			
 			final JSONObject result = new JSONObject();
-			result.put("period", FormatUtil.formatDate(cp.getCurrentPeriodStartDate()) + " - " + FormatUtil.formatDate(cp.getCurrentPeriodEndDate()));
-			result.put("date", FormatUtil.formatDate(cp.getCurrentPeriodStartDate()));
+			result.put("period", FormatUtil.formatDate(cp.getCurrentPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getCurrentPeriodEndDate(), user));
+			result.put("date", FormatUtil.formatDateInternal(cp.getCurrentPeriodStartDate()));
+			result.put("previousPeriod", FormatUtil.formatDate(cp.getPreviousPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getPreviousPeriodEndDate(), user));
 			result.put("children", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
@@ -83,11 +84,9 @@ public class CategoriesResource extends ServerResource {
 		sb.setLength(0);
 		
 
-		result.put("currentDate", FormatUtil.formatDate(categoryPeriod.getCurrentPeriodStartDate()));
 		result.put("currentAmount", FormatUtil.formatCurrency(category.getCurrentEntry().getAmount()));
 		result.put("currentAmountStyle", (FormatUtil.isRed(category, category.getCurrentEntry().getAmount()) ? FormatUtil.formatRed() : ""));
 		
-		result.put("previousDate", FormatUtil.formatDate(categoryPeriod.getPreviousPeriodStartDate()));
 		result.put("previousAmount", FormatUtil.formatCurrency(category.getPreviousEntry().getAmount()));
 		result.put("previousAmountStyle", (FormatUtil.isRed(category, category.getPreviousEntry().getAmount()) ? FormatUtil.formatRed() : ""));
 		
@@ -130,9 +129,15 @@ public class CategoriesResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 			} 
 			else if ("delete".equals(action) || "undelete".equals(action)){
-				category.setDeleted("delete".equals(action));
-				int count = sqlSession.getMapper(Sources.class).updateSourceDeleted(user, category);
-				if (count != 1) throw new DatabaseException(String.format("Delete / undelete failed; expected 1 row, returned %s", count));
+				if (sqlSession.getMapper(Sources.class).selectSourceAssociatedCount(user, category) == 0){
+					int count = sqlSession.getMapper(Sources.class).deleteSource(user, category);
+					if (count != 1) throw new DatabaseException(String.format("Delete failed; expected 1 row, returned %s", count));
+				}
+				else {
+					category.setDeleted("delete".equals(action));
+					int count = sqlSession.getMapper(Sources.class).updateSourceDeleted(user, category);
+					if (count != 1) throw new DatabaseException(String.format("Delete / undelete failed; expected 1 row, returned %s", count));
+				}
 			}
 			else if ("update".equals(action)){
 				ConstraintsChecker.checkUpdateCategory(category, user, sqlSession);
@@ -155,6 +160,9 @@ public class CategoriesResource extends ServerResource {
 		}
 		catch (IOException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);

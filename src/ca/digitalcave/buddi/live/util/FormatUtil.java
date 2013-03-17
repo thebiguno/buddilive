@@ -10,20 +10,21 @@ import ca.digitalcave.buddi.live.model.AccountType;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
+import ca.digitalcave.buddi.live.model.User;
 
 public class FormatUtil {
 	public static String HTML_RED = "#dd2222";
 	public static String HTML_GRAY = "#bbbbbb";
 	
-	public static String formatDateTime(Date date){
+	public static String formatDateTimeInternal(Date date){
 		if (date == null) return null;
 		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date);
 	}
-	public static String formatDate(Date date){
+	public static String formatDateInternal(Date date){
 		if (date == null) return null;
 		return new SimpleDateFormat("yyyy-MM-dd").format(date);
 	}
-	public static Date parseDateTime(String date){
+	public static Date parseDateTimeInternal(String date){
 		if (date == null) return null;
 		try {
 			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date);
@@ -32,7 +33,7 @@ public class FormatUtil {
 			return null;
 		}
 	}
-	public static Date parseDate(String date){
+	public static Date parseDateInternal(String date){
 		if (date == null) return null;
 		try {
 			return new SimpleDateFormat("yyyy-MM-dd").parse(date);
@@ -42,6 +43,10 @@ public class FormatUtil {
 		}
 	}
 	
+	public static String formatDate(Date date, User user){
+		if (date == null) return null;
+		return new SimpleDateFormat(user.getDateFormat() == null ? "yyyy-MM-dd" : user.getDateFormat()).format(date);
+	}
 
 	public static BigDecimal parseCurrency(String value){
 		if (value == null || value.length() == 0) return null;

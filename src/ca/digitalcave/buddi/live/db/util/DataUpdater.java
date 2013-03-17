@@ -85,9 +85,10 @@ public class DataUpdater {
 		// c) ASCII-armour the key, and store it in their user table
 		// d) Iterate through all sources, transactions, and split in the system, and encrypt the appropriate fields.  Encryptable fields are:
 		//   i) Source name
-		//   ii) Transaction description
-		//   iii) Transaction number
-		//	 iiii) Split memo
+		//   ii) Account type
+		//   iii) Transaction description
+		//   iv) Transaction number
+		//	 v) Split memo
 		
 		if (user.isEncrypted()) throw new DatabaseException("This account is already encrypted");
 		
@@ -98,56 +99,55 @@ public class DataUpdater {
 		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 		
 		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
-			a.setName(CryptoUtil.encryptWrapper(a.getName(), user));
+			a.setName(CryptoUtil.encrypt(a.getName(), encryptionKey));
+			a.setAccountType(CryptoUtil.encrypt(a.getAccountType(), encryptionKey));
 			sqlSession.getMapper(Sources.class).updateAccount(user, a);
 		}
 		for (Category c : sqlSession.getMapper(Sources.class).selectCategories(user)) {
-			c.setName(CryptoUtil.encryptWrapper(c.getName(), user));
+			c.setName(CryptoUtil.encrypt(c.getName(), encryptionKey));
 			sqlSession.getMapper(Sources.class).updateCategory(user, c);
 		}
 		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
-			t.setDescription(CryptoUtil.encryptWrapper(t.getDescription(), user));
-			t.setNumber(CryptoUtil.encryptWrapper(t.getDescription(), user));
+			t.setDescription(CryptoUtil.encrypt(t.getDescription(), encryptionKey));
+			t.setNumber(CryptoUtil.encrypt(t.getDescription(), encryptionKey));
 			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
 		}
 		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
-			s.setMemo(CryptoUtil.encryptWrapper(s.getMemo(), user));
+			s.setMemo(CryptoUtil.encrypt(s.getMemo(), encryptionKey));
 			sqlSession.getMapper(Transactions.class).updateSplit(user, s);
 		}
 	}
 	
 	public static void turnOffEncryption(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//To turn off encryption, we must do the following:
-		// a) Iterate through all sources and transactions in the system, and decrypt the appropriate fields.
-		//   i) Source name
-		//   ii) Transaction description
-		//   iii) Transaction number
+		// a) Iterate through all sources and transactions in the system, and decrypt the appropriate fields (see above for encrypted fields).
 		// b) Set the encryption key to null, and store it in the user table
 		
 		if (!user.isEncrypted()) throw new DatabaseException("This account is not encrypted");
+		
+		final String encryptionKey = user.getDecryptedEncryptionKey();
+		user.setEncryptionKey(null);
+		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 
 		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
-			a.setName(CryptoUtil.decryptWrapper(a.getName(), user));
+			a.setName(CryptoUtil.decrypt(a.getName(), encryptionKey));
+			a.setAccountType(CryptoUtil.decrypt(a.getAccountType(), encryptionKey));
 			sqlSession.getMapper(Sources.class).updateAccount(user, a);
 		}
 		for (Category c : sqlSession.getMapper(Sources.class).selectCategories(user)) {
-			c.setName(CryptoUtil.decryptWrapper(c.getName(), user));
+			c.setName(CryptoUtil.decrypt(c.getName(), encryptionKey));
 			sqlSession.getMapper(Sources.class).updateCategory(user, c);
 		}
 		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
-			t.setDescription(CryptoUtil.decryptWrapper(t.getDescription(), user));
-			t.setNumber(CryptoUtil.decryptWrapper(t.getNumber(), user));
+			t.setDescription(CryptoUtil.decrypt(t.getDescription(), encryptionKey));
+			t.setNumber(CryptoUtil.decrypt(t.getNumber(), encryptionKey));
 			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
 		}
 		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
 			if (s.getMemo() != null){
-				s.setMemo(CryptoUtil.decryptWrapper(s.getMemo(), user));
+				s.setMemo(CryptoUtil.decrypt(s.getMemo(), encryptionKey));
 				sqlSession.getMapper(Transactions.class).updateSplit(user, s);
 			}
 		}
-
-		user.setEncryptionKey(null);
-		user.setDecryptedEncryptionKey(null);
-		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 	}
 }

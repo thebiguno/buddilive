@@ -31,7 +31,7 @@ public class Transaction {
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		this.setDescription(json.getString("description"));
 		this.setNumber(json.has("number") ? json.getString("number") : null);
-		this.setDate(json.has("date") ? FormatUtil.parseDate(json.getString("date")) : null);
+		this.setDate(json.has("date") ? FormatUtil.parseDateInternal(json.getString("date")) : null);
 		this.setDeleted(json.has("deleted") ? json.getBoolean("deleted") : false);
 		final List<Split> splits = new ArrayList<Split>();
 		for (int i = 0; i < json.getJSONArray("splits").length(); i++){
@@ -47,7 +47,7 @@ public class Transaction {
 		result.put("uuid", this.getUuid());
 		result.put("description", this.getDescription());
 		result.put("number", this.getNumber());
-		result.put("date", FormatUtil.formatDate((Date) this.getDate()));
+		result.put("date", FormatUtil.formatDateInternal((Date) this.getDate()));
 		result.put("deleted", this.isDeleted());
 		JSONArray splits = new JSONArray();
 		if (getSplits() != null){
@@ -56,8 +56,8 @@ public class Transaction {
 			}
 		}
 		result.put("splits", splits);
-		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
-		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
+		result.put("created", FormatUtil.formatDateTimeInternal((Date) this.getCreated()));
+		result.put("modified", FormatUtil.formatDateTimeInternal((Date) this.getModified()));
 		return result;
 	}
 	

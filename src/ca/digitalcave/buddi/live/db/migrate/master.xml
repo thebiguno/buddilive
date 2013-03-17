@@ -53,7 +53,7 @@
 			<column name="uuid" type="varchar(64)">
 				<constraints nullable="false" unique="true" uniqueConstraintName="uc_sources_uuid"/>
 			</column>
-			<column name="name" type="varchar(256)">
+			<column name="name" type="varchar(1024)">
 				<constraints nullable="false"/>
 			</column>
 			<column name="deleted" type="char(1)">
@@ -71,7 +71,7 @@
 
 			
 			<!-- The following are only for accounts -->
-			<column name="account_type" type="varchar(256)"/>
+			<column name="account_type" type="varchar(1024)"/>
 			<column name="start_balance" type="decimal(14,2)"/>
 			<column name="balance" type="decimal(14,2)"/>
 			<column name="start_date" type="date"/>

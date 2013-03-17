@@ -36,8 +36,8 @@ public class Source {
 		result.put("name", this.getName());
 		result.put("deleted", this.isDeleted());
 		result.put("type", this.getType());
-		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
-		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
+		result.put("created", FormatUtil.formatDateTimeInternal((Date) this.getCreated()));
+		result.put("modified", FormatUtil.formatDateTimeInternal((Date) this.getModified()));
 		return result;
 	}
 	

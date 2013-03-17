@@ -40,7 +40,7 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 			"jsonData": request,
 			"success": function(response){
 				window.close();
-				panel.reload();
+				panel.fireEvent("reload", panel);
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

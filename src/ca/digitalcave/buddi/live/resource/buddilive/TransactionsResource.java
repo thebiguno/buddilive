@@ -50,7 +50,7 @@ public class TransactionsResource extends ServerResource {
 			for (Transaction t : transactions) {
 				final JSONObject transaction = new JSONObject();
 				transaction.put("id", t.getId());
-				transaction.put("date", FormatUtil.formatDate(t.getDate()));
+				transaction.put("date", FormatUtil.formatDateInternal(t.getDate()));
 				transaction.put("description", CryptoUtil.decryptWrapper(t.getDescription(), user));
 				transaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
 				transaction.put("deleted", t.isDeleted());
@@ -111,6 +111,7 @@ public class TransactionsResource extends ServerResource {
 
 				for (Split split : transaction.getSplits()) {
 					split.setTransactionId(transaction.getId());
+					
 					count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
 					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 				}
@@ -153,6 +154,9 @@ public class TransactionsResource extends ServerResource {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		catch (IOException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (CryptoException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){

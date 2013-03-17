@@ -22,8 +22,8 @@ import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
-import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
+import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.Entry;
@@ -31,6 +31,7 @@ import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class RestoreResource extends ServerResource {
 
@@ -70,15 +71,21 @@ public class RestoreResource extends ServerResource {
 		catch (IOException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 		catch (JSONException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+		catch (Throwable e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {
 			sqlSession.close();
 		}
 	}
 
-	private void restoreAccounts(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException {
+	private void restoreAccounts(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
 		final JSONArray accounts = jsonObject.getJSONArray("accounts");
 		if (accounts != null){
 			for (int i = 0; i < accounts.length(); i++){
@@ -89,7 +96,7 @@ public class RestoreResource extends ServerResource {
 					final Account account = new Account();
 					account.setUuid(a.getString("uuid"));
 					account.setName(a.getString("name"));
-					account.setStartDate(FormatUtil.parseDate(a.getString("startDate")));
+					account.setStartDate(FormatUtil.parseDateInternal(a.getString("startDate")));
 					account.setDeleted(a.optBoolean("deleted", false));
 					account.setType(a.getString("type"));
 					account.setStartBalance(FormatUtil.parseCurrency(a.getString("startBalance")));
@@ -107,7 +114,7 @@ public class RestoreResource extends ServerResource {
 		}
 	}
 
-	private void restoreCategories(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException {
+	private void restoreCategories(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
 		final JSONArray categories = jsonObject.getJSONArray("categories");
 		if (categories != null){
 			for (int i = 0; i < categories.length(); i++){
@@ -156,7 +163,7 @@ public class RestoreResource extends ServerResource {
 					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find category UUID " + e.getString("category") + " for budget entry " + e.getString("date") + " / " + e.getString("amount"));
 				}
 				entry.setCategoryId(categoryId);
-				entry.setDate(FormatUtil.parseDate(e.getString("date")));
+				entry.setDate(FormatUtil.parseDateInternal(e.getString("date")));
 				entry.setAmount(FormatUtil.parseCurrency(e.getString("amount")));
 				final Entry existingEntry = sqlSession.getMapper(Entries.class).selectEntry(user, entry);
 				if (existingEntry == null){
@@ -175,7 +182,7 @@ public class RestoreResource extends ServerResource {
 		}
 	}
 
-	private void restoreTransactions(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException {
+	private void restoreTransactions(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
 		final JSONArray transactions = jsonObject.optJSONArray("transactions");
 		if (transactions != null){
 			for (int i = 0; i < transactions.length(); i++) {
@@ -186,7 +193,7 @@ public class RestoreResource extends ServerResource {
 					transaction.setUuid(t.getString("uuid"));
 					transaction.setDescription(t.getString("description"));
 					transaction.setNumber(t.optString("number", null));
-					transaction.setDate(FormatUtil.parseDate(t.getString("date")));
+					transaction.setDate(FormatUtil.parseDateInternal(t.getString("date")));
 					transaction.setDeleted(t.optBoolean("deleted", false));
 					transaction.setSplits(new ArrayList<Split>());
 					final JSONArray splits = t.getJSONArray("splits");

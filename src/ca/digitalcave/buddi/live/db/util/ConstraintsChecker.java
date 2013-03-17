@@ -16,10 +16,12 @@ import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class ConstraintsChecker {
 
-	public static void checkInsertCategory(Category category, User user, SqlSession sqlSession) throws DatabaseException {
+	public static void checkInsertCategory(Category category, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Perform some checks that we cannot do via Derby DB constraints
 		if (category.getParent() != null){
 			final Source parent = sqlSession.getMapper(Sources.class).selectSource(user, category.getParent());
@@ -39,14 +41,18 @@ public class ConstraintsChecker {
 				if (!p.getPeriodType().equals(category.getPeriodType())) throw new DatabaseException("The period of a parent must match the period of the child");
 			}
 		}
+		
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(category.getName())){
+			category.setName(CryptoUtil.encrypt(category.getName(), user.getDecryptedEncryptionKey()));
+		}
 	}
 
-	public static void checkUpdateCategory(Category category, User user, SqlSession sqlSession) throws DatabaseException {
+	public static void checkUpdateCategory(Category category, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (category.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertCategory(category, user, sqlSession);
 	}
 	
-	public static void checkInsertAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException {
+	public static void checkInsertAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (account.isAccount()){
 			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user, account.getAccountType());
 			for (Account a : accounts) {
@@ -56,14 +62,20 @@ public class ConstraintsChecker {
 				}
 			}
 		}
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(account.getName())){
+			account.setName(CryptoUtil.encrypt(account.getName(), user.getDecryptedEncryptionKey()));
+		}
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(account.getAccountType())){
+			account.setAccountType(CryptoUtil.encrypt(account.getAccountType(), user.getDecryptedEncryptionKey()));
+		}
 	}
 	
-	public static void checkUpdateAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException {
+	public static void checkUpdateAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (account.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertAccount(account, user, sqlSession);
 	}
 	
-	public static void checkInsertTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException {
+	public static void checkInsertTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Perform integrity checks
 		if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		if (transaction.getDate() == null) throw new DatabaseException("The transaction date must be set");
@@ -75,10 +87,22 @@ public class ConstraintsChecker {
 			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 			
+			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
+				split.setMemo(CryptoUtil.encrypt(split.getMemo(), user.getDecryptedEncryptionKey()));
+			}
+
+			
+		}
+		
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(transaction.getDescription())){
+			transaction.setDescription(CryptoUtil.encrypt(transaction.getDescription(), user.getDecryptedEncryptionKey()));
+		}
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(transaction.getNumber())){
+			transaction.setNumber(CryptoUtil.encrypt(transaction.getNumber(), user.getDecryptedEncryptionKey()));
 		}
 	}
 	
-	public static void checkUpdateTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException {
+	public static void checkUpdateTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (transaction.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertTransaction(transaction, user, sqlSession);
 	}
@@ -100,7 +124,6 @@ public class ConstraintsChecker {
 	}
 	
 	public static void checkUpdateUserPreferences(User user, SqlSession sqlSession) throws DatabaseException {
-		//TODO generate encryption keys / update encryption keys as needed
 		if (!user.isPremium()) user.setShowCleared(false);
 		if (!user.isPremium()) user.setShowReconciled(false);
 	}

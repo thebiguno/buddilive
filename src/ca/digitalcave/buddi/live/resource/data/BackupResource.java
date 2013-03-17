@@ -76,7 +76,7 @@ public class BackupResource extends ServerResource {
 		final JSONObject a = new JSONObject();
 		a.put("uuid", account.getUuid());
 		a.put("name", account.getName());
-		a.put("startDate", FormatUtil.formatDate((Date) account.getStartDate()));
+		a.put("startDate", FormatUtil.formatDateInternal((Date) account.getStartDate()));
 		if (account.isDeleted()) a.put("deleted", account.isDeleted());
 		a.put("type", account.getType());
 		a.put("startBalance", account.getStartBalance().toPlainString());
@@ -103,7 +103,7 @@ public class BackupResource extends ServerResource {
 	
 	private void addEntry(JSONObject result, Entry entry, Map<Integer, String> sourceUUIDsById) throws JSONException {
 		final JSONObject e = new JSONObject();
-		e.put("date", FormatUtil.formatDate((Date) entry.getDate()));
+		e.put("date", FormatUtil.formatDateInternal((Date) entry.getDate()));
 		e.put("category", sourceUUIDsById.get(entry.getCategoryId()));
 		e.put("amount", entry.getAmount().toPlainString());
 		result.append("entries", e);
@@ -114,7 +114,7 @@ public class BackupResource extends ServerResource {
 		t.put("uuid", transaction.getUuid());
 		t.put("description", transaction.getDescription());
 		t.put("number", transaction.getNumber());
-		t.put("date", FormatUtil.formatDate((Date) transaction.getDate()));
+		t.put("date", FormatUtil.formatDateInternal((Date) transaction.getDate()));
 		if (transaction.isDeleted()) t.put("deleted", transaction.isDeleted());
 		if (transaction.getSplits() != null){
 			for (Split split : transaction.getSplits()) {

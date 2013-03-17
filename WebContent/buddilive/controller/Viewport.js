@@ -102,26 +102,17 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	"editCategory": function(component){
 		var panel = component.up("buddiviewport").down("budgetpanel");
-		var budgetTrees = Ext.ComponentQuery.query("budgettree", panel);
-		for (var i = 0; i < budgetTrees.length; i++){
-			if (!budgetTrees[i].collapsed){
-				var selected = budgetTrees[i].getSelectionModel().getSelection()[0].raw;
-				Ext.widget("budgeteditor", {
-					"panel": panel,
-					"selected": selected
-				}).show();
-			}
-		}
+		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+		Ext.widget("budgeteditor", {
+			"panel": panel,
+			"selected": selected
+		}).show();
 	},
 	"deleteCategory": function(component){
 		var panel = component.up("buddiviewport").down("budgetpanel");
 		var budgetTrees = Ext.ComponentQuery.query("budgettree", panel);
-		var selected = null;
-		for (var i = 0; i < budgetTrees.length; i++){
-			if (!budgetTrees[i].collapsed) selected = budgetTrees[i].getSelectionModel().getSelection()[0].raw;
-		}
 		
-		if (selected == null) return;
+		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
 		
 		var request = {"action": selected.deleted ? "undelete" : "delete", "id": selected.id};
 		var conn = new Ext.data.Connection();
@@ -134,7 +125,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"jsonData": request,
 			"success": function(response){
 				window.close();
-				panel.reload();
+				panel.fireEvent("reload", panel);
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

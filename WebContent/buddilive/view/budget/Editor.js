@@ -67,7 +67,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 								{"text": "${translation("BUDGET_CATEGORY_TYPE_WEEK")?json_string}", "value": "WEEK"},
 								{"text": "${translation("BUDGET_CATEGORY_TYPE_SEMI_MONTH")?json_string}", "value": "SEMI_MONTH"},
 								{"text": "${translation("BUDGET_CATEGORY_TYPE_MONTH")?json_string}", "value": "MONTH"},
-								{"text": "${translation("BUDGET_CATEGORY_TYPE_QUARTER")?json_string}", "value": "QUERTER"},
+								{"text": "${translation("BUDGET_CATEGORY_TYPE_QUARTER")?json_string}", "value": "QUARTER"},
 								{"text": "${translation("BUDGET_CATEGORY_TYPE_SEMI_YEAR")?json_string}", "value": "SEMI_YEAR"},
 								{"text": "${translation("BUDGET_CATEGORY_TYPE_YEAR")?json_string}", "value": "YEAR"}
 							]

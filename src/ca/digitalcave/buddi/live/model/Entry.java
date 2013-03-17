@@ -22,7 +22,7 @@ public class Entry {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setCategoryId(json.getInt("categoryId"));	//This field is required
 		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")));	//This field is required, but can be zero
-		this.setDate(FormatUtil.parseDate(json.getString("date")));	//This field is required
+		this.setDate(FormatUtil.parseDateInternal(json.getString("date")));	//This field is required
 	}
 	
 	public JSONObject toJson() throws JSONException {
@@ -30,9 +30,9 @@ public class Entry {
 		result.put("id", this.getId());
 		result.put("categoryId", this.getCategoryId());
 		result.put("amount", this.getAmount());
-		result.put("date", FormatUtil.formatDate((Date) this.getDate()));
-		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
-		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
+		result.put("date", FormatUtil.formatDateInternal((Date) this.getDate()));
+		result.put("created", FormatUtil.formatDateTimeInternal((Date) this.getCreated()));
+		result.put("modified", FormatUtil.formatDateTimeInternal((Date) this.getModified()));
 		return result;
 	}
 	

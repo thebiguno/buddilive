@@ -25,26 +25,18 @@ public class CryptoUtil {
 	private static final int DEFAULT_ITERATIONS = 1;
 	private static final int KEY_LENGTH = 256;
 
-	//Encrypts the given string if the user has encryption enabled, or passes the original value back in plaintext if encryption is not enabled.
-	public static String encryptWrapper(String value, User user) throws CryptoException {
-		if (user.isEncrypted()){
-			return encrypt(value, user.getDecryptedEncryptionKey());
-		}
-		return value;
-	}
-	
 	public static String decryptWrapper(String value, User user) throws CryptoException {
-		if (user.isEncrypted()){
+		if (value != null && user.isEncrypted()){
 			return decrypt(value, user.getDecryptedEncryptionKey());
 		}
 		return value;
 	}
 	
 	public static String encrypt(String value, String password) throws CryptoException {
-		final int iterations = DEFAULT_ITERATIONS;
 		final int saltLength = DEFAULT_SALT_LENGTH;
+		final int iterations = DEFAULT_ITERATIONS;
+		
 		try {
-			// generate some random salt
 			final byte[] salt = new byte[saltLength];
 			SecureRandom.getInstance(RNG_ALGORITHM).nextBytes(salt);
 
@@ -76,9 +68,33 @@ public class CryptoUtil {
 		}
 	}
 
-	public static String decrypt(String value, String password) throws CryptoException {
+	//Checks whether the given value looks as if it could be encrypted.  We check for separators, encoding, etc. 
+	public static boolean isEncryptedValue(String value){
+		if (value == null) return false;
 		String[] split = value.split(":");
-		if (split.length != 4) throw new CryptoException("Invalid cyphertext");
+		if (split.length != 4) {
+			return false;
+		}
+		
+		try {
+			Integer.parseInt(split[0]);
+			decode(split[1]);
+			if (decode(split[2]).length <= 4) return false;		//Nothing is really special about 4 here... it is just a small value which is smaller than any valid value I have seen.  We could probably calculate what the actual value is, but this is fine for now.
+			if (decode(split[3]).length <= 4) return false;
+		}
+		catch (Throwable e){
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public static String decrypt(String value, String password) throws CryptoException {
+		if (value == null) return null;
+		String[] split = value.split(":");
+		if (split.length != 4) {
+			throw new CryptoException("Invalid cyphertext");
+		}
 		
 		// recover the salt
 		final int iterations = Integer.parseInt(split[0]);

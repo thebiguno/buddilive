@@ -37,10 +37,12 @@ public class PeriodsResource extends ServerResource {
 			
 			final JSONArray data = new JSONArray();
 			for (CategoryPeriods cp : CategoryPeriods.values()) {
-				JSONObject item = new JSONObject();
-				item.put("value", cp.toString());
-				item.put("visible", categoryPeriods.contains(cp.toString()));
-				data.put(item);
+				if (categoryPeriods.contains(cp.toString())){
+					JSONObject item = new JSONObject();
+					item.put("value", cp.toString());
+					item.put("text", user.getTranslation().getString("BUDGET_CATEGORY_TYPE_" + cp.toString()));
+					data.put(item);
+				}
 			}
 			final JSONObject result = new JSONObject();
 			result.put("data", data);

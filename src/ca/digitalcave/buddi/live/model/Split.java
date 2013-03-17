@@ -46,8 +46,8 @@ public class Split {
 		result.put("fromId", this.getFromSource());
 		result.put("toId", this.getToSource());
 		result.put("memo", this.getMemo());
-		result.put("created", FormatUtil.formatDateTime((Date) this.getCreated()));
-		result.put("modified", FormatUtil.formatDateTime((Date) this.getModified()));
+		result.put("created", FormatUtil.formatDateTimeInternal((Date) this.getCreated()));
+		result.put("modified", FormatUtil.formatDateTimeInternal((Date) this.getModified()));
 		return result;
 	}
 	public Long getId() {

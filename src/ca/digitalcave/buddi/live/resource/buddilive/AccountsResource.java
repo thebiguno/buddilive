@@ -2,6 +2,8 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
@@ -17,8 +19,8 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
-import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.AccountType;
@@ -41,12 +43,24 @@ public class AccountsResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final List<AccountType> accountsByType = sqlSession.getMapper(Sources.class).selectAccountTypes(user);
+			//If the data is encrypted, we cannot rely on the DB to sort the account types properly.  Thus we have to.
+			final Map<String, AccountType> accountTypeMap = new TreeMap<String, AccountType>();
+			for (AccountType accountType : accountsByType) {
+				final String key = (accountType.isDebit() ? "1" : "2") + CryptoUtil.decryptWrapper(accountType.getAccountType(), user);
+				if (!accountTypeMap.containsKey(key)) {
+					accountTypeMap.put(key, accountType);
+				}
+				else {
+					accountTypeMap.get(key).getAccounts().addAll(accountType.getAccounts());
+				}
+			}
 			
 			final JSONArray data = new JSONArray();
 			final StringBuilder sb = new StringBuilder();
-			for (AccountType t : accountsByType) {
+			for (String key : accountTypeMap.keySet()) {
 				final JSONObject type = new JSONObject();
-				type.put("name", t.getAccountType());
+				AccountType t = accountTypeMap.get(key);
+				type.put("name", CryptoUtil.decryptWrapper(t.getAccountType(), user));
 				type.put("expanded", true);
 				type.put("debit", t.isDebit());
 				if (!t.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
@@ -114,9 +128,15 @@ public class AccountsResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 			} 
 			else if ("delete".equals(action) || "undelete".equals(action)){
-				account.setDeleted("delete".equals(action));
-				int count = sqlSession.getMapper(Sources.class).updateSourceDeleted(user, account);
-				if (count != 1) throw new DatabaseException(String.format("Delete / undelete failed; expected 1 row, returned %s", count));
+				if (sqlSession.getMapper(Sources.class).selectSourceAssociatedCount(user, account) == 0){
+					int count = sqlSession.getMapper(Sources.class).deleteSource(user, account);
+					if (count != 1) throw new DatabaseException(String.format("Delete failed; expected 1 row, returned %s", count));
+				}
+				else {
+					account.setDeleted("delete".equals(action));
+					int count = sqlSession.getMapper(Sources.class).updateSourceDeleted(user, account);
+					if (count != 1) throw new DatabaseException(String.format("Delete / undelete failed; expected 1 row, returned %s", count));
+				}
 			}
 			else if ("update".equals(action)){
 				ConstraintsChecker.checkUpdateAccount(account, user, sqlSession);
@@ -142,6 +162,9 @@ public class AccountsResource extends ServerResource {
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {
 			sqlSession.close();

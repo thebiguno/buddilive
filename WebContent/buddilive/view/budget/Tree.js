@@ -10,6 +10,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		this.rootVisible = false;
 		this.border = false;
 		this.itemId = this.initialConfig.periodValue;
+		this.stateId = "budgettree" + this.initialConfig.periodValue;
+		this.stateful = true;
 		this.store = Ext.create("BuddiLive.store.budget.TreeStore", {"periodType": this.initialConfig.periodValue});
 		this.title = this.initialConfig.periodText;
 		this.flex = 1;
@@ -70,6 +72,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"align": "right",
 				"renderer": function(value, metaData, record){
 					metaData.style = record.raw.actualStyle;
+					if (value == null || value == "" || value == "0.00") return "-";
 					return value;
 				}
 			},
@@ -80,6 +83,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"align": "right",
 				"renderer": function(value, metaData, record){
 					metaData.style = record.raw.differenceStyle;
+					if ((value == null || value == "" || value == "0.00") && (record.raw.actual == null || record.raw.actual == "" || record.raw.actual == "0.00")) return "-";
 					return value;
 				}
 			}
@@ -122,8 +126,12 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		
 		//Load some of the contents of the loaded data packet into the GUI, and persist state for future requests
 		this.getStore().addListener("load", function(store, records){
-			budgetTree.down("textfield[itemId='currentPeriod']").setValue(store.proxy.reader.rawData.period);
-			budgetTree.currentDate = store.proxy.reader.rawData.date;	//ISO Date string, will be used as current reference when passing nextPeriod / previousPeriod
+			var data = store.proxy.reader.rawData;
+			budgetTree.down("textfield[itemId='currentPeriod']").setValue(data.period);
+			var columns = budgetTree.getView().headerCt.items.items;
+			columns[1].setText(columns[1].initialConfig.text + " (" + data.previousPeriod + ")");
+			columns[2].setText(columns[2].initialConfig.text + " (" + data.period + ")");
+			budgetTree.currentDate = data.date;	//ISO Date string, will be used as current reference when passing nextPeriod / previousPeriod
 		});
 	}
 });

@@ -21,14 +21,14 @@ public class Account extends Source {
 		super(json);
 		this.setAccountType(json.optString("accountType", null));
 		this.setStartBalance(FormatUtil.parseCurrency(json.optString("startBalance", null)));
-		this.setStartDate(FormatUtil.parseDate(json.optString("startDate", "1900-01-01")));
+		this.setStartDate(FormatUtil.parseDateInternal(json.optString("startDate", "1900-01-01")));
 	}
 	
 	public JSONObject toJson() throws JSONException {
 		JSONObject result = super.toJson();
 		result.put("startBalance", this.getStartBalance().toPlainString());
 		result.put("balance", this.getBalance().toPlainString());
-		result.put("startDate", FormatUtil.formatDateTime((Date) this.getStartDate()));
+		result.put("startDate", FormatUtil.formatDateTimeInternal((Date) this.getStartDate()));
 		result.put("accountType", this.getAccountType());
 		return result;
 	}
