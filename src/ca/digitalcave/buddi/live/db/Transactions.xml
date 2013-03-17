@@ -48,7 +48,10 @@
 		<if test="_parameter.containsKey('source')">
 			AND (s.from_source = #{source.id} OR s.to_source = #{source.id})
 		</if>
-		ORDER BY t.date, t.description, s.id
+		<if test="_parameter.containsKey('search') and search != null and !user.encrypted">
+			AND (LOWER(t.description) LIKE LOWER(#{search}) OR coalesce(t.number, '') LIKE LOWER(#{search}) OR coalesce(s.memo, '') LIKE LOWER(#{search}))
+		</if>
+		ORDER BY t.date DESC, t.description, s.id
 	</select>
 	
 	<select id="selectTransaction" resultMap="transaction">
@@ -83,8 +86,7 @@
 		WHERE 
 			(s.from_source = #{account.id} AND s.from_balance IS NULL) OR (s.to_source = #{account.id} AND s.to_balance IS NULL)
 			AND s.user_id = #{user.id}
-		ORDER BY 
-			t.date, t.description, s.id
+		ORDER BY t.date, t.description, s.id
 		FETCH FIRST 1 ROWS ONLY
 	</select>
 	
@@ -96,8 +98,7 @@
 		WHERE 
 			(s.from_source = #{account.id} OR s.to_source = #{account.id})
 			AND s.user_id = #{user.id}
-		ORDER BY 
-			t.date DESC, t.description DESC, s.id DESC
+		ORDER BY t.date DESC, t.description DESC, s.id DESC
 		FETCH FIRST 1 ROWS ONLY
 	</select>
 	
@@ -123,7 +124,7 @@
 			)
 			</if>
 		ORDER BY 
-			t.date, t.description, s.id
+			t.date DESC, t.description, s.id
 	</select>
 	
 	<insert id="insertTransaction">

@@ -43,11 +43,23 @@ public class TransactionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final Source source = sqlSession.getMapper(Sources.class).selectSource(user, Integer.parseInt(getQuery().getFirstValue("source")));
-			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, source);
+			final JSONArray filters = new JSONArray(getQuery().getFirstValue("filter"));
+			Integer sourceId = null;
+			String search = null;
+			
+			for (int i = 0; i < filters.length(); i++){
+				final JSONObject filter = filters.getJSONObject(i);
+				if ("source".equals(filter.getString("property"))) sourceId = filter.getInt("value");
+				else if ("search".equals(filter.getString("property"))) search = "%" + filter.getString("value") + "%";
+			}
+			final Source source = sqlSession.getMapper(Sources.class).selectSource(user, sourceId);
+			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, source, search);
+			final int start = Integer.parseInt(getQuery().getFirstValue("start", "0"));
+			final int limit = Integer.parseInt(getQuery().getFirstValue("limit", transactions.size() + ""));
 			
 			final JSONArray data = new JSONArray();
-			for (Transaction t : transactions) {
+			for (int i = start; i < Math.min(transactions.size(), start + limit); i++) {
+				final Transaction t = transactions.get(i);
 				final JSONObject transaction = new JSONObject();
 				transaction.put("id", t.getId());
 				transaction.put("date", FormatUtil.formatDateInternal(t.getDate()));
@@ -76,6 +88,7 @@ public class TransactionsResource extends ServerResource {
 			
 			final JSONObject result = new JSONObject();
 			result.put("data", data);
+			result.put("total", transactions.size());
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}

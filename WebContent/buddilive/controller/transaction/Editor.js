@@ -6,7 +6,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"transactionlist button[itemId='recordTransaction']": {"click": this.recordTransaction},
 			"transactionlist button[itemId='clearTransaction']": {"click": this.clearTransaction},
 			"transactionlist button[itemId='deleteTransaction']": {"click": this.deleteTransaction},
-			"transactionlist field": {
+			"transactioneditor field": {
 				"blur": this.validateFields,
 				"select": this.validateFields,
 				"keypress": this.validateFields,

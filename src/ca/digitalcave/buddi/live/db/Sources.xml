@@ -161,6 +161,9 @@
 		WHERE 
 			user_id = #{user.id}
 			AND period_type IS NOT NULL
+			<if test="!user.showDeleted">
+			AND deleted = 'N' 
+			</if>
 	</select>
 
 	<select id="selectSource" resultType="ca.digitalcave.buddi.live.model.Source">

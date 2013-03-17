@@ -12,6 +12,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.border = false;
 		this.stateId = "transactionlist";
 		this.stateful = true;
+		this.disabled = true;
 		this.viewConfig = {
 			"stripeRows": true
 		};
@@ -84,35 +85,41 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.dockedItems = [
 			{
 				"xtype": "toolbar",
-				"dock": "top",
+				"dock": "bottom",
 				"items": [
 					"->",
 					{
 						"xtype": "textfield",
+						"width": 200,
+						"itemId": "search",
 						"emptyText": "Search"	//TODO i18n
 					},
 					{
 						"xtype": "button",
+						"itemId": "searchButton",
 						"icon": "img/magnifier--arrow.png"
 					}
 				]
 			},
 			{
 				"xtype": "transactioneditor",
-				"dock": "bottom"
+				"dock": "top"
 			}
 		];
 		
 		this.callParent(arguments);
 		
 		this.getStore().addListener("load", function(store, records){
+			transactionList.enable();
+		
 			//TODO Clean this up a bit...
 			//transactionList.getView().focusRow(records.length - 1);
 			//transactionList.getSelectionModel().select(records[records.length - 1);
 			//transactionList.getView().scrollBy(0, -10000000, false);
 			//transactionList.getView().scrollBy(0, 10000000, false);
 			
-			//transactionList.down("datefield[itemId='date']").focus(true, 100);
+			//var dateField = transactionList.down("datefield[itemId='date']");
+			//if (Ext.FocusManager.focusedCmp.id != dateField.id) dateField.focus(true);
 		});
 	}
 });
