@@ -47,7 +47,8 @@ public class CategoriesResource extends ServerResource {
 			
 			final JSONArray data = new JSONArray();
 			for (Category c : categories) {
-				data.put(getJsonObject(c, cp, user));
+				final JSONObject category = getJsonObject(c, cp, user);
+				if (category != null) data.put(category);
 			}
 			
 			final JSONObject result = new JSONObject();
@@ -73,6 +74,7 @@ public class CategoriesResource extends ServerResource {
 	}
 	
 	private JSONObject getJsonObject(Category category, CategoryPeriod categoryPeriod, User user) throws JSONException, CryptoException {
+		if (category.isDeleted() && !user.isShowDeleted()) return null;
 		final JSONObject result = new JSONObject();
 		result.put("id", category.getId());
 		result.put("icon", "img/folder-open-table.png");
@@ -101,10 +103,13 @@ public class CategoriesResource extends ServerResource {
 		result.put("deleted", category.isDeleted());
 
 		if (category.getChildren() != null){
-			result.put("expanded", true);
 			for (Category child : category.getChildren()) {
-				result.append("children", getJsonObject(child, categoryPeriod, user));
+				final JSONObject c = getJsonObject(child, categoryPeriod, user);
+				if (c != null) result.append("children", c);
 			}
+		}
+		if (result.has("children")){
+			result.put("expanded", true);
 		}
 		else {
 			result.put("leaf", true);
