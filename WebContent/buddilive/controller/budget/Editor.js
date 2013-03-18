@@ -6,6 +6,7 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 			"budgeteditor component": {
 				"blur": this.updateButtons,
 				"select": this.updateButtons,
+				"afterrender": this.updateButtons,
 				"keyup": this.updateButtons
 			},
 			"budgeteditor button[itemId='ok']": {"click": this.ok},

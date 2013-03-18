@@ -31,7 +31,12 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"fieldLabel": "Name",	//TODO i18n
 						"allowBlank": false,
 						"enableKeyEvents": true,
-						"emptyText": "Salary, Groceries, Auto Insurance, etc"	//TODO i18n
+						"emptyText": "Salary, Groceries, Auto Insurance, etc",	//TODO i18n
+						"listeners": {
+							"afterrender": function(field) {
+								field.focus(false, 100);
+							}
+						}
 					},
 					{
 						"xtype": "parentcombobox",

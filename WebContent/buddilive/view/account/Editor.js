@@ -29,7 +29,13 @@ Ext.define('BuddiLive.view.account.Editor', {
 						"value": (s ? s.name : null),
 						"fieldLabel": "${translation("ACCOUNT_EDITOR_NAME")?json_string}",
 						"allowBlank": false,
-						"emptyText": "TD Savings, Visa Gold, Cash in Wallet, etc"	//TODO i18n
+						"enableKeyEvents": true,
+						"emptyText": "TD Savings, Visa Gold, Cash in Wallet, etc",	//TODO i18n
+						"listeners": {
+							"afterrender": function(field) {
+								field.focus(false, 100);
+							}
+						}
 					},
 					{
 						"xtype": "textfield",
@@ -37,6 +43,7 @@ Ext.define('BuddiLive.view.account.Editor', {
 						"value": (s ? s.accountType : null),
 						"fieldLabel": "${translation("ACCOUNT_EDITOR_TYPE")?json_string}",
 						"allowBlank": false,
+						"enableKeyEvents": true,
 						"emptyText": "Credit Card, Savings, etc"	//TODO i18n
 					},
 					{
