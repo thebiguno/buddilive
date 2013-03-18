@@ -169,6 +169,14 @@
 		WHERE id = #{split.id} AND user_id = #{user.id}
 	</update>
 	
+	<update id="updateSplitsClearBalances">
+		UPDATE splits
+		SET
+			from_balance = NULL,
+			to_balance = NULL
+		WHERE user_id = #{user.id}
+	</update>
+	
 	<delete id="deleteTransaction">
 		DELETE FROM transactions
 		WHERE id = #{transaction.id}

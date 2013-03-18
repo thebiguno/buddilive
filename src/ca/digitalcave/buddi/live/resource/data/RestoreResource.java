@@ -58,7 +58,7 @@ public class RestoreResource extends ServerResource {
 
 			restoreTransactions(request, user, sqlSession, sourceIDsByUUID);
 
-			DataUpdater.updateBalances(user, sqlSession);
+			DataUpdater.updateBalances(user, sqlSession, true);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

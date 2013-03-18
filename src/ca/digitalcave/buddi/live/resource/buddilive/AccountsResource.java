@@ -147,7 +147,7 @@ public class AccountsResource extends ServerResource {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			DataUpdater.updateBalances(user, sqlSession);
+			DataUpdater.updateBalances(user, sqlSession, true);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();
