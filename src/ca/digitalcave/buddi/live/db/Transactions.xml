@@ -35,7 +35,7 @@
 		<result column="to_type" property="toType"/>
 	</resultMap>
 	
-	<select id="selectTransactions" resultMap="transaction" resultOrdered="true">
+	<select id="selectTransactions" resultMap="transaction">
 		SELECT 
 			t.id t_id, t.uuid, t.user_id t_user_id, t.description, t.number, t.date, t.deleted, t.created t_created, t.modified t_modified, 
 			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance,
@@ -51,7 +51,7 @@
 		<if test="_parameter.containsKey('search') and search != null and !user.encrypted">
 			AND (LOWER(t.description) LIKE LOWER(#{search}) OR coalesce(t.number, '') LIKE LOWER(#{search}) OR coalesce(s.memo, '') LIKE LOWER(#{search}))
 		</if>
-		ORDER BY t.date DESC, t.description, s.id
+		ORDER BY t.date DESC, s.id DESC
 	</select>
 	
 	<select id="selectTransaction" resultMap="transaction">
@@ -69,13 +69,13 @@
 		WHERE user_id = #{user.id} AND uuid = #{uuid}
 	</select>
 
-	<select id="selectDescriptions" resultMap="transaction" resultOrdered="true">
+	<select id="selectDescriptions" resultMap="transaction">
 		SELECT 
 			t.id t_id, t.description, s.id s_id, s.amount, s.from_source, s.to_source
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		WHERE t.deleted = 'N' AND t.user_id = #{user.id}
-		ORDER BY t.date DESC, t.description, s.id
+		ORDER BY t.date DESC, s.id DESC
 	</select>
 	
 	<select id="selectEarliestSplitWithoutBalances" resultMap="split">
@@ -86,7 +86,7 @@
 		WHERE 
 			(s.from_source = #{account.id} AND s.from_balance IS NULL) OR (s.to_source = #{account.id} AND s.to_balance IS NULL)
 			AND s.user_id = #{user.id}
-		ORDER BY t.date, t.description, s.id
+		ORDER BY t.date, s.id
 		FETCH FIRST 1 ROWS ONLY
 	</select>
 	
@@ -98,11 +98,12 @@
 		WHERE 
 			(s.from_source = #{account.id} OR s.to_source = #{account.id})
 			AND s.user_id = #{user.id}
-		ORDER BY t.date DESC, t.description DESC, s.id DESC
+		ORDER BY t.date DESC, s.id DESC
 		FETCH FIRST 1 ROWS ONLY
 	</select>
 	
 	<select id="selectSplits" resultMap="split">
+		<!-- This is used by DataUpdater.updateBalances, and should not be changed unless you ensure the updater works.  In particular, the ORDER BY is essential in its current form. -->
 		SELECT
 			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance
 		FROM splits s
@@ -123,8 +124,7 @@
 				FETCH FIRST 1 ROWS ONLY
 			)
 			</if>
-		ORDER BY 
-			t.date DESC, t.description, s.id
+		ORDER BY t.date, s.id
 	</select>
 	
 	<insert id="insertTransaction">
