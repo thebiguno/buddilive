@@ -118,8 +118,9 @@ Ext.define('BuddiLive.view.transaction.List', {
 			//transactionList.getView().scrollBy(0, -10000000, false);
 			//transactionList.getView().scrollBy(0, 10000000, false);
 			
-			//var dateField = transactionList.down("datefield[itemId='date']");
-			//if (Ext.FocusManager.focusedCmp.id != dateField.id) dateField.focus(true);
+			var dateField = transactionList.down("datefield[itemId='date']");
+			//if (Ext.FocusManager.focusedCmp.id != dateField.id) 
+			dateField.focus(true);
 		});
 	}
 });
