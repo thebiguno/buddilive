@@ -105,7 +105,7 @@ Ext.define("BuddiLive.view.Viewport", {
 								"xtype": "transactionlist",
 								"region": "center"
 							}
-							<#if premium>
+							<#if !premium>
 							,{
 								"xtype": "panel",
 								"region": "north",
@@ -117,7 +117,7 @@ Ext.define("BuddiLive.view.Viewport", {
 										window.setInterval(function(){
 											var iframe = document.getElementById('adsensetop');
 											if (iframe != null) iframe.src += "";
-										}, 5000);
+										}, 1000 * 60 * 1);	//Reload every minute
 									}
 								}
 							}
