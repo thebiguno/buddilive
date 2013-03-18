@@ -114,7 +114,7 @@ public class DataUpdater {
 		}
 		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
 			t.setDescription(CryptoUtil.encrypt(t.getDescription(), encryptionKey));
-			t.setNumber(CryptoUtil.encrypt(t.getDescription(), encryptionKey));
+			t.setNumber(CryptoUtil.encrypt(t.getNumber(), encryptionKey));
 			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
 		}
 		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
