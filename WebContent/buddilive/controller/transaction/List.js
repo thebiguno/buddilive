@@ -4,7 +4,10 @@ Ext.define("BuddiLive.controller.transaction.List", {
 	"init": function() {
 		this.control({
 			"transactionlist": { "selectionchange": this.selectionChange },
-			"transactionlist button[itemId='searchButton']": { "click": this.clickSearch },
+			"transactionlist textfield[itemId='search']": {
+				"blue": this.search,
+				"specialkey": this.search
+			},
 			"accounttree button[itemId='add']": { "click": this.add }
 		});
 	},
@@ -29,11 +32,14 @@ Ext.define("BuddiLive.controller.transaction.List", {
 		
 	},
 	
-	"clickSearch": function(component) {
-		var transactionList = component.up("transactionlist");
-		var searchText = transactionList.down("textfield[itemId='search']");
-		transactionList.getStore().removeFilter("search");
-		if (searchText.getValue()) transactionList.getStore().addFilter({"property": "search", "value": searchText.getValue()});
-		transactionList.getStore().load();
+	"search": function(component, e) {
+		if (e.getKey == null || e.getKey() == e.ENTER){
+			var transactionList = component.up("transactionlist");
+			var searchText = transactionList.down("textfield[itemId='search']");
+			Ext.apply(transactionList.getStore().getProxy().extraParams, {
+				"search": searchText.getValue()
+			}); 
+			transactionList.getStore().load();
+		}
 	}
 });

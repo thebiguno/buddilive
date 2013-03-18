@@ -19,8 +19,8 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
-import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
@@ -43,23 +43,12 @@ public class TransactionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final JSONArray filters = new JSONArray(getQuery().getFirstValue("filter"));
-			Integer sourceId = null;
-			String search = null;
-			
-			for (int i = 0; i < filters.length(); i++){
-				final JSONObject filter = filters.getJSONObject(i);
-				if ("source".equals(filter.getString("property"))) sourceId = filter.getInt("value");
-				else if ("search".equals(filter.getString("property"))) search = "%" + filter.getString("value") + "%";
-			}
-			final Source source = sqlSession.getMapper(Sources.class).selectSource(user, sourceId);
-			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, source, search);
-			final int start = Integer.parseInt(getQuery().getFirstValue("start", "0"));
-			final int limit = Integer.parseInt(getQuery().getFirstValue("limit", transactions.size() + ""));
+			final Source source = sqlSession.getMapper(Sources.class).selectSource(user, Integer.parseInt(getQuery().getFirstValue("source")));
+			final String search = getQuery().getFirstValue("search", null);
+			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, source, search != null ? "%" + search + "%" : null);
 			
 			final JSONArray data = new JSONArray();
-			for (int i = start; i < Math.min(transactions.size(), start + limit); i++) {
-				final Transaction t = transactions.get(i);
+			for (Transaction t : transactions) {
 				final JSONObject transaction = new JSONObject();
 				transaction.put("id", t.getId());
 				transaction.put("date", FormatUtil.formatDateInternal(t.getDate()));

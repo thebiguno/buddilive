@@ -83,6 +83,9 @@ Ext.define('BuddiLive.view.transaction.List', {
 		];
 		
 		this.dockedItems = [
+			<#if !encrypted>
+			//We can only currently search on non-encrypted DBs.  Eventually we may add a fallback Java search implementation which runs against the decrypted
+			// data, but that will take a fair bit of CPU / memory, which I don't have at this time.
 			{
 				"xtype": "toolbar",
 				"dock": "bottom",
@@ -93,14 +96,10 @@ Ext.define('BuddiLive.view.transaction.List', {
 						"width": 200,
 						"itemId": "search",
 						"emptyText": "Search"	//TODO i18n
-					},
-					{
-						"xtype": "button",
-						"itemId": "searchButton",
-						"icon": "img/magnifier--arrow.png"
 					}
 				]
 			},
+			</#if>
 			{
 				"xtype": "transactioneditor",
 				"dock": "top"
@@ -110,17 +109,11 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.callParent(arguments);
 		
 		this.getStore().addListener("load", function(store, records){
+			//We start the transaction list disabled, for now.  Unsure if this will stay.
 			transactionList.enable();
 		
-			//TODO Clean this up a bit...
-			//transactionList.getView().focusRow(records.length - 1);
-			//transactionList.getSelectionModel().select(records[records.length - 1);
-			//transactionList.getView().scrollBy(0, -10000000, false);
-			//transactionList.getView().scrollBy(0, 10000000, false);
-			
-			var dateField = transactionList.down("datefield[itemId='date']");
-			//if (Ext.FocusManager.focusedCmp.id != dateField.id) 
-			dateField.focus(true);
+			//var dateField = transactionList.down("datefield[itemId='date']");
+			//dateField.focus(true);
 		});
 	}
 });
