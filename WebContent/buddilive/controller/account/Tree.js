@@ -22,8 +22,9 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		
 		if (selectedType == "account"){
 			var transactionList = panel.down("transactionlist");
-			//transactionList.getStore().removeFilter("source");
-			transactionList.getStore().addFilter({"property": "source", "value": selectedItem.id});
+			Ext.apply(transactionList.getStore().getProxy().extraParams, {
+				"source": selectedItem.id
+			}); 
 			transactionList.getStore().load();
 			transactionList.down("transactioneditor").setTransaction();
 		}
