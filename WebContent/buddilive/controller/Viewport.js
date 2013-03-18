@@ -42,7 +42,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 		}).show();
 	},
 	"deleteAccount": function(component){
-		var grid = component.up("buddiviewport").down("accounttree");
+		var viewport = component.up("buddiviewport");
+		var grid = viewport.down("accounttree");
 		var selected = grid.getSelectionModel().getSelection()[0].raw;
 		
 		if (selected == null) return;
@@ -50,6 +51,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 		if (selected.deleted){
 			var request = {"action": "undelete", "id": selected.id};
 			var conn = new Ext.data.Connection();
+			var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
+			mask.show();
 			conn.request({
 				"url": "buddilive/accounts",
 				"headers": {
@@ -58,22 +61,26 @@ Ext.define("BuddiLive.controller.Viewport", {
 				"method": "POST",
 				"jsonData": request,
 				"success": function(response){
+					mask.hide();
 					window.close();
 					grid.getStore().reload();
 				},
 				"failure": function(response){
+					mask.hide();
 					BuddiLive.app.error(response);
 				}
 			});
 		}
 		else {
 			Ext.MessageBox.show({
-				"title": "Delete Account",
-				"msg": "Are you sure you want to delete this account?",	//TODO i18n
+				"title": "${translation("DELETE_ACCOUNT")?json_string}",
+				"msg": "${translation("CONFIRM_DELETE_ACCOUNT")?json_string}",
 				"buttons": Ext.MessageBox.YESNO,
 				"fn": function(buttonId){
 					var request = {"action": "delete", "id": selected.id};
 					var conn = new Ext.data.Connection();
+					var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
+					mask.show();
 					conn.request({
 						"url": "buddilive/accounts",
 						"headers": {
@@ -82,10 +89,12 @@ Ext.define("BuddiLive.controller.Viewport", {
 						"method": "POST",
 						"jsonData": request,
 						"success": function(response){
+							mask.hide();
 							window.close();
 							grid.getStore().reload();
 						},
 						"failure": function(response){
+							mask.hide();
 							BuddiLive.app.error(response);
 						}
 					});
@@ -109,28 +118,67 @@ Ext.define("BuddiLive.controller.Viewport", {
 		}).show();
 	},
 	"deleteCategory": function(component){
-		var panel = component.up("buddiviewport").down("budgetpanel");
+		var viewport = component.up("buddiviewport");
+		var panel = viewport.down("budgetpanel");
 		var budgetTrees = Ext.ComponentQuery.query("budgettree", panel);
 		
 		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+
+		if (selected == null) return;
 		
-		var request = {"action": selected.deleted ? "undelete" : "delete", "id": selected.id};
-		var conn = new Ext.data.Connection();
-		conn.request({
-			"url": "buddilive/categories",
-			"headers": {
-				"Accept": "application/json"
-			},
-			"method": "POST",
-			"jsonData": request,
-			"success": function(response){
-				window.close();
-				panel.fireEvent("reload", panel);
-			},
-			"failure": function(response){
-				BuddiLive.app.error(response);
-			}
-		});
+		if (selected.deleted){
+			var request = {"action": "undelete", "id": selected.id};
+			var conn = new Ext.data.Connection();
+			var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
+			mask.show();
+			conn.request({
+				"url": "buddilive/categories",
+				"headers": {
+					"Accept": "application/json"
+				},
+				"method": "POST",
+				"jsonData": request,
+				"success": function(response){
+					mask.hide();
+					window.close();
+					panel.fireEvent("reload", panel);
+				},
+				"failure": function(response){
+					mask.hide();
+					BuddiLive.app.error(response);
+				}
+			});
+		}
+		else {
+			Ext.MessageBox.show({
+				"title": "${translation("DELETE_CATEGORY")?json_string}",
+				"msg": "${translation("CONFIRM_DELETE_CATEGORY")?json_string}",
+				"buttons": Ext.MessageBox.YESNO,
+				"fn": function(buttonId){
+					var request = {"action": "delete", "id": selected.id};
+					var conn = new Ext.data.Connection();
+					var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
+					mask.show();
+					conn.request({
+						"url": "buddilive/categories",
+						"headers": {
+							"Accept": "application/json"
+						},
+						"method": "POST",
+						"jsonData": request,
+						"success": function(response){
+							mask.hide();
+							window.close();
+							panel.fireEvent("reload", panel);
+						},
+						"failure": function(response){
+							mask.hide();
+							BuddiLive.app.error(response);
+						}
+					});
+				}
+			});
+		}
 	},
 	
 	"editPreferences": function(component){
