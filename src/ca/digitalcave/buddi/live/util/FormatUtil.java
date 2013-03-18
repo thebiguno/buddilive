@@ -14,6 +14,7 @@ import ca.digitalcave.buddi.live.model.User;
 
 public class FormatUtil {
 	public static String HTML_RED = "#dd2222";
+	public static String HTML_DISABLED_RED = "#886666";
 	public static String HTML_GRAY = "#bbbbbb";
 	
 	public static String formatDateTimeInternal(Date date){
