@@ -28,6 +28,7 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 						"listeners": {
 							"change": function(checkbox){
 								checkbox.up("form").down("textfield[itemId='password']").setVisible(d.encrypt != checkbox.getValue());
+								checkbox.up("form").down("textfield[itemId='password']").focus(true);
 							}
 						}
 					},
