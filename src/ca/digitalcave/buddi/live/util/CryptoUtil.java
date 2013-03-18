@@ -33,6 +33,7 @@ public class CryptoUtil {
 	}
 	
 	public static String encrypt(String value, String password) throws CryptoException {
+		if (value == null) return null;
 		final int saltLength = DEFAULT_SALT_LENGTH;
 		final int iterations = DEFAULT_ITERATIONS;
 		
