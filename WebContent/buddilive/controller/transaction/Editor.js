@@ -32,9 +32,12 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	
 	"recordTransaction": function(component){
 		var editor = component.up("transactioneditor");
+		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": editor});
+		mask.show();
 		
 		var request = editor.getTransaction();
 		if (request.date == null || request.description == null || request.splits.length == 0){
+			mask.hide();
 			return;
 		}
 		request.action = (request.id ? "update" : "insert");
@@ -51,11 +54,14 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
+				mask.hide();
 				editor.setTransaction();
 				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
 				editor.up("transactionlist").getStore().reload();
+				editor.down("datefield[itemId='date']").focus(true);
 			},
 			"failure": function(response){
+				mask.hide();
 				BuddiLive.app.error(response);
 			}
 		});
