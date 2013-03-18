@@ -14,10 +14,10 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		panel.down("button[itemId='editAccount']").setDisabled(selectedType != "account");
 		panel.down("button[itemId='deleteAccount']").setDisabled(selectedType != "account");
 		if (selectedType == "account" && selected[0].raw.deleted){
-			panel.down("button[itemId='deleteAccount']").setTooltip("Undelete Account");	//TODO i18n
+			panel.down("button[itemId='deleteAccount']").setText("Undelete Account");	//TODO i18n
 		}
 		else {
-			panel.down("button[itemId='deleteAccount']").setTooltip("Delete Account");	//TODO i18n
+			panel.down("button[itemId='deleteAccount']").setText("Delete Account");	//TODO i18n
 		}
 		
 		if (selectedType == "account"){
