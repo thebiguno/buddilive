@@ -75,7 +75,7 @@ public class AccountsResource extends ServerResource {
 						account.put("name", CryptoUtil.decryptWrapper(a.getName(), user));
 						account.put("balance", FormatUtil.formatCurrency(a.isDebit() ? a.getBalance() : a.getBalance().negate()));
 						account.put("type", a.getType());
-						account.put("accountType", a.getAccountType());
+						account.put("accountType", CryptoUtil.decryptWrapper(a.getAccountType(), user));
 						account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance()));
 						account.put("debit", a.isDebit());
 						account.put("deleted", a.isDeleted());
