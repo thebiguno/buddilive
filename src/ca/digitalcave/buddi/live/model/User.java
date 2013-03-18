@@ -132,6 +132,11 @@ public class User extends org.restlet.security.User {
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
+	public String getExtDateFormat(){
+		//Auto converts from Java format to EXT JS (PHP) format
+		if (dateFormat == null) return null;
+		return dateFormat.replaceAll("yyyy", "Y").replaceAll("dd", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
+	}
 	public String getDateFormat() {
 		return dateFormat;
 	}
