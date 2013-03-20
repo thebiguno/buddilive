@@ -104,7 +104,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		transaction = (transaction ? transaction : {});
 		
 		if (!loadFromDescription) this.down("hidden[itemId='id']").setValue(transaction.id);
-		if (!loadFromDescription && transaction && transaction.date) this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.date, "Y-m-d", true));
+		if (!loadFromDescription && transaction && transaction.date) this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.dateIso, "Y-m-d", true));
 		if (!loadFromDescription) this.down("combobox[itemId='description']").setValue(transaction.description);
 		if (!loadFromDescription) this.down("textfield[itemId='number']").setValue(transaction.number);
 	

@@ -51,7 +51,8 @@ public class TransactionsResource extends ServerResource {
 			for (Transaction t : transactions) {
 				final JSONObject transaction = new JSONObject();
 				transaction.put("id", t.getId());
-				transaction.put("date", FormatUtil.formatDateInternal(t.getDate()));
+				transaction.put("date", FormatUtil.formatDate(t.getDate(), user));
+				transaction.put("dateIso", FormatUtil.formatDateInternal(t.getDate()));
 				transaction.put("description", CryptoUtil.decryptWrapper(t.getDescription(), user));
 				transaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
 				transaction.put("deleted", t.isDeleted());
