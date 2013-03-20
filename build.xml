@@ -10,6 +10,7 @@
 	<property name="PROJECT_SHORT_NAME" value="buddi-web"/>
 
 	<path id="classpath">
+		<fileset dir="lib" includes="*.jar"/>
 		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar"/>
 	</path>
 
@@ -42,10 +43,7 @@
 			</fileset>
 		</copy>
 		<copy filtering="true" todir="build/temp/" overwrite="true">
-			<fileset file="WebContent/WEB-INF/classes/logging.properties"/>
-		</copy>
-		<copy filtering="true" todir="build/temp/" overwrite="true">
-			<fileset file="conf/${conf}/sieve.properties"/>
+			<fileset file="conf/${conf}.properties"/>
 		</copy>
 
 		<echo append="false" file="build/temp/version.properties">VERSION=${git}</echo>

@@ -1,0 +1,6 @@
+#Sample for Postgresql connection.  Change the connection details as needed for your server.
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://localhost/buddilive
+db.user=buddilive
+db.password=password
+db.query=select 1
