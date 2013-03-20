@@ -134,10 +134,10 @@ public class User extends org.restlet.security.User {
 	}
 	public String getExtDateFormat(){
 		//Auto converts from Java format to EXT JS (PHP) format
-		if (dateFormat == null) return null;
-		return dateFormat.replaceAll("yyyy", "Y").replaceAll("dd", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
+		return getDateFormat().replaceAll("yyyy", "Y").replaceAll("dd", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
 	}
 	public String getDateFormat() {
+		if (dateFormat == null) return "yyyy-MM-dd";
 		return dateFormat;
 	}
 	public void setDateFormat(String dateFormat) {
