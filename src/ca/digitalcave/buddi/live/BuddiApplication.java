@@ -104,8 +104,8 @@ public class BuddiApplication extends Application{
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(p.getProperty("db.driver"));
 		ds.setJdbcUrl(p.getProperty("db.url"));
-//		ds.setUser(p.getProperty("db.user"));
-//		ds.setPassword(p.getProperty("db.password"));
+		ds.setUser(p.getProperty("db.user"));
+		ds.setPassword(p.getProperty("db.password"));
 		ds.setPreferredTestQuery(p.getProperty("db.query"));
 		ds.setTestConnectionOnCheckin(false);
 		ds.setTestConnectionOnCheckout(true);
@@ -134,7 +134,7 @@ public class BuddiApplication extends Application{
 
 		setStatusService(new BuddiStatusService());
 
-		Migration.migrate(sqlSessionFactory, p.getProperty("db.schema", "buddi"));
+		Migration.migrate(sqlSessionFactory);
 
 		super.start();
 	}
