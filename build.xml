@@ -32,20 +32,12 @@
 	<target name="bundle-war">
 		<mkdir dir="build/dist"/>
 		<mkdir dir="build/temp"/>
-		<mkdir dir="build/temp/WebContent"/>
 
 		<filter token="git" value="${git}"/>
 		<filter token="environment" value="${war-name}"/>
 		
-		<copy filtering="true" todir="build/temp" overwrite="true">
-			<fileset dir="WebContent/WEB-INF">
-				<include name="web.xml"/>
-			</fileset>
-		</copy>
-		<copy filtering="true" todir="build/temp/" overwrite="true">
-			<fileset file="conf/${conf}.properties"/>
-		</copy>
-
+		<copy filtering="true" file="WebContent/WEB-INF/web.xml" tofile="build/temp/web.xml" overwrite="true"/>
+		<copy filtering="true" file="conf/${conf}.properties" tofile="build/temp/buddi.properties" overwrite="true"/>
 		<echo append="false" file="build/temp/version.properties">VERSION=${git}</echo>
 		
 		<war destfile="build/dist/${war-name}.war" webxml="build/temp/web.xml">
@@ -58,12 +50,9 @@
 			<classes dir="build/temp">
 				<include name="*.properties"/>
 			</classes>
-			<webinf dir="WebContent/WEB-INF">
+			<webinf dir="build/temp">
 				<include name="**/*"/>
-				<exclude name="classes/**"/>
-				<exclude name="lib/**"/>
 				<exclude name="web.xml"/>
-				<exclude name="WEB-INF/lib"/>
 			</webinf>
 			<zipfileset dir="WebContent">
 				<include name="*/**"/>
@@ -78,13 +67,9 @@
 		<jar destfile="build/lib/${PROJECT_SHORT_NAME}-${git}.jar">
 			<fileset dir="build/classes">
 				<include name="**/*"/>
-				<exclude name="pf-config.properties"/>
-				<exclude name="pf-printer-config.txt"/>
 			</fileset>
 			<fileset dir="src">
 				<include name="**/*"/>
-				<exclude name="pf-config.properties"/>
-				<exclude name="pf-printer-config.txt"/>
 			</fileset>
 		</jar>
 	</target>
