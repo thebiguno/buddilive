@@ -39,7 +39,12 @@ Ext.define('BuddiLive.view.login.Panel', {
 						"xtype": "textfield",
 						"allowBlank": false,
 						"itemId": "identifier",
-						"fieldLabel": "Username"	//TODO i18n
+						"fieldLabel": "Username",	//TODO i18n
+						"listeners": {
+							"afterrender": function(component){
+								component.focus();
+							}
+						}
 					},
 					{
 						"xtype": "textfield",
