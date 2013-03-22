@@ -28,8 +28,8 @@ import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class BuddiVerifier implements Verifier {
 	
-	public final static String COOKIE_NAME = "buddi";
-	public final static String COOKIE_PASSWORD = "changeme";
+	public final static String COOKIE_NAME = "buddi-live";
+	public static String COOKIE_PASSWORD;	//Set from BuddiApplication.start()
 	public final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
 	
 	private BuddiApplication application;

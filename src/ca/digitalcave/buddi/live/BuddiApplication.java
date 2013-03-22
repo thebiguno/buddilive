@@ -35,7 +35,9 @@ import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.resource.data.UsersDataResource;
 import ca.digitalcave.buddi.live.security.AddressFilter;
 import ca.digitalcave.buddi.live.security.BuddiAuthenticator;
+import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.service.BuddiStatusService;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -99,6 +101,7 @@ public class BuddiApplication extends Application{
 	public synchronized void start() throws Exception {
 		final Properties p = new Properties();
 		p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
+		BuddiVerifier.COOKIE_PASSWORD = p.getProperty("verifierEncryptionKey", new String(CryptoUtil.getSecureRandom(64)));
 		final ComboPooledDataSource ds;
 
 		ds = new ComboPooledDataSource();
