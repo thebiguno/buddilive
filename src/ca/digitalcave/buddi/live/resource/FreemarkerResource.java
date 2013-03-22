@@ -22,7 +22,7 @@ public class FreemarkerResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final User user = (User) getRequest().getClientInfo().getUser();
 		
-		final TemplateRepresentation result = new TemplateRepresentation(getRequest().getOriginalRef().getPath(), application.getFreemarkerConfiguration(), user, variant.getMediaType());
+		final TemplateRepresentation result = new TemplateRepresentation(getRequest().getOriginalRef().getPath().replaceAll("^" + getRequest().getRootRef().getPath(), ""), application.getFreemarkerConfiguration(), user, variant.getMediaType());
 		//result.getTemplate().setDateFormat(dateFormat);	//TODO pass in user's date format
 		return result;
 	}

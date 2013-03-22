@@ -1,4 +1,5 @@
+.DS_Store
 /build/
 /db/
 /derby.log
-/conf/server.properties
+/conf/server-config.properties

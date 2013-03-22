@@ -193,13 +193,13 @@ public class User extends org.restlet.security.User {
 	}
 	
 	public ResourceBundle getTranslation(){
-		if (locale == null) return ResourceBundle.getBundle("buddi");
+		if (locale == null) return ResourceBundle.getBundle("i18n");
 		
 		final String[] splitLocale = locale.split("_");
-		if (splitLocale.length == 0) return ResourceBundle.getBundle("buddi");
-		else if (splitLocale.length == 1) return ResourceBundle.getBundle("buddi", new Locale(splitLocale[0]));
-		else if (splitLocale.length == 2) return ResourceBundle.getBundle("buddi", new Locale(splitLocale[0], splitLocale[1]));
-		else return ResourceBundle.getBundle("buddi", new Locale(splitLocale[0], splitLocale[1], splitLocale[2]));
+		if (splitLocale.length == 0) return ResourceBundle.getBundle("i18n");
+		else if (splitLocale.length == 1) return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0]));
+		else if (splitLocale.length == 2) return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0], splitLocale[1]));
+		else return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0], splitLocale[1], splitLocale[2]));
 	}
 	
 	@Override

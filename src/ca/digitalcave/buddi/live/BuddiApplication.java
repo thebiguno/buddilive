@@ -17,7 +17,7 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
-import ca.digitalcave.buddi.live.db.migrate.Migration;
+import ca.digitalcave.buddi.live.db.liquibase.Migration;
 import ca.digitalcave.buddi.live.resource.FreemarkerResource;
 import ca.digitalcave.buddi.live.resource.IndexResource;
 import ca.digitalcave.buddi.live.resource.buddilive.AccountsResource;
@@ -98,7 +98,7 @@ public class BuddiApplication extends Application{
 
 	public synchronized void start() throws Exception {
 		final Properties p = new Properties();
-		p.load(new ClientResource(getContext(), "war:///WEB-INF/buddi.properties").get().getStream());
+		p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
 		final ComboPooledDataSource ds;
 
 		ds = new ComboPooledDataSource();
@@ -134,7 +134,7 @@ public class BuddiApplication extends Application{
 
 		setStatusService(new BuddiStatusService());
 
-		Migration.migrate(sqlSessionFactory);
+		Migration.migrate(sqlSessionFactory, getContext());
 
 		super.start();
 	}

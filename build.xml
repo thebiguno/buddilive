@@ -17,7 +17,7 @@
 	<target name="war-buddi" depends="jar" description="Build Buddi Web server instance">
 		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
 			<param name="conf" value="server"/>
-			<param name="war-name" value="buddi-web"/>
+			<param name="war-name" value="buddi-live"/>
 		</antcall>
 	</target>
 
@@ -31,28 +31,30 @@
 
 	<target name="bundle-war">
 		<mkdir dir="build/dist"/>
-		<mkdir dir="build/temp"/>
 
 		<filter token="git" value="${git}"/>
 		<filter token="environment" value="${war-name}"/>
 		
 		<copy filtering="true" file="WebContent/WEB-INF/web.xml" tofile="build/temp/web.xml" overwrite="true"/>
-		<copy filtering="true" file="conf/${conf}.properties" tofile="build/temp/buddi.properties" overwrite="true"/>
+		<copy filtering="true" file="WebContent/WEB-INF/liquibase/master.xml" tofile="build/temp/liquibase/master.xml" overwrite="true"/>
+		<copy filtering="true" file="conf/${conf}-config.properties" tofile="build/temp/config.properties" overwrite="true"/>
 		<echo append="false" file="build/temp/version.properties">VERSION=${git}</echo>
 		
 		<war destfile="build/dist/${war-name}.war" webxml="build/temp/web.xml">
-			<lib dir="WebContent/WEB-INF/lib">
-				<include name="*.jar"/>
-			</lib>
-			<lib dir="build/lib">
-				<include name="*.jar"/>
-			</lib>
+			<classes dir="WebContent/WEB-INF/classes">
+				<include name="*.properties"/>
+			</classes>
 			<classes dir="build/temp">
 				<include name="*.properties"/>
 			</classes>
+			<lib dir="WebContent/WEB-INF/lib">
+				<include name="*.jar"/>
+			</lib>
+			<lib dir="build/temp/lib">
+				<include name="*.jar"/>
+			</lib>
 			<webinf dir="build/temp">
-				<include name="**/*"/>
-				<exclude name="web.xml"/>
+				<include name="liquibase/**"/>
 			</webinf>
 			<zipfileset dir="WebContent">
 				<include name="*/**"/>
@@ -63,9 +65,9 @@
 	</target>	
 
 	<target name="jar" depends="compile">
-		<mkdir dir="build/lib"/>
-		<jar destfile="build/lib/${PROJECT_SHORT_NAME}-${git}.jar">
-			<fileset dir="build/classes">
+		<mkdir dir="build/temp/lib"/>
+		<jar destfile="build/temp/lib/${PROJECT_SHORT_NAME}-${git}.jar">
+			<fileset dir="build/temp/bin">
 				<include name="**/*"/>
 			</fileset>
 			<fileset dir="src">
@@ -75,13 +77,13 @@
 	</target>
 
 	<target name="compile" depends="clean">
-		<mkdir dir="build/classes"/>
+		<mkdir dir="build/temp/bin"/>
 		<javac
 			target="1.5"
 			source="1.5" 
 			optimize="true" 
 			includes="**/*.java" 
-			destdir="build/classes" 
+			destdir="build/temp/bin" 
 			debug="true" 
 			debuglevel="lines,vars,source" 
 			classpathref="classpath">
@@ -89,8 +91,9 @@
 		</javac>
 	</target>
 
-	<target name="clean" description="Removes all files from build directory">
-		<delete dir="build"/>
+	<target name="clean" description="Removes all files from temp directory">
+		<delete dir="build/dist"/>
+		<delete dir="build/temp"/>
 	</target>
 
 </project>
