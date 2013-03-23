@@ -1,13 +1,16 @@
 <?xml version="1.0"?>
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Buddi Web" basedir="." default="war-buddi">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Buddi Live" basedir="." default="war-buddi">
 	<exec outputproperty="git" executable="git">
 		<arg value="describe"/>
 		<arg value="--long"/>
 		<arg value="--tags"/>
 	</exec>
-
+	<tstamp>
+		<format property="timestamp" pattern="yyyy-MM-dd hh:mm"/>
+	</tstamp>
+	
 	<!-- Set up all the project specific properties -->
-	<property name="PROJECT_SHORT_NAME" value="buddi-web"/>
+	<property name="PROJECT_SHORT_NAME" value="buddi-live"/>
 
 	<path id="classpath">
 		<fileset dir="lib" includes="*.jar"/>
@@ -38,11 +41,11 @@
 		<copy filtering="true" file="WebContent/WEB-INF/web.xml" tofile="build/temp/web.xml" overwrite="true"/>
 		<copy filtering="true" file="WebContent/WEB-INF/liquibase/master.xml" tofile="build/temp/liquibase/master.xml" overwrite="true"/>
 		<copy filtering="true" file="conf/${conf}-config.properties" tofile="build/temp/config.properties" overwrite="true"/>
-		<echo append="false" file="build/temp/version.properties">VERSION=${git}</echo>
+		<echo append="false" file="build/temp/version.properties">BUILD_DATE=${timestamp}${line.separator}VERSION=${git}</echo>
 		
 		<war destfile="build/dist/${war-name}.war" webxml="build/temp/web.xml">
 			<classes dir="WebContent/WEB-INF/classes">
-				<include name="*.properties"/>
+				<include name="i18n*.properties"/>
 			</classes>
 			<classes dir="build/temp">
 				<include name="*.properties"/>

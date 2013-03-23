@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.live.model;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -210,7 +209,7 @@ public class User extends org.restlet.security.User {
 			try {
 				systemProperties.load(User.class.getResourceAsStream("/version.properties"));
 			}
-			catch (IOException e){
+			catch (Throwable e){
 				;	//This will allways happen on development systems
 			}
 		}
