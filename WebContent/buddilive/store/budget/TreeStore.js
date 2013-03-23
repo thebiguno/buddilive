@@ -15,5 +15,5 @@ Ext.define("BuddiLive.store.budget.TreeStore", {
 		};
 		this.autoload = true;
 		this.callParent(config);
-	},
+	}
 });
