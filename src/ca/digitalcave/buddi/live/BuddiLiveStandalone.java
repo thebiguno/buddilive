@@ -14,7 +14,7 @@ public class BuddiLiveStandalone {
 	public static void main(String[] args) throws Exception {
 		final Server server = new Server(8080);
 		final URL warUrl = new File("WebContent").toURI().toURL(); 
-		final WebAppContext context = new WebAppContext(warUrl.toExternalForm(), "/buddi-live");
+		final WebAppContext context = new WebAppContext(warUrl.toExternalForm(), "/");
 		
 		context.setClassLoader(BuddiLiveStandalone.class.getClassLoader());
 		server.setHandler(context);

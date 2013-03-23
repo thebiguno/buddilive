@@ -1,9 +1,10 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>Buddi Live</title>	<!-- TODO i18n -->
-		<link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all-gray.css">
-		<link rel="icon" type="image/png" href="img/favicon.png"/>
+		<link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all-gray.css"></link>
+		<link rel="icon" type="image/png" href="img/favicon.png"></link>
 		<script type="text/javascript" src="extjs/bootstrap.js"></script>
 		<script type="text/javascript">
 			Ext.Loader.require([
@@ -32,10 +33,14 @@
 				<p>WARNING: This is an alpha quality, pre-production system.  It is suitable for testing and evaluation, but the database WILL BE DELETED multiple times before it is ready for production.  Feel free to enter data as desired, but be aware that any data you enter here will be lost over the coming days / weeks.</p>
 				<p>Please <a href="mailto:buddilive@digitalcave.ca">contact me</a> if you have comments or suggestions on the design, layout, etc.</p>
 			</div>
-			<div id="form" style="width: 400px; margin-top: 50px; margin-left: auto; margin-right: auto; "></div>
-			<div style="width: 128px; margin-top: 50px; margin-left: auto; margin-right: auto; "><img src="img/logo.png"/></div>
+			<div id="form" style="width: 400px; height: 200px; margin-top: 50px; margin-left: auto; margin-right: auto; "></div>
+			<div style="width: 128px; height: 128px; margin-top: 50px; margin-left: auto; margin-right: auto; "><img src="img/logo.png"/></div>
 		</div>
-		<div style="width: 100%; height: 2em; border-top: 1px solid black; text-align: right; padding-right: 50px;">&copy; Wyatt Olson  <a href='http://digitalcave.ca'>http://digitalcave.ca</a></div>
+		<div style="width: 100%; height: 2em; border-top: 1px solid black; text-align: right; padding-right: 50px; ">
+			&copy; Wyatt Olson  <a href='http://digitalcave.ca'>http://digitalcave.ca</a>
+			<br/>
+			Build Date: ${systemProperties("BUILD_DATE")!'N/A'}; Version ${systemProperties("VERSION")!'N/A'}
+		</div>
 	</body>
 </html>
 

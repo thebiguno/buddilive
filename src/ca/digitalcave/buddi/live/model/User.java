@@ -1,7 +1,9 @@
 package ca.digitalcave.buddi.live.model;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -31,6 +33,7 @@ public class User extends org.restlet.security.User {
 	private Date modified;
 	
 	private boolean authenticated = false;
+	private Properties systemProperties;
 	
 	public User() {
 	}
@@ -200,6 +203,18 @@ public class User extends org.restlet.security.User {
 		else if (splitLocale.length == 1) return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0]));
 		else if (splitLocale.length == 2) return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0], splitLocale[1]));
 		else return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0], splitLocale[1], splitLocale[2]));
+	}
+	public Properties getSystemProperties(){
+		if (systemProperties == null){
+			systemProperties = new Properties();
+			try {
+				systemProperties.load(User.class.getResourceAsStream("/version.properties"));
+			}
+			catch (IOException e){
+				;	//This will allways happen on development systems
+			}
+		}
+		return systemProperties;
 	}
 	
 	@Override
