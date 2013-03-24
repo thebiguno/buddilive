@@ -41,16 +41,19 @@ public class IndexResource extends ServerResource {
 			return new EmptyRepresentation();
 		}
 		
+		final BuddiApplication application = (BuddiApplication) getApplication();
+		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
-			final BuddiApplication application = (BuddiApplication) getApplication();
-			final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 			final User user = (User) getRequest().getClientInfo().getUser();
 
-			//Check for outstanding scheduled transactions
-			DataUpdater.updateScheduledTransactions(user, sqlSession);
-
-			final TemplateRepresentation result = new TemplateRepresentation(user.isAuthenticated() ? "index.html" : "login.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
-			return result;
+			if (user.isAuthenticated()){
+				//Check for outstanding scheduled transactions
+				DataUpdater.updateScheduledTransactions(user, sqlSession);
+				return new TemplateRepresentation("index.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
+			}
+			else {
+				return new TemplateRepresentation("login.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
+			}
 		}
 		catch (CryptoException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -59,7 +62,7 @@ public class IndexResource extends ServerResource {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {
-			
+			sqlSession.close();
 		}
 	}
 	
