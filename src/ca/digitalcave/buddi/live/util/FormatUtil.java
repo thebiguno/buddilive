@@ -90,6 +90,9 @@ public class FormatUtil {
 	public static String formatRed(){
 		return "color: " + FormatUtil.HTML_RED + ";";
 	}
+	public static String formatGray(){
+		return "color: " + FormatUtil.HTML_GRAY + ";";
+	}
 	
 	public static boolean isRed(Source s){
 		if (s instanceof Account){

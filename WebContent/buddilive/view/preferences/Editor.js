@@ -92,7 +92,6 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 						"queryMode": "local",
 						"valueField": "value"
 					},
-					
 					{
 						"xtype": "combobox",
 						"itemId": "currencySymbol",

@@ -9,18 +9,36 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.preferences.Editor",
 		"BuddiLive.view.report.Panel",
 		"BuddiLive.view.transaction.List",
-		"BuddiLive.view.transaction.Editor"
+		"BuddiLive.view.transaction.Editor",
+		"BuddiLive.view.transaction.scheduled.List"
 	],	
 	"initComponent": function() {
-		this.layout = "fit";
+		this.layout = "border";
 		this.height = "100%";
 		this.width = "100%";
 		this.items = [
+			<#if !premium>
+			{
+				"xtype": "panel",
+				"region": "north",
+				"height": 60,
+				"border": false,
+				"html": "<iframe id='adsensetop' src='buddilive/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe>",
+				"listeners": {
+					"afterrender": function(){
+						window.setInterval(function(){
+							var iframe = document.getElementById('adsensetop');
+							if (iframe != null) iframe.src += "";
+						}, 1000 * 60 * 1);	//Reload every minute
+					}
+				}
+			},
+			</#if>
 			{
 				"xtype": "tabpanel",
 				"itemId": "budditabpanel",
 				"layout": "fit",
-				"region": "west",
+				"region": "center",
 				"dockedItems": [
 					{
 						"xtype": "toolbar",
@@ -73,6 +91,11 @@ Ext.define("BuddiLive.view.Viewport", {
 							" ",
 							</#if>
 							{
+								"text": "${translation("SCHEDULED_TRANSACTIONS")?json_string}",
+								"icon": "img/gear.png",
+								"itemId": "editScheduledTransactions"
+							},
+							{
 								"text": "${translation("PREFERENCES")?json_string}",
 								"icon": "img/gear.png",
 								"itemId": "preferences"
@@ -105,23 +128,6 @@ Ext.define("BuddiLive.view.Viewport", {
 								"xtype": "transactionlist",
 								"region": "center"
 							}
-							<#if !premium>
-							,{
-								"xtype": "panel",
-								"region": "north",
-								"height": 60,
-								"border": false,
-								"html": "<iframe id='adsensetop' src='buddilive/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe>",
-								"listeners": {
-									"afterrender": function(){
-										window.setInterval(function(){
-											var iframe = document.getElementById('adsensetop');
-											if (iframe != null) iframe.src += "";
-										}, 1000 * 60 * 1);	//Reload every minute
-									}
-								}
-							}
-							</#if>
 						]
 					},
 					{

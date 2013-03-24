@@ -27,6 +27,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.DescriptionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.EntriesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ParentsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.PeriodsResource;
+import ca.digitalcave.buddi.live.resource.buddilive.ScheduledTransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.SourcesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
@@ -71,6 +72,7 @@ public class BuddiApplication extends Application{
 		router.attach("/buddilive/categories/parents", new BuddiAuthenticator(this, getContext(), false, ParentsResource.class));
 		router.attach("/buddilive/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
 		router.attach("/buddilive/transactions/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
+		router.attach("/buddilive/scheduledtransactions", new BuddiAuthenticator(this, getContext(), false, ScheduledTransactionsResource.class));
 		router.attach("/buddilive/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/buddilive/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/buddilive/userpreferences", new BuddiAuthenticator(this, getContext(), false, UserPreferencesResource.class));

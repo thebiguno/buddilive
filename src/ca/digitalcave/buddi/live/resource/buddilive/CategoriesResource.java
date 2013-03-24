@@ -31,6 +31,8 @@ import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class CategoriesResource extends ServerResource {
 
+	private static final BigDecimal BIGDECIMAL_ZERO = FormatUtil.parseCurrency("0.00");
+	
 	@Override
 	protected void doInit() throws ResourceException {
 		getVariants().add(new Variant(MediaType.APPLICATION_JSON));
@@ -78,6 +80,7 @@ public class CategoriesResource extends ServerResource {
 		final JSONObject result = new JSONObject();
 		result.put("id", category.getId());
 		result.put("icon", "img/folder-open-table.png");
+		result.put("dateIso", FormatUtil.formatDateInternal(categoryPeriod.getCurrentPeriodStartDate()));
 		result.put("name", CryptoUtil.decryptWrapper(category.getName(), user));
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");
@@ -86,16 +89,30 @@ public class CategoriesResource extends ServerResource {
 		sb.setLength(0);
 		
 
-		result.put("currentAmount", FormatUtil.formatCurrency(category.getCurrentEntry().getAmount()));
-		result.put("currentAmountStyle", (FormatUtil.isRed(category, category.getCurrentEntry().getAmount()) ? FormatUtil.formatRed() : ""));
+		final BigDecimal currentAmount = category.getCurrentEntry().getAmount();
+		if (currentAmount == null || currentAmount.compareTo(BigDecimal.ZERO) == 0){
+			result.put("currentAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO));
+			result.put("currentAmountStyle", FormatUtil.formatGray());
+		}
+		else {
+			result.put("currentAmount", FormatUtil.formatCurrency(currentAmount));
+			result.put("currentAmountStyle", (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
+		}
 		
-		result.put("previousAmount", FormatUtil.formatCurrency(category.getPreviousEntry().getAmount()));
-		result.put("previousAmountStyle", (FormatUtil.isRed(category, category.getPreviousEntry().getAmount()) ? FormatUtil.formatRed() : ""));
+		final BigDecimal previousAmount = category.getPreviousEntry().getAmount();
+		if (previousAmount == null || previousAmount.compareTo(BigDecimal.ZERO) == 0){
+			result.put("previousAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO));
+			result.put("previousAmountStyle", FormatUtil.formatGray());
+		}
+		else {
+			result.put("previousAmount", FormatUtil.formatCurrency(previousAmount));
+			result.put("previousAmountStyle", (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
+		}
 		
-		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance()));
+		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance()));
 		result.put("actualStyle", (FormatUtil.isRed(category, category.getPeriodBalance()) ? FormatUtil.formatRed() : ""));
 
-		final BigDecimal difference = (category.getPeriodBalance().subtract(category.getCurrentEntry().getAmount() != null ? category.getCurrentEntry().getAmount() : BigDecimal.ZERO));
+		final BigDecimal difference = (category.getPeriodBalance().subtract(currentAmount != null ? currentAmount : BigDecimal.ZERO));
 		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? difference : difference.negate()));
 		result.put("differenceStyle", (FormatUtil.isRed(category.isIncome() ? difference : difference.negate()) ? FormatUtil.formatRed() : ""));
 

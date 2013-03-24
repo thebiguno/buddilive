@@ -22,9 +22,9 @@ Ext.define('BuddiLive.view.budget.Tree', {
 			})
 		];
 		
-		var numberCellRenderer = function(value, metaData, record){
-			if (value == null || value.length == 0 || value == "0.00") return "-";
-			else return value;
+		var styledRenderer = function(value, metaData, record){
+			metaData.style = record.raw.previousAmountStyle;
+			return value;
 		};
 		
 		this.columns = [
@@ -43,10 +43,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"dataIndex": "previousAmount",
 				"flex": 1,
 				"align": "right",
-				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.previousAmountStyle;
-					return value;
-				}
+				"renderer": styledRenderer
 			},
 			{
 				"text": "Current",	//TODO i18n
@@ -56,12 +53,18 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"editor": {
 					"xtype": "textfield",
 					"emptyText": "0.00",
-					
-					"fieldStyle": "text-align: right;"
+					"fieldStyle": "text-align: right;",
+					"listeners": {
+						"focus": function(component){
+							component.selectText();
+						}
+					}
 				},
 				"renderer": function(value, metaData, record){
 					metaData.style = record.raw.currentAmountStyle;
-					if (value == null || value == "" || value == "0.00") return "-"; 
+					if (value == "0.00") {
+						return "${translation("CLICK_TO_ENTER_BUDGETED_AMOUNT")}";
+					}
 					return value;
 				}
 			},
@@ -70,22 +73,14 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"dataIndex": "actual",
 				"flex": 1,
 				"align": "right",
-				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.actualStyle;
-					if (value == null || value == "" || value == "0.00") return "-";
-					return value;
-				}
+				"renderer": styledRenderer
 			},
 			{
 				"text": "Amount Remaining",	//TODO i18n
 				"dataIndex": "difference",
 				"flex": 1,
 				"align": "right",
-				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.differenceStyle;
-					if ((value == null || value == "" || value == "0.00") && (record.raw.actual == null || record.raw.actual == "" || record.raw.actual == "0.00")) return "-";
-					return value;
-				}
+				"renderer": styledRenderer
 			}
 		];
 		

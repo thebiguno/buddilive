@@ -13,9 +13,13 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 	},
 	
 	"editCell": function(editor, data){
+		//If nothing has changed, no point in reloading
+		if (data.originalValue == data.value) return;
+		
+		var budgetTree = editor.cmp;
 		var request = {"action": "update"};
 		request.categoryId = data.record.raw.id;
-		request.date = data.record.raw.currentDate;
+		request.date = data.record.raw.dateIso;
 		request.amount = data.value;
 	
 		var conn = new Ext.data.Connection();
@@ -27,7 +31,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
-				//TODO reload the entire tree to calculate differences?
+				budgetTree.getStore().reload();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);
@@ -41,7 +45,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 		var viewport = selectionModel.view.panel.up("buddiviewport");
 		viewport.down("button[itemId='editCategory']").setDisabled(!enabled);
 		viewport.down("button[itemId='deleteCategory']").setDisabled(!enabled);
-		if (selected && selected[0].raw.deleted){
+		if (selected && selected.length > 0 && selected[0].raw.deleted){
 			viewport.down("button[itemId='deleteCategory']").setText("Undelete Budget Category");	//TODO i18n
 		}
 		else {
