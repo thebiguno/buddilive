@@ -22,6 +22,8 @@ public interface ScheduledTransactions {
 	 */
 	public List<ScheduledTransaction> selectOustandingScheduledTransactions(@Param("user") User user);
 	
+	public List<ScheduledTransaction> selectScheduledTransactions(@Param("user") User user);
+	
 	public int selectScheduledTransactionCount(@Param("user") User user, @Param("uuid") String uuid);
 	
 	public Integer insertScheduledTransaction(@Param("user") User user, @Param("transaction") ScheduledTransaction transaction);

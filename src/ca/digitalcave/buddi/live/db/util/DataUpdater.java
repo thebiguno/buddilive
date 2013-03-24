@@ -115,7 +115,7 @@ public class DataUpdater {
 		// it to be cleaner later on...
 		final GregorianCalendar tempCal = new GregorianCalendar();
 
-		List<ScheduledTransaction> scheduledTransactions = sqlSession.getMapper(ScheduledTransactions.class).selectOustandingScheduledTransactions(user);
+		final List<ScheduledTransaction> scheduledTransactions = sqlSession.getMapper(ScheduledTransactions.class).selectOustandingScheduledTransactions(user);
 		
 		for (ScheduledTransaction s : scheduledTransactions) {
 			Date tempDate = s.getLastCreatedDate();

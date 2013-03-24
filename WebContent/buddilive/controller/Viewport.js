@@ -10,6 +10,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='addCategory']": {"click": this.addCategory},
 			"buddiviewport button[itemId='editCategory']": {"click": this.editCategory},
 			"buddiviewport button[itemId='deleteCategory']": {"click": this.deleteCategory},
+			"buddiviewport button[itemId='editScheduledTransactions']": {"click": this.editScheduledTransactions},
 			"buddiviewport button[itemId='preferences']": {"click": this.editPreferences},
 			"buddiviewport button[itemId='logout']": {"click": this.logout}
 		});
@@ -201,6 +202,10 @@ Ext.define("BuddiLive.controller.Viewport", {
 				BuddiLive.app.error(response);
 			}
 		});
+	},
+	
+	"editScheduledTransactions": function(component){
+		Ext.widget("scheduledtransactionlist", {}).show();
 	},
 	
 	"logout": function(component){

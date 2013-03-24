@@ -130,6 +130,12 @@ public class ConstraintsChecker {
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getNumber())){
 			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getNumber(), user.getDecryptedEncryptionKey()));
 		}
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getScheduleName())){
+			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getScheduleName(), user.getDecryptedEncryptionKey()));
+		}
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getMessage())){
+			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getMessage(), user.getDecryptedEncryptionKey()));
+		}
 	}
 	
 	public static void checkUpdateScheduledTransaction(ScheduledTransaction scheduledTransaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {

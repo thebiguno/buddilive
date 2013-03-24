@@ -42,6 +42,38 @@
 		<result column="to_type" property="toType"/>
 	</resultMap>
 	
+	<select id="selectScheduledTransactions" resultMap="scheduledtransaction">
+		SELECT 
+			t.id t_id, 
+			t.uuid, 
+			t.user_id t_user_id,
+			t.description,
+			t.number,
+			t.schedule_name,
+			t.schedule_day,
+			t.schedule_week,
+			t.schedule_month,
+			t.frequency_type,
+			t.start_date,
+			t.end_date,
+			t.last_created_date,
+			t.message,
+			t.created t_created,
+			t.modified t_modified,
+			s.id s_id,
+			s.scheduledtransaction_id,
+			s.amount,
+			s.user_id s_user_id,
+			s.from_source,
+			s.to_source,
+			s.memo,
+			s.created s_created,
+			s.modified s_modified
+		FROM scheduledtransactions t
+		LEFT JOIN scheduledsplits s ON s.scheduledtransaction_id = t.id
+		WHERE t.user_id = #{user.id}
+	</select>
+	
 	<select id="selectOustandingScheduledTransactions" resultMap="scheduledtransaction">
 		SELECT 
 			t.id t_id, 
