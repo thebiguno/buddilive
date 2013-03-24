@@ -6,7 +6,7 @@
 		<arg value="--tags"/>
 	</exec>
 	<tstamp>
-		<format property="timestamp" pattern="yyyy-MM-dd hh:mm"/>
+		<format property="timestamp" pattern="yyyy-MM-dd HH:mm"/>
 	</tstamp>
 	
 	<!-- Set up all the project specific properties -->
