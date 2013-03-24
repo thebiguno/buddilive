@@ -19,6 +19,7 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Entries;
+import ca.digitalcave.buddi.live.db.ScheduledTransactions;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
@@ -27,11 +28,12 @@ import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.Entry;
+import ca.digitalcave.buddi.live.model.ScheduledTransaction;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.util.FormatUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
+import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class RestoreResource extends ServerResource {
 
@@ -57,6 +59,8 @@ public class RestoreResource extends ServerResource {
 			restoreEntries(request, user, sqlSession, sourceIDsByUUID);
 
 			restoreTransactions(request, user, sqlSession, sourceIDsByUUID);
+			
+			restoreScheduledTransactions(request, user, sqlSession, sourceIDsByUUID);
 
 			DataUpdater.updateBalances(user, sqlSession, true);
 			
@@ -218,6 +222,59 @@ public class RestoreResource extends ServerResource {
 					for (Split split : transaction.getSplits()) {
 						split.setTransactionId(transaction.getId());
 						count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
+						if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+					}
+				}
+			}
+		}
+	}
+	
+	private void restoreScheduledTransactions(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
+		final JSONArray transactions = jsonObject.optJSONArray("scheduledTransactions");
+		if (transactions != null){
+			for (int i = 0; i < transactions.length(); i++) {
+				final JSONObject t = transactions.getJSONObject(i);
+				//We only insert if the specified UUID is not already there.
+				if (sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactionCount(user, t.getString("uuid")) == 0){
+					final ScheduledTransaction transaction = new ScheduledTransaction();
+					transaction.setUuid(t.getString("uuid"));
+					transaction.setDescription(t.getString("description"));
+					transaction.setNumber(t.optString("number", null));
+					transaction.setScheduleName(t.getString("scheduleName"));
+					transaction.setScheduleDay(t.getInt("scheduleDay"));
+					transaction.setScheduleWeek(t.getInt("scheduleWeek"));
+					transaction.setScheduleMonth(t.getInt("scheduleMonth"));
+					transaction.setFrequencyType(t.getString("frequencyType"));
+					transaction.setStartDate(FormatUtil.parseDateInternal(t.getString("startDate")));
+					transaction.setEndDate(FormatUtil.parseDateInternal(t.optString("endDate", null)));
+					transaction.setLastCreatedDate(FormatUtil.parseDateInternal(t.optString("lastCreatedDate", null)));
+					transaction.setMessage(t.optString("message", null));
+					transaction.setSplits(new ArrayList<Split>());
+					final JSONArray splits = t.getJSONArray("splits");
+					for (int j = 0; j < splits.length(); j++) {
+						final JSONObject s = splits.getJSONObject(j);
+						final Split split = new Split();
+						final Integer fromSource = sourceIDsByUUID.get(s.getString("from"));
+						if (fromSource == null){
+							throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find transaction from source UUID " + s.getString("from") + " for split #" + j + " in transaction " + t.getString("uuid"));
+						}
+						final Integer toSource = sourceIDsByUUID.get(s.getString("to"));
+						if (toSource == null){
+							throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find transaction from source UUID " + s.getString("to") + " for split #" + j + " in transaction " + t.getString("uuid"));
+						}
+						split.setAmount(FormatUtil.parseCurrency(s.getString("amount")));
+						split.setFromSource(fromSource);
+						split.setToSource(toSource);
+						split.setMemo(s.optString("memo", null));
+						transaction.getSplits().add(split);
+					}
+
+					ConstraintsChecker.checkInsertScheduledTransaction(transaction, user, sqlSession);
+					int count = sqlSession.getMapper(ScheduledTransactions.class).insertScheduledTransaction(user, transaction);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+					for (Split split : transaction.getSplits()) {
+						split.setTransactionId(transaction.getId());
+						count = sqlSession.getMapper(ScheduledTransactions.class).insertScheduledSplit(user, split);
 						if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 					}
 				}

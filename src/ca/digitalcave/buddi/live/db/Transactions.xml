@@ -9,6 +9,7 @@
 		<result column="number" property="number"/>
 		<result column="date" property="date"/>
 		<result column="deleted" property="deleted" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		<result column="scheduled_transaction_id" property="scheduledTransactionId"/>
 		<result column="t_created" property="created"/>
 		<result column="t_modified" property="modified"/>
 		<collection property="splits" resultMap="split"/>
@@ -50,6 +51,9 @@
 		</if>
 		<if test="_parameter.containsKey('search') and search != null and !user.encrypted">
 			AND (LOWER(t.description) LIKE LOWER(#{search}) OR coalesce(t.number, '') LIKE LOWER(#{search}) OR coalesce(s.memo, '') LIKE LOWER(#{search}))
+		</if>
+		<if test="_parameter.containsKey('fromDate') and _parameter.containsKey('toDate')">
+			AND t.date >= #{fromDate} AND t.date &lt;= #{toDate}
 		</if>
 		ORDER BY t.date DESC, s.id DESC
 	</select>
@@ -132,10 +136,29 @@
 			SELECT coalesce(max(id), 0) + 1 from transactions
 		</selectKey>
 		INSERT INTO transactions (
-			id, uuid, user_id, description, number, date, deleted, created, modified
-
+			id,
+			uuid,
+			user_id,
+			description,
+			number,
+			date,
+			deleted,
+			scheduled_transaction_id,
+			created,
+			modified
 		)
-		values (#{transaction.id}, #{transaction.uuid}, #{user.id}, #{transaction.description}, #{transaction.number,jdbcType=VARCHAR}, #{transaction.date}, <choose><when test="transaction.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		values (
+			#{transaction.id},
+			#{transaction.uuid},
+			#{user.id},
+			#{transaction.description},
+			#{transaction.number,jdbcType=VARCHAR},
+			#{transaction.date},
+			<choose><when test="transaction.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			#{transaction.scheduledTransactionId,jdbcType=BIGINT},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
 	</insert>
 	
 	<insert id="insertSplit">

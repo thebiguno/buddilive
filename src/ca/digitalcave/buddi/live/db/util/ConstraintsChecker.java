@@ -12,6 +12,7 @@ import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.Entry;
+import ca.digitalcave.buddi.live.model.ScheduledTransaction;
 import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
@@ -105,6 +106,35 @@ public class ConstraintsChecker {
 	public static void checkUpdateTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (transaction.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertTransaction(transaction, user, sqlSession);
+	}
+	
+	public static void checkInsertScheduledTransaction(ScheduledTransaction scheduledTransaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+		//Perform integrity checks
+		if (scheduledTransaction.getSplits() == null || scheduledTransaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
+		for (Split split : scheduledTransaction.getSplits()) {
+			if (split.getAmount().compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
+			
+			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
+			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
+			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
+			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
+			
+			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
+				split.setMemo(CryptoUtil.encrypt(split.getMemo(), user.getDecryptedEncryptionKey()));
+			}
+		}
+		
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getDescription())){
+			scheduledTransaction.setDescription(CryptoUtil.encrypt(scheduledTransaction.getDescription(), user.getDecryptedEncryptionKey()));
+		}
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getNumber())){
+			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getNumber(), user.getDecryptedEncryptionKey()));
+		}
+	}
+	
+	public static void checkUpdateScheduledTransaction(ScheduledTransaction scheduledTransaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+		if (scheduledTransaction.getId() == null) throw new DatabaseException("The id must be set to perform an update");
+		checkInsertScheduledTransaction(scheduledTransaction, user, sqlSession);
 	}
 	
 	public static void checkInsertEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {

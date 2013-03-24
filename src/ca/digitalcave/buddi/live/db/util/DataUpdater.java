@@ -1,20 +1,28 @@
 package ca.digitalcave.buddi.live.db.util;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 
+import ca.digitalcave.buddi.live.db.ScheduledTransactions;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
+import ca.digitalcave.buddi.live.model.ScheduledTransaction;
+import ca.digitalcave.buddi.live.model.ScheduledTransaction.ScheduleFrequency;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
+import ca.digitalcave.moss.common.DateUtil;
 
 public class DataUpdater {
 
@@ -81,6 +89,232 @@ public class DataUpdater {
 		}
 		
 		sqlSession.commit();
+	}
+	
+	/**
+	 * Runs through the list of scheduled transactions, and adds any which
+	 * show be executed to the appropriate transactions list.
+ 	 * Checks for the frequency type and based on it finds if a transaction is scheduled for a date
+ 	 * that has gone past.
+ 	 * 
+ 	 * This method includes an argument to specify what the current date is.  This can
+ 	 * be useful if you want to add transactions after the current date.
+ 	 * 
+ 	 * Returns a string containing all messages for scheduled transactions which had been added.
+	 */
+	public static String updateScheduledTransactions(User user, SqlSession sqlSession) throws CryptoException, DatabaseException {
+		//Update any scheduled transactions
+		final Date today = DateUtil.getEndOfDay(new Date());
+		
+		final StringBuilder sb = new StringBuilder();
+		
+		//We specify a GregorianCalendar because we make some assumptions
+		// about numbering of months, etc that may break if we 
+		// use the default calendar for the locale.  It's not the
+		// prettiest code, but it works.  Perhaps we can change
+		// it to be cleaner later on...
+		final GregorianCalendar tempCal = new GregorianCalendar();
+
+		List<ScheduledTransaction> scheduledTransactions = sqlSession.getMapper(ScheduledTransactions.class).selectOustandingScheduledTransactions(user);
+		
+		for (ScheduledTransaction s : scheduledTransactions) {
+			Date tempDate = s.getLastCreatedDate();
+			//#1779286 Bug BiWeekly Scheduled Transactions -Check if this transaction has never been created. 
+			boolean isNewTransaction=false;
+			//The lastDayCreated need to date as such without rolling forward by a day and the start fo the day 
+			//so calculations of difference of days are on the same keel as tempDate.
+			Date lastDayCreated = null;
+			//Temp date is where we will start looping from.
+			if (tempDate == null){
+				//If it is null, we need to init it to a sane value.
+				tempDate = s.getStartDate();
+				isNewTransaction=true;
+				//The below is just to avoid NPE's; ideally changing the order 
+				// of the checking below will solve the problem, but better safe than sorry.
+				//The reason we set this date to an impossibly early date is to ensure
+				// that we include a scheduled transaction on the first day that matches,
+				// even if that day is the first day of any scheduled transactions.
+				lastDayCreated=DateUtil.getDate(1900);
+			}
+			else {
+				lastDayCreated = DateUtil.getStartOfDay(tempDate);
+				//We start one day after the last day, to avoid repeats.  
+				// See bug #1641937 for more details.
+				tempDate = DateUtil.addDays(tempDate, 1);
+
+			}
+
+
+
+			tempDate = DateUtil.getStartOfDay(tempDate);
+
+			//The transaction is scheduled for a date before today and before the EndDate 
+			while (tempDate.before(today) 
+					&& (s.getEndDate() == null 
+							|| s.getEndDate().after(tempDate)
+							|| (DateUtil.getDaysBetween(s.getEndDate(), tempDate, false) == 0))) {
+
+				//We use a Calendar instead of a Date object for comparisons
+				// because the Calendar interface is much nicer.
+				tempCal.setTime(tempDate);
+
+				boolean todayIsTheDay = false;
+
+				//We check each type of schedule, and if it matches,
+				// we set todayIsTheDay to true.  We could do it 
+				// all in one huge if statement, but that is very
+				// hard to read and maintain.
+
+				//If we are using the Monthly by Date frequency, 
+				// we only check if the given day is equal to the
+				// scheduled day.
+				if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_MONTHLY_BY_DATE.toString())
+						&& (s.getScheduleDay() == tempCal.get(Calendar.DAY_OF_MONTH) 
+								|| (s.getScheduleDay() == 32 //Position 32 is 'Last Day of Month'.  ScheduleFrequencyDayOfMonth.SCHEDULE_DATE_LAST_DAY.ordinal() + 1
+										&& tempCal.get(Calendar.DAY_OF_MONTH) == tempCal.getActualMaximum(Calendar.DAY_OF_MONTH)))){
+
+					todayIsTheDay = true;
+				}
+				//If we are using the Monthly by Day of Week,
+				// we check if the given day (Sunday, Monday, etc) is equal to the
+				// scheduleDay, and if the given day is within the first week.
+				// FYI, we store Sunday == 0, even though Calendar.SUNDAY == 1.  Thus,
+				// we add 1 to our stored day before comparing it.
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK.toString())
+						&& s.getScheduleDay() + 1 == tempCal.get(Calendar.DAY_OF_WEEK)
+						&& tempCal.get(Calendar.DAY_OF_MONTH) <= 7){
+					todayIsTheDay = true;
+				}
+				//If we are using Weekly frequency, we only need to compare
+				// the number of the day.
+				// FYI, we store Sunday == 0, even though Calendar.SUNDAY == 1.  Thus,
+				// we add 1 to our stored day before comparing it.
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_WEEKLY.toString())
+						&& s.getScheduleDay() + 1 == tempCal.get(Calendar.DAY_OF_WEEK)){
+					todayIsTheDay = true;
+				}
+				//If we are using BiWeekly frequency, we need to compare
+				// the number of the day as well as ensure that there is one
+				// week between each scheduled transaction.
+				// FYI, we store Sunday == 0, even though Calendar.SUNDAY == 1.  Thus,
+				// we add 1 to our stored day before comparing it.
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_BIWEEKLY.toString())
+						&& s.getScheduleDay() + 1 == tempCal.get(Calendar.DAY_OF_WEEK)
+						//As tempdate has been moved forward by one day we need to check if it is >= 13 instead of >13
+						&& ((DateUtil.getDaysBetween(lastDayCreated, tempDate, false) >= 13)
+								|| isNewTransaction)){
+					todayIsTheDay = true;
+					lastDayCreated = (Date) tempDate.clone();
+					if(isNewTransaction){
+						isNewTransaction=false;
+					}
+				}
+				//Every X days, where X is the value in s.getScheduleDay().  Check if we
+				// have passed the correct number of days since the last transaction.
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_EVERY_X_DAYS.toString())
+						&& DateUtil.getDaysBetween(lastDayCreated, tempDate, false) >= s.getScheduleDay() ){
+					todayIsTheDay = true;
+					lastDayCreated = (Date) tempDate.clone();
+				}
+				//Every day - it's obvious enough even for a monkey!
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_EVERY_DAY.toString())){
+					todayIsTheDay = true;
+				}
+				//Every weekday - all days but Saturday and Sunday.
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_EVERY_WEEKDAY.toString())
+						&& (tempCal.get(Calendar.DAY_OF_WEEK) < Calendar.SATURDAY)
+						&& (tempCal.get(Calendar.DAY_OF_WEEK) > Calendar.SUNDAY)){
+					todayIsTheDay = true;
+				}
+				//To make this one clearer, we do it in two passes.
+				// First, we check the frequency type and the day.
+				// If these match, we do our bit bashing to determine
+				// if the week is correct.
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH.toString())
+						&& s.getScheduleDay() + 1 == tempCal.get(Calendar.DAY_OF_WEEK)){
+					int week = s.getScheduleWeek();
+					//The week mask should return 1 for the first week (day 1 - 7), 
+					// 2 for the second week (day 8 - 14), 4 for the third week (day 15 - 21),
+					// and 8 for the fourth week (day 22 - 28).  We then AND it with 
+					// the scheduleWeek to determine if this week matches the criteria
+					// or not.
+					int weekNumber = tempCal.get(Calendar.DAY_OF_WEEK_IN_MONTH) - 1;
+					int weekMask = (int) Math.pow(2, weekNumber);
+					if ((week & weekMask) != 0){
+						todayIsTheDay = true;
+					}
+				}
+				//To make this one clearer, we do it in two passes.
+				// First, we check the frequency type and the day.
+				// If these match, we do our bit bashing to determine
+				// if the month is correct.
+				else if (s.getFrequencyType().equals(ScheduleFrequency.SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR.toString())
+						&& s.getScheduleDay() == tempCal.get(Calendar.DAY_OF_MONTH)){
+					int months = s.getScheduleMonth();
+					//The month mask should be 2 ^ MONTH NUMBER,
+					// where January == 0.
+					// i.e. 1 for January, 4 for March, 2048 for December.
+					int monthMask = (int) Math.pow(2, tempCal.get(Calendar.MONTH));
+					if ((months & monthMask) != 0){
+						todayIsTheDay = true;
+					}
+				}
+
+				//Check that there has not already been a scheduled transaction with identical
+				// paramters for this day.  This is in response to a potential bug where
+				// the last scheduled day is missing (happened once in development 
+				// version, but may not be a repeating problem).
+				//This has the potential to skip scheduled transactions, if there
+				// are multiple scheduled transactions which go to and from the 
+				// same accounts / categories on the same day.  If this proves to
+				// be a problem, we may make the checks more specific.
+				if (todayIsTheDay){
+					for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user, tempDate, tempDate)) {
+						if (DateUtil.isSameDay(t.getDate(), tempDate)
+								&& t.getScheduledTransactionId() == s.getId()){
+							todayIsTheDay = false;
+							s.setLastCreatedDate(tempDate);
+						}
+					}
+				}
+				
+				
+				//If one of the above rules matches, we will copy the
+				// scheduled transaction into the transactions list
+				// at the given day.
+				if (todayIsTheDay){
+
+					s.setLastCreatedDate(DateUtil.getEndOfDay(tempDate));
+
+					if (s.getMessage() != null && s.getMessage().trim().length() > 0){
+						sb.append(s.getMessage()).append("\n");
+					}
+
+					if (tempDate != null && s.getDescription() != null) {
+						final Transaction t = new Transaction();
+						t.setDate(tempDate);
+						t.setDescription(s.getDescription());
+						t.setNumber(s.getNumber());
+						t.setSplits(new ArrayList<Split>());
+						for (Split split : s.getSplits()) {
+							split.setId(null);	//Reset ID and parent ID since we will be re-saving it back to another table
+							split.setTransactionId(null);
+							t.getSplits().add(split);
+						}
+						//t.setScheduled(true);		//TODO Do we really care?
+
+						ConstraintsChecker.checkInsertTransaction(t, user, sqlSession);
+						sqlSession.getMapper(Transactions.class).insertTransaction(user, t);
+					}
+				}
+				else {
+				}
+
+				tempDate = DateUtil.addDays(tempDate, 1);
+			}
+		}
+		
+		return sb.toString();
 	}
 	
 	public static void turnOnEncryption(User user, String password, SqlSession sqlSession) throws DatabaseException, CryptoException {

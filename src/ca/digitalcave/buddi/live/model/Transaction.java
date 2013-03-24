@@ -20,6 +20,7 @@ public class Transaction {
 	private String number;
 	private Date date;
 	private boolean deleted;
+	private Long scheduledTransactionId;
 	private Date created;
 	private Date modified;
 	private List<Split> splits;
@@ -68,6 +69,9 @@ public class Transaction {
 		this.id = id;
 	}
 	public String getUuid() {
+		if (uuid == null){
+			this.setUuid(UUID.randomUUID().toString());
+		}
 		return uuid;
 	}
 	public void setUuid(String uuid) {
@@ -102,6 +106,12 @@ public class Transaction {
 	}
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
+	}
+	public Long getScheduledTransactionId() {
+		return scheduledTransactionId;
+	}
+	public void setScheduledTransactionId(Long scheduledTransactionId) {
+		this.scheduledTransactionId = scheduledTransactionId;
 	}
 	public List<Split> getSplits() {
 		return splits;

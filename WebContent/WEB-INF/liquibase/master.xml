@@ -34,8 +34,7 @@
 				<constraints nullable="false"/>
 			</column>
 		</createTable>
-	</changeSet>
-	<changeSet id="create users check constraints" author="wyatt">
+
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_premium CHECK (premium IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_showcleared CHECK (show_cleared IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_showreconciled CHECK (show_reconciled IN ('Y', 'N'))</sql>
@@ -84,8 +83,7 @@
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="fk_users_sources" referencedTableName="users" referencedColumnNames="id" baseTableName="sources" baseColumnNames="user_id" onDelete="CASCADE"/>
-	</changeSet>
-	<changeSet id="create sources check constraints" author="wyatt">
+
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_deleted CHECK (deleted IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_type CHECK (type IN ('D', 'C', 'I', 'E'))</sql>	<!-- Ensure type is one of Debit, Credit, Inome, Expense -->
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_accounttype CHECK ((account_type IS NULL AND type IN ('I', 'E')) OR (account_type IS NOT NULL AND type IN ('D', 'C')))</sql>	<!-- Account type must be set for accounts -->
@@ -146,6 +144,7 @@
 			<column name="deleted" type="char(1)">
 				<constraints nullable="false"/>
 			</column>
+			<column name="scheduled_transaction_id" type="bigint"/>	<!-- Refers to the scheduled transaction ID.  Null if this is not scheduled. -->
 			<column name="created" type="timestamp">
 				<constraints nullable="false"/>
 			</column>
@@ -155,8 +154,7 @@
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="fk_users_transactions" referencedTableName="users" referencedColumnNames="id" baseTableName="transactions" baseColumnNames="user_id" onDelete="CASCADE"/>
-	</changeSet>
-	<changeSet id="create transactions check constraints" author="wyatt">
+
 		<sql>ALTER TABLE transactions ADD CONSTRAINT cc_transactions_deleted CHECK (deleted IN ('Y', 'N'))</sql>
 	</changeSet>
 	
@@ -197,4 +195,87 @@
 		<addForeignKeyConstraint constraintName="fk_tosourcs_splits" referencedTableName="sources" referencedColumnNames="id" baseTableName="splits" baseColumnNames="to_source" onDelete="CASCADE"/>
 	</changeSet>
 
+	<changeSet id="create scheduled transactions" author="wyatt">
+		<createTable tableName="scheduledtransactions">
+			<column name="id" type="bigint">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_scheduledtransaction_id"/>
+			</column>
+			<column name="uuid" type="varchar(64)">
+				<constraints nullable="false" unique="true" uniqueConstraintName="uc_scheduledtransaction_uuid"/>
+			</column>
+			<column name="user_id" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="description" type="varchar(1024)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="number" type="varchar(1024)"/>
+			<column name="schedule_name" type="varchar(1024)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="schedule_day" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="schedule_week" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="schedule_month" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="frequency_type" type="varchar(64)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="start_date" type="date">
+				<constraints nullable="false"/>
+			</column>
+			<column name="end_date" type="date"/>
+			<column name="last_created_date" type="date"/>
+			<column name="message" type="varchar(4096)"/>
+			<column name="created" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="modified" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_users_scheduledtransactions" referencedTableName="users" referencedColumnNames="id" baseTableName="scheduledtransactions" baseColumnNames="user_id" onDelete="CASCADE"/>
+	</changeSet>
+
+	<changeSet id="create scheduled splits" author="wyatt">
+		<createTable tableName="scheduledsplits">
+			<column name="id" type="bigint">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="pk_scheduledsplit_id"/>
+			</column>
+			<column name="user_id" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="scheduledtransaction_id" type="bigint">
+				<constraints nullable="false"/>
+			</column>
+			<column name="amount" type="decimal(14,2)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="from_source" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="to_source" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="memo" type="varchar(4096)"/>
+			<column name="from_balance" type="decimal(14,2)"/>
+			<column name="to_balance" type="decimal(14,2)"/>
+			<column name="created" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+			<column name="modified" type="timestamp">
+				<constraints nullable="false"/>
+			</column>
+		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_scheduledtransactions_scheduledsplits" referencedTableName="scheduledtransactions" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="scheduledtransaction_id" onDelete="CASCADE"/>
+		<addForeignKeyConstraint constraintName="fk_users_scheduledsplits" referencedTableName="users" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="user_id" onDelete="CASCADE"/>
+		<addForeignKeyConstraint constraintName="fk_fromsources_scheduledsplits" referencedTableName="sources" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="from_source" onDelete="CASCADE"/>
+		<addForeignKeyConstraint constraintName="fk_tosourcs_scheduledsplits" referencedTableName="sources" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="to_source" onDelete="CASCADE"/>
+	</changeSet>
 </databaseChangeLog>

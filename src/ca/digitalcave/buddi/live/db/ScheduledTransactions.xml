@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ca.digitalcave.buddi.live.db.ScheduledTransactions">
+	<resultMap id="scheduledtransaction" type="ca.digitalcave.buddi.live.model.ScheduledTransaction">
+		<id column="t_id" property="id" />
+		<result column="uuid" property="uuid"/>
+		<result column="t_user_id" property="userId"/>
+		<result column="description" property="description"/>
+		<result column="number" property="number"/>
+		<result column="schedule_name" property="scheduleName"/>
+		<result column="schedule_day" property="scheduleDay"/>
+		<result column="schedule_week" property="scheduleWeek"/>
+		<result column="schedule_month" property="scheduleMonth"/>
+		<result column="frequency_type" property="frequencyType"/>
+		<result column="start_date" property="startDate"/>
+		<result column="end_date" property="startDate"/>
+		<result column="last_created_date" property="lastCreatedDate"/>
+		<result column="message" property="message"/>
+		<result column="t_created" property="created"/>
+		<result column="t_modified" property="modified"/>
+		<collection property="splits" resultMap="split"/>
+	</resultMap>
+	
+	<resultMap id="split" type="ca.digitalcave.buddi.live.model.Split">
+		<id column="s_id" property="id" />
+		<result column="scheduledtransaction_id" property="transactionId"/>
+		<result column="s_user_id" property="userId"/>
+		<result column="amount" property="amount"/>
+		<result column="from_source" property="fromSource"/>
+		<result column="to_source" property="toSource"/>
+		<result column="memo" property="memo"/>
+		<result column="s_created" property="created"/>
+		<result column="s_modified" property="modified"/>
+
+		<result column="from_balance" property="fromBalance"/>
+		<result column="to_balance" property="toBalance"/>
+		
+		<result column="from_source_name" property="fromSourceName"/>
+		<result column="to_source_name" property="toSourceName"/>
+		
+		<result column="from_type" property="fromType"/>
+		<result column="to_type" property="toType"/>
+	</resultMap>
+	
+	<select id="selectOustandingScheduledTransactions" resultMap="scheduledtransaction">
+		SELECT 
+			t.id t_id, 
+			t.uuid, 
+			t.user_id t_user_id,
+			t.description,
+			t.number,
+			t.schedule_name,
+			t.schedule_day,
+			t.schedule_week,
+			t.schedule_month,
+			t.frequency_type,
+			t.start_date,
+			t.end_date,
+			t.last_created_date,
+			t.message,
+			t.created t_created,
+			t.modified t_modified,
+			s.id s_id,
+			s.scheduledtransaction_id,
+			s.amount,
+			s.user_id s_user_id,
+			s.from_source,
+			s.to_source,
+			s.memo,
+			s.created s_created,
+			s.modified s_modified
+		FROM scheduledtransactions t
+		LEFT JOIN scheduledsplits s ON s.scheduledtransaction_id = t.id
+		WHERE t.user_id = #{user.id}
+			AND t.start_date &lt;= CURRENT_DATE
+			AND (t.last_created_date IS NULL OR t.last_created_date &lt; CURRENT_DATE)
+			AND (t.end_date IS NULL OR t.end_date >= CURRENT_DATE)
+	</select>
+	
+	<select id="selectScheduledTransactionCount" resultType="int">
+		SELECT 
+			count(id)
+		FROM scheduledtransactions
+		WHERE user_id = #{user.id} AND uuid = #{uuid}
+	</select>
+
+	<insert id="insertScheduledTransaction">
+		<selectKey keyProperty="transaction.id" resultType="long" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from scheduledtransactions
+		</selectKey>
+		INSERT INTO scheduledtransactions (
+			id,
+			uuid,
+			user_id,
+			description,
+			number,
+			schedule_name,
+			schedule_day,
+			schedule_week,
+			schedule_month,
+			frequency_type,
+			start_date,
+			end_date,
+			last_created_date,
+			message,
+			created,
+			modified
+		)
+		values (
+			#{transaction.id},
+			#{transaction.uuid},
+			#{user.id},
+			#{transaction.description},
+			#{transaction.number,jdbcType=VARCHAR},
+			#{transaction.scheduleName},
+			#{transaction.scheduleDay},
+			#{transaction.scheduleWeek},
+			#{transaction.scheduleMonth},
+			#{transaction.frequencyType},
+			#{transaction.startDate},
+			#{transaction.endDate},
+			#{transaction.lastCreatedDate},
+			#{transaction.message},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+	
+	<insert id="insertScheduledSplit">
+		<selectKey keyProperty="split.id" resultType="long" order="BEFORE">
+			SELECT coalesce(max(id), 0) + 1 from scheduledsplits
+		</selectKey>
+		INSERT INTO scheduledsplits (
+			id,
+			scheduledtransaction_id,
+			user_id,
+			amount,
+			from_source,
+			to_source,
+			memo,
+			created,
+			modified
+		)
+		values (
+			#{split.id},
+			#{split.transactionId},
+			#{user.id},
+			#{split.amount},
+			#{split.fromSource},
+			#{split.toSource},
+			#{split.memo,jdbcType=VARCHAR},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+</mapper>

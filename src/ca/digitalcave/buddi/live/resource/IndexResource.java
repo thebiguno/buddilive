@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live.resource;
 
+import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.MediaType;
@@ -12,9 +13,12 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
+import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class IndexResource extends ServerResource {
 	@Override
@@ -37,10 +41,26 @@ public class IndexResource extends ServerResource {
 			return new EmptyRepresentation();
 		}
 		
-		final BuddiApplication application = (BuddiApplication) getApplication();
-		final User user = (User) getRequest().getClientInfo().getUser();
-		final TemplateRepresentation result = new TemplateRepresentation(user.isAuthenticated() ? "index.html" : "login.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
-		return result;
+		try {
+			final BuddiApplication application = (BuddiApplication) getApplication();
+			final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
+			final User user = (User) getRequest().getClientInfo().getUser();
+
+			//Check for outstanding scheduled transactions
+			DataUpdater.updateScheduledTransactions(user, sqlSession);
+
+			final TemplateRepresentation result = new TemplateRepresentation(user.isAuthenticated() ? "index.html" : "login.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
+			return result;
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (DatabaseException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		finally {
+			
+		}
 	}
 	
 	@Override
