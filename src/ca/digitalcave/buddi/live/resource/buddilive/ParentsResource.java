@@ -19,6 +19,8 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class ParentsResource extends ServerResource {
@@ -49,10 +51,13 @@ public class ParentsResource extends ServerResource {
 			data.put(item);
 
 			
-			getJsonArray(data, categories, category, 0);
+			getJsonArray(data, categories, category, user, 0);
 			result.put("data", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -62,7 +67,7 @@ public class ParentsResource extends ServerResource {
 		}
 	}
 	
-	private void getJsonArray(JSONArray array, List<Category> categories, Category exclude, int depth) throws JSONException {
+	private void getJsonArray(JSONArray array, List<Category> categories, Category exclude, User user, int depth) throws JSONException, CryptoException {
 		final StringBuilder sb = new StringBuilder();
 		for (Category category : categories) {
 			if (exclude != null && (category.getId() == exclude.getId() || !category.getType().equals(exclude.getType()) || !category.getPeriodType().equals(exclude.getPeriodType()))) continue;
@@ -72,12 +77,12 @@ public class ParentsResource extends ServerResource {
 			if (!category.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 			item.put("style", sb.toString());
 			sb.setLength(0);
-			item.put("text", StringUtils.repeat("\u00a0", depth * 2) + category.getName());
+			item.put("text", StringUtils.repeat("\u00a0", depth * 2) + CryptoUtil.decryptWrapper(category.getName(), user));
 			item.put("income", category.isIncome());
 			item.put("type", category.getType());
 			item.put("periodType", category.getPeriodType());
 			array.put(item);
-			if (category.getChildren() != null) getJsonArray(array, category.getChildren(), exclude, depth + 1);
+			if (category.getChildren() != null) getJsonArray(array, category.getChildren(), exclude, user, depth + 1);
 		}
 	}
 }
