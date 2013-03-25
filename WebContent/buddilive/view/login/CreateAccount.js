@@ -85,7 +85,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 									{
 										"xtype": "clicklabel",
 										"flex": 1,
-										"text": "${translation("CREATE_USER_WHAT_IS_THIS")?json_string}",
+										"text": "${translation("WHAT_IS_THIS")?json_string}",
 										"listeners": {
 											"click": function(){
 												Ext.MessageBox.show({
@@ -113,7 +113,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 									{
 										"xtype": "clicklabel",
 										"flex": 1,
-										"text": "${translation("CREATE_USER_WHAT_IS_THIS")?json_string}",
+										"text": "${translation("WHAT_IS_THIS")?json_string}",
 										"listeners": {
 											"click": function(){
 												Ext.MessageBox.show({

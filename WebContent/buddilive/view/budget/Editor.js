@@ -25,13 +25,15 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"value": (s ? s.id : null)
 					},
 					{
-						"xtype": "textfield",
+						"xtype": "selfdocumentingfield",
+						"type": "textfield",
 						"itemId": "name",
 						"value": (s ? s.name : null),
 						"fieldLabel": "Name",	//TODO i18n
 						"allowBlank": false,
 						"enableKeyEvents": true,
 						"emptyText": "Salary, Groceries, Auto Insurance, etc",	//TODO i18n
+						"messageBody": "${translation("HELP_BUDGET_CATEGORY_NAME")?json_string}",
 						"listeners": {
 							"afterrender": function(field) {
 								field.focus(false, 100);
@@ -39,12 +41,14 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						}
 					},
 					{
-						"xtype": "parentcombobox",
+						"xtype": "selfdocumentingfield",
+						"type": "parentcombobox",
 						"itemId": "parent",
 						"fieldLabel": "Parent Category",	//TODO i18n
 						"emptyText": "Parent",
 						"value": (s ? s.parent : null),
 						"url": "buddilive/categories/parents.json" + (s ? "?exclude=" + s.id : ""),
+						"messageBody": "${translation("HELP_BUDGET_CATEGORY_PARENT")?json_string}",
 						"listeners": {
 							"change": function(){
 								var parent = editor.down("combobox[itemId='parent']");

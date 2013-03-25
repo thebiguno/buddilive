@@ -6,6 +6,7 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.account.Tree",
 		"BuddiLive.view.budget.Panel",
 		"BuddiLive.view.budget.Tree",
+		"BuddiLive.view.component.SelfDocumentingField",
 		"BuddiLive.view.preferences.Editor",
 		"BuddiLive.view.report.Panel",
 		"BuddiLive.view.transaction.List",
