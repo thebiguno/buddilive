@@ -103,7 +103,7 @@ public class BuddiApplication extends Application{
 	public synchronized void start() throws Exception {
 		final Properties p = new Properties();
 		p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
-		BuddiVerifier.COOKIE_PASSWORD = p.getProperty("verifierEncryptionKey", new String(CryptoUtil.getSecureRandom(64)));
+		BuddiVerifier.COOKIE_PASSWORD = p.getProperty("verifier.encryptionKey", new String(CryptoUtil.getSecureRandom(64)));
 		final ComboPooledDataSource ds;
 
 		ds = new ComboPooledDataSource();
