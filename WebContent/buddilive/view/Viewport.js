@@ -9,9 +9,9 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.component.SelfDocumentingField",
 		"BuddiLive.view.preferences.Editor",
 		"BuddiLive.view.report.Panel",
+		"BuddiLive.view.scheduled.List",
 		"BuddiLive.view.transaction.List",
-		"BuddiLive.view.transaction.Editor",
-		"BuddiLive.view.transaction.scheduled.List"
+		"BuddiLive.view.transaction.Editor"
 	],	
 	"initComponent": function() {
 		this.layout = "border";

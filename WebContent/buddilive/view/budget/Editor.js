@@ -101,7 +101,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						}),
 						"queryMode": "local",
 						"valueField": "value"
-					},
+					}
 				]
 			}
 		];

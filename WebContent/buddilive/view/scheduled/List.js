@@ -1,8 +1,8 @@
-Ext.define('BuddiLive.view.transaction.scheduled.List', {
+Ext.define('BuddiLive.view.scheduled.List', {
 	"extend": "Ext.window.Window",
 	"alias": "widget.scheduledtransactionlist",
 	"requires": [
-		"BuddiLive.store.transaction.scheduled.ListStore"
+		"BuddiLive.store.scheduled.ListStore"
 	],
 	
 	"initComponent": function(){
@@ -10,7 +10,7 @@ Ext.define('BuddiLive.view.transaction.scheduled.List', {
 
 		this.title = "${translation("SCHEDULED_TRANSACTIONS")?json_string}";
 		this.layout = "fit";
-		this.store = Ext.create("BuddiLive.store.transaction.scheduled.ListStore");
+		this.store = Ext.create("BuddiLive.store.scheduled.ListStore");
 		this.modal = true;
 		this.width = 400;
 		this.height = 300;
