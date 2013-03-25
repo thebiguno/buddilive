@@ -1,10 +1,14 @@
 package ca.digitalcave.buddi.live.security;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +35,7 @@ public class BuddiVerifier implements Verifier {
 	public final static String COOKIE_NAME = "buddi-live";
 	public static String COOKIE_PASSWORD;	//Set from BuddiApplication.start()
 	public final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+	private final static Map<String, Semaphore> loginAttempts = Collections.synchronizedMap(new WeakHashMap<String, Semaphore>());
 	
 	private BuddiApplication application;
 	
@@ -89,8 +94,7 @@ public class BuddiVerifier implements Verifier {
 			final String identifier = request.getChallengeResponse().getIdentifier();	//This is the non-hashed identifier from the request
 			final String secret = new String(request.getChallengeResponse().getSecret());
 			
-			
-			final String hashedIdentifier = CryptoUtil.getSha256Hash(1, new byte[0], identifier);
+			final String hashedIdentifier = CryptoUtil.getSha256Hash(1, new byte[0], identifier);	//We don't salt the identifier, as the user supplies this and we have no way of looking up salt.
 			final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 			try {
 				final User user = sqlSession.getMapper(Users.class).selectUser(hashedIdentifier);
@@ -108,6 +112,14 @@ public class BuddiVerifier implements Verifier {
 						request.getClientInfo().setUser(user);
 						return RESULT_VALID;
 					}
+					else {
+						delay(identifier, response);
+					}
+				}
+				else if (identifier != null){
+					//This will happen if the identifier is set, but is not in the DB.  By delaying equally for bad password and
+					// bad username, we prevent user enumeration attacks.
+					delay(identifier, response);
 				}
 			}
 			catch (CryptoException e){
@@ -120,6 +132,27 @@ public class BuddiVerifier implements Verifier {
 			
 			request.getClientInfo().setUser(new User(requestLocale));
 			return RESULT_INVALID;
+		}
+	}
+	
+	private void delay(String identifier, Response response) {
+		try {
+			//If the authentication is wrong, wait for 5 seconds.  This, combined with the semaphore to gate the concurrent 
+			// number of attempts, will limit brute force attacks on the system.
+			if (loginAttempts.get(identifier) == null) loginAttempts.put(identifier, new Semaphore(1));
+			final Semaphore semaphore = loginAttempts.get(identifier);
+			semaphore.acquire();
+			Thread.sleep(1500);
+			semaphore.release();
+
+			//Clear the bad cookie (if it was a cookie) so that we don't delay again
+			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, "");
+			c.setAccessRestricted(true);
+			c.setMaxAge(0);
+			response.getCookieSettings().add(c);
+		}
+		catch (InterruptedException e){
+			;
 		}
 	}
 }

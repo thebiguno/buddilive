@@ -18,10 +18,10 @@ import ca.digitalcave.buddi.live.model.User;
 
 public class CryptoUtil {
 
-	private static final String RNG_ALGORITHM = "SHA1PRNG";
-	private static final String STRONG_KEY_ALGORITHM = "PBKDF2WithHmacSHA1";
-	private static final String STRONG_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
-	private static final int DEFAULT_SALT_LENGTH = 2;
+	private static final String DEFAULT_RNG_ALGORITHM = "SHA1PRNG";
+	private static final String DEFAULT_KEY_ALGORITHM = "PBKDF2WithHmacSHA1";
+	private static final String DEFAULT_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
+	private static final int DEFAULT_SALT_LENGTH = 16;
 	private static final int DEFAULT_ITERATIONS = 1;
 	private static final int KEY_LENGTH = 256;
 
@@ -39,14 +39,14 @@ public class CryptoUtil {
 		
 		try {
 			final byte[] salt = new byte[saltLength];
-			SecureRandom.getInstance(RNG_ALGORITHM).nextBytes(salt);
+			SecureRandom.getInstance(DEFAULT_RNG_ALGORITHM).nextBytes(salt);
 
-			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
+			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DEFAULT_KEY_ALGORITHM);
 			final PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LENGTH);
 			final Key tmp = keyFactory.generateSecret(keySpec);
 			final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
 
-			final Cipher c = Cipher.getInstance(STRONG_CIPHER_ALGORITHM);
+			final Cipher c = Cipher.getInstance(DEFAULT_CIPHER_ALGORITHM);
 			c.init(Cipher.ENCRYPT_MODE, key);
 			final AlgorithmParameters p = c.getParameters();
 
@@ -110,12 +110,12 @@ public class CryptoUtil {
 		final byte[] in = decode(split[3]);
 
 		try {
-			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(STRONG_KEY_ALGORITHM);
+			final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DEFAULT_KEY_ALGORITHM);
 			final PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LENGTH);
 			final Key tmp = keyFactory.generateSecret(keySpec);
 			final Key key = new SecretKeySpec(tmp.getEncoded(), "AES");
 
-			final Cipher c = Cipher.getInstance(STRONG_CIPHER_ALGORITHM);
+			final Cipher c = Cipher.getInstance(DEFAULT_CIPHER_ALGORITHM);
 			c.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
 			return new String(c.doFinal(in), "UTF-8");
 		}
@@ -124,19 +124,10 @@ public class CryptoUtil {
 		}
 	}
 
-	/**
-	 * The resulting string is 40 characters for the hash + 5 for the algorithm + salt + iteration
-	 */
-	public static String getSha1Hash(int iterations, byte[] salt, String message) {
-		return getHash("SHA-1", 0, salt, message);
-	}
-
 	public static String getSha256Hash(String message) {
 		return getSha256Hash(DEFAULT_ITERATIONS, getSecureRandom(), message);
 	}
-	/**
-	 * The resulting string is 64 characters for the hash + 7 for the algorithm + salt + iteration
-	 */
+
 	public static String getSha256Hash(int iterations, byte[] salt, String message) {
 		return getHash("SHA-256", iterations, salt, message);
 	}
@@ -198,7 +189,7 @@ public class CryptoUtil {
 	public static byte[] getSecureRandom(int bytes) {
 		final byte[] salt = new byte[bytes];
 		try {
-			final SecureRandom r = SecureRandom.getInstance(RNG_ALGORITHM);
+			final SecureRandom r = SecureRandom.getInstance(DEFAULT_RNG_ALGORITHM);
 			r.nextBytes(salt);
 			return salt;
 		}
