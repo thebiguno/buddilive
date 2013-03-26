@@ -24,6 +24,7 @@ Ext.define('BuddiLive.view.component.SelfDocumentingField', {
 				"icon": "img/question.png",
 				"margin": "1 0 0 5",
 				"tooltip": (this.initialConfig.helpButtonTooltip ? this.initialConfig.helpButtonTooltip : "${translation("WHAT_IS_THIS")?json_string}"),
+				"tabIndex": -1,
 				"listeners": {
 					"click": function(){
 						Ext.MessageBox.show({
