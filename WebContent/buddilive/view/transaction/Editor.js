@@ -51,7 +51,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"itemId": "number",
 						"flex": 1,
 						"emptyText": "Number",	//TODO i18n
-						"padding": (this.initialConfig.scheduledTransaction ? "0 0 0 5" : "5")
+						"padding": (this.initialConfig.scheduledTransaction ? "1 0 5 5" : "5 5 5 5")
 					}
 				]
 			},
