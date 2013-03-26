@@ -22,7 +22,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 				"layout": "hbox",
 				"border": false,
 				"defaults": {
-					"padding": "5 0 5 5"
+					"padding": (this.initialConfig.scheduledTransaction ? "0 0 5 0" : "5 0 5 5")
 				},
 				"items": [
 					{
@@ -33,6 +33,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 					{
 						"xtype": "datefield",
 						"itemId": "date",
+						"hidden": this.initialConfig.scheduledTransaction == true,
 						"flex": 1,
 						"enableKeyEvents": true,
 						"format": "${extDateFormat?json_string}",
@@ -50,12 +51,13 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"itemId": "number",
 						"flex": 1,
 						"emptyText": "Number",	//TODO i18n
-						"padding": "5"
+						"padding": (this.initialConfig.scheduledTransaction ? "0 0 0 5" : "5")
 					}
 				]
 			},
 			{
 				"xtype": "toolbar",
+				"hidden": this.initialConfig.scheduledTransaction == true,
 				"dock": "bottom",
 				"items": [
 					{
@@ -115,12 +117,12 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		if (splits && splits.length > 0){
 			//Add a new split editor for each split
 			for (var i = 0; i < splits.length; i++){
-				this.add({"xtype": "spliteditor", "value": splits[i]});
+				this.add({"xtype": "spliteditor", "value": splits[i], "scheduledTransaction": this.initialConfig.scheduledTransaction});
 			}
 		}
 		else {
 			//If the passed in splits are empty, add an empty editor
-			this.add({"xtype": "spliteditor"});
+			this.add({"xtype": "spliteditor", "scheduledTransaction": this.initialConfig.scheduledTransaction});
 		}
 		
 		Ext.resumeLayouts(true);

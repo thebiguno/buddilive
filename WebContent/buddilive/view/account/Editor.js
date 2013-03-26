@@ -54,9 +54,9 @@ Ext.define('BuddiLive.view.account.Editor', {
 						"xtype": "selfdocumentingfield",
 						"messageBody": "${translation("HELP_ACCOUNT_EDITOR_TYPE")?json_string}",
 						"type": "combobox",
-						"itemId": "${translation("ACCOUNT_EDITOR_TYPE")?json_string}",
+						"itemId": "type",
 						"value": (s ? s.type : "D"),
-						"fieldLabel": "Type",
+						"fieldLabel": "${translation("ACCOUNT_EDITOR_TYPE")?json_string}",
 						"editable": false,
 						"allowBlank": false,
 						"store": new Ext.data.Store({

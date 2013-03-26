@@ -9,8 +9,11 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='addCategory']": {"click": this.addCategory},
 			"buddiviewport button[itemId='editCategory']": {"click": this.editCategory},
 			"buddiviewport button[itemId='deleteCategory']": {"click": this.deleteCategory},
-			"buddiviewport button[itemId='editScheduledTransactions']": {"click": this.editScheduledTransactions},
-			"buddiviewport button[itemId='preferences']": {"click": this.editPreferences},
+			"buddiviewport button[itemId='addScheduled']": {"click": this.addScheduled},
+			"buddiviewport button[itemId='editSchedueld']": {"click": this.editScheduled},
+			"buddiviewport button[itemId='deleteScheduled']": {"click": this.deleteScheduled},
+			"buddiviewport button[itemId='showScheduled']": {"click": this.showScheduled},
+			"buddiviewport button[itemId='showPreferences']": {"click": this.showPreferences},
 			"buddiviewport button[itemId='logout']": {"click": this.logout}
 		});
 	},
@@ -169,7 +172,59 @@ Ext.define("BuddiLive.controller.Viewport", {
 		}
 	},
 	
-	"editPreferences": function(component){
+	"addScheduled": function(component){
+		var panel = component.up("buddiviewport").down("scheduledlist");
+		Ext.widget("schedulededitor", {
+			"panel": panel
+		}).show();
+	},
+	"editScheduled": function(component){
+		var panel = component.up("buddiviewport").down("scheduledlist");
+		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+		Ext.widget("schedulededitor", {
+			"panel": panel,
+			"selected": selected
+		}).show();
+	},
+	"deleteScheduled": function(component){
+		var viewport = component.up("buddiviewport");
+		var panel = viewport.down("scheduledlist");
+		
+		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+
+		if (selected == null) return;
+		
+		Ext.MessageBox.show({
+			"title": "${translation("DELETE_SCHEDULED")?json_string}",
+			"msg": "${translation("CONFIRM_DELETE_SCHEDULED")?json_string}",
+			"buttons": Ext.MessageBox.YESNO,
+			"fn": function(buttonId){
+				var request = {"action": "delete", "id": selected.id};
+				var conn = new Ext.data.Connection();
+				var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
+				mask.show();
+				conn.request({
+					"url": "buddilive/categories",
+					"headers": {
+						"Accept": "application/json"
+					},
+					"method": "POST",
+					"jsonData": request,
+					"success": function(response){
+						mask.hide();
+						window.close();
+						panel.getStore().reload();
+					},
+					"failure": function(response){
+						mask.hide();
+						BuddiLive.app.error(response);
+					}
+				});
+			}
+		});
+	},
+	
+	"showPreferences": function(component){
 		var panel = component.up("buddiviewport");
 		var conn = new Ext.data.Connection();
 		conn.request({
@@ -191,8 +246,17 @@ Ext.define("BuddiLive.controller.Viewport", {
 		});
 	},
 	
-	"editScheduledTransactions": function(component){
-		Ext.widget("scheduledtransactionlist", {}).show();
+	"showScheduled": function(component){
+		var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
+		if (tabPanel.down("scheduledlist") == null){
+			tabPanel.add( 
+				{
+					"xtype": "scheduledlist",
+					"title": "Scheduled Transactions"
+				}
+			);
+		}
+		tabPanel.setActiveTab(tabPanel.down("scheduledlist"));
 	},
 	
 	"logout": function(component){

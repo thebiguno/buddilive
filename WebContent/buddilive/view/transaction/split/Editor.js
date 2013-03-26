@@ -35,6 +35,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"keyNavEnabled": false,
 				"mouseWheelEnabled": false,
 				"emptyText": "0.00 (Amount)",	//TODO i18n
+				"padding": this.initialConfig.scheduledTransaction ? "0 0 5 0" : "0 0 5 5",
 				"value": v.amount
 			},
 			{
@@ -57,7 +58,6 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "memo",
 				"flex": 2,
 				"emptyText": "Memo",	//TODO i18n
-				"padding": "0 5 0 5",
 				"value": v.memo
 			},
 			{
@@ -66,7 +66,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "removeSplit",
 				"tooltip": "Remove split",	//TODO i18n
 				"padding": "2 5 2 5",
-				"margin": "0 5 0 0",
+				"margin": "0 0 0 5",
 				"hidden": true
 			},
 			{
@@ -74,7 +74,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "addSpacer",
 				"width": 28,
 				"padding": "2 5 2 5",
-				"margin": "0 5 0 0"
+				"margin": this.initialConfig.scheduledTransaction ? "0 0 0 5" : "0 5 0 5"
 			},
 			{
 				"xtype": "button",
@@ -82,7 +82,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "addSplit",
 				"tooltip": "Add split",	//TODO i18n
 				"padding": "2 5 2 5",
-				"margin": "0 5 0 0"
+				"margin": this.initialConfig.scheduledTransaction ? "0 0 0 5" : "0 5 0 5"
 			}
 		];
 		

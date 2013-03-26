@@ -1,7 +1,9 @@
 Ext.define('BuddiLive.view.scheduled.Editor', {
 	"extend": "Ext.window.Window",
-	"alias": "widget.scheduledtransactioneditor",
+	"alias": "widget.schedulededitor",
 	"requires": [
+		"BuddiLive.view.scheduled.panel.MonthlyByDate",
+		"BuddiLive.view.scheduled.panel.MonthlyByDayOfWeek"
 	],
 	
 	"initComponent": function(){
@@ -11,7 +13,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 		this.title = (s ? "Edit Scheduled Transaction" : "Add Scheduled Transaction");	//TODO i18n
 		this.layout = "fit";
 		this.modal = true;
-		this.width = 400;
+		this.width = 750;
 		this.items = [
 			{
 				"xtype": "form",
@@ -25,47 +27,86 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_NAME")?json_string}",
 						"type": "textfield",
 						"itemId": "name",
 						"value": (s ? s.name : null),
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_NAME")?json_string}",
 						"allowBlank": false,
-						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_NAME")?json_string}",
 						"listeners": {
 							"afterrender": function(field) {
-								field.focus(false, 100);
+								field.focus(false, 500);
 							}
 						}
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_REPEAT")?json_string}",
 						"type": "combobox",
 						"itemId": "repeat",
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_REPEAT")?json_string}",
-						"value": (s ? s.repeat : null),
-						"url": "buddilive/scheduledtransactions/repeat.json",
-						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_REPEAT")?json_string}",
+						"value": (s ? s.repeat : "SCHEDULE_FREQUENCY_MONTHLY_BY_DATE"),
+						"displayField": "text",
+						"valueField": "value",
+						"allowBlank": false,
+						"editable": false,
+						"forceSelection": true,
+						"store": new Ext.data.Store({
+							"fields": ["text", "value"],
+							"data": [
+								{"text": "${translation("SCHEDULE_FREQUENCY_MONTHLY_BY_DATE")?json_string}", "value": "SCHEDULE_FREQUENCY_MONTHLY_BY_DATE"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK")?json_string}", "value": "SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_WEEKLY")?json_string}", "value": "SCHEDULE_FREQUENCY_WEEKLY"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_BIWEEKLY")?json_string}", "value": "SCHEDULE_FREQUENCY_BIWEEKLY"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_DAY")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_DAY"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_X_DAYS")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_X_DAYS"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_WEEKDAY")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_WEEKDAY"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_WEEKDAY")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_WEEKDAY"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR")?json_string}", "value": "SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR"}
+							]
+						}),
+						"queryMode": "local",
+						"valueField": "value",
 						"listeners": {
-							"change": function(){
-								//TODO Change the visible fields below.
+							"change": function(component){
+								//Change the card layout to show the new item
+								component.up("form").down("panel[itemId='cardLayoutPanel']").getLayout().setActiveItem(component.getValue());
 							}
 						}
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_START_DATE")?json_string}",
 						"type": "datefield",
 						"itemId": "startDate",
 						"value": "",	//TODO Default to today
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_START_DATE")?json_string}",
-						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_START_DATE")?json_string}",
 						"allowBlank": false
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_END_DATE")?json_string}",
 						"type": "datefield",
 						"itemId": "endDate",
-						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_END_DATE")?json_string}",
-						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_END_DATE")?json_string}"
+						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_END_DATE")?json_string}"
+					},
+					{
+						"xtype": "panel",
+						"itemId": "cardLayoutPanel",
+						"layout": "card",
+						"border": false,
+						"padding": 0,
+						"items": [
+							{"xtype": "scheduledpanelmonthlybydate", "selected": s},
+							{"xtype": "scheduledpanelmonthlybydayofweek", "selected": s}
+						]
+					},
+					{
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_TRANSACTION")?json_string}",
+						"type": "transactioneditor",
+						"scheduledTransaction": true,
+						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_TRANSACTION")?json_string}"
 					}
 				]
 			}

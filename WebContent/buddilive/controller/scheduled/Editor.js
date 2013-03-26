@@ -1,48 +1,54 @@
-Ext.define("BuddiLive.controller.preferences.Editor", {
+Ext.define("BuddiLive.controller.scheduled.Editor", {
 	"extend": "Ext.app.Controller",
 
 	"init": function() {
 		this.control({
-			"preferenceseditor button[itemId='done']": {"click": this.done},
-			"preferenceseditor button[itemId='cancel']": {"click": this.cancel}
+			"schedulededitor component": {
+				"blur": this.updateButtons,
+				"keypress": this.updateButtons,
+				"afterrender": this.updateButtons
+			},
+			"schedulededitor button[itemId='ok']": {"click": this.ok},
+			"schedulededitor button[itemId='cancel']": {"click": this.cancel}
 		});
 	},
 	
-	"done": function(component){
-		component.up("preferenceseditor").close();
+	"updateButtons": function(component){
+		var window = component.up("schedulededitor");
+		var ok = window.down("button[itemId='ok']");
+		var name = window.down("textfield[itemId='name']");
+		var startDate = window.down("datefield[itemId='startDate']");
+		
+		ok.setDisabled(name.getValue().length == 0 || startDate.getValue() == null);
+	},
+	
+	"cancel": function(component){
+		component.up("schedulededitor").close();
 	},
 	
 	"ok": function(component){
-		var window = component.up("preferenceseditor");
+		var window = component.up("schedulededitor");
 		var panel = window.initialConfig.panel;
-		var originalData = window.initialConfig.data;
+		var selected = window.initialConfig.selected;
 
-		if (window.down("checkbox[itemId='encrypt']").getValue() != originalData.encrypt && window.down("textfield[itemId='password']").getValue().length == 0){
-			Ext.MessageBox.show({
-				"title": "${translation("INVALID")?json_string}",
-				"msg": "${translation("ENTER_PASSWORD_TO_CHANGE_ENCRYPTION")?json_string}",
-				"buttons": Ext.MessageBox.OK
-			});
-			return;
-		}
-
-		var request = {"action": "update"};
-		request.encrypt = window.down("checkbox[itemId='encrypt']").getValue();
-		request.encryptPassword = window.down("textfield[itemId='password']").getValue();
-		request.locale = window.down("combobox[itemId='locale']").getValue();
-		request.dateFormat = window.down("combobox[itemId='dateFormat']").getValue();
-		request.currencySymbol = window.down("combobox[itemId='currencySymbol']").getValue();
-		request.currencySymbolAfterAmount = window.down("checkbox[itemId='currencySymbolAfterAmount']").getValue();
-		request.showDeleted = window.down("checkbox[itemId='showDeleted']").getValue();
-		request.showCleared = window.down("checkbox[itemId='showCleared']").getValue();
-		request.showReconciled = window.down("checkbox[itemId='showReconciled']").getValue();
+		var request = {"action": (selected ? "update" : "insert")};
+		request.name = window.down("textfield[itemId='name']").getValue();
+		request.repeat = window.down("combobox[itemId='repeat']").getValue();
+		request.start = Ext.Date.format(window.down("datefield[itemId='startDate']").getValue(), "Y-m-d");
+		request.end = Ext.Date.format(window.down("datefield[itemId='endDate']").getValue(), "Y-m-d");
+		request.transaction = window.down("transactioneditor").getTransaction();
+		
+		var activeCard = window.down("panel[itemId='cardLayoutPanel']").getLayout().getActiveItem();
+		request.scheduleDay = activeCard.getScheduleDay();
+		request.scheduleWeek = activeCard.getScheduleWeek();
+		request.scheduleMonth = activeCard.getScheduleMonth();
 
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": window});
 		mask.show();
 		
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/userpreferences",
+			"url": "buddilive/scheduledtransactions",
 			"headers": {
 				"Accept": "application/json"
 			},

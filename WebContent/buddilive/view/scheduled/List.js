@@ -1,8 +1,9 @@
-Ext.define('BuddiLive.view.scheduled.List', {
-	"extend": "Ext.window.Window",
-	"alias": "widget.scheduledtransactionlist",
+Ext.define("BuddiLive.view.scheduled.List", {
+	"extend": "Ext.panel.Panel",
+	"alias": "widget.scheduledlist",
 	"requires": [
-		"BuddiLive.store.scheduled.ListStore"
+		"BuddiLive.store.scheduled.ListStore",
+		"BuddiLive.view.scheduled.Editor"
 	],
 	
 	"initComponent": function(){
@@ -11,9 +12,7 @@ Ext.define('BuddiLive.view.scheduled.List', {
 		this.title = "${translation("SCHEDULED_TRANSACTIONS")?json_string}";
 		this.layout = "fit";
 		this.store = Ext.create("BuddiLive.store.scheduled.ListStore");
-		this.modal = true;
-		this.width = 400;
-		this.height = 300;
+		this.closable = true;
 		this.items = [
 			{
 				"xtype": "grid",
@@ -27,25 +26,7 @@ Ext.define('BuddiLive.view.scheduled.List', {
 				]
 			}
 		];
-		this.buttons = [
-			{
-				"text": "${translation("NEW")?json_string}",
-				"itemId": "new"
-			},
-			{
-				"text": "${translation("EDIT")?json_string}",
-				"itemId": "edit"
-			},
-			{
-				"text": "${translation("DELETE")?json_string}",
-				"itemId": "delete"
-			},
-			"->",
-			{
-				"text": "${translation("DONE")?json_string}",
-				"itemId": "done"
-			}
-		]
+		this.dockedItems = BuddiLive.app.viewport.getDockedItems("scheduled")
 	
 		this.callParent(arguments);
 	}

@@ -24,7 +24,7 @@ Ext.define("BuddiLive.controller.transaction.split.Editor", {
 	
 	"addSplit": function(component){
 		var transactionEditor = component.up("transactioneditor");
-		transactionEditor.add({"xtype": "spliteditor"});
+		transactionEditor.add({"xtype": "spliteditor", "scheduledTransaction": transactionEditor.initialConfig.scheduledTransaction});
 		this.updateButtons(transactionEditor);
 	},
 	
