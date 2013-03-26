@@ -17,6 +17,91 @@ Ext.define("BuddiLive.view.Viewport", {
 		this.layout = "border";
 		this.height = "100%";
 		this.width = "100%";
+		
+		var getDockedItems = function(showAccounts, showCategories){
+			var items = [];
+			
+			if (showAccounts){
+				items.push(
+					{
+						"text": "${translation("NEW_ACCOUNT")?json_string}",
+						"icon": "img/bank--plus.png",
+						"itemId": "addAccount"
+					},
+					{
+						"text": "${translation("MODIFY_ACCOUNT")?json_string}",
+						"icon": "img/bank--pencil.png",
+						"itemId": "editAccount",
+						"disabled": true
+					},
+					{
+						"text": "${translation("DELETE_ACCOUNT")?json_string}",
+						"icon": "img/bank--minus.png",
+						"itemId": "deleteAccount",
+						"disabled": true
+					}
+				);
+			}
+			
+			if (showCategories){
+				items.push(
+					{
+						"text": "${translation("NEW_BUDGET_CATEGORY")?json_string}",
+						"icon": "img/table--plus.png",
+						"itemId": "addCategory"
+					},
+					{
+						"text": "${translation("MODIFY_BUDGET_CATEGORY")?json_string}",
+						"icon": "img/table--pencil.png",
+						"itemId": "editCategory",
+						"disabled": true
+					},
+					{
+						"text": "${translation("DELETE_BUDGET_CATEGORY")?json_string}",
+						"icon": "img/table--minus.png",
+						"itemId": "deleteCategory",
+						"disabled": true
+					}
+				);
+			}
+			
+			items.push(
+				"->",
+				<#if encrypted>
+				{
+					"icon": "img/lock.png",
+					"overCls": "",
+					"tooltip": "${translation("DATA_ENCRYPTED")?json_string}"
+				},
+				" ",
+				</#if>
+				{
+					"text": "${translation("SCHEDULED_TRANSACTIONS")?json_string}",
+					"icon": "img/gear.png",
+					"itemId": "editScheduledTransactions"
+				},
+				{
+					"text": "${translation("PREFERENCES")?json_string}",
+					"icon": "img/gear.png",
+					"itemId": "preferences"
+				},
+				{
+					"text": "${translation("LOGOUT")?json_string}",
+					"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",
+					"icon": "img/door-open-out.png",
+					"itemId": "logout"
+				}
+			);
+			
+			return [
+				{
+					"xtype": "toolbar",
+					"dock": "top",
+					"items": items
+				}
+			];
+		}
+		
 		this.items = [
 			<#if !premium>
 			{
@@ -40,76 +125,6 @@ Ext.define("BuddiLive.view.Viewport", {
 				"itemId": "budditabpanel",
 				"layout": "fit",
 				"region": "center",
-				"dockedItems": [
-					{
-						"xtype": "toolbar",
-						"dock": "top",
-						"items": [
-							{
-								"text": "${translation("NEW_ACCOUNT")?json_string}",
-								"icon": "img/bank--plus.png",
-								"itemId": "addAccount"
-							},
-							{
-								"text": "${translation("MODIFY_ACCOUNT")?json_string}",
-								"icon": "img/bank--pencil.png",
-								"itemId": "editAccount",
-								"disabled": true
-							},
-							{
-								"text": "${translation("DELETE_ACCOUNT")?json_string}",
-								"icon": "img/bank--minus.png",
-								"itemId": "deleteAccount",
-								"disabled": true
-							},
-							{
-								"text": "${translation("NEW_BUDGET_CATEGORY")?json_string}",
-								"icon": "img/table--plus.png",
-								"itemId": "addCategory",
-								"hidden": true
-							},
-							{
-								"text": "${translation("MODIFY_BUDGET_CATEGORY")?json_string}",
-								"icon": "img/table--pencil.png",
-								"itemId": "editCategory",
-								"disabled": true,
-								"hidden": true
-							},
-							{
-								"text": "${translation("DELETE_BUDGET_CATEGORY")?json_string}",
-								"icon": "img/table--minus.png",
-								"itemId": "deleteCategory",
-								"disabled": true,
-								"hidden": true
-							},
-							"->",
-							<#if encrypted>
-							{
-								"icon": "img/lock.png",
-								"overCls": "",
-								"tooltip": "${translation("DATA_ENCRYPTED")?json_string}"
-							},
-							" ",
-							</#if>
-							{
-								"text": "${translation("SCHEDULED_TRANSACTIONS")?json_string}",
-								"icon": "img/gear.png",
-								"itemId": "editScheduledTransactions"
-							},
-							{
-								"text": "${translation("PREFERENCES")?json_string}",
-								"icon": "img/gear.png",
-								"itemId": "preferences"
-							},
-							{
-								"text": "${translation("LOGOUT")?json_string}",
-								"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",
-								"icon": "img/door-open-out.png",
-								"itemId": "logout"
-							}
-						]
-					}
-				],
 				"items": [
 					{
 						"xtype": "panel",
@@ -129,12 +144,21 @@ Ext.define("BuddiLive.view.Viewport", {
 								"xtype": "transactionlist",
 								"region": "center"
 							}
-						]
+						],
+						"dockedItems": getDockedItems(true, false)
 					},
 					{
-						"xtype": "budgetpanel",
+						"xtype": "panel",
+						"layout": "fit",
+						"region": "center",
 						"title": "${translation("MY_BUDGET")?json_string}",
-						"itemId": "myBudget"
+						"items": [
+							{
+								"xtype": "budgetpanel",
+								"itemId": "myBudget"
+							}
+						],
+						"dockedItems": getDockedItems(false, true)
 					}
 				]
 			}

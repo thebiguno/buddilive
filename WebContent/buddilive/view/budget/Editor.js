@@ -26,29 +26,29 @@ Ext.define('BuddiLive.view.budget.Editor', {
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_BUDGET_CATEGORY_NAME")?json_string}",
 						"type": "textfield",
 						"itemId": "name",
 						"value": (s ? s.name : null),
-						"fieldLabel": "Name",	//TODO i18n
+						"fieldLabel": "${translation("BUDGET_CATEGORY_NAME")?json_string}",
 						"allowBlank": false,
 						"enableKeyEvents": true,
 						"emptyText": "Salary, Groceries, Auto Insurance, etc",	//TODO i18n
-						"messageBody": "${translation("HELP_BUDGET_CATEGORY_NAME")?json_string}",
 						"listeners": {
 							"afterrender": function(field) {
-								field.focus(false, 100);
+								field.focus(false, 500);
 							}
 						}
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_BUDGET_CATEGORY_PARENT")?json_string}",
 						"type": "parentcombobox",
 						"itemId": "parent",
-						"fieldLabel": "Parent Category",	//TODO i18n
+						"fieldLabel": "${translation("BUDGET_CATEGORY_PARENT")?json_string}",
 						"emptyText": "Parent",
 						"value": (s ? s.parent : null),
 						"url": "buddilive/categories/parents.json" + (s ? "?exclude=" + s.id : ""),
-						"messageBody": "${translation("HELP_BUDGET_CATEGORY_PARENT")?json_string}",
 						"listeners": {
 							"change": function(){
 								var parent = editor.down("combobox[itemId='parent']");
@@ -63,11 +63,13 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						}
 					},
 					{
-						"xtype": "combobox",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_BUDGET_CATEGORY_PERIOD_TYPE")?json_string}",
+						"type": "combobox",
 						"itemId": "periodType",
 						"value": "MONTH",
 						"hidden": s != null,
-						"fieldLabel": "Period Type",	//TODO i18n
+						"fieldLabel": "${translation("BUDGET_CATEGORY_PERIOD_TYPE")?json_string}",
 						"editable": false,
 						"allowBlank": false,
 						"store": new Ext.data.Store({
@@ -85,11 +87,13 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"valueField": "value"
 					},
 					{
-						"xtype": "combobox",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_BUDGET_CATEGORY_TYPE")?json_string}",
+						"type": "combobox",
 						"itemId": "type",
 						"value": "E",
 						"hidden": s != null,
-						"fieldLabel": "Type",	//TODO i18n
+						"fieldLabel": "${translation("BUDGET_CATEGORY_TYPE")?json_string}",
 						"editable": false,
 						"allowBlank": false,
 						"store": new Ext.data.Store({

@@ -3,7 +3,6 @@ Ext.define("BuddiLive.controller.Viewport", {
 
 	"init": function() {
 		this.control({
-			"tabpanel[itemId='budditabpanel']": {"tabchange": this.tabChange},
 			"buddiviewport button[itemId='addAccount']": {"click": this.addAccount},
 			"buddiviewport button[itemId='editAccount']": {"click": this.editAccount},
 			"buddiviewport button[itemId='deleteAccount']": {"click": this.deleteAccount},
@@ -14,18 +13,6 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='preferences']": {"click": this.editPreferences},
 			"buddiviewport button[itemId='logout']": {"click": this.logout}
 		});
-	},
-	
-	"tabChange": function(tabPanel, newCard, oldCard){
-		var accountActive = newCard.itemId == "myAccounts";
-		var budgetActive = newCard.itemId == "myBudget";
-		
-		tabPanel.down("button[itemId='addAccount']").setVisible(accountActive);
-		tabPanel.down("button[itemId='editAccount']").setVisible(accountActive);
-		tabPanel.down("button[itemId='deleteAccount']").setVisible(accountActive);
-		tabPanel.down("button[itemId='addCategory']").setVisible(budgetActive);
-		tabPanel.down("button[itemId='editCategory']").setVisible(budgetActive);
-		tabPanel.down("button[itemId='deleteCategory']").setVisible(budgetActive);
 	},
 	
 	"addAccount": function(component){
