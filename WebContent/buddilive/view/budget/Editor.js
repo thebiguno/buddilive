@@ -58,7 +58,6 @@ Ext.define('BuddiLive.view.budget.Editor', {
 								}
 								editor.down("combobox[itemId='periodType']").setDisabled(parent.getValue() != null);
 								editor.down("combobox[itemId='type']").setDisabled(parent.getValue() != null);
-								
 							}
 						}
 					},

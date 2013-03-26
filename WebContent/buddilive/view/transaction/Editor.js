@@ -129,7 +129,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 	},
 	
 	"validate": function(){
-		if (!Ext.isDate(this.down("datefield[itemId='date']").getValue())) return false;
+		if (!this.initialConfig.scheduledTransaction && !Ext.isDate(this.down("datefield[itemId='date']").getValue())) return false;
 		var description = this.down("combobox[itemId='description']").getValue();
 		if (description == null || description.length == 0) return false;
 		if (this.items.length == 0) return false;

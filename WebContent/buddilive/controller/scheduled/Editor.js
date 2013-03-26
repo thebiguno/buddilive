@@ -18,8 +18,9 @@ Ext.define("BuddiLive.controller.scheduled.Editor", {
 		var ok = window.down("button[itemId='ok']");
 		var name = window.down("textfield[itemId='name']");
 		var startDate = window.down("datefield[itemId='startDate']");
+		var transaction = window.down("transactioneditor")
 		
-		ok.setDisabled(name.getValue().length == 0 || startDate.getValue() == null);
+		ok.setDisabled(name.getValue().length == 0 || startDate.getValue() == null || !transaction.validate());
 	},
 	
 	"cancel": function(component){
