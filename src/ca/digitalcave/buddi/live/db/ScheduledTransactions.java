@@ -29,6 +29,9 @@ public interface ScheduledTransactions {
 	public Integer insertScheduledTransaction(@Param("user") User user, @Param("transaction") ScheduledTransaction transaction);
 	public Integer insertScheduledSplit(@Param("user") User user, @Param("split") Split split);
 	
+	public Integer updateScheduledTransaction(@Param("user") User user, @Param("transaction") ScheduledTransaction transaction);
+	public Integer updateScheduledSplit(@Param("user") User user, @Param("split") Split split);
+	
 	public Integer deleteScheduledTransaction(@Param("user") User user, @Param("transaction") ScheduledTransaction transaction);
 	public Integer deleteScheduledSplit(@Param("user") User user, @Param("split") Split split);
 }

@@ -84,7 +84,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		
 		this.callParent(arguments);
 		
-		this.setTransaction();
+		this.setTransaction(this.initialConfig.transaction);
 	},
 	
 	"getTransaction": function(transaction){

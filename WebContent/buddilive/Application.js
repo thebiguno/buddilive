@@ -19,6 +19,7 @@ Ext.application({
 		"budget.Panel",
 		"budget.Tree",
 		"scheduled.Editor",
+		"scheduled.List",
 		"preferences.Editor",
 		"transaction.List",
 		"transaction.Editor",

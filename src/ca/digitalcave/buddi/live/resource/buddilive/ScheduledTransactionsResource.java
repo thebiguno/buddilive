@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -17,13 +16,10 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.ScheduledTransactions;
-import ca.digitalcave.buddi.live.db.Transactions;
-import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.ScheduledTransaction;
 import ca.digitalcave.buddi.live.model.Split;
-import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
@@ -43,13 +39,20 @@ public class ScheduledTransactionsResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final List<ScheduledTransaction> scheduledTransactions = sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user);
+			final JSONObject result = new JSONObject();
 			
-			final JSONArray data = new JSONArray();
 			for (ScheduledTransaction t : scheduledTransactions) {
 				final JSONObject scheduledTransaction = new JSONObject();
 				scheduledTransaction.put("id", t.getId());
 				scheduledTransaction.put("name", CryptoUtil.decryptWrapper(t.getDescription(), user));
+				scheduledTransaction.put("description", CryptoUtil.decryptWrapper(t.getDescription(), user));
 				scheduledTransaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
+				scheduledTransaction.put("scheduleDay", t.getScheduleDay());
+				scheduledTransaction.put("scheduleWeek", t.getScheduleWeek());
+				scheduledTransaction.put("scheduleMonth", t.getScheduleMonth());
+				scheduledTransaction.put("startDate", FormatUtil.formatDateInternal(t.getStartDate()));
+				scheduledTransaction.put("endDate", FormatUtil.formatDateInternal(t.getEndDate()));
+				scheduledTransaction.put("repeat", t.getFrequencyType());
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
@@ -61,11 +64,9 @@ public class ScheduledTransactionsResource extends ServerResource {
 					split.put("memo", CryptoUtil.decryptWrapper(s.getMemo(), user));
 					scheduledTransaction.append("splits", split);
 				}
-				data.put(scheduledTransaction);
+				result.append("data", scheduledTransaction);
 			}
 			
-			final JSONObject result = new JSONObject();
-			result.put("data", data);
 			result.put("total", scheduledTransactions.size());
 			result.put("success", true);
 			return new JsonRepresentation(result);
@@ -101,6 +102,7 @@ public class ScheduledTransactionsResource extends ServerResource {
 				scheduledTransaction.setId(json.getLong("id"));
 				int count = sqlSession.getMapper(ScheduledTransactions.class).deleteScheduledTransaction(user, scheduledTransaction);
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+				//We rely on delete cascading to clean up scheduled splits.
 			}
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));

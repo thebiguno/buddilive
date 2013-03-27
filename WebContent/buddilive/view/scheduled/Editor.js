@@ -79,7 +79,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_START_DATE")?json_string}",
 						"type": "datefield",
 						"itemId": "startDate",
-						"value": "",	//TODO Default to today
+						"value": (s ? s.startDate : new Date),
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_START_DATE")?json_string}",
 						"allowBlank": false
 					},
@@ -88,6 +88,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_END_DATE")?json_string}",
 						"type": "datefield",
 						"itemId": "endDate",
+						"value": (s ? s.endDate : null),
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_END_DATE")?json_string}"
 					},
 					{
@@ -106,7 +107,8 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_TRANSACTION")?json_string}",
 						"type": "transactioneditor",
 						"scheduledTransaction": true,
-						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_TRANSACTION")?json_string}"
+						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_TRANSACTION")?json_string}",
+						"transaction": s
 					}
 				]
 			}

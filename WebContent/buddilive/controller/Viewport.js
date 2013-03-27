@@ -10,7 +10,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='editCategory']": {"click": this.editCategory},
 			"buddiviewport button[itemId='deleteCategory']": {"click": this.deleteCategory},
 			"buddiviewport button[itemId='addScheduled']": {"click": this.addScheduled},
-			"buddiviewport button[itemId='editSchedueld']": {"click": this.editScheduled},
+			"buddiviewport button[itemId='editScheduled']": {"click": this.editScheduled},
 			"buddiviewport button[itemId='deleteScheduled']": {"click": this.deleteScheduled},
 			"buddiviewport button[itemId='showScheduled']": {"click": this.showScheduled},
 			"buddiviewport button[itemId='showPreferences']": {"click": this.showPreferences},
@@ -179,8 +179,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 		}).show();
 	},
 	"editScheduled": function(component){
-		var panel = component.up("buddiviewport").down("scheduledlist");
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+		var panel = component.up("buddiviewport").down("scheduledlist").down("grid");
+		var selected = panel.getSelectionModel().getSelection()[0].raw;
 		Ext.widget("schedulededitor", {
 			"panel": panel,
 			"selected": selected
@@ -188,9 +188,9 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	"deleteScheduled": function(component){
 		var viewport = component.up("buddiviewport");
-		var panel = viewport.down("scheduledlist");
+		var panel = viewport.down("scheduledlist").down("grid");
 		
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+		var selected = panel.getSelectionModel().getSelection()[0].raw;
 
 		if (selected == null) return;
 		
@@ -199,12 +199,14 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"msg": "${translation("CONFIRM_DELETE_SCHEDULED")?json_string}",
 			"buttons": Ext.MessageBox.YESNO,
 			"fn": function(buttonId){
+				if (buttonId != "yes") return;
+				
 				var request = {"action": "delete", "id": selected.id};
 				var conn = new Ext.data.Connection();
 				var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
 				mask.show();
 				conn.request({
-					"url": "buddilive/categories",
+					"url": "buddilive/scheduledtransactions",
 					"headers": {
 						"Accept": "application/json"
 					},

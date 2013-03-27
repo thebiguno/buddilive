@@ -185,4 +185,48 @@
 			CURRENT_TIMESTAMP
 		)
 	</insert>
+	
+	<update id="updateScheduledTransaction">
+		UPDATE scheduledtransactions
+		SET
+			schedule_name = #{transaction.scheduleName},
+			description = #{transaction.description},
+			number = #{transaction.number,jdbcType=VARCHAR},
+			date = #{transaction.date},
+			schedule_day = #{transaction.scheduleDay},
+			schedule_week = #{transaction.scheduleWeek},
+			schedule_month = #{transaction.scheduleMonth},
+			frequency_type = #{transaction.frequencyType},
+			start_date = #{transaction.startDate},
+			end_date = #{transaction.endDate},
+			last_created_date = #{transaction.lastCreatedDate},
+			message = #{transaction.message},
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{transaction.id} AND user_id = #{user.id}
+	</update>
+	
+	<update id="updateScheduledSplit">
+		UPDATE scheduledsplits
+		SET 
+			from_balance = #{split.fromBalance,jdbcType=DECIMAL},
+			to_balance = #{split.toBalance,jdbcType=DECIMAL},
+			memo = #{split.memo,jdbcType=VARCHAR},
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{split.id} AND user_id = #{user.id}
+	</update>
+	
+	<delete id="deleteScheduledTransaction">
+		DELETE FROM scheduledtransactions
+		WHERE
+			user_id = #{user.id}
+			AND id = #{transaction.id}
+	</delete>
+
+	<delete id="deleteScheduledSplit">
+		DELETE FROM scheduledsplits
+		WHERE
+			user_id = #{user.id}
+			AND id = #{split.id}
+	</delete>
+
 </mapper>

@@ -11,15 +11,15 @@ Ext.define("BuddiLive.view.scheduled.List", {
 
 		this.title = "${translation("SCHEDULED_TRANSACTIONS")?json_string}";
 		this.layout = "fit";
-		this.store = Ext.create("BuddiLive.store.scheduled.ListStore");
 		this.closable = true;
 		this.items = [
 			{
 				"xtype": "grid",
 				"itemId": "scheduledTransactions",
+				"store": Ext.create("BuddiLive.store.scheduled.ListStore"),
 				"columns": [
 					{
-					"text": "Name",	//TODO i18n
+						"text": "Name",	//TODO i18n
 						"dataIndex": "name",
 						"flex": 1
 					}

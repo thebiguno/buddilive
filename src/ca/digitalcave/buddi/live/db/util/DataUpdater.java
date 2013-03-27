@@ -327,7 +327,8 @@ public class DataUpdater {
 		//   ii) Account type
 		//   iii) Transaction description
 		//   iv) Transaction number
-		//	 v) Split memo
+		//	 v) Split memo,
+		//   vi) Scheduled transaction name, description, number, split memo
 		
 		if (user.isEncrypted()) throw new DatabaseException("This account is already encrypted");
 		
@@ -354,6 +355,16 @@ public class DataUpdater {
 		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
 			s.setMemo(CryptoUtil.encrypt(s.getMemo(), encryptionKey));
 			sqlSession.getMapper(Transactions.class).updateSplit(user, s);
+		}
+		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
+			st.setScheduleName(CryptoUtil.encrypt(st.getScheduleName(), encryptionKey));
+			st.setDescription(CryptoUtil.encrypt(st.getDescription(), encryptionKey));
+			st.setNumber(CryptoUtil.encrypt(st.getNumber(), encryptionKey));
+			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
+			for (Split s : st.getSplits()) {
+				s.setMemo(CryptoUtil.encrypt(s.getMemo(), encryptionKey));
+				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, s);
+			}
 		}
 	}
 	
