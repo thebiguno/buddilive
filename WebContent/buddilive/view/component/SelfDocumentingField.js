@@ -13,6 +13,7 @@ Ext.define('BuddiLive.view.component.SelfDocumentingField', {
 		delete component.fieldLabel;
 		delete this.itemId;
 		delete this.listeners;
+		delete this.disabled;
 		
 		var messageTitle = (this.initialConfig.messageTitle ? this.initialConfig.messageTitle : "${translation("WHAT_IS_THIS")?json_string}");
 		var messageBody = this.initialConfig.messageBody;

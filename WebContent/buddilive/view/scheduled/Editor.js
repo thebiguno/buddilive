@@ -3,7 +3,14 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 	"alias": "widget.schedulededitor",
 	"requires": [
 		"BuddiLive.view.scheduled.panel.MonthlyByDate",
-		"BuddiLive.view.scheduled.panel.MonthlyByDayOfWeek"
+		"BuddiLive.view.scheduled.panel.MonthlyByDayOfWeek",
+		"BuddiLive.view.scheduled.panel.Weekly",
+		"BuddiLive.view.scheduled.panel.BiWeekly",
+		"BuddiLive.view.scheduled.panel.EveryDay",
+		"BuddiLive.view.scheduled.panel.EveryXDays",
+		"BuddiLive.view.scheduled.panel.EveryWeekday",
+		"BuddiLive.view.scheduled.panel.MultipleWeeksEveryMonth",
+		"BuddiLive.view.scheduled.panel.MultipleMonthsEveryYear"
 	],
 	
 	"initComponent": function(){
@@ -46,6 +53,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"itemId": "repeat",
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_REPEAT")?json_string}",
 						"value": (s ? s.repeat : "SCHEDULE_FREQUENCY_MONTHLY_BY_DATE"),
+						"disabled": s != null,
 						"displayField": "text",
 						"valueField": "value",
 						"allowBlank": false,
@@ -61,7 +69,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_DAY")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_DAY"},
 								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_X_DAYS")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_X_DAYS"},
 								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_WEEKDAY")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_WEEKDAY"},
-								{"text": "${translation("SCHEDULE_FREQUENCY_EVERY_WEEKDAY")?json_string}", "value": "SCHEDULE_FREQUENCY_EVERY_WEEKDAY"},
+								{"text": "${translation("SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH")?json_string}", "value": "SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH"},
 								{"text": "${translation("SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR")?json_string}", "value": "SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR"}
 							]
 						}),
@@ -79,7 +87,8 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_START_DATE")?json_string}",
 						"type": "datefield",
 						"itemId": "startDate",
-						"value": (s ? s.startDate : new Date),
+						"value": (s ? s.start : new Date),
+						"disabled": s != null,
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_START_DATE")?json_string}",
 						"allowBlank": false
 					},
@@ -88,7 +97,8 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_END_DATE")?json_string}",
 						"type": "datefield",
 						"itemId": "endDate",
-						"value": (s ? s.endDate : null),
+						"emptyText": "${translation("SCHEDULED_TRANSACTION_END_DATE_EMPTY_TEXT")?json_string}",
+						"value": (s ? s.end : null),
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_END_DATE")?json_string}"
 					},
 					{
@@ -99,8 +109,24 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"padding": 0,
 						"items": [
 							{"xtype": "scheduledpanelmonthlybydate", "selected": s},
-							{"xtype": "scheduledpanelmonthlybydayofweek", "selected": s}
-						]
+							{"xtype": "scheduledpanelmonthlybydayofweek", "selected": s},
+							{"xtype": "scheduledpanelweekly", "selected": s},
+							{"xtype": "scheduledpanelbiweekly", "selected": s},
+							{"xtype": "scheduledpaneleveryday", "selected": s},
+							{"xtype": "scheduledpaneleveryxdays", "selected": s},
+							{"xtype": "scheduledpaneleveryweekday", "selected": s},
+							{"xtype": "scheduledpanelmultipleweekseverymonth", "selected": s},
+							{"xtype": "scheduledpanelmultiplemonthseveryyear", "selected": s}
+						],
+						"listeners": {
+							"afterrender": function(component){
+								//Change the card layout to show the selected item if this is an editor
+								if (s != null){
+									component.getLayout().setActiveItem(s.repeat);
+								}
+							}
+						}
+
 					},
 					{
 						"xtype": "selfdocumentingfield",
@@ -109,6 +135,13 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"scheduledTransaction": true,
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_TRANSACTION")?json_string}",
 						"transaction": s
+					},
+					{
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_MESSAGE")?json_string}",
+						"type": "textarea",
+						"itemId": "message",
+						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_MESSAGE")?json_string}"
 					}
 				]
 			}

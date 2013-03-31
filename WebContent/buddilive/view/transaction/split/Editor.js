@@ -56,7 +56,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 			{
 				"xtype": "textfield",
 				"itemId": "memo",
-				"flex": 2,
+				"flex": 1,
 				"emptyText": "Memo",	//TODO i18n
 				"value": v.memo,
 				"padding": this.initialConfig.scheduledTransaction ? "1 0 5 5" : "0 0 5 5"

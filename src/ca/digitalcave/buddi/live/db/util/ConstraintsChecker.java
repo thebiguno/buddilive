@@ -42,7 +42,7 @@ public class ConstraintsChecker {
 				if (!p.getPeriodType().equals(category.getPeriodType())) throw new DatabaseException("The period of a parent must match the period of the child");
 			}
 		}
-		
+
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(category.getName())){
 			category.setName(CryptoUtil.encrypt(category.getName(), user.getDecryptedEncryptionKey()));
 		}
@@ -52,7 +52,7 @@ public class ConstraintsChecker {
 		if (category.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertCategory(category, user, sqlSession);
 	}
-	
+
 	public static void checkInsertAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (account.isAccount()){
 			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user, account.getAccountType());
@@ -70,31 +70,29 @@ public class ConstraintsChecker {
 			account.setAccountType(CryptoUtil.encrypt(account.getAccountType(), user.getDecryptedEncryptionKey()));
 		}
 	}
-	
+
 	public static void checkUpdateAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (account.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertAccount(account, user, sqlSession);
 	}
-	
+
 	public static void checkInsertTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Perform integrity checks
 		if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		if (transaction.getDate() == null) throw new DatabaseException("The transaction date must be set");
 		for (Split split : transaction.getSplits()) {
 			if (split.getAmount().compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
-			
+
 			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
 			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
 			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
-			
+
 			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
 				split.setMemo(CryptoUtil.encrypt(split.getMemo(), user.getDecryptedEncryptionKey()));
 			}
-
-			
 		}
-		
+
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(transaction.getDescription())){
 			transaction.setDescription(CryptoUtil.encrypt(transaction.getDescription(), user.getDecryptedEncryptionKey()));
 		}
@@ -102,28 +100,28 @@ public class ConstraintsChecker {
 			transaction.setNumber(CryptoUtil.encrypt(transaction.getNumber(), user.getDecryptedEncryptionKey()));
 		}
 	}
-	
+
 	public static void checkUpdateTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (transaction.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertTransaction(transaction, user, sqlSession);
 	}
-	
+
 	public static void checkInsertScheduledTransaction(ScheduledTransaction scheduledTransaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Perform integrity checks
 		if (scheduledTransaction.getSplits() == null || scheduledTransaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		for (Split split : scheduledTransaction.getSplits()) {
 			if (split.getAmount().compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
-			
+
 			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
 			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
 			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
-			
+
 			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
 				split.setMemo(CryptoUtil.encrypt(split.getMemo(), user.getDecryptedEncryptionKey()));
 			}
 		}
-		
+
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getDescription())){
 			scheduledTransaction.setDescription(CryptoUtil.encrypt(scheduledTransaction.getDescription(), user.getDecryptedEncryptionKey()));
 		}
@@ -137,28 +135,28 @@ public class ConstraintsChecker {
 			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getMessage(), user.getDecryptedEncryptionKey()));
 		}
 	}
-	
+
 	public static void checkUpdateScheduledTransaction(ScheduledTransaction scheduledTransaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (scheduledTransaction.getId() == null) throw new DatabaseException("The id must be set to perform an update");
 		checkInsertScheduledTransaction(scheduledTransaction, user, sqlSession);
 	}
-	
+
 	public static void checkInsertEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
 		if (entry.getAmount() == null) entry.setAmount(BigDecimal.ZERO);
 		if (entry.getCategoryId() == 0) throw new DatabaseException("The category id must be set");
 		if (entry.getDate() == null) throw new DatabaseException("The date must be set");
-		
+
 		if (sqlSession.getMapper(Sources.class).selectCategory(user, entry.getCategoryId()) == null) throw new DatabaseException("The specified category is not valid");
 	}
 	public static void checkUpdateEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
 		if (sqlSession.getMapper(Entries.class).selectEntry(user, entry) == null) throw new DatabaseException("Could not find an entry to update");
 		checkInsertEntry(entry, user, sqlSession);
 	}
-	
+
 	public static void checkInsertUser(User user, SqlSession sqlSession) throws DatabaseException {
 		if (sqlSession.getMapper(Users.class).selectUser(user.getIdentifier()) != null) throw new DatabaseException("The user name already exists");
 	}
-	
+
 	public static void checkUpdateUserPreferences(User user, SqlSession sqlSession) throws DatabaseException {
 		if (!user.isPremium()) user.setShowCleared(false);
 		if (!user.isPremium()) user.setShowReconciled(false);

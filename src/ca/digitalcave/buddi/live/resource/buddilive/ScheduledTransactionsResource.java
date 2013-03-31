@@ -16,6 +16,7 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.ScheduledTransactions;
+import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.ScheduledTransaction;
@@ -44,23 +45,21 @@ public class ScheduledTransactionsResource extends ServerResource {
 			for (ScheduledTransaction t : scheduledTransactions) {
 				final JSONObject scheduledTransaction = new JSONObject();
 				scheduledTransaction.put("id", t.getId());
-				scheduledTransaction.put("name", CryptoUtil.decryptWrapper(t.getDescription(), user));
+				scheduledTransaction.put("name", CryptoUtil.decryptWrapper(t.getScheduleName(), user));
 				scheduledTransaction.put("description", CryptoUtil.decryptWrapper(t.getDescription(), user));
 				scheduledTransaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
 				scheduledTransaction.put("scheduleDay", t.getScheduleDay());
 				scheduledTransaction.put("scheduleWeek", t.getScheduleWeek());
 				scheduledTransaction.put("scheduleMonth", t.getScheduleMonth());
-				scheduledTransaction.put("startDate", FormatUtil.formatDateInternal(t.getStartDate()));
-				scheduledTransaction.put("endDate", FormatUtil.formatDateInternal(t.getEndDate()));
+				scheduledTransaction.put("start", FormatUtil.formatDateInternal(t.getStartDate()));
+				scheduledTransaction.put("end", FormatUtil.formatDateInternal(t.getEndDate()));
 				scheduledTransaction.put("repeat", t.getFrequencyType());
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
 					split.put("amount", FormatUtil.formatCurrency(s.getAmount()));
 					split.put("fromId", s.getFromSource());
-					split.put("from", CryptoUtil.decryptWrapper(s.getFromSourceName(), user));
 					split.put("toId", s.getToSource());
-					split.put("to", CryptoUtil.decryptWrapper(s.getToSourceName(), user));
 					split.put("memo", CryptoUtil.decryptWrapper(s.getMemo(), user));
 					scheduledTransaction.append("splits", split);
 				}
@@ -92,10 +91,34 @@ public class ScheduledTransactionsResource extends ServerResource {
 			final String action = json.optString("action");
 			
 			if ("insert".equals(action)){
+				final ScheduledTransaction scheduledTransaction = new ScheduledTransaction(json);
+				ConstraintsChecker.checkInsertScheduledTransaction(scheduledTransaction, user, sqlSession);
+				
+				int count = sqlSession.getMapper(ScheduledTransactions.class).insertScheduledTransaction(user, scheduledTransaction);
+				if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 
+				for (Split split : scheduledTransaction.getSplits()) {
+					split.setTransactionId(scheduledTransaction.getId());
+					
+					count = sqlSession.getMapper(ScheduledTransactions.class).insertScheduledSplit(user, split);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+				}
 			} 
 			else if ("update".equals(action)){
+				final ScheduledTransaction scheduledTransaction = new ScheduledTransaction(json);
+				ConstraintsChecker.checkUpdateScheduledTransaction(scheduledTransaction, user, sqlSession);
+				
+				int count = sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, scheduledTransaction);
+				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 
+				count = sqlSession.getMapper(ScheduledTransactions.class).deleteScheduledSplits(user, scheduledTransaction);
+				if (count == 0) throw new DatabaseException(String.format("Delete scheduled splits failed; expected 1 or more rows, returned %s", count));
+				for (Split split : scheduledTransaction.getSplits()) {
+					split.setTransactionId(scheduledTransaction.getId());
+					
+					count = sqlSession.getMapper(ScheduledTransactions.class).insertScheduledSplit(user, split);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+				}
 			}
 			else if ("delete".equals(action)){
 				final ScheduledTransaction scheduledTransaction = new ScheduledTransaction();
@@ -121,9 +144,9 @@ public class ScheduledTransactionsResource extends ServerResource {
 		catch (IOException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
-//		catch (CryptoException e){
-//			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-//		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 		catch (JSONException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}

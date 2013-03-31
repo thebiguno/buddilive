@@ -28,7 +28,7 @@ public class ScheduledTransaction {
 	private String message;
 	private Date created;
 	private Date modified;
-	private List<Split> splits;
+	private List<Split> splits = new ArrayList<Split>();
 
 	public static enum ScheduleFrequency {
 		SCHEDULE_FREQUENCY_MONTHLY_BY_DATE,
@@ -47,22 +47,21 @@ public class ScheduledTransaction {
 	public ScheduledTransaction(JSONObject json) throws JSONException {
 		this.setId(StringUtils.isNotBlank(json.optString("id", null)) ? Long.parseLong(json.getString("id")) : null);
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
-		this.setDescription(json.getString("description"));
-		this.setNumber(json.has("number") ? json.getString("number") : null);
-		this.setScheduleName(json.getString("scheduleName"));
+		this.setScheduleName(json.getString("name"));
 		this.setScheduleDay(json.getInt("scheduleDay"));
 		this.setScheduleWeek(json.getInt("scheduleWeek"));
 		this.setScheduleMonth(json.getInt("scheduleMonth"));
-		this.setFrequencyType(json.getString("frequencyType"));
-		this.setStartDate(FormatUtil.parseDateInternal(json.getString("startDate")));
-		this.setEndDate(FormatUtil.parseDateInternal(json.getString("endDate")));
-		this.setLastCreatedDate(FormatUtil.parseDateInternal(json.getString("lastCreatedDate")));
+		this.setFrequencyType(json.getString("repeat"));
+		this.setStartDate(FormatUtil.parseDateInternal(json.getString("start")));
+		this.setEndDate(FormatUtil.parseDateInternal(json.getString("end")));
 		this.setMessage(json.optString("message", null));
-		final List<Split> splits = new ArrayList<Split>();
-		for (int i = 0; i < json.getJSONArray("splits").length(); i++){
-			splits.add(new Split(json.getJSONArray("splits").getJSONObject(i)));
+
+		final JSONObject transaction = json.getJSONObject("transaction");
+		this.setDescription(transaction.getString("description"));
+		this.setNumber(transaction.has("number") ? transaction.getString("number") : null);
+		for (int i = 0; i < transaction.getJSONArray("splits").length(); i++){
+			splits.add(new Split(transaction.getJSONArray("splits").getJSONObject(i)));
 		}
-		this.setSplits(splits);
 	}
 	//	
 	//	public JSONObject toJson() throws JSONException {

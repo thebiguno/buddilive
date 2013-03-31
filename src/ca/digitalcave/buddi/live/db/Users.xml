@@ -93,6 +93,13 @@
 		WHERE identifier = #{user.identifier}
 	</update>
 	
+	<update id="updateUserLoginTime">
+		UPDATE users
+		SET
+			last_login = CURRENT_TIMESTAMP
+		WHERE identifier = #{user.identifier}
+	</update>
+	
 	<update id="updateUserEncryptionKey">
 		UPDATE users
 		SET

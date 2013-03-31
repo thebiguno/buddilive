@@ -173,7 +173,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	
 	"addScheduled": function(component){
-		var panel = component.up("buddiviewport").down("scheduledlist");
+		var panel = component.up("buddiviewport").down("scheduledlist").down("grid");
 		Ext.widget("schedulededitor", {
 			"panel": panel
 		}).show();

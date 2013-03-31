@@ -12,6 +12,7 @@ public interface Users {
 	
 	public Integer updateUser(@Param("user") User user);
 	public Integer updateUserEncryptionKey(@Param("user") User user);
+	public Integer updateUserLoginTime(@Param("user") User user);
 	
 	public Integer deleteUser(@Param("user") User user);
 }

@@ -1,7 +1,9 @@
 package ca.digitalcave.buddi.live.model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -30,6 +32,7 @@ public class User extends org.restlet.security.User {
 	private String currencySymbol;
 	private Date created;
 	private Date modified;
+	private final Map<String, String> data = new HashMap<String, String>();
 	
 	private boolean authenticated = false;
 	private Properties systemProperties;
@@ -192,6 +195,10 @@ public class User extends org.restlet.security.User {
 	public Date getToday(){
 		//Used for Freemarker
 		return new Date();
+	}
+	
+	public Map<String, String> getData() {
+		return data;
 	}
 	
 	public ResourceBundle getTranslation(){

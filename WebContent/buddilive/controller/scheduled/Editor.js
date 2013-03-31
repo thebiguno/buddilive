@@ -33,11 +33,13 @@ Ext.define("BuddiLive.controller.scheduled.Editor", {
 		var selected = window.initialConfig.selected;
 
 		var request = {"action": (selected ? "update" : "insert")};
+		request.id = window.down("hidden[itemId='id']").getValue();
 		request.name = window.down("textfield[itemId='name']").getValue();
 		request.repeat = window.down("combobox[itemId='repeat']").getValue();
 		request.start = Ext.Date.format(window.down("datefield[itemId='startDate']").getValue(), "Y-m-d");
 		request.end = Ext.Date.format(window.down("datefield[itemId='endDate']").getValue(), "Y-m-d");
 		request.transaction = window.down("transactioneditor").getTransaction();
+		request.message = window.down("textarea[itemId='message']").getValue();
 		
 		var activeCard = window.down("panel[itemId='cardLayoutPanel']").getLayout().getActiveItem();
 		request.scheduleDay = activeCard.getScheduleDay();
@@ -58,7 +60,8 @@ Ext.define("BuddiLive.controller.scheduled.Editor", {
 			"success": function(response){
 				mask.hide();
 				window.close();
-				panel.reload();
+				panel.getStore().load();
+				panel.getSelectionModel().deselectAll()
 			},
 			"failure": function(response){
 				mask.hide();

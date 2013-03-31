@@ -16,7 +16,7 @@ Ext.define("BuddiLive.view.scheduled.panel.MonthlyByDayOfWeek", {
 				"messageBody": "${translation("HELP_REPEATING_MONTHLY_BY_DAY_OF_WEEK")?json_string}",
 				"type": "combobox",
 				"fieldLabel": "${translation("REPEATING_MONTHLY")?json_string}",
-				"value": (s ? s.scheduleDay : "0"),
+				"value": (s ? s.scheduleDay : 0),
 				"displayField": "text",
 				"valueField": "value",
 				"allowBlank": false,

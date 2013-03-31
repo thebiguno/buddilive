@@ -13,6 +13,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
@@ -48,7 +49,13 @@ public class IndexResource extends ServerResource {
 
 			if (user.isAuthenticated()){
 				//Check for outstanding scheduled transactions
-				DataUpdater.updateScheduledTransactions(user, sqlSession);
+				final String messages = DataUpdater.updateScheduledTransactions(user, sqlSession);
+				user.getData().put("messages", messages);
+				
+				//Update the user's last login date
+				sqlSession.getMapper(Users.class).updateUserLoginTime(user);
+				
+				sqlSession.commit();
 				return new TemplateRepresentation("index.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
 			}
 			else {

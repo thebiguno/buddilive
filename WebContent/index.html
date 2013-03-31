@@ -1,11 +1,22 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>Buddi Live</title>	<!-- TODO i18n -->
+		<title>Buddi Live</title>
 		<link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all-gray.css">
 		<link rel="icon" type="image/png" href="img/favicon.png"/>
 		<script type="text/javascript" src="extjs/bootstrap.js"></script>
 		<script type="text/javascript" src="buddilive/Application.js"></script>
+<#if data("messages")??>
+		<script type="text/javascript">
+			Ext.defer(function(){
+				Ext.MessageBox.show({
+					"title": "${translation("SCHEDULED_TRANSACTION_MESSAGES")?json_string}",
+					"msg": "${data("messages")!?json_string}",
+					"buttons": Ext.Msg.OK
+				});
+			}, 500);
+		</script>
+</#if>
 	</head>
 	<body>
 	</body>

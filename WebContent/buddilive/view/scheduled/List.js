@@ -19,7 +19,7 @@ Ext.define("BuddiLive.view.scheduled.List", {
 				"store": Ext.create("BuddiLive.store.scheduled.ListStore"),
 				"columns": [
 					{
-						"text": "Name",	//TODO i18n
+						"text": "${translation("SCHEDULED_TRANSACTION_NAME")?json_string}",
 						"dataIndex": "name",
 						"flex": 1
 					}
