@@ -107,6 +107,9 @@ public class DataUpdater {
 		//Update any scheduled transactions
 		final Date today = DateUtil.getEndOfDay(new Date());
 		
+		//If there was at least one update, we will force a recalculation of all balances.
+		boolean thereWasAnUpate = false;
+		
 		final StringBuilder sb = new StringBuilder();
 		
 		//We specify a GregorianCalendar because we make some assumptions
@@ -316,6 +319,8 @@ public class DataUpdater {
 
 						ConstraintsChecker.checkUpdateScheduledTransaction(scheduledTransaction, user, sqlSession);
 						sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, scheduledTransaction);
+						
+						thereWasAnUpate = true;
 					}
 				}
 				else {
@@ -323,6 +328,10 @@ public class DataUpdater {
 
 				tempDate = DateUtil.addDays(tempDate, 1);
 			}
+		}
+		
+		if (thereWasAnUpate){
+			DataUpdater.updateBalances(user, sqlSession, true);
 		}
 		
 		final String messages = sb.toString();

@@ -12,8 +12,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='addScheduled']": {"click": this.addScheduled},
 			"buddiviewport button[itemId='editScheduled']": {"click": this.editScheduled},
 			"buddiviewport button[itemId='deleteScheduled']": {"click": this.deleteScheduled},
-			"buddiviewport button[itemId='showScheduled']": {"click": this.showScheduled},
-			"buddiviewport button[itemId='showPreferences']": {"click": this.showPreferences},
+			"buddiviewport menuitem[itemId='showScheduled']": {"click": this.showScheduled},
+			"buddiviewport menuitem[itemId='showPreferences']": {"click": this.showPreferences},
 			"buddiviewport button[itemId='logout']": {"click": this.logout}
 		});
 	},
@@ -251,12 +251,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 	"showScheduled": function(component){
 		var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
 		if (tabPanel.down("scheduledlist") == null){
-			tabPanel.add( 
-				{
-					"xtype": "scheduledlist",
-					"title": "Scheduled Transactions"
-				}
-			);
+			tabPanel.add({"xtype": "scheduledlist"});
 		}
 		tabPanel.setActiveTab(tabPanel.down("scheduledlist"));
 	},

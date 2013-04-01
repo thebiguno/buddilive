@@ -12,6 +12,7 @@ Ext.application({
 	],
 	
 	"controllers": [
+		"Reports",
 		"Viewport",
 		"account.Tree",
 		"account.Editor",

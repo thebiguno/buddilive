@@ -50,7 +50,6 @@ public class IndexResource extends ServerResource {
 			if (user.isAuthenticated()){
 				//Check for outstanding scheduled transactions
 				final String messages = DataUpdater.updateScheduledTransactions(user, sqlSession);
-				DataUpdater.updateBalances(user, sqlSession, true);
 				user.getData().put("messages", messages);
 				
 				//Update the user's last login date

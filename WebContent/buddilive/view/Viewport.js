@@ -166,19 +166,36 @@ Ext.define("BuddiLive.view.Viewport", {
 			" ",
 			</#if>
 			{
-				"text": "${translation("SCHEDULED_TRANSACTIONS")?json_string}",
-				"icon": "img/alarm-clock.png",
-				"itemId": "showScheduled"
+				"text": "${translation("REPORTS")?json_string}",
+				"icon": "img/chart.png",
+				"menu": [
+					{
+						"text": "${translation("INCOME_AND_EXPENSES_BY_CATEGORY")?json_string}",
+						"icon": "img/chart-pie.png",
+						"itemId": "showIncomeAndExpensesByCategory"
+					}
+				]
 			},
 			{
-				"text": "${translation("PREFERENCES")?json_string}",
-				"icon": "img/gear.png",
-				"itemId": "showPreferences"
+				"text": "${translation("SYSTEM")?json_string}",
+				"icon": "img/switch.png",
+				"menu": [
+					{
+						"text": "${translation("PREFERENCES")?json_string}",
+						"icon": "img/gear.png",
+						"itemId": "showPreferences"
+					},
+					{
+						"text": "${translation("SCHEDULED_TRANSACTIONS")?json_string}",
+						"icon": "img/alarm-clock.png",
+						"itemId": "showScheduled"
+					}
+				]
 			},
 			{
 				"text": "${translation("LOGOUT")?json_string}",
 				"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",
-				"icon": "img/door-open-out.png",
+				"icon": "img/control-power.png",
 				"itemId": "logout"
 			}
 		);
