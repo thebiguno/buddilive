@@ -55,11 +55,15 @@ Ext.define('BuddiLive.view.transaction.List', {
 			{
 			"text": "Date",	//TODO i18n
 				"dataIndex": "date",
+				"hideable": false,
+				"sortable": false,
 				"flex": 20
 			},
 			{
 				"text": "Description",	//TODO i18n
 				"dataIndex": "description",
+				"hideable": false,
+				"sortable": false,
 				"flex": 30,
 				"renderer": function(value, metadata, record){
 					return "<b>" + value + "</b>";
@@ -67,16 +71,22 @@ Ext.define('BuddiLive.view.transaction.List', {
 			},
 			{
 				"text": "Debit",	//TODO i18n
+				"hideable": false,
+				"sortable": false,
 				"flex": 15,
 				"align": "right"
 			},
 			{
 				"text": "Credit",	//TODO i18n
+				"hideable": false,
+				"sortable": false,
 				"flex": 15,
 				"align": "right"
 			},
 			{
 				"text": "Balance",	//TODO i18n
+				"hideable": false,
+				"sortable": false,
 				"flex": 20,
 				"align": "right"
 			}
