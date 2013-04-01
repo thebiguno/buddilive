@@ -305,7 +305,14 @@ public class DataUpdater {
 						t.setScheduledTransactionId(scheduledTransaction.getId());
 
 						ConstraintsChecker.checkInsertTransaction(t, user, sqlSession);
-						sqlSession.getMapper(Transactions.class).insertTransaction(user, t);
+						int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, t);
+						if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+						for (Split split : t.getSplits()) {
+							split.setTransactionId(t.getId());
+							
+							count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
+							if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+						}
 
 						ConstraintsChecker.checkUpdateScheduledTransaction(scheduledTransaction, user, sqlSession);
 						sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, scheduledTransaction);
@@ -318,7 +325,8 @@ public class DataUpdater {
 			}
 		}
 		
-		return sb.toString();
+		final String messages = sb.toString();
+		return (messages.trim().length() == 0 ? null : messages);
 	}
 	
 	public static void turnOnEncryption(User user, String password, SqlSession sqlSession) throws DatabaseException, CryptoException {
