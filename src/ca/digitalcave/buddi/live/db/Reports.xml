@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ca.digitalcave.buddi.live.db.Reports">
+	<resultMap id="pie" type="ca.digitalcave.buddi.live.model.report.Pie">
+		<id column="label" property="label" />
+		<result column="amount" property="amount"/>
+	</resultMap>
+
+	<select id="selectPieIncomeOrExpensesByCategory" resultMap="pie">
+		SELECT 
+			c.name label, sum(s.amount) amount
+		FROM transactions t
+		LEFT JOIN splits s ON s.transaction_id = t.id
+		INNER JOIN sources c ON (c.id = s.from_source OR c.id = s.to_source) AND c.type = #{type}
+		WHERE t.user_id = #{user.id}
+			AND t.date >= #{fromDate}
+			AND t.date &lt;= #{toDate}
+		GROUP BY c.name
+		ORDER BY sum(s.amount) DESC
+	</select>
+</mapper>

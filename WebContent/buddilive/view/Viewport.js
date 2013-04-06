@@ -170,9 +170,19 @@ Ext.define("BuddiLive.view.Viewport", {
 				"icon": "img/chart.png",
 				"menu": [
 					{
-						"text": "${translation("INCOME_AND_EXPENSES_BY_CATEGORY")?json_string}",
+						"text": "${translation("REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY")?json_string}",
+						"icon": "img/chart.png",
+						"itemId": "showIncomeAndExpensesByCategoryReport"
+					},
+					{
+						"text": "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string}",
 						"icon": "img/chart-pie.png",
-						"itemId": "showIncomeAndExpensesByCategory"
+						"itemId": "showIncomeByCategoryPie"
+					},
+					{
+						"text": "${translation("REPORT_PIE_EXPENSES_BY_CATEGORY")?json_string}",
+						"icon": "img/chart-pie.png",
+						"itemId": "showExpensesByCategoryPie"
 					}
 				]
 			},

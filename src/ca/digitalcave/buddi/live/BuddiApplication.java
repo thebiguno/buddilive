@@ -31,6 +31,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.ScheduledTransactionsResourc
 import ca.digitalcave.buddi.live.resource.buddilive.SourcesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.resource.data.UsersDataResource;
@@ -76,6 +77,9 @@ public class BuddiApplication extends Application{
 		router.attach("/buddilive/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/buddilive/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/buddilive/userpreferences", new BuddiAuthenticator(this, getContext(), false, UserPreferencesResource.class));
+
+		//TODO If Sencha Touch uses same store formats, then move reports to a common URL path
+		router.attach("/buddilive/report/pietotalsbycategory", new BuddiAuthenticator(this, getContext(), false, PieTotalsByCategoryResource.class));
 		
 		//Handles non-GUI data import / export
 		router.attach("/data/backup", new BuddiAuthenticator(this, getContext(), false, BackupResource.class));

@@ -86,7 +86,8 @@ public class IndexResource extends ServerResource {
 			getResponse().getCookieSettings().add(c);
 			getResponse().redirectSeeOther(".");
 			return new EmptyRepresentation();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
