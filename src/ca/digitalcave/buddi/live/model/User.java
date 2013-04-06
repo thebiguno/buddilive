@@ -30,6 +30,7 @@ public class User extends org.restlet.security.User {
 	private boolean showReconciled;
 	private boolean showDeleted;
 	private String currencySymbol;
+	private boolean currencyAfter;
 	private Date created;
 	private Date modified;
 	private final Map<String, String> data = new HashMap<String, String>();
@@ -154,6 +155,12 @@ public class User extends org.restlet.security.User {
 	public void setCurrencySymbol(String currencySymbol) {
 		this.currencySymbol = currencySymbol;
 	}
+	public boolean isCurrencyAfter() {
+		return currencyAfter;
+	}
+	public void setCurrencyAfter(boolean currencyAfter) {
+		this.currencyAfter = currencyAfter;
+	}
 	public boolean isShowCleared() {
 		return showCleared;
 	}
@@ -185,13 +192,6 @@ public class User extends org.restlet.security.User {
 		this.plaintextIdentifier = plaintextIdentifier;
 	}
 	
-	public String getCurrencySymbolString(){
-		return getCurrencySymbol().replaceAll("_", "");
-	}
-	public boolean isCurrencySymbolAfterAmount(){
-		return getCurrencySymbol().startsWith("_");
-	}
-	
 	public Date getToday(){
 		//Used for Freemarker
 		return new Date();
@@ -217,7 +217,7 @@ public class User extends org.restlet.security.User {
 				systemProperties.load(User.class.getResourceAsStream("/version.properties"));
 			}
 			catch (Throwable e){
-				;	//This will allways happen on development systems
+				;	//This will always happen on development systems
 			}
 		}
 		return systemProperties;

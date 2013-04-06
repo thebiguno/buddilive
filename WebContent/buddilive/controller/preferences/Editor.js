@@ -32,7 +32,7 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		request.locale = window.down("combobox[itemId='locale']").getValue();
 		request.dateFormat = window.down("combobox[itemId='dateFormat']").getValue();
 		request.currencySymbol = window.down("combobox[itemId='currencySymbol']").getValue();
-		request.currencySymbolAfterAmount = window.down("checkbox[itemId='currencySymbolAfterAmount']").getValue();
+		request.currencyAfter = window.down("checkbox[itemId='currencyAfter']").getValue();
 		request.showDeleted = window.down("checkbox[itemId='showDeleted']").getValue();
 		request.showCleared = window.down("checkbox[itemId='showCleared']").getValue();
 		request.showReconciled = window.down("checkbox[itemId='showReconciled']").getValue();

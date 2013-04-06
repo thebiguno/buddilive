@@ -37,8 +37,8 @@ public class UserPreferencesResource extends ServerResource {
 			result.put("encrypt", user.isEncrypted());
 			result.put("locale", user.getLocale());
 			result.put("dateFormat", user.getDateFormat());
-			result.put("currencySymbol", user.getCurrencySymbolString());
-			result.put("curremcySymbolAfterAmount", user.isCurrencySymbolAfterAmount());
+			result.put("currencySymbol", user.getCurrencySymbol());
+			result.put("currencyAfter", user.isCurrencyAfter());
 			result.put("showDeleted", user.isShowDeleted());
 			result.put("showCleared", user.isShowCleared());
 			result.put("showReconciled", user.isShowReconciled());
@@ -70,9 +70,8 @@ public class UserPreferencesResource extends ServerResource {
 				}
 				user.setLocale(json.optString("locale", null));
 				user.setDateFormat(json.optString("dateFormat", null));
-				final String currencySymbol = json.optString("currencySymbol", null);
-				final boolean currencySymbolAfterAmount = json.optBoolean("currencySymbolAfterAmount", false);
-				user.setCurrencySymbol(currencySymbol == null ? null : (currencySymbolAfterAmount ? currencySymbol + "_" : "_" + currencySymbol));
+				user.setCurrencySymbol(json.optString("currencySymbol", null));
+				user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
 				user.setShowDeleted(json.optBoolean("showDeleted", true));
 				user.setShowCleared(json.optBoolean("showCleared", false));
 				user.setShowReconciled(json.optBoolean("showReconciled", false));

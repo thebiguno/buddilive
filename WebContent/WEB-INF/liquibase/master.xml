@@ -27,6 +27,7 @@
 			<column name="show_reconciled" type="char(1)"><constraints nullable="false"/></column>
 			<column name="show_deleted" type="char(1)"><constraints nullable="false"/></column>
 			<column name="currency_symbol" type="varchar(16)"/>
+			<column name="currency_after" type="char(1)"><constraints nullable="false"/></column>
 			
 			<column name="last_login" type="timestamp"/>
 			<column name="created" type="timestamp">
@@ -41,6 +42,7 @@
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_showcleared CHECK (show_cleared IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_showreconciled CHECK (show_reconciled IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_showdeleted CHECK (show_deleted IN ('Y', 'N'))</sql>
+		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_currencyafter CHECK (currency_after IN ('Y', 'N'))</sql>
 	</changeSet>
 
 	<changeSet id="create sources" author="wyatt">

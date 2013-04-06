@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.live.db.Users">
 	<resultMap id="user" type="ca.digitalcave.buddi.live.model.User">
-		<id column="id" property="id" />
+		<id column="id" property="id"/>
 		<result column="identifier" property="identifier"/>
 		<result column="credentials" property="credentials"/>
 		<result column="encryption_key" property="encryptionKey"/>
@@ -14,6 +14,7 @@
 		<result column="show_reconciled" property="showReconciled" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
 		<result column="show_deleted" property="showDeleted" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
 		<result column="currency_symbol" property="currencySymbol"/>
+		<result column="currency_after" property="currencyAfter" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
 		<result column="created" property="created"/>
 		<result column="modified" property="modified"/>
 	</resultMap>
@@ -32,6 +33,7 @@
 			show_reconciled,
 			show_deleted,
 			currency_symbol,
+			currency_after,
 			created,
 			modified
 		FROM users 
@@ -56,6 +58,7 @@
 				show_reconciled,
 				show_deleted,
 				currency_symbol,
+				currency_after,
 				created, 
 				modified
 			)
@@ -72,7 +75,8 @@
 				'N',
 				'N',
 				'Y',
-				'$_',
+				'$',
+				'N',
 				CURRENT_TIMESTAMP, 
 				CURRENT_TIMESTAMP
 			)
@@ -89,6 +93,7 @@
 			show_reconciled = <choose><when test="user.showReconciled == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			currency_symbol = #{user.currencySymbol,jdbcType=VARCHAR},
+			currency_after = <choose><when test="user.currencyAfter == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
 	</update>

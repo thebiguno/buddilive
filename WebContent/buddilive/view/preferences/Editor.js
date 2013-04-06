@@ -126,10 +126,10 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 					},
 					{
 						"xtype": "checkbox",
-						"itemId": "currencySymbolAfterAmount",
+						"itemId": "currencyAfter",
 						"fieldLabel": " ",
 						"labelSeparator": "",
-						"checked": d.currencySymbolAfterAmount,
+						"checked": d.currencyAfter,
 						"boxLabel": "${translation("SHOW_CURRENCY_SYMBOL_AFTER_AMOUNT")?json_string}"
 					},
 					{
