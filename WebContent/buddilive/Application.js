@@ -1,4 +1,4 @@
-Ext.Loader.setConfig({"enabled": true});
+Ext.Loader.setConfig({"enabled": true, "disableCaching": true});
 //Ext.Loader.loadScript({"url": "parameters.js"});
 
 Ext.state.Manager.setProvider(Ext.supports.LocalStorage ? new Ext.state.LocalStorageProvider() : new Ext.state.CookieProvider());
