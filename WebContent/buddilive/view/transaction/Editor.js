@@ -36,7 +36,6 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"hidden": this.initialConfig.scheduledTransaction == true,
 						"flex": 1,
 						"enableKeyEvents": true,
-						"format": "${extDateFormat?json_string}",
 						"emptyText": "Date"	//TODO i18n
 					},
 					{

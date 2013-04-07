@@ -89,8 +89,8 @@ public class CategoriesResource extends ServerResource {
 		sb.setLength(0);
 		
 
-		final BigDecimal currentAmount = category.getCurrentEntry().getAmount();
-		if (currentAmount == null || currentAmount.compareTo(BigDecimal.ZERO) == 0){
+		final BigDecimal currentAmount = category.getCurrentEntry().getAmount() != null ? category.getCurrentEntry().getAmount() : BigDecimal.ZERO;
+		if (currentAmount.compareTo(BigDecimal.ZERO) == 0){
 			result.put("currentAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO, user));
 			result.put("currentAmountStyle", FormatUtil.formatGray());
 		}
@@ -99,8 +99,8 @@ public class CategoriesResource extends ServerResource {
 			result.put("currentAmountStyle", (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
 		}
 		
-		final BigDecimal previousAmount = category.getPreviousEntry().getAmount();
-		if (previousAmount == null || previousAmount.compareTo(BigDecimal.ZERO) == 0){
+		final BigDecimal previousAmount = category.getPreviousEntry().getAmount() != null ? category.getPreviousEntry().getAmount() : BigDecimal.ZERO;
+		if (previousAmount.compareTo(BigDecimal.ZERO) == 0){
 			result.put("previousAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO, user));
 			result.put("previousAmountStyle", FormatUtil.formatGray());
 		}
@@ -109,10 +109,11 @@ public class CategoriesResource extends ServerResource {
 			result.put("previousAmountStyle", (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
 		}
 		
-		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance(), user));
-		result.put("actualStyle", (FormatUtil.isRed(category, category.getPeriodBalance()) ? FormatUtil.formatRed() : ""));
+		final BigDecimal actualAmount = category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance();
+		result.put("actual", FormatUtil.formatCurrency(actualAmount, user));
+		result.put("actualStyle", (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));
 
-		final BigDecimal difference = (category.getPeriodBalance().subtract(currentAmount != null ? currentAmount : BigDecimal.ZERO));
+		final BigDecimal difference = (actualAmount.subtract(currentAmount != null ? currentAmount : BigDecimal.ZERO));
 		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? difference : difference.negate(), user));
 		result.put("differenceStyle", (FormatUtil.isRed(category.isIncome() ? difference : difference.negate()) ? FormatUtil.formatRed() : ""));
 

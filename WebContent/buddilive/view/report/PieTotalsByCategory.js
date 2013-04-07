@@ -15,7 +15,7 @@ Ext.define('BuddiLive.view.report.PieTotalsByCategory', {
 		this.items = [
 			{
 				"xtype": "chart",
-				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"interval": this.initialConfig.interval, "type": this.initialConfig.type}),
+				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"query": this.initialConfig.query, "type": this.initialConfig.type}),
 				"series": [{
 					"type": "pie",
 					"angleField": "amount",

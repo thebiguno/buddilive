@@ -8,7 +8,7 @@ Ext.define("BuddiLive.store.report.PieTotalsByCategoryStore", {
 	"constructor": function(config){
 		this.proxy = {
 			"type": "ajax",
-			"url": "buddilive/report/pietotalsbycategory.json?type=" + config.type + "&interval=" + config.interval,
+			"url": "buddilive/report/pietotalsbycategory.json?type=" + config.type + "&" + config.query,
 			"reader": {
 				"type": "json",
 				"root": "data"

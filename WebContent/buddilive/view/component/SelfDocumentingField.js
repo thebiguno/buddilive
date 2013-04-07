@@ -4,11 +4,12 @@ Ext.define('BuddiLive.view.component.SelfDocumentingField', {
 	
 	"initComponent": function(){
 		this.layout = "hbox";
-		
+		this.childItemId = this.itemId;
 		var component = Ext.applyIf({
 			"xtype": this.initialConfig.type,
 			"flex": 1
 		}, this.initialConfig);
+		delete component.hidden;	//We hide the self documenting field, not the child component
 		delete component.type;
 		delete component.fieldLabel;
 		delete this.itemId;

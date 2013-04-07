@@ -46,8 +46,48 @@ Ext.define("BuddiLive.view.report.picker.Interval", {
 								{"text": "${translation("PLUGIN_FILTER_OTHER")?json_string}", "value": "PLUGIN_FILTER_OTHER"}
 							]
 						}),
+						"listeners": {
+							"select": function(combo){
+								combo.up("form").down("selfdocumentingfield[childItemId='startDate']").setVisible(combo.getValue() == "PLUGIN_FILTER_OTHER");
+								combo.up("form").down("selfdocumentingfield[childItemId='endDate']").setVisible(combo.getValue() == "PLUGIN_FILTER_OTHER");
+							}
+						},
 						"queryMode": "local",
 						"valueField": "value"
+					},
+					{
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_START_DATE")?json_string}",
+						"type": "datefield",
+						"itemId": "startDate",
+						"allowBlank": false,
+						"fieldLabel": "${translation("START_DATE")?json_string}",
+						"msgTarget": "none",
+						"hidden": true,
+						"value": new Date(),
+						"maxValue": new Date(),
+						"listeners": {
+							"change": function(field){
+								field.up("form").down("datefield[itemId='endDate']").setMinValue(field.getValue());
+							}
+						}
+					},
+					{
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_END_DATE")?json_string}",
+						"type": "datefield",
+						"itemId": "endDate",
+						"allowBlank": false,
+						"fieldLabel": "${translation("END_DATE")?json_string}",
+						"msgTarget": "none",
+						"hidden": true,
+						"value": new Date(),
+						"minValue": new Date(),
+						"listeners": {
+							"change": function(field){
+								field.up("form").down("datefield[itemId='startDate']").setMaxValue(field.getValue());
+							}
+						}
 					}
 				]
 			}
@@ -58,7 +98,17 @@ Ext.define("BuddiLive.view.report.picker.Interval", {
 				"itemId": "ok",
 				"listeners": {
 					"click": function(){
-						me.initialConfig.callback(me.down("combobox[itemId='interval']").getValue());
+						var interval = me.down("combobox[itemId='interval']").getValue();
+						var query = "interval=" + interval;
+						if (interval == "PLUGIN_FILTER_OTHER"){
+							var startValid = me.down("datefield[itemId='startDate']").validate();
+							var endValid = me.down("datefield[itemId='endDate']").validate();
+							if (!startValid || !endValid) return;
+							
+							query += ("&startDate=" + Ext.Date.format(me.down("datefield[itemId='startDate']").getValue(), "Y-m-d"));
+							query += ("&endDate=" + Ext.Date.format(me.down("datefield[itemId='endDate']").getValue(), "Y-m-d"));
+						}
+						me.initialConfig.callback(query);
 						me.close();
 					}
 				}
