@@ -23,7 +23,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		];
 		
 		var styledRenderer = function(value, metaData, record){
-			metaData.style = record.raw.previousAmountStyle;
+			metaData.style = record.raw[metaData.column.dataIndex + "Style"];
 			return value;
 		};
 		
