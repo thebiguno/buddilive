@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
@@ -61,7 +62,9 @@ public class BackupResource extends ServerResource {
 				addTransaction(result, transaction, sourceUUIDsById);
 			}
 			
-			return new JsonRepresentation(result);
+			final JsonRepresentation json = new JsonRepresentation(result);
+			json.setDisposition(new Disposition(Disposition.TYPE_ATTACHMENT));
+			return json;
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);

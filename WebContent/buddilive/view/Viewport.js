@@ -199,6 +199,16 @@ Ext.define("BuddiLive.view.Viewport", {
 						"text": "${translation("SCHEDULED_TRANSACTIONS")?json_string}",
 						"icon": "img/alarm-clock.png",
 						"itemId": "showScheduled"
+					},
+					{
+						"text": "${translation("BACKUP")?json_string}",
+						"icon": "img/drive-download.png",
+						"itemId": "backup"
+					},
+					{
+						"text": "${translation("RESTORE")?json_string}",
+						"icon": "img/drive-upload.png",
+						"itemId": "restore"
 					}
 				]
 			},
