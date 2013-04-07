@@ -57,7 +57,7 @@ public class ScheduledTransactionsResource extends ServerResource {
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
-					split.put("amount", FormatUtil.formatCurrency(s.getAmount()));
+					split.put("amount", FormatUtil.formatCurrency(s.getAmount(), user));
 					split.put("fromId", s.getFromSource());
 					split.put("toId", s.getToSource());
 					split.put("memo", CryptoUtil.decryptWrapper(s.getMemo(), user));

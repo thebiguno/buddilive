@@ -1,6 +1,8 @@
 package ca.digitalcave.buddi.live.resource.buddilive.report;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
@@ -51,11 +53,17 @@ public class PieTotalsByCategoryResource extends ServerResource {
 //			final Source source = sqlSession.getMapper(Sources.class).selectSource(user, Integer.parseInt(getQuery().getFirstValue("source")));
 //			final String search = getQuery().getFirstValue("search", null);
 			final List<Pie> data = sqlSession.getMapper(Reports.class).selectPieIncomeOrExpensesByCategory(user, type, fromDate, toDate);
+			BigDecimal total = BigDecimal.ZERO;
+			final BigDecimal ONE_HUNDRED = new BigDecimal(100);
+			for (Pie pie : data) { total = total.add(pie.getAmount()); }
+			
 			final JSONObject result = new JSONObject();
 			for (Pie pie : data){
 				final JSONObject object = new JSONObject();
 				object.put("label", pie.getLabel());
-				object.put("amount", FormatUtil.formatCurrency(pie.getAmount()));
+				object.put("amount", pie.getAmount());
+				object.put("formattedAmount", FormatUtil.formatCurrency(pie.getAmount(), user));
+				object.put("percent", pie.getAmount().divide(total, RoundingMode.HALF_UP).multiply(ONE_HUNDRED));
 				result.append("data", object);
 			}
 

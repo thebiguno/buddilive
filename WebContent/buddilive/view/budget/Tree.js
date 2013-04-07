@@ -51,8 +51,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"flex": 1,
 				"align": "right",
 				"editor": {
-					"xtype": "textfield",
-					"emptyText": "0.00",
+					"xtype": "currencyfield",
 					"fieldStyle": "text-align: right;",
 					"listeners": {
 						"focus": function(component){

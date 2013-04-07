@@ -2,6 +2,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 	"extend": "Ext.window.Window",
 	"alias": "widget.budgeteditor",
 	"requires": [
+		"BuddiLive.view.component.CurrencyField",
 		"BuddiLive.view.budget.ParentCombobox"
 	],
 	

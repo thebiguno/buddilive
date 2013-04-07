@@ -3,6 +3,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 	"alias": "widget.spliteditor",
 	
 	"requires": [
+		"BuddiLive.view.component.CurrencyField",
 		"BuddiLive.view.transaction.split.FromCombobox",
 		"BuddiLive.view.transaction.split.ToCombobox"
 	],
@@ -27,14 +28,10 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 		
 		this.items = [
 			{
-				"xtype": "numberfield",
+				"xtype": "currencyfield",
 				"itemId": "amount",
 				"flex": 1,
 				"forcePrecision": true,
-				"hideTrigger": true,
-				"keyNavEnabled": false,
-				"mouseWheelEnabled": false,
-				"emptyText": "0.00 (Amount)",	//TODO i18n
 				"padding": this.initialConfig.scheduledTransaction ? "0 0 5 0" : "0 0 5 5",
 				"value": v.amount
 			},
@@ -92,7 +89,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 	
 	"getSplit": function(){
 		var s = {};
-		s.amount = this.down("numberfield[itemId='amount']").getValue();
+		s.amount = this.down("currencyfield[itemId='amount']").getValue();
 		s.fromId = this.down("combo[itemId='from']").getValue();
 		s.toId = this.down("combo[itemId='to']").getValue();
 		s.memo = this.down("textfield[itemId='memo']").getValue();

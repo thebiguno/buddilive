@@ -91,29 +91,29 @@ public class CategoriesResource extends ServerResource {
 
 		final BigDecimal currentAmount = category.getCurrentEntry().getAmount();
 		if (currentAmount == null || currentAmount.compareTo(BigDecimal.ZERO) == 0){
-			result.put("currentAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO));
+			result.put("currentAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO, user));
 			result.put("currentAmountStyle", FormatUtil.formatGray());
 		}
 		else {
-			result.put("currentAmount", FormatUtil.formatCurrency(currentAmount));
+			result.put("currentAmount", FormatUtil.formatCurrency(currentAmount, user));
 			result.put("currentAmountStyle", (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
 		}
 		
 		final BigDecimal previousAmount = category.getPreviousEntry().getAmount();
 		if (previousAmount == null || previousAmount.compareTo(BigDecimal.ZERO) == 0){
-			result.put("previousAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO));
+			result.put("previousAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO, user));
 			result.put("previousAmountStyle", FormatUtil.formatGray());
 		}
 		else {
-			result.put("previousAmount", FormatUtil.formatCurrency(previousAmount));
+			result.put("previousAmount", FormatUtil.formatCurrency(previousAmount, user));
 			result.put("previousAmountStyle", (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
 		}
 		
-		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance()));
+		result.put("actual", FormatUtil.formatCurrency(category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance(), user));
 		result.put("actualStyle", (FormatUtil.isRed(category, category.getPeriodBalance()) ? FormatUtil.formatRed() : ""));
 
 		final BigDecimal difference = (category.getPeriodBalance().subtract(currentAmount != null ? currentAmount : BigDecimal.ZERO));
-		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? difference : difference.negate()));
+		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? difference : difference.negate(), user));
 		result.put("differenceStyle", (FormatUtil.isRed(category.isIncome() ? difference : difference.negate()) ? FormatUtil.formatRed() : ""));
 
 		result.put("parent", category.getParent());

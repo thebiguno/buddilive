@@ -25,8 +25,8 @@ Ext.define('BuddiLive.view.report.PieIncomeByCategory', {
 						"trackMouse": true,
 						"width": 500,
 						"height": 28,
-						"renderer": function(storeItem) {
-							this.setTitle(storeItem.get("label") + ": " + storeItem.get("amount"));
+						"renderer": function(item) {
+							this.setTitle(item.get("label") + ": " + item.get("formattedAmount") + " (" + item.get("percent") + "%)");
 						}
 					},
 					"highlight": {
@@ -39,7 +39,7 @@ Ext.define('BuddiLive.view.report.PieIncomeByCategory', {
 						"display": "rotate",
 						"contrast": true,
 						"renderer": function(value, storeItem, item) {
-							return value + ": " + item.get("amount");
+							return value + ": " + item.get("formattedAmount");
 						}
 					}
 				}]

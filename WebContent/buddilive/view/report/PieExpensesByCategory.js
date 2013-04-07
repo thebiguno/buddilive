@@ -20,12 +20,13 @@ Ext.define('BuddiLive.view.report.PieExpensesByCategory', {
 					"type": "pie",
 					"angleField": "amount",
 					"showInLegend": true,
+					"colorSet": ["#bf3030", "#bf8630", "#a3bf30", "#4dbf30", "#30bf69", "#30bfbf", "#3069bf", "#4c30bf", "#a330bf", "#bf3086"],
 					"tips": {
 						"trackMouse": true,
 						"width": 500,
 						"height": 28,
-						"renderer": function(storeItem, item) {
-							this.setTitle(storeItem.get("label") + ": " + storeItem.get("amount"));
+						"renderer": function(item) {
+							this.setTitle(item.get("label") + ": " + item.get("formattedAmount") + " (" + item.get("percent") + "%)");
 						}
 					},
 					"highlight": {
@@ -36,7 +37,10 @@ Ext.define('BuddiLive.view.report.PieExpensesByCategory', {
 					"label": {
 						"field": "label",
 						"display": "rotate",
-						"contrast": true
+						"contrast": true,
+						"renderer": function(value, storeItem, item) {
+							return value + ": " + item.get("formattedAmount");
+						}
 					}
 				}]
 			}

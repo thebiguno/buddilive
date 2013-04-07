@@ -1,5 +1,7 @@
 package ca.digitalcave.buddi.live.model;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -138,6 +140,13 @@ public class User extends org.restlet.security.User {
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
+	public Locale getJavaLocale(){
+		final String[] splitLocale = locale.split("_");
+		if (splitLocale.length == 0) return Locale.ENGLISH;
+		else if (splitLocale.length == 1) return new Locale(splitLocale[0]);
+		else if (splitLocale.length == 2) return new Locale(splitLocale[0], splitLocale[1]);
+		else return new Locale(splitLocale[0], splitLocale[1], splitLocale[2]);
+	}
 	public String getExtDateFormat(){
 		//Auto converts from Java format to EXT JS (PHP) format
 		return getDateFormat().replaceAll("yyyy", "Y").replaceAll("dd", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
@@ -200,15 +209,14 @@ public class User extends org.restlet.security.User {
 	public Map<String, String> getData() {
 		return data;
 	}
-	
+	public String getDecimalSeparator(){
+		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getDecimalSeparator() + "";
+	}
+	public String getThousandSeparator(){
+		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getGroupingSeparator() + "";
+	}
 	public ResourceBundle getTranslation(){
-		if (locale == null) return ResourceBundle.getBundle("i18n");
-		
-		final String[] splitLocale = locale.split("_");
-		if (splitLocale.length == 0) return ResourceBundle.getBundle("i18n");
-		else if (splitLocale.length == 1) return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0]));
-		else if (splitLocale.length == 2) return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0], splitLocale[1]));
-		else return ResourceBundle.getBundle("i18n", new Locale(splitLocale[0], splitLocale[1], splitLocale[2]));
+		return ResourceBundle.getBundle("i18n", getJavaLocale());
 	}
 	public Properties getSystemProperties(){
 		if (systemProperties == null){

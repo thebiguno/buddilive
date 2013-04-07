@@ -23,9 +23,6 @@ Ext.define("BuddiLive.view.scheduled.panel.EveryXDays", {
 						"xtype": "numberfield",
 						"value": (s ? s.scheduleDay : 7),
 						"allowBlank": false,
-						"hideTrigger": true,
-						"keyNavEnabled": false,
-						"mouseWheelEnabled": false,
 						"minValue": 1,
 						"flex": 1
 					},

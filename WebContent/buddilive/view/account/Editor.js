@@ -2,7 +2,7 @@ Ext.define('BuddiLive.view.account.Editor', {
 	"extend": "Ext.window.Window",
 	"alias": "widget.accounteditor",
 	"requires": [
-		
+		"BuddiLive.view.component.CurrencyField"
 	],
 	
 	"initComponent": function(){
@@ -72,14 +72,10 @@ Ext.define('BuddiLive.view.account.Editor', {
 					{
 						"xtype": "selfdocumentingfield",
 						"messageBody": "${translation("HELP_ACCOUNT_EDITOR_STARTING_BALANCE")?json_string}",
-						"type": "numberfield",
+						"type": "currencyfield",
 						"itemId": "startBalance",
 						"value": (s ? s.startBalance : null),
-						"fieldLabel": "${translation("ACCOUNT_EDITOR_STARTING_BALANCE")?json_string}",
-						"hideTrigger": true,
-						"keyNavEnabled": false,
-						"mouseWheelEnabled": false,
-						"emptyText": "0.00"
+						"fieldLabel": "${translation("ACCOUNT_EDITOR_STARTING_BALANCE")?json_string}"
 					}
 				
 				]
