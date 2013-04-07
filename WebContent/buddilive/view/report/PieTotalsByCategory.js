@@ -1,13 +1,13 @@
-Ext.define('BuddiLive.view.report.PieExpensesByCategory', {
+Ext.define('BuddiLive.view.report.PieTotalsByCategory', {
 	"extend": "Ext.panel.Panel",
-	"alias": "widget.reportpieexpensesbycategory",
+	"alias": "widget.reportpietotalsbycategory",
 	
 	"requires": [
-		"BuddiLive.store.report.PieExpensesByCategoryStore"
+		"BuddiLive.store.report.PieTotalsByCategoryStore"
 	],
 	
 	"initComponent": function(){
-		this.title = "${translation("REPORT_PIE_EXPENSES_BY_CATEGORY")?json_string}",
+		this.title = "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string}",
 		this.closable = true;
 		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
 		this.layout = "fit";
@@ -15,7 +15,7 @@ Ext.define('BuddiLive.view.report.PieExpensesByCategory', {
 		this.items = [
 			{
 				"xtype": "chart",
-				"store": Ext.create("BuddiLive.store.report.PieExpensesByCategoryStore"),
+				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"interval": this.initialConfig.interval, "type": this.initialConfig.type}),
 				"series": [{
 					"type": "pie",
 					"angleField": "amount",

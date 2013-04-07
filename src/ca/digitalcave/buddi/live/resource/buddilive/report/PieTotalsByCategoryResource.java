@@ -26,6 +26,7 @@ import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.model.report.Interval;
 import ca.digitalcave.buddi.live.model.report.Pie;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
@@ -43,16 +44,17 @@ public class PieTotalsByCategoryResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final Date fromDate = FormatUtil.parseDateInternal(getQuery().getFirstValue("fromDate"));
-			final Date toDate = FormatUtil.parseDateInternal(getQuery().getFirstValue("toDate"));
+			final Interval interval = Interval.valueOf(getQuery().getFirstValue("interval"));
 			final String type = getQuery().getFirstValue("type");
+			final Date startDate = interval != Interval.PLUGIN_FILTER_OTHER ? interval.getStartDate() : new Date();	//TODO get date from URL
+			final Date endDate = interval != Interval.PLUGIN_FILTER_OTHER ? interval.getEndDate() : new Date();	//TODO get date from URL
 			
-			if (fromDate == null || toDate == null) throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "fromDate and toDate query parameters are required.");
+			if (startDate == null || endDate == null) throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "fromDate and toDate query parameters are required.");
 			if (!"E".equals(type) && !"I".equals(type)) throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "type parameter (I or E) is required");
 			
 //			final Source source = sqlSession.getMapper(Sources.class).selectSource(user, Integer.parseInt(getQuery().getFirstValue("source")));
 //			final String search = getQuery().getFirstValue("search", null);
-			final List<Pie> data = sqlSession.getMapper(Reports.class).selectPieIncomeOrExpensesByCategory(user, type, fromDate, toDate);
+			final List<Pie> data = sqlSession.getMapper(Reports.class).selectPieIncomeOrExpensesByCategory(user, type, startDate, endDate);
 			BigDecimal total = BigDecimal.ZERO;
 			final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 			for (Pie pie : data) { total = total.add(pie.getAmount()); }

@@ -14,8 +14,8 @@
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		INNER JOIN sources c ON (c.id = s.from_source OR c.id = s.to_source) AND c.type = #{type}
 		WHERE t.user_id = #{user.id}
-			AND t.date >= #{fromDate}
-			AND t.date &lt;= #{toDate}
+			AND t.date >= #{startDate}
+			AND t.date &lt;= #{endDate}
 		GROUP BY c.name
 		ORDER BY sum(s.amount) DESC
 	</select>

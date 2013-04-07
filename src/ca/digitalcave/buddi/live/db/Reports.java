@@ -10,5 +10,5 @@ import ca.digitalcave.buddi.live.model.report.Pie;
 
 
 public interface Reports {
-	public List<Pie> selectPieIncomeOrExpensesByCategory(@Param("user") User user, @Param("type") String type, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
+	public List<Pie> selectPieIncomeOrExpensesByCategory(@Param("user") User user, @Param("type") String type, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 }
