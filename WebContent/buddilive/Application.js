@@ -61,3 +61,7 @@ Ext.application({
 		});
 	}
 });
+
+Ext.override(Ext.form.DateField, {
+	"format": "${extDateFormat?json_string}"
+});
