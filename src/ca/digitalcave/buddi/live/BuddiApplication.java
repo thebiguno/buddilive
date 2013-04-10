@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live;
 
+import java.util.Currency;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -7,6 +8,7 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.joda.time.tz.FixedDateTimeZone;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.Language;
@@ -17,6 +19,10 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import ca.digitalcave.buddi.live.db.handler.BooleanHandler;
+import ca.digitalcave.buddi.live.db.handler.CurrencyHandler;
+import ca.digitalcave.buddi.live.db.handler.DateTimeZoneHandler;
+import ca.digitalcave.buddi.live.db.handler.LocaleHandler;
 import ca.digitalcave.buddi.live.db.liquibase.Migration;
 import ca.digitalcave.buddi.live.resource.FreemarkerResource;
 import ca.digitalcave.buddi.live.resource.IndexResource;
@@ -126,6 +132,12 @@ public class BuddiApplication extends Application{
 		final Environment environment = new Environment("prod", new JdbcTransactionFactory(), ds);
 		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
 		configuration.addMappers("ca.digitalcave.buddi.live.db");
+		
+		configuration.getTypeHandlerRegistry().register(Boolean.class, BooleanHandler.class);
+		configuration.getTypeHandlerRegistry().register(Currency.class, CurrencyHandler.class);
+		configuration.getTypeHandlerRegistry().register(FixedDateTimeZone.class, DateTimeZoneHandler.class);
+		configuration.getTypeHandlerRegistry().register(Locale.class, LocaleHandler.class);
+		
 		sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
 		
 		//***** Freemarker Configuration *****

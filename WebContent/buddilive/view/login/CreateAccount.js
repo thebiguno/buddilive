@@ -59,7 +59,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 										{"text": "Nederlands", "value": "nl"},	//Dutch
 										{"text": "Norsk", "value": "no"},	//Norwegian
 										{"text": "Portugues", "value": "pt"},
-										{"text": "Portugues (Brasil)", "value": "pt-BR"},
+										{"text": "Portugues (Brasil)", "value": "pt_BR"},
 										{"text": "Svenska", "value": "sv"},	//Swedish
 										{"text": "ελληνικά", "value": "el"},	//Greek
 										{"text": "עִבְרִית", "value": "he"},	//Hebrew

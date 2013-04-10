@@ -7,14 +7,16 @@
 		<result column="credentials" property="credentials"/>
 		<result column="encryption_key" property="encryptionKey"/>
 		<result column="email" property="email"/>
-		<result column="premium" property="premium" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		<result column="premium" property="premium"/>
 		<result column="locale" property="locale"/>
+		<result column="currency" property="currency"/>
+		<result column="timezone" property="timezone"/>
+		<!-- 
+		<result column="show_cleared" property="showCleared"/>
+		<result column="show_reconciled" property="showReconciled"/>
 		<result column="date_format" property="dateFormat"/>
-		<result column="show_cleared" property="showCleared" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
-		<result column="show_reconciled" property="showReconciled" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
-		<result column="show_deleted" property="showDeleted" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
-		<result column="currency_symbol" property="currencySymbol"/>
-		<result column="currency_after" property="currencyAfter" typeHandler="ca.digitalcave.buddi.live.db.handler.BooleanHandler"/>
+		-->
+		<result column="show_deleted" property="showDeleted"/>
 		<result column="created" property="created"/>
 		<result column="modified" property="modified"/>
 	</resultMap>
@@ -28,12 +30,9 @@
 			email,
 			premium,
 			locale,
-			date_format,
-			show_cleared,
-			show_reconciled,
+			currency,
+			timezone,
 			show_deleted,
-			currency_symbol,
-			currency_after,
 			created,
 			modified
 		FROM users 
@@ -46,19 +45,18 @@
 		</selectKey>
 		INSERT INTO users
 			(
-				id, 
+				id,
 				identifier, 
-				credentials, 
-				uuid, 
-				email, 
-				premium, 
-				locale, 
-				date_format,
-				show_cleared,
-				show_reconciled,
+				credentials,
+				uuid,
+				email,
+				premium,
+				locale,
+				currency,
+				timezone,
 				show_deleted,
-				currency_symbol,
-				currency_after,
+				show_reconciled,
+				show_cleared,
 				created, 
 				modified
 			)
@@ -70,12 +68,11 @@
 				#{user.uuid}, 
 				#{user.email,jdbcType=VARCHAR},
 				'N',
-				#{user.locale,jdbcType=VARCHAR},
-				#{user.dateFormat,jdbcType=VARCHAR},
-				'N',
-				'N',
+				#{user.locale},
+				#{user.currency},
+				#{user.timezone},
 				'Y',
-				'$',
+				'N',
 				'N',
 				CURRENT_TIMESTAMP, 
 				CURRENT_TIMESTAMP
@@ -87,13 +84,10 @@
 		SET
 			<if test="user.credentials != null">credentials = #{user.credentials},</if>
 			email = #{user.email,jdbcType=VARCHAR},
-			locale = #{user.locale,jdbcType=VARCHAR},
-			date_format = #{user.dateFormat,jdbcType=VARCHAR},
-			show_cleared = <choose><when test="user.showCleared == true">'Y'</when><otherwise>'N'</otherwise></choose>,
-			show_reconciled = <choose><when test="user.showReconciled == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			locale = #{user.locale},
+			currency = #{user.currency.toString(),jdbcType=VARCHAR},
+			timezone = #{user.timezone,jdbcType=VARCHAR},
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
-			currency_symbol = #{user.currencySymbol,jdbcType=VARCHAR},
-			currency_after = <choose><when test="user.currencyAfter == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
 	</update>

@@ -1,7 +1,7 @@
 package ca.digitalcave.buddi.live.util;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,10 +57,12 @@ public class FormatUtil {
 	
 	public static String formatCurrency(BigDecimal value, User user){
 		if (value == null) return null;
-		final NumberFormat format = NumberFormat.getInstance(user.getJavaLocale());
-		format.setMaximumFractionDigits(2);
-		format.setMinimumFractionDigits(2);
-		return (user.isCurrencyAfter() ? "" : user.getCurrencySymbol()) + format.format(value) + (user.isCurrencyAfter() ? user.getCurrencySymbol() : "");
+		
+		final DecimalFormat format = (DecimalFormat) DecimalFormat.getCurrencyInstance(user.getLocale());
+		format.setCurrency(user.getCurrency());
+		format.setMaximumFractionDigits(user.getCurrency().getDefaultFractionDigits());
+		format.setMinimumFractionDigits(user.getCurrency().getDefaultFractionDigits());
+		return format.format(value);
 	}
 	
 //	public static String formatCurrency(BigDecimal value, Source s){

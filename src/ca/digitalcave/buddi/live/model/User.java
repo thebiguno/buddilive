@@ -1,7 +1,8 @@
 package ca.digitalcave.buddi.live.model;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -10,6 +11,8 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
+import org.apache.commons.lang.LocaleUtils;
+import org.joda.time.DateTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,14 +28,15 @@ public class User extends org.restlet.security.User {
 	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier
 	private String email;
 	private String uuid;
-	private boolean premium = false;
-	private String locale;
+	private Boolean premium = false;
+	private Locale locale;
+	private Currency currency;
+	private DateTimeZone timezone;
 	private String dateFormat;
-	private boolean showCleared;
-	private boolean showReconciled;
-	private boolean showDeleted;
-	private String currencySymbol;
-	private boolean currencyAfter;
+	private Boolean showCleared;
+	private Boolean showReconciled;
+	private Boolean showDeleted;
+	private Boolean currencyAfter;
 	private Date created;
 	private Date modified;
 	private final Map<String, String> data = new HashMap<String, String>();
@@ -41,8 +45,9 @@ public class User extends org.restlet.security.User {
 	private Properties systemProperties;
 	
 	public User() {
+		System.out.println();
 	}
-	public User(String locale){
+	public User(Locale locale){
 		this.locale = locale;
 	}
 	public User(JSONObject json) throws JSONException{
@@ -52,7 +57,9 @@ public class User extends org.restlet.security.User {
 		//Prefer the email param, but if that is missing we can fill it in via the identifier if the storeEmail option is set.
 		if (json.optString("email", null) != null) this.setEmail(json.getString("email"));
 		else if (json.optBoolean("storeEmail", false)) this.setEmail(json.getString("identifier"));
-		if (json.optString("locale", null) != null) this.setLocale(json.getString("locale"));
+		this.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_CA")));
+		this.setCurrency(Currency.getInstance(json.optString("currency", "CAD")));
+		this.setTimezone(DateTimeZone.forID(json.optString("currency", "GMT")));
 		this.setPremium(false);
 
 	}
@@ -134,35 +141,40 @@ public class User extends org.restlet.security.User {
 	public void setPremium(boolean premium) {
 		this.premium = premium;
 	}
-	public String getLocale() {
+	public Locale getLocale() {
 		return locale;
 	}
-	public void setLocale(String locale) {
+	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
-	public Locale getJavaLocale(){
-		final String[] splitLocale = locale.split("_");
-		if (splitLocale.length == 0) return Locale.ENGLISH;
-		else if (splitLocale.length == 1) return new Locale(splitLocale[0]);
-		else if (splitLocale.length == 2) return new Locale(splitLocale[0], splitLocale[1]);
-		else return new Locale(splitLocale[0], splitLocale[1], splitLocale[2]);
+	public DateTimeZone getTimezone() {
+		return timezone;
+	}
+	public void setTimezone(DateTimeZone timezone) {
+		this.timezone = timezone;
 	}
 	public String getExtDateFormat(){
 		//Auto converts from Java format to EXT JS (PHP) format
 		return getDateFormat().replaceAll("yyyy", "Y").replaceAll("dd", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
 	}
 	public String getDateFormat() {
-		if (dateFormat == null) return "yyyy-MM-dd";
+		if (dateFormat == null) {
+			if (locale != null) {
+				final DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, locale);
+				if (format instanceof SimpleDateFormat) return ((SimpleDateFormat) format).toLocalizedPattern();
+			} 
+			return "yyyy-MM-dd";
+		}
 		return dateFormat;
 	}
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
-	public String getCurrencySymbol() {
-		return currencySymbol;
+	public Currency getCurrency() {
+		return currency;
 	}
-	public void setCurrencySymbol(String currencySymbol) {
-		this.currencySymbol = currencySymbol;
+	public void setCurrency(Currency currency) {
+		this.currency = currency;
 	}
 	public boolean isCurrencyAfter() {
 		return currencyAfter;
@@ -209,14 +221,14 @@ public class User extends org.restlet.security.User {
 	public Map<String, String> getData() {
 		return data;
 	}
-	public String getDecimalSeparator(){
-		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getDecimalSeparator() + "";
-	}
-	public String getThousandSeparator(){
-		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getGroupingSeparator() + "";
-	}
+//	public String getDecimalSeparator(){
+//		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getDecimalSeparator() + "";
+//	}
+//	public String getThousandSeparator(){
+//		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getGroupingSeparator() + "";
+//	}
 	public ResourceBundle getTranslation(){
-		return ResourceBundle.getBundle("i18n", getJavaLocale());
+		return ResourceBundle.getBundle("i18n", locale);
 	}
 	public Properties getSystemProperties(){
 		if (systemProperties == null){

@@ -2,6 +2,7 @@ package ca.digitalcave.buddi.live.security;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
@@ -11,7 +12,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
 import org.restlet.Request;
@@ -49,7 +49,7 @@ public class BuddiVerifier implements Verifier {
 	
 	public int verify(Request request, Response response) {
 		final Cookie cookieUser = request.getCookies().getFirst(COOKIE_NAME);
-		final String requestLocale = ServletUtils.getRequest(request).getLocale().toString();
+		final Locale browserLocale = ServletUtils.getRequest(request).getLocale();
 		
 		if (cookieUser != null){
 			try {
@@ -87,7 +87,7 @@ public class BuddiVerifier implements Verifier {
 		}
 
 		if (request.getChallengeResponse() == null) {
-			request.getClientInfo().setUser(new User(requestLocale));
+			request.getClientInfo().setUser(new User(browserLocale));
 			return RESULT_MISSING;
 		} 
 		else {
@@ -107,7 +107,7 @@ public class BuddiVerifier implements Verifier {
 							user.setDecryptedEncryptionKey(CryptoUtil.decrypt(user.getEncryptionKey(), secret));
 						}
 						//Fallback to browser locale if it is not set in the user object
-						if (StringUtils.isBlank(user.getLocale())) user.setLocale(requestLocale);
+						if (user.getLocale() == null) user.setLocale(browserLocale);
 						user.setPlaintextIdentifier(identifier);
 						request.getClientInfo().setUser(user);
 						return RESULT_VALID;
@@ -130,7 +130,7 @@ public class BuddiVerifier implements Verifier {
 				sqlSession.close();
 			}
 			
-			request.getClientInfo().setUser(new User(requestLocale));
+			request.getClientInfo().setUser(new User(browserLocale));
 			return RESULT_INVALID;
 		}
 	}

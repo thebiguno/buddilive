@@ -1,7 +1,9 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.util.Currency;
 
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,12 +38,12 @@ public class UserPreferencesResource extends ServerResource {
 			final JSONObject result = new JSONObject();
 			result.put("encrypt", user.isEncrypted());
 			result.put("locale", user.getLocale());
-			result.put("dateFormat", user.getDateFormat());
-			result.put("currencySymbol", user.getCurrencySymbol());
-			result.put("currencyAfter", user.isCurrencyAfter());
+			result.put("overrideDateFormat", user.getDateFormat());
+			result.put("currency", user.getCurrency().getCurrencyCode());
+			//result.put("currencyAfter", user.isCurrencyAfter());
 			result.put("showDeleted", user.isShowDeleted());
-			result.put("showCleared", user.isShowCleared());
-			result.put("showReconciled", user.isShowReconciled());
+//			result.put("showCleared", user.isShowCleared());
+//			result.put("showReconciled", user.isShowReconciled());
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}
@@ -68,9 +70,9 @@ public class UserPreferencesResource extends ServerResource {
 					if (user.isEncrypted())DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
 				}
-				user.setLocale(json.optString("locale", null));
+				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en")));
 				user.setDateFormat(json.optString("dateFormat", null));
-				user.setCurrencySymbol(json.optString("currencySymbol", null));
+				user.setCurrency(Currency.getInstance(json.optString("currencySymbol", "USD")));
 				user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
 				user.setShowDeleted(json.optBoolean("showDeleted", true));
 				user.setShowCleared(json.optBoolean("showCleared", false));
