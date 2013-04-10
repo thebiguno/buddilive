@@ -62,6 +62,8 @@
 			<zipfileset dir="WebContent">
 				<include name="*/**"/>
 				<exclude name="WEB-INF/**"/>
+				<exclude name="extjs/**"/>
+				<exclude name="touch/**"/>
 			</zipfileset>
 		</war>
 		
