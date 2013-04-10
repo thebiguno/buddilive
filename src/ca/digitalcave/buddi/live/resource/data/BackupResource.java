@@ -27,6 +27,8 @@ import ca.digitalcave.buddi.live.model.Entry;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class BackupResource extends ServerResource {
@@ -50,16 +52,16 @@ public class BackupResource extends ServerResource {
 			final Map<Integer, String> sourceUUIDsById = new HashMap<Integer, String>();
 			
 			for (Account account : accounts) {
-				addAccount(result, account, sourceUUIDsById);
+				addAccount(result, user, account, sourceUUIDsById);
 			}
 			for (Category category : categories) {
-				addCategory(result, category, sourceUUIDsById);
+				addCategory(result, user, category, sourceUUIDsById);
 			}
 			for (Entry entry : entries) {
-				addEntry(result, entry, sourceUUIDsById);
+				addEntry(result, user, entry, sourceUUIDsById);
 			}
 			for (Transaction transaction : transactions) {
-				addTransaction(result, transaction, sourceUUIDsById);
+				addTransaction(result, user, transaction, sourceUUIDsById);
 			}
 			
 			final JsonRepresentation json = new JsonRepresentation(result);
@@ -69,42 +71,45 @@ public class BackupResource extends ServerResource {
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 		finally {
 			sqlSession.close();
 		}
 	}
 	
-	private void addAccount(JSONObject result, Account account, Map<Integer, String> sourceUUIDsById) throws JSONException {
+	private void addAccount(JSONObject result, User user, Account account, Map<Integer, String> sourceUUIDsById) throws JSONException, CryptoException {
 		sourceUUIDsById.put(account.getId(), account.getUuid());
 		final JSONObject a = new JSONObject();
 		a.put("uuid", account.getUuid());
-		a.put("name", account.getName());
+		a.put("name", CryptoUtil.decryptWrapper(account.getName(), user));
 		a.put("startDate", FormatUtil.formatDateInternal((Date) account.getStartDate()));
 		if (account.isDeleted()) a.put("deleted", account.isDeleted());
 		a.put("type", account.getType());
 		a.put("startBalance", account.getStartBalance().toPlainString());
-		a.put("accountType", account.getAccountType());
+		a.put("accountType", CryptoUtil.decryptWrapper(account.getAccountType(), user));
 		result.append("accounts", a);
 	}
 	
-	private void addCategory(JSONObject result, Category category, Map<Integer, String> sourceUUIDsById) throws JSONException {
+	private void addCategory(JSONObject result, User user, Category category, Map<Integer, String> sourceUUIDsById) throws JSONException, CryptoException {
 		sourceUUIDsById.put(category.getId(), category.getUuid());
 		final JSONObject c = new JSONObject();
 		c.put("uuid", category.getUuid());
-		c.put("name", category.getName());
+		c.put("name", CryptoUtil.decryptWrapper(category.getName(), user));
 		if (category.isDeleted()) c.put("deleted", category.isDeleted());
 		c.put("type", category.getType());
 		c.put("parent", sourceUUIDsById.get(category.getParent()));
 		c.put("periodType", category.getPeriodType());
 		if (category.getChildren() != null){
 			for (Category child : category.getChildren()) {
-				addCategory(c, child, sourceUUIDsById);
+				addCategory(c, user, child, sourceUUIDsById);
 			}
 		}
 		result.append("categories", c);
 	}
 	
-	private void addEntry(JSONObject result, Entry entry, Map<Integer, String> sourceUUIDsById) throws JSONException {
+	private void addEntry(JSONObject result, User user, Entry entry, Map<Integer, String> sourceUUIDsById) throws JSONException, CryptoException {
 		final JSONObject e = new JSONObject();
 		e.put("date", FormatUtil.formatDateInternal((Date) entry.getDate()));
 		e.put("category", sourceUUIDsById.get(entry.getCategoryId()));
@@ -112,11 +117,11 @@ public class BackupResource extends ServerResource {
 		result.append("entries", e);
 	}
 	
-	private void addTransaction(JSONObject result, Transaction transaction, Map<Integer, String> sourceUUIDsById) throws JSONException {
+	private void addTransaction(JSONObject result, User user, Transaction transaction, Map<Integer, String> sourceUUIDsById) throws JSONException, CryptoException {
 		final JSONObject t = new JSONObject();
 		t.put("uuid", transaction.getUuid());
-		t.put("description", transaction.getDescription());
-		t.put("number", transaction.getNumber());
+		t.put("description", CryptoUtil.decryptWrapper(transaction.getDescription(), user));
+		t.put("number", CryptoUtil.decryptWrapper(transaction.getNumber(), user));
 		t.put("date", FormatUtil.formatDateInternal((Date) transaction.getDate()));
 		if (transaction.isDeleted()) t.put("deleted", transaction.isDeleted());
 		if (transaction.getSplits() != null){
@@ -125,7 +130,7 @@ public class BackupResource extends ServerResource {
 				s.put("amount", split.getAmount().toPlainString());
 				s.put("from", sourceUUIDsById.get(split.getFromSource()));
 				s.put("to", sourceUUIDsById.get(split.getToSource()));
-				s.put("memo", split.getMemo());
+				s.put("memo", CryptoUtil.decryptWrapper(split.getMemo(), user));
 				t.append("splits", s);
 			}
 		}
