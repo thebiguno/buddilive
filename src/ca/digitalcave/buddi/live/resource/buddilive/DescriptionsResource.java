@@ -56,7 +56,7 @@ public class DescriptionsResource extends ServerResource {
 			for (String description : transactionsByDescription.keySet()) {
 				final JSONObject item = new JSONObject();
 				final Transaction t = transactionsByDescription.get(description);
-				item.put("description", description);
+				item.put("value", description);
 				final JSONObject transaction = new JSONObject();
 				transaction.put("description", description);
 				transaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));

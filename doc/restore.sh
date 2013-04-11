@@ -157,19 +157,33 @@ echo '
     ], 
     "transactions": [
         {
-            "date": "2013-03-11", 
-            "deleted": true, 
-            "description": "Foo", 
+            "date": "2013-04-10", 
+            "description": "Test", 
             "number": "", 
             "splits": [
                 {
-                    "amount": "123.45", 
-                    "from": "AccountImpl-13d5c65dd62-224-3b69", 
+                    "amount": "12314.00", 
+                    "from": "BudgetCategoryImpl-13d5c659e0b-b66a-45dd", 
                     "memo": "", 
-                    "to": "BudgetCategoryImpl-13d5c659e0a-dd7a-1fc3"
+                    "to": "AccountImpl-13d5c65dd62-224-3b69"
                 }
             ], 
-            "uuid": "4507645c-dbb1-4a31-827d-d3bd143d93f7"
+            "uuid": "871396bd-ed44-4f64-824d-654399171fae"
+        }, 
+        {
+            "date": "2013-03-11", 
+            "deleted": true, 
+            "description": "Co-op", 
+            "number": "", 
+            "splits": [
+                {
+                    "amount": "102.12", 
+                    "from": "AccountImpl-13d5c65dd62-224-3b69", 
+                    "memo": "", 
+                    "to": "BudgetCategoryImpl-13d5c659e0a-8e20-e5c"
+                }
+            ], 
+            "uuid": "TransactionImpl-13d5c690e68-1908-484e"
         }, 
         {
             "date": "2013-03-11", 
@@ -189,17 +203,17 @@ echo '
         {
             "date": "2013-03-11", 
             "deleted": true, 
-            "description": "Co-op", 
+            "description": "Foo", 
             "number": "", 
             "splits": [
                 {
-                    "amount": "102.12", 
+                    "amount": "123.45", 
                     "from": "AccountImpl-13d5c65dd62-224-3b69", 
                     "memo": "", 
-                    "to": "BudgetCategoryImpl-13d5c659e0a-8e20-e5c"
+                    "to": "BudgetCategoryImpl-13d5c659e0a-dd7a-1fc3"
                 }
             ], 
-            "uuid": "TransactionImpl-13d5c690e68-1908-484e"
+            "uuid": "4507645c-dbb1-4a31-827d-d3bd143d93f7"
         }, 
         {
             "date": "2013-03-05", 

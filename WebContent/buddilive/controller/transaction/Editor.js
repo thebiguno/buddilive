@@ -1,5 +1,11 @@
 Ext.define("BuddiLive.controller.transaction.Editor", {
 	"extend": "Ext.app.Controller",
+	"stores": [
+		"transaction.DescriptionComboboxStore"
+	],
+	"onLaunch": function(){
+		this.getTransactionDescriptionComboboxStoreStore().load();
+	},
 
 	"init": function() {
 		this.control({
@@ -20,6 +26,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		var editor = component.up("transactioneditor");
 		var record = editor.down("button[itemId='recordTransaction']");
 		if (e.getKey() == e.ENTER && !record.isDisabled()){
+			//If we don't disable the record button immediately (and check whether it is 
+			// disabled, above) then sometimes we have two events fire.
+			record.disable();
 			record.fireEvent("click", record);
 		}
 	},
@@ -31,6 +40,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	},
 	
 	"recordTransaction": function(component){
+		var me = this;
 		var editor = component.up("transactioneditor");
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": editor});
 		mask.show();
@@ -55,6 +65,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"jsonData": request,
 			"success": function(response){
 				mask.hide();
+				me.getTransactionDescriptionComboboxStoreStore().load();
 				editor.setTransaction();
 				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
 				editor.up("transactionlist").getStore().reload();

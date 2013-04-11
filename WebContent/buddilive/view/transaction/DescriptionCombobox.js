@@ -4,42 +4,18 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 	"requires": [
 	],
 	
+	"store": "transaction.DescriptionComboboxStore",
 	"initComponent": function(){
 		var combo = this;
 		Ext.applyIf(this, this.initialConfig);
 
-		this.displayField = "description";
-		this.valueField = "description";
+		this.displayField = "value";
+		this.valueField = "value";
 	
-		this.initialSetValue = (this.value != null);	//If there is a default value, set it once the store is loaded.
 		this.editable = true;
 		this.triggerAction = "all";
 		this.queryMode = "local";
 
-		this.store = {
-			"autoLoad": true,
-			"fields": ["description"],
-			"remoteFilter": false,
-			"proxy": {
-				"type": "ajax",
-				"autoAbort": true, 
-				"url": "buddilive/transactions/descriptions.json",
-				"reader": {
-					"type": "json",
-					"root": "data"
-				}
-			},
-			"listeners": {
-				"load": function(){
-					//Once the store is initially loaded, set the default value.
-					if (combo.initialSetValue){
-						combo.setValue(combo.getValue());
-						combo.initialSetValue = false;
-					}
-				}
-			}
-		};
-		
 		this.callParent(arguments);
 		
 		this.addListener("select", function(combo, record){
@@ -51,9 +27,6 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 			if (record.length > 0){
 				combo.up("transactioneditor").setTransaction(record[0].raw.transaction, true);
 			}
-			
-			//TODO Don't let them select two categories
-			//TODO Ensure one of the items is the currently selected source
 		});
 	}
 });
