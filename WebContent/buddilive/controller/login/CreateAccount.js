@@ -46,7 +46,9 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 		request.credentials = form.down("textfield[itemId='password']").getValue();
 		request.encrypt = form.down("checkbox[itemId='encrypt']").getValue();
 		request.storeEmail = form.down("checkbox[itemId='email']").getValue();
-		request.locale = form.down("textfield[itemId='locale']").getValue();
+		request.locale = form.down("combobox[itemId='locale']").getValue();
+		request.timezone = form.down("combobox[itemId='timezone']").getValue();
+		request.currency = form.down("combobox[itemId='currency']").getValue();
 		var conn = new Ext.data.Connection();
 		conn.request({
 			"url": "buddilive/createaccount",

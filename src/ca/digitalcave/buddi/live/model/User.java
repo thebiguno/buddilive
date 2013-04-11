@@ -60,9 +60,9 @@ public class User extends org.restlet.security.User {
 		//Prefer the email param, but if that is missing we can fill it in via the identifier if the storeEmail option is set.
 		if (json.optString("email", null) != null) this.setEmail(json.getString("email"));
 		else if (json.optBoolean("storeEmail", false)) this.setEmail(json.getString("identifier"));
-		this.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_CA")));
-		this.setCurrency(Currency.getInstance(json.optString("currency", "CAD")));
-		this.setTimezone(DateTimeZone.forID(json.optString("currency", "GMT")));
+		this.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
+		this.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
+		this.setTimezone(DateTimeZone.forID(json.optString("timezone", "America/Boise")));
 		this.setPremium(false);
 	}
 	
