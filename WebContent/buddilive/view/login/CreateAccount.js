@@ -3,7 +3,8 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 	"alias": "widget.createaccount",
 	"requires": [
 		"BuddiLive.view.login.ClickLabel",
-		"BuddiLive.view.login.PasswordField"
+		"BuddiLive.view.login.PasswordField",
+		"BuddiLive.view.component.LocalesCombobox"
 	],
 		
 	"initComponent": function(){
@@ -40,35 +41,10 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 								"allowBlank": false
 							},
 							{
-								"xtype": "combobox",
+								"xtype": "localescombobox",
 								"itemId": "locale",
-								"fieldLabel": "${translation("LANGUAGE")?json_string}",
-								"editable": false,
-								"value": "${locale?json_string}",
-								"forceSelection": true,
-								"store": new Ext.data.Store({
-									"fields": ["text", "value"],
-									"data": [
-										{"text": "Deutsch", "value": "de"},
-										{"text": "English", "value": "en"},
-										{"text": "English (US)", "value": "en_US"},
-										{"text": "Español", "value": "es"},
-										{"text": "Español (Mexico)", "value": "es_MX"},
-										{"text": "Francais", "value": "fr"},
-										{"text": "Italiano", "value": "it"},
-										{"text": "Nederlands", "value": "nl"},	//Dutch
-										{"text": "Norsk", "value": "no"},	//Norwegian
-										{"text": "Portugues", "value": "pt"},
-										{"text": "Portugues (Brasil)", "value": "pt_BR"},
-										{"text": "Svenska", "value": "sv"},	//Swedish
-										{"text": "ελληνικά", "value": "el"},	//Greek
-										{"text": "עִבְרִית", "value": "he"},	//Hebrew
-										{"text": "ру́сский", "value": "ru"},	//Russian
-										{"text": "српски", "value": "sr"}	//Serbian
-									]
-								}),
-								"queryMode": "local",
-								"valueField": "value"
+								"fieldLabel": "${translation("LOCALE")?json_string}",
+								"value": d.locale
 							},
 							{
 								"xtype": "panel",

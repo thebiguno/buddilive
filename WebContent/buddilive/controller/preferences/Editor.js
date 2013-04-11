@@ -1,5 +1,18 @@
 Ext.define("BuddiLive.controller.preferences.Editor", {
 	"extend": "Ext.app.Controller",
+	"stores": [
+		"preferences.CurrenciesComboboxStore",
+		"preferences.LocalesComboboxStore",
+		"preferences.TimezonesComboboxStore"
+	],
+	"onLaunch": function(){
+		var currenciesComboboxStore = this.getPreferencesCurrenciesComboboxStoreStore();
+		currenciesComboboxStore.load();
+		var localesComboboxStore = this.getPreferencesLocalesComboboxStoreStore();
+		localesComboboxStore.load();
+		var timezonesComboboxStore = this.getPreferencesTimezonesComboboxStoreStore();
+		timezonesComboboxStore.load();
+	},
 
 	"init": function() {
 		this.control({
@@ -30,12 +43,11 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		request.encrypt = window.down("checkbox[itemId='encrypt']").getValue();
 		request.encryptPassword = window.down("textfield[itemId='password']").getValue();
 		request.locale = window.down("combobox[itemId='locale']").getValue();
-		request.dateFormat = window.down("combobox[itemId='dateFormat']").getValue();
-		request.currencySymbol = window.down("combobox[itemId='currencySymbol']").getValue();
-		request.currencyAfter = window.down("checkbox[itemId='currencyAfter']").getValue();
+		request.timezone = window.down("combobox[itemId='timezone']").getValue();
+		request.currency = window.down("combobox[itemId='currency']").getValue();
+		var dateFormat = window.down("combobox[itemId='dateFormat']").getValue();
+		request.dateFormat = dateFormat ? dateFormat : "";
 		request.showDeleted = window.down("checkbox[itemId='showDeleted']").getValue();
-		request.showCleared = window.down("checkbox[itemId='showCleared']").getValue();
-		request.showReconciled = window.down("checkbox[itemId='showReconciled']").getValue();
 
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": window});
 		mask.show();

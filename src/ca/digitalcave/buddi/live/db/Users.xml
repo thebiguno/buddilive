@@ -1,38 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.live.db.Users">
-	<resultMap id="user" type="ca.digitalcave.buddi.live.model.User">
-		<id column="id" property="id"/>
-		<result column="identifier" property="identifier"/>
-		<result column="credentials" property="credentials"/>
-		<result column="encryption_key" property="encryptionKey"/>
-		<result column="email" property="email"/>
-		<result column="premium" property="premium"/>
-		<result column="locale" property="locale"/>
-		<result column="currency" property="currency"/>
-		<result column="timezone" property="timezone"/>
-		<!-- 
-		<result column="show_cleared" property="showCleared"/>
-		<result column="show_reconciled" property="showReconciled"/>
-		<result column="date_format" property="dateFormat"/>
-		-->
-		<result column="show_deleted" property="showDeleted"/>
-		<result column="created" property="created"/>
-		<result column="modified" property="modified"/>
-	</resultMap>
-	
-	<select id="selectUser" resultMap="user">
+	<select id="selectUser" resultType="ca.digitalcave.buddi.live.model.User">
 		SELECT 
 			id,
 			identifier,
 			credentials,
-			encryption_key,
+			encryption_key encryptionKey,
 			email,
 			premium,
 			locale,
 			currency,
 			timezone,
-			show_deleted,
+			override_date_format overrideDateFormat,
+			show_deleted showDeleted,
 			created,
 			modified
 		FROM users 
@@ -85,8 +66,9 @@
 			<if test="user.credentials != null">credentials = #{user.credentials},</if>
 			email = #{user.email,jdbcType=VARCHAR},
 			locale = #{user.locale},
-			currency = #{user.currency.toString(),jdbcType=VARCHAR},
-			timezone = #{user.timezone,jdbcType=VARCHAR},
+			currency = #{user.currency},
+			timezone = #{user.timezone},
+			override_date_format = #{user.overrideDateFormat,jdbcType=VARCHAR},
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}

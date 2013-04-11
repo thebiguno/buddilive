@@ -1,6 +1,8 @@
 package ca.digitalcave.buddi.live.model;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Currency;
 import java.util.Date;
@@ -12,6 +14,7 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 
 import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,11 +35,11 @@ public class User extends org.restlet.security.User {
 	private Locale locale;
 	private Currency currency;
 	private DateTimeZone timezone;
-	private String dateFormat;
+	private String overrideDateFormat;
 	private Boolean showCleared;
 	private Boolean showReconciled;
 	private Boolean showDeleted;
-	private Boolean currencyAfter;
+//	private Boolean currencyAfter;
 	private Date created;
 	private Date modified;
 	private final Map<String, String> data = new HashMap<String, String>();
@@ -44,12 +47,12 @@ public class User extends org.restlet.security.User {
 	private boolean authenticated = false;
 	private Properties systemProperties;
 	
-	public User() {
-		System.out.println();
-	}
+	public User() {}
+	
 	public User(Locale locale){
 		this.locale = locale;
 	}
+	
 	public User(JSONObject json) throws JSONException{
 		if (json.optString("identifier", null) != null)this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha256Hash(1, new byte[0], json.getString("identifier")));
 		if (json.optString("credentials", null) != null) this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(json.getString("credentials")));
@@ -61,8 +64,8 @@ public class User extends org.restlet.security.User {
 		this.setCurrency(Currency.getInstance(json.optString("currency", "CAD")));
 		this.setTimezone(DateTimeZone.forID(json.optString("currency", "GMT")));
 		this.setPremium(false);
-
 	}
+	
 	public JSONObject toJson() throws JSONException {
 		final JSONObject result = new JSONObject();
 		result.put("id", this.getId());
@@ -154,21 +157,32 @@ public class User extends org.restlet.security.User {
 		this.timezone = timezone;
 	}
 	public String getExtDateFormat(){
-		//Auto converts from Java format to EXT JS (PHP) format
-		return getDateFormat().replaceAll("yyyy", "Y").replaceAll("dd", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
+		//Auto converts from Java format to EXT JS (PHP) format.
+		//TODO This may need tweaking for accuracy and performance.
+		return getDateFormat().replaceAll("yyyy", "Y").replaceAll("yy", "y").replaceAll("ddd", "D").replaceAll("dd?", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
 	}
 	public String getDateFormat() {
-		if (dateFormat == null) {
+		if (StringUtils.isBlank(overrideDateFormat)) {
 			if (locale != null) {
 				final DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, locale);
 				if (format instanceof SimpleDateFormat) return ((SimpleDateFormat) format).toLocalizedPattern();
 			} 
-			return "yyyy-MM-dd";
 		}
-		return dateFormat;
+		else {
+			try {
+				if (new SimpleDateFormat(overrideDateFormat) != null);
+				return overrideDateFormat;
+			}
+			catch (IllegalArgumentException e){}
+		}
+		
+		return "yyyy-MM-dd";
 	}
-	public void setDateFormat(String dateFormat) {
-		this.dateFormat = dateFormat;
+	public String getOverrideDateFormat() {
+		return overrideDateFormat;
+	}
+	public void setOverrideDateFormat(String overrideDateFormat) {
+		this.overrideDateFormat = overrideDateFormat;
 	}
 	public Currency getCurrency() {
 		return currency;
@@ -176,11 +190,14 @@ public class User extends org.restlet.security.User {
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
 	}
-	public boolean isCurrencyAfter() {
-		return currencyAfter;
-	}
-	public void setCurrencyAfter(boolean currencyAfter) {
-		this.currencyAfter = currencyAfter;
+//	public boolean isCurrencyAfter() {
+//		return currencyAfter;
+//	}
+//	public void setCurrencyAfter(boolean currencyAfter) {
+//		this.currencyAfter = currencyAfter;
+//	}
+	public String getCurrencySymbol(){
+		return currency.getSymbol(locale);
 	}
 	public boolean isShowCleared() {
 		return showCleared;
@@ -221,12 +238,12 @@ public class User extends org.restlet.security.User {
 	public Map<String, String> getData() {
 		return data;
 	}
-//	public String getDecimalSeparator(){
-//		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getDecimalSeparator() + "";
-//	}
-//	public String getThousandSeparator(){
-//		return ((DecimalFormat) NumberFormat.getInstance(getJavaLocale())).getDecimalFormatSymbols().getGroupingSeparator() + "";
-//	}
+	public String getDecimalSeparator(){
+		return ((DecimalFormat) NumberFormat.getInstance(getLocale())).getDecimalFormatSymbols().getDecimalSeparator() + "";
+	}
+	public String getThousandSeparator(){
+		return ((DecimalFormat) NumberFormat.getInstance(getLocale())).getDecimalFormatSymbols().getGroupingSeparator() + "";
+	}
 	public ResourceBundle getTranslation(){
 		return ResourceBundle.getBundle("i18n", locale);
 	}

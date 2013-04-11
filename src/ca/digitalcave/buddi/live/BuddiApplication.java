@@ -8,6 +8,8 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.joda.time.DateTimeZone;
+import org.joda.time.tz.CachedDateTimeZone;
 import org.joda.time.tz.FixedDateTimeZone;
 import org.restlet.Application;
 import org.restlet.Restlet;
@@ -37,6 +39,9 @@ import ca.digitalcave.buddi.live.resource.buddilive.ScheduledTransactionsResourc
 import ca.digitalcave.buddi.live.resource.buddilive.SourcesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.preferences.CurrenciesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.preferences.TimezonesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
@@ -77,6 +82,9 @@ public class BuddiApplication extends Application{
 		router.attach("/buddilive/categories/periods", new BuddiAuthenticator(this, getContext(), false, PeriodsResource.class));
 		router.attach("/buddilive/categories/entries", new BuddiAuthenticator(this, getContext(), false, EntriesResource.class));
 		router.attach("/buddilive/categories/parents", new BuddiAuthenticator(this, getContext(), false, ParentsResource.class));
+		router.attach("/buddilive/preferences/currencies", new BuddiAuthenticator(this, getContext(), false, CurrenciesResource.class));
+		router.attach("/buddilive/preferences/locales", new BuddiAuthenticator(this, getContext(), false, LocalesResource.class));
+		router.attach("/buddilive/preferences/timezones", new BuddiAuthenticator(this, getContext(), false, TimezonesResource.class));
 		router.attach("/buddilive/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
 		router.attach("/buddilive/transactions/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
 		router.attach("/buddilive/scheduledtransactions", new BuddiAuthenticator(this, getContext(), false, ScheduledTransactionsResource.class));
@@ -131,12 +139,14 @@ public class BuddiApplication extends Application{
 		final SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
 		final Environment environment = new Environment("prod", new JdbcTransactionFactory(), ds);
 		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
-		configuration.addMappers("ca.digitalcave.buddi.live.db");
-		
 		configuration.getTypeHandlerRegistry().register(Boolean.class, BooleanHandler.class);
 		configuration.getTypeHandlerRegistry().register(Currency.class, CurrencyHandler.class);
+		configuration.getTypeHandlerRegistry().register(DateTimeZone.class, DateTimeZoneHandler.class);
+		configuration.getTypeHandlerRegistry().register(CachedDateTimeZone.class, DateTimeZoneHandler.class);
 		configuration.getTypeHandlerRegistry().register(FixedDateTimeZone.class, DateTimeZoneHandler.class);
 		configuration.getTypeHandlerRegistry().register(Locale.class, LocaleHandler.class);
+		
+		configuration.addMappers("ca.digitalcave.buddi.live.db");
 		
 		sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
 		

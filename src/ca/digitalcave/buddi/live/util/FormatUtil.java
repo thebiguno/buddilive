@@ -47,7 +47,7 @@ public class FormatUtil {
 	
 	public static String formatDate(Date date, User user){
 		if (date == null) return null;
-		return new SimpleDateFormat(user.getDateFormat() == null ? "yyyy-MM-dd" : user.getDateFormat()).format(date);
+		return new SimpleDateFormat(user.getDateFormat()).format(date);
 	}
 
 	public static BigDecimal parseCurrency(String value){

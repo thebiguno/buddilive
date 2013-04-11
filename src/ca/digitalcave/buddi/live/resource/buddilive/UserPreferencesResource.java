@@ -5,6 +5,7 @@ import java.util.Currency;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.joda.time.DateTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -37,9 +38,10 @@ public class UserPreferencesResource extends ServerResource {
 		try {
 			final JSONObject result = new JSONObject();
 			result.put("encrypt", user.isEncrypted());
-			result.put("locale", user.getLocale());
-			result.put("overrideDateFormat", user.getDateFormat());
+			result.put("locale", user.getLocale().toString());
+			result.put("timezone", user.getTimezone().getID());
 			result.put("currency", user.getCurrency().getCurrencyCode());
+			result.put("dateFormat", user.getOverrideDateFormat());
 			//result.put("currencyAfter", user.isCurrencyAfter());
 			result.put("showDeleted", user.isShowDeleted());
 //			result.put("showCleared", user.isShowCleared());
@@ -71,12 +73,13 @@ public class UserPreferencesResource extends ServerResource {
 					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
 				}
 				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en")));
-				user.setDateFormat(json.optString("dateFormat", null));
-				user.setCurrency(Currency.getInstance(json.optString("currencySymbol", "USD")));
-				user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
+				user.setTimezone(DateTimeZone.forID(json.optString("timezone", "America/Edmonton")));
+				user.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
+				user.setOverrideDateFormat(json.optString("dateFormat", null));
+				//user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
 				user.setShowDeleted(json.optBoolean("showDeleted", true));
-				user.setShowCleared(json.optBoolean("showCleared", false));
-				user.setShowReconciled(json.optBoolean("showReconciled", false));
+				//user.setShowCleared(json.optBoolean("showCleared", false));
+				//user.setShowReconciled(json.optBoolean("showReconciled", false));
 				
 				ConstraintsChecker.checkUpdateUserPreferences(user, sqlSession);
 				

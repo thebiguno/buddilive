@@ -2,8 +2,8 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 	"extend": "Ext.form.NumberField",
 	"alias": "widget.currencyfield",
 
-	"decimalSeparator": Ext.util.Format.decimalSeparator,
-	"thousandSeparator": Ext.util.Format.thousandSeparator,
+	"decimalSeparator": "${decimalSeparator!"."?json_string}",
+	"thousandSeparator": "${thousandSeparator!","?json_string}",
 	"forcePrecision" : false,
 	"hideTrigger": true,
 	"keyNavEnabled": false,
@@ -12,7 +12,7 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 	
 	"initComponent": function(){
 		Ext.util.Format.decimalSeparator = "${decimalSeparator!"."?json_string}";
-		Ext.util.Format.thousandSeparator = "${thousandSeparator!"."?json_string}";
+		Ext.util.Format.thousandSeparator = "${thousandSeparator!","?json_string}";
 
 		this.callParent(arguments);
 	},
