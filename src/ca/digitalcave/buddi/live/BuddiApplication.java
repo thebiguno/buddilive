@@ -82,15 +82,15 @@ public class BuddiApplication extends Application{
 		router.attach("/buddilive/categories/periods", new BuddiAuthenticator(this, getContext(), false, PeriodsResource.class));
 		router.attach("/buddilive/categories/entries", new BuddiAuthenticator(this, getContext(), false, EntriesResource.class));
 		router.attach("/buddilive/categories/parents", new BuddiAuthenticator(this, getContext(), false, ParentsResource.class));
-		router.attach("/buddilive/preferences/currencies", new BuddiAuthenticator(this, getContext(), false, CurrenciesResource.class));
-		router.attach("/buddilive/preferences/locales", new BuddiAuthenticator(this, getContext(), false, LocalesResource.class));
-		router.attach("/buddilive/preferences/timezones", new BuddiAuthenticator(this, getContext(), false, TimezonesResource.class));
 		router.attach("/buddilive/transactions", new BuddiAuthenticator(this, getContext(), false, TransactionsResource.class));
 		router.attach("/buddilive/transactions/descriptions", new BuddiAuthenticator(this, getContext(), false, DescriptionsResource.class));
 		router.attach("/buddilive/scheduledtransactions", new BuddiAuthenticator(this, getContext(), false, ScheduledTransactionsResource.class));
 		router.attach("/buddilive/sources/from", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/buddilive/sources/to", new BuddiAuthenticator(this, getContext(), false, SourcesResource.class));
 		router.attach("/buddilive/userpreferences", new BuddiAuthenticator(this, getContext(), false, UserPreferencesResource.class));
+		router.attach("/buddilive/preferences/currencies", new BuddiAuthenticator(this, getContext(), true, CurrenciesResource.class));
+		router.attach("/buddilive/preferences/locales", new BuddiAuthenticator(this, getContext(), true, LocalesResource.class));
+		router.attach("/buddilive/preferences/timezones", new BuddiAuthenticator(this, getContext(), true, TimezonesResource.class));
 
 		//TODO If Sencha Touch uses same store formats, then move reports to a common URL path
 		router.attach("/buddilive/report/pietotalsbycategory", new BuddiAuthenticator(this, getContext(), false, PieTotalsByCategoryResource.class));

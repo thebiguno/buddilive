@@ -4,7 +4,10 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 	"requires": [
 		"BuddiLive.view.login.ClickLabel",
 		"BuddiLive.view.login.PasswordField",
-		"BuddiLive.view.component.LocalesCombobox"
+		"BuddiLive.view.component.SelfDocumentingField",
+		"BuddiLive.view.component.CurrenciesCombobox",
+		"BuddiLive.view.component.LocalesCombobox",
+		"BuddiLive.view.component.TimezonesCombobox"
 	],
 		
 	"initComponent": function(){
@@ -41,66 +44,46 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 								"allowBlank": false
 							},
 							{
-								"xtype": "localescombobox",
+								"xtype": "selfdocumentingfield",
+								"messageBody": "${translation("HELP_LOCALE")?json_string}",
+								"type": "localescombobox",
 								"itemId": "locale",
 								"fieldLabel": "${translation("LOCALE")?json_string}",
-								"value": d.locale
+								"value": "en_US"
 							},
 							{
-								"xtype": "panel",
-								"border": false,
-								"layout": "hbox",
-								"items": [
-									{
-										"xtype": "checkbox",
-										"itemId": "email",
-										"fieldLabel": " ",
-										"labelSeparator": "",
-										"boxLabel": "${translation("STORE_EMAIL")?json_string}"
-									},
-									{
-										"xtype": "clicklabel",
-										"flex": 1,
-										"text": "${translation("WHAT_IS_THIS")?json_string}",
-										"listeners": {
-											"click": function(){
-												Ext.MessageBox.show({
-													"title": "${translation("STORE_EMAIL")?json_string}",
-													"msg": "${translation("CREATE_USER_WHAT_IS_REMEMBER_EMAIL")?json_string}",
-													"buttons": Ext.MessageBox.OK
-												});
-											}
-										}
-									}
-								]
+								"xtype": "selfdocumentingfield",
+								"messageBody": "${translation("HELP_TIMEZONE")?json_string}",
+								"type": "timezonescombobox",
+								"itemId": "timezone",
+								"fieldLabel": "${translation("TIMEZONE")?json_string}",
+								"value": "America/Boise"
 							},
 							{
-								"xtype": "panel",
-								"border": false,
-								"layout": "hbox",
-								"items": [
-									{
-										"xtype": "checkbox",
-										"itemId": "encrypt",
-										"fieldLabel": " ",
-										"labelSeparator": "",
-										"boxLabel": "${translation("ENCRYPT_DATA")?json_string}"
-									},
-									{
-										"xtype": "clicklabel",
-										"flex": 1,
-										"text": "${translation("WHAT_IS_THIS")?json_string}",
-										"listeners": {
-											"click": function(){
-												Ext.MessageBox.show({
-													"title": "${translation("ENCRYPT_DATA")?json_string}",
-													"msg": "${translation("CREATE_USER_WHAT_IS_ENCRYPT_DATA")?json_string}",
-													"buttons": Ext.MessageBox.OK
-												});
-											}
-										}
-									}
-								]
+								"xtype": "selfdocumentingfield",
+								"messageBody": "${translation("HELP_CURRENCY")?json_string}",
+								"type": "currenciescombobox",
+								"itemId": "currency",
+								"fieldLabel": "${translation("CURRENCY")?json_string}",
+								"value": "USD"
+							},
+							{
+								"xtype": "selfdocumentingfield",
+								"messageBody": "${translation("HELP_STORE_EMAIL")?json_string}",
+								"type": "checkbox",
+								"itemId": "email",
+								"fieldLabel": " ",
+								"labelSeparator": "",
+								"boxLabel": "${translation("STORE_EMAIL")?json_string}"
+							},
+							{
+								"xtype": "selfdocumentingfield",
+								"messageBody": "${translation("HELP_ENCRYPT_DATA")?json_string}",
+								"type": "checkbox",
+								"itemId": "encrypt",
+								"fieldLabel": " ",
+								"labelSeparator": "",
+								"boxLabel": "${translation("ENCRYPT_DATA")?json_string}"
 							},
 							{
 								"xtype": "panel",

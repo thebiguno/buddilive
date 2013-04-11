@@ -21,7 +21,9 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 				"bodyPadding": 5,
 				"items": [
 					{
-						"xtype": "checkbox",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_ENCRYPT_DATA")?json_string}",
+						"type": "checkbox",
 						"itemId": "encrypt",
 						"fieldLabel": " ",
 						"labelSeparator": "",
@@ -43,25 +45,33 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 						"fieldLabel": "Password"	//TODO i18n
 					},
 					{
-						"xtype": "localescombobox",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_LOCALE")?json_string}",
+						"type": "localescombobox",
 						"itemId": "locale",
 						"fieldLabel": "${translation("LOCALE")?json_string}",
 						"value": d.locale
 					},
 					{
-						"xtype": "timezonescombobox",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_TIMEZONE")?json_string}",
+						"type": "timezonescombobox",
 						"itemId": "timezone",
 						"fieldLabel": "${translation("TIMEZONE")?json_string}",
 						"value": d.timezone
 					},
 					{
-						"xtype": "currenciescombobox",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_CURRENCY")?json_string}",
+						"type": "currenciescombobox",
 						"itemId": "currency",
 						"fieldLabel": "${translation("CURRENCY")?json_string}",
 						"value": d.currency
 					},
  					{
-						"xtype": "combobox",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_DATE_FORMAT")?json_string}",
+						"type": "combobox",
 						"itemId": "dateFormat",
 						"fieldLabel": "${translation("DATE_FORMAT")?json_string}",
 						"editable": false,

@@ -12,6 +12,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"transactionlist button[itemId='recordTransaction']": {"click": this.recordTransaction},
 			"transactionlist button[itemId='clearTransaction']": {"click": this.clearTransaction},
 			"transactionlist button[itemId='deleteTransaction']": {"click": this.deleteTransaction},
+			"transactioneditor": {
+				"change": this.validateFields
+			},
 			"transactioneditor field": {
 				"blur": this.validateFields,
 				"select": this.validateFields,
@@ -26,15 +29,12 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		var editor = component.up("transactioneditor");
 		var record = editor.down("button[itemId='recordTransaction']");
 		if (e.getKey() == e.ENTER && !record.isDisabled()){
-			//If we don't disable the record button immediately (and check whether it is 
-			// disabled, above) then sometimes we have two events fire.
-			record.disable();
 			record.fireEvent("click", record);
 		}
 	},
 	
 	"validateFields": function(component){
-		var editor = component.up("transactioneditor");
+		var editor = (component.xtype == "transactioneditor" ? component : component.up("transactioneditor"));
 		var enabled = editor.validate();
 		editor.down("button[itemId='recordTransaction']").setDisabled(!enabled);
 	},
@@ -66,10 +66,11 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"success": function(response){
 				mask.hide();
 				me.getTransactionDescriptionComboboxStoreStore().load();
-				editor.setTransaction();
+				editor.setTransaction(null, false, true);
 				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
+				editor.up("transactionlist").getSelectionModel().deselectAll();
 				editor.up("transactionlist").getStore().reload();
-				editor.down("datefield[itemId='date']").focus(true);
+				editor.down("datefield[itemId='date']").focus(false, 500);
 			},
 			"failure": function(response){
 				mask.hide();

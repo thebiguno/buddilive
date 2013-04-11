@@ -6,12 +6,9 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		"preferences.TimezonesComboboxStore"
 	],
 	"onLaunch": function(){
-		var currenciesComboboxStore = this.getPreferencesCurrenciesComboboxStoreStore();
-		currenciesComboboxStore.load();
-		var localesComboboxStore = this.getPreferencesLocalesComboboxStoreStore();
-		localesComboboxStore.load();
-		var timezonesComboboxStore = this.getPreferencesTimezonesComboboxStoreStore();
-		timezonesComboboxStore.load();
+		this.getPreferencesCurrenciesComboboxStoreStore().load();
+		this.getPreferencesLocalesComboboxStoreStore().load();
+		this.getPreferencesTimezonesComboboxStoreStore().load();
 	},
 
 	"init": function() {

@@ -25,11 +25,14 @@ Ext.define("BuddiLive.controller.transaction.List", {
 	
 	"selectionChange": function(selectionModel, selected){
 		var panel = selectionModel.view.panel;
-		var transaction = selected.length > 0 ? selected[0].raw : null;
-		panel.down("transactioneditor").setTransaction(transaction);
-		
-		panel.down("button[itemId='deleteTransaction']").setDisabled(transaction == null);
-		
+		if (selected.length > 0){
+			var transaction = selected[0].raw;
+			panel.down("transactioneditor").setTransaction(transaction);
+			panel.down("button[itemId='deleteTransaction']").setEnabled();
+		}
+		else {
+			panel.down("button[itemId='deleteTransaction']").setDisabled();
+		}
 	},
 	
 	"search": function(component, e) {

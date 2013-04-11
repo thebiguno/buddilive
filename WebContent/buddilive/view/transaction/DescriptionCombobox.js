@@ -19,11 +19,6 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 		this.callParent(arguments);
 		
 		this.addListener("select", function(combo, record){
-			//Don't let users select the separators.
-			if (combo.getValue() == ""){
-				combo.setValue();
-			}
-			
 			if (record.length > 0){
 				combo.up("transactioneditor").setTransaction(record[0].raw.transaction, true);
 			}

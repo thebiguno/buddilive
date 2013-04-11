@@ -11,7 +11,7 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 	},
 	
 	"reload": function(component){
-		var budgetPanel = (component.xtype == 'budgetpanel' ? component : component.up("budgetpanel"));
+		var budgetPanel = (component.xtype == "budgetpanel" ? component : component.up("budgetpanel"));
 		var conn = new Ext.data.Connection();
 		conn.request({
 			"url": "buddilive/categories/periods",

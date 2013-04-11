@@ -1,5 +1,15 @@
 Ext.define("BuddiLive.controller.login.CreateAccount", {
 	"extend": "Ext.app.Controller",
+	"stores": [
+		"preferences.CurrenciesComboboxStore",
+		"preferences.LocalesComboboxStore",
+		"preferences.TimezonesComboboxStore"
+	],
+	"onLaunch": function(){
+		this.getPreferencesCurrenciesComboboxStoreStore().load();
+		this.getPreferencesLocalesComboboxStoreStore().load();
+		this.getPreferencesTimezonesComboboxStoreStore().load();
+	},
 
 	"init": function() {
 		this.control({

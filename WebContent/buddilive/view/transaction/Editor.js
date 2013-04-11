@@ -99,15 +99,25 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		}
 		return t;
 	},
-	
-	"setTransaction": function(transaction, loadFromDescription){
+
+	//transaction is the transaction to set -- leave as null to blank out the existing transaction
+	//loadFromDescription is true if we are loading this transaction from the saved transactions via description pulldown.  When true, we do not update 
+	// any transaction-specific details, only the splits info.
+	//preserveDate is true if we want to keep the date.  This is used when we have just recorded a transaction, and want to keep it for the next one.
+	"setTransaction": function(transaction, loadFromDescription, preserveDate){
 		Ext.suspendLayouts();
 		transaction = (transaction ? transaction : {});
 		
-		if (!loadFromDescription) this.down("hidden[itemId='id']").setValue(transaction.id);
-		if (!loadFromDescription && transaction && transaction.date) this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.dateIso, "Y-m-d", true));
-		if (!loadFromDescription) this.down("combobox[itemId='description']").setValue(transaction.description);
-		if (!loadFromDescription) this.down("textfield[itemId='number']").setValue(transaction.number);
+		if (!loadFromDescription) {
+			if (!preserveDate){
+				if (transaction && transaction.dateIso) this.down("datefield[itemId='date']").setValue(Ext.Date.parse(transaction.dateIso, "Y-m-d", true));
+				else this.down("datefield[itemId='date']").setValue();
+			}
+			this.down("hidden[itemId='id']").setValue(transaction.id);
+			if (transaction.description) this.down("combobox[itemId='description']").setValue(transaction.description);
+			else this.down("combobox[itemId='description']").clearValue();
+			this.down("textfield[itemId='number']").setValue(transaction.number);
+		}
 	
 		//Remove all the split editors
 		while (this.items.length > 0) this.remove(this.items.get(0));
@@ -125,6 +135,8 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		}
 		
 		Ext.resumeLayouts(true);
+		
+		this.fireEvent("change", this);
 	},
 	
 	"validate": function(){

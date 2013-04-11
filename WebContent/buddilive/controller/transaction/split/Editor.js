@@ -15,10 +15,7 @@ Ext.define("BuddiLive.controller.transaction.split.Editor", {
 		this.control({
 			"spliteditor button[itemId='addSplit']": {"click": this.addSplit},
 			"spliteditor button[itemId='removeSplit']": {"click": this.removeSplit},
-			"spliteditor": {"updateButtons": this.updateButtons},
-			"spliteditor field": {
-				"specialkey": this.checkKeys		//Inherited from transaction.Editor
-			}
+			"spliteditor": {"updateButtons": this.updateButtons}
 		});
 	},
 	
