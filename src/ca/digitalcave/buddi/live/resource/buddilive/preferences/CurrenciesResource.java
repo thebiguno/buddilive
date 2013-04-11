@@ -59,7 +59,7 @@ public class CurrenciesResource extends ServerResource {
 
 			for (Currency currency : commonCurrencies) {
 				final JSONObject entry = new JSONObject();
-				entry.put("text", currency.getSymbol(user.getLocale()));
+				entry.put("text", currency.getSymbol(user.getLocale()));	//TODO Change all instances of getSymbol(locale) to getDisplayName(locale) when I upgrade my server to JVM 7
 				entry.put("value", currency.getCurrencyCode());
 				result.append("data", entry);
 			}
