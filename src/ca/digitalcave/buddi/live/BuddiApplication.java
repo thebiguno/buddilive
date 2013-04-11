@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.live;
 
-import java.util.Currency;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -8,9 +7,6 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.joda.time.DateTimeZone;
-import org.joda.time.tz.CachedDateTimeZone;
-import org.joda.time.tz.FixedDateTimeZone;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.Language;
@@ -139,12 +135,10 @@ public class BuddiApplication extends Application{
 		final SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
 		final Environment environment = new Environment("prod", new JdbcTransactionFactory(), ds);
 		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
-		configuration.getTypeHandlerRegistry().register(Boolean.class, BooleanHandler.class);
-		configuration.getTypeHandlerRegistry().register(Currency.class, CurrencyHandler.class);
-		configuration.getTypeHandlerRegistry().register(DateTimeZone.class, DateTimeZoneHandler.class);
-		configuration.getTypeHandlerRegistry().register(CachedDateTimeZone.class, DateTimeZoneHandler.class);
-		configuration.getTypeHandlerRegistry().register(FixedDateTimeZone.class, DateTimeZoneHandler.class);
-		configuration.getTypeHandlerRegistry().register(Locale.class, LocaleHandler.class);
+		configuration.getTypeHandlerRegistry().register(BooleanHandler.class);
+		configuration.getTypeHandlerRegistry().register(CurrencyHandler.class);
+		configuration.getTypeHandlerRegistry().register(DateTimeZoneHandler.class);
+		configuration.getTypeHandlerRegistry().register(LocaleHandler.class);
 		
 		configuration.addMappers("ca.digitalcave.buddi.live.db");
 		

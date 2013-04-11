@@ -49,9 +49,9 @@
 				#{user.uuid}, 
 				#{user.email,jdbcType=VARCHAR},
 				'N',
-				#{user.locale},
-				#{user.currency},
-				#{user.timezone},
+				#{user.locale,javaType=java.util.Locale},
+				#{user.currency,javaType=java.util.Currency},
+				#{user.timezone,javaType=org.joda.time.DateTimeZone},
 				'Y',
 				'N',
 				'N',
@@ -65,9 +65,9 @@
 		SET
 			<if test="user.credentials != null">credentials = #{user.credentials},</if>
 			email = #{user.email,jdbcType=VARCHAR},
-			locale = #{user.locale},
-			currency = #{user.currency},
-			timezone = #{user.timezone},
+			locale = #{user.locale,javaType=java.util.Locale},
+			currency = #{user.currency,javaType=java.util.Currency},
+			timezone = #{user.timezone,javaType=org.joda.time.DateTimeZone},
 			override_date_format = #{user.overrideDateFormat,jdbcType=VARCHAR},
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP

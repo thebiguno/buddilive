@@ -72,8 +72,8 @@ public class UserPreferencesResource extends ServerResource {
 					if (user.isEncrypted())DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
 				}
-				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en")));
-				user.setTimezone(DateTimeZone.forID(json.optString("timezone", "America/Edmonton")));
+				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
+				user.setTimezone(DateTimeZone.forID(json.optString("timezone", "America/Boise")));
 				user.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
 				user.setOverrideDateFormat(json.optString("dateFormat", null));
 				//user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
