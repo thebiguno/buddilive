@@ -41,7 +41,7 @@ public class CurrenciesResource extends ServerResource {
 			@Override
 			public int compare(Currency o1, Currency o2) {
 				if (o1 == null || o2 == null) return 0;
-				return o1.getDisplayName(user.getLocale()).compareTo(o2.getDisplayName(user.getLocale()));
+				return o1.getSymbol(user.getLocale()).compareTo(o2.getSymbol(user.getLocale()));
 			}
 		});
 		for(Locale locale : Locale.getAvailableLocales()) {
@@ -59,7 +59,7 @@ public class CurrenciesResource extends ServerResource {
 
 			for (Currency currency : commonCurrencies) {
 				final JSONObject entry = new JSONObject();
-				entry.put("text", currency.getDisplayName(user.getLocale()));
+				entry.put("text", currency.getSymbol(user.getLocale()));
 				entry.put("value", currency.getCurrencyCode());
 				result.append("data", entry);
 			}
@@ -72,7 +72,7 @@ public class CurrenciesResource extends ServerResource {
 			
 			for (Currency currency : allCurrencies) {
 				final JSONObject entry = new JSONObject();
-				entry.put("text", currency.getDisplayName(user.getLocale()));
+				entry.put("text", currency.getSymbol(user.getLocale()));
 				entry.put("value", currency.getCurrencyCode());
 				result.append("data", entry);
 			}
