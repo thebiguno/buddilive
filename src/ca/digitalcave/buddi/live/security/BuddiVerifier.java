@@ -111,6 +111,7 @@ public class BuddiVerifier implements Verifier {
 						if (user.getLocale() == null) user.setLocale(browserLocale);
 						user.setPlaintextIdentifier(identifier);
 						request.getClientInfo().setUser(user);
+						request.setChallengeResponse(null);	//Remove challenge response so username is not seen in logs
 						return RESULT_VALID;
 					}
 					else {
