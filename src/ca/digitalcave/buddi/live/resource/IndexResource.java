@@ -1,5 +1,7 @@
 package ca.digitalcave.buddi.live.resource;
 
+import java.util.Date;
+
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
 import org.restlet.data.ChallengeResponse;
@@ -83,16 +85,16 @@ public class IndexResource extends ServerResource {
 			final JSONObject token = new JSONObject(entity.getText());
 			token.put("clientIp", getRequest().getClientInfo().getAddress());
 			
-			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, CryptoUtil.encrypt(token.toString(), BuddiVerifier.COOKIE_PASSWORD));
-			c.setAccessRestricted(true);
-			c.setMaxAge(-1);	//Delete on browser close
-
 			//Check the authentication right now, so that we can return an error if it is not valid.  This is somewhat
 			// awkward, but it makes for a better user experience.
 			getRequest().setChallengeResponse(new ChallengeResponse(ChallengeScheme.CUSTOM, token.getString("identifier"), token.getString("credentials")));
 			if (new BuddiVerifier((BuddiApplication) getApplication()).verify(getRequest(), getResponse()) != Verifier.RESULT_VALID){
 				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);	
 			}
+			
+			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, CryptoUtil.encrypt(token.toString(), BuddiVerifier.COOKIE_PASSWORD));
+			c.setAccessRestricted(true);
+			c.setMaxAge(-1);	//Delete on browser close
 			
 			getResponse().getCookieSettings().add(c);
 			getResponse().redirectSeeOther(".");
