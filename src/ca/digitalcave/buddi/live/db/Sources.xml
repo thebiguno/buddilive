@@ -290,4 +290,9 @@
 		DELETE FROM sources WHERE id = #{source.id} AND user_id = #{user.id}
 	</delete>
 
+	<delete id="deleteAllSources">
+		DELETE FROM sources 
+		WHERE user_id = #{user.id}
+	</delete>
+
 </mapper>

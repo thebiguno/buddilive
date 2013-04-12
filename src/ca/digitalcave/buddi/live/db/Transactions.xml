@@ -202,10 +202,19 @@
 	
 	<delete id="deleteTransaction">
 		DELETE FROM transactions
-		WHERE id = #{transaction.id}
+		WHERE
+			id = #{transaction.id}
+			AND user_id = #{user.id}
 	</delete>
 	<delete id="deleteSplits">
 		DELETE FROM splits
-		WHERE transaction_id = #{transaction.id}
+		WHERE
+			transaction_id = #{transaction.id}
+			AND user_id = #{user.id}
+	</delete>
+	
+	<delete id="deleteAllTransactions">
+		DELETE FROM transactions
+		WHERE user_id = #{user.id}
 	</delete>
 </mapper>

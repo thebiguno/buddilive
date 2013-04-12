@@ -1,16 +1,21 @@
 package ca.digitalcave.buddi.live.resource.data;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
@@ -47,33 +52,69 @@ public class RestoreResource extends ServerResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		final User user = (User) getRequest().getClientInfo().getUser();
-		final Map<String, Integer> sourceIDsByUUID = new HashMap<String, Integer>();
 
 		try {
-			final JSONObject request = new JSONObject(entity.getText());
+			if (MediaType.MULTIPART_FORM_DATA.equals(entity.getMediaType(), true)) {
+				// The Apache FileUpload project parses HTTP requests which
+				// conform to RFC 1867, "Form-based File Upload in HTML". That
+				// is, if an HTTP request is submitted using the POST method,
+				// and with a content type of "multipart/form-data", then
+				// FileUpload can parse that request, and get all uploaded files
+				// as FileItem.
 
-			restoreAccounts(request, user, sqlSession, sourceIDsByUUID);
+				// 1/ Create a factory for disk-based file items
+				DiskFileItemFactory factory = new DiskFileItemFactory();
+				factory.setSizeThreshold(1000240);
 
-			restoreCategories(request, user, sqlSession, sourceIDsByUUID);
+				// 2/ Create a new file upload handler based on the Restlet
+				// FileUpload extension that will parse Restlet requests and
+				// generates FileItems.
+				RestletFileUpload upload = new RestletFileUpload(factory);
+				List<FileItem> items;
 
-			restoreEntries(request, user, sqlSession, sourceIDsByUUID);
+				// 3/ Request is parsed by the handler which generates a
+				// list of FileItems
+				items = upload.parseRequest(getRequest());
 
-			restoreTransactions(request, user, sqlSession, sourceIDsByUUID);
+				// Process only the uploaded item called "fileToUpload" and
+				// save it on disk
+				for (final Iterator<FileItem> it = items.iterator(); it.hasNext(); ) {
+					FileItem fi = it.next();
+					if (fi.getFieldName().equals("file")) {
+						//If deleteData is selected, delete all data prior to inserting.
+						if ("true".equals(getQuery().getFirstValue("deleteData", "false"))){
+							//Everything in the system will cascade from sources and transactions
+							sqlSession.getMapper(Sources.class).deleteAllSources(user);
+							sqlSession.getMapper(Transactions.class).deleteAllTransactions(user);
+							sqlSession.getMapper(ScheduledTransactions.class).deleteAllScheduledTransactions(user);
+						}
+						
+						final JSONObject request = new JSONObject(fi.getString());
+
+						final Map<String, Integer> sourceIDsByUUID = new HashMap<String, Integer>();
+						restoreAccounts(request, user, sqlSession, sourceIDsByUUID);
+						restoreCategories(request, user, sqlSession, sourceIDsByUUID);
+						restoreEntries(request, user, sqlSession, sourceIDsByUUID);
+						restoreTransactions(request, user, sqlSession, sourceIDsByUUID);
+						restoreScheduledTransactions(request, user, sqlSession, sourceIDsByUUID);
+
+						DataUpdater.updateBalances(user, sqlSession, true);
+
+						sqlSession.commit();
+						final JSONObject result = new JSONObject();
+						result.put("success", true);
+						return new JsonRepresentation(result);
+					}
+				}
+			}
 			
-			restoreScheduledTransactions(request, user, sqlSession, sourceIDsByUUID);
-
-			DataUpdater.updateBalances(user, sqlSession, true);
-			
-			sqlSession.commit();
-			final JSONObject result = new JSONObject();
-			result.put("success", true);
-			return new JsonRepresentation(result);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		}
+		catch (FileUploadException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (DatabaseException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-		}
-		catch (IOException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (CryptoException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -228,7 +269,7 @@ public class RestoreResource extends ServerResource {
 			}
 		}
 	}
-	
+
 	private void restoreScheduledTransactions(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
 		final JSONArray transactions = jsonObject.optJSONArray("scheduledTransactions");
 		if (transactions != null){

@@ -217,5 +217,11 @@
 			user_id = #{user.id}
 			AND scheduledtransaction_id = #{transaction.id}
 	</delete>
+	
+	<delete id="deleteAllScheduledTransactions">
+		DELETE FROM scheduledtransactions
+		WHERE
+			user_id = #{user.id}
+	</delete>
 
 </mapper>

@@ -3,8 +3,7 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 	"alias": "widget.preferenceseditor",
 	"requires": [
 		"BuddiLive.view.component.CurrenciesCombobox",
-		"BuddiLive.view.component.LocalesCombobox",
-		"BuddiLive.view.component.TimezonesCombobox"
+		"BuddiLive.view.component.LocalesCombobox"
 	],
 	
 	"initComponent": function(){

@@ -21,6 +21,7 @@ Ext.application({
 		"scheduled.Editor",
 		"scheduled.List",
 		"preferences.Editor",
+		"restore.Form",
 		"transaction.List",
 		"transaction.Editor",
 		"transaction.split.Editor"

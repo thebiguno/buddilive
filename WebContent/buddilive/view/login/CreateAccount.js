@@ -6,8 +6,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 		"BuddiLive.view.login.PasswordField",
 		"BuddiLive.view.component.SelfDocumentingField",
 		"BuddiLive.view.component.CurrenciesCombobox",
-		"BuddiLive.view.component.LocalesCombobox",
-		"BuddiLive.view.component.TimezonesCombobox"
+		"BuddiLive.view.component.LocalesCombobox"
 	],
 		
 	"initComponent": function(){

@@ -7,6 +7,7 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.budget.Panel",
 		"BuddiLive.view.budget.Tree",
 		"BuddiLive.view.component.SelfDocumentingField",
+		"BuddiLive.view.restore.Form",
 		"BuddiLive.view.preferences.Editor",
 		"BuddiLive.view.report.Panel",
 		"BuddiLive.view.scheduled.List",

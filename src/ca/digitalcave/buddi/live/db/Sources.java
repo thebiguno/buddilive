@@ -46,4 +46,5 @@ public interface Sources {
 	public Integer updateSourceDeleted(@Param("user") User user, @Param("source") Source source);
 	
 	public Integer deleteSource(@Param("user") User user, @Param("source") Source source);
+	public Integer deleteAllSources(@Param("user") User user);
 }
