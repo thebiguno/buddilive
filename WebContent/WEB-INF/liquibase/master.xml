@@ -45,8 +45,8 @@
 			
 			<!-- The following are only for accounts -->
 			<column name="account_type" type="varchar(1024)"/>
-			<column name="start_balance" type="decimal(14,2)"/>
-			<column name="balance" type="decimal(14,2)"/>
+			<column name="start_balance" type="decimal(16,4)"/>
+			<column name="balance" type="decimal(16,4)"/>
 			<column name="start_date" type="date"/>
 			
 			<!-- The following are only for categories -->
@@ -71,7 +71,7 @@
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_entry_id"/></column>
 			<column name="category" type="int"><constraints nullable="false"/></column>
 			<column name="user_id" type="int"><constraints  nullable="false"/></column>
-			<column name="amount" type="decimal(14,2)"><constraints nullable="false"/></column>
+			<column name="amount" type="decimal(16,4)"><constraints nullable="false"/></column>
 			<column name="date" type="date"><constraints nullable="false"/></column>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
 			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
@@ -105,12 +105,12 @@
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_split_id"/></column>
 			<column name="user_id" type="int"><constraints nullable="false"/></column>
 			<column name="transaction_id" type="bigint"><constraints nullable="false"/></column>
-			<column name="amount" type="decimal(14,2)"><constraints nullable="false"/></column>
+			<column name="amount" type="decimal(16,4)"><constraints nullable="false"/></column>
 			<column name="from_source" type="int"><constraints nullable="false"/></column>
 			<column name="to_source" type="int"><constraints nullable="false"/></column>
 			<column name="memo" type="varchar(4096)"/>
-			<column name="from_balance" type="decimal(14,2)"/>
-			<column name="to_balance" type="decimal(14,2)"/>
+			<column name="from_balance" type="decimal(16,4)"/>
+			<column name="to_balance" type="decimal(16,4)"/>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
 			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
 		</createTable>
@@ -149,12 +149,12 @@
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_scheduledsplit_id"/></column>
 			<column name="user_id" type="int"><constraints nullable="false"/></column>
 			<column name="scheduledtransaction_id" type="bigint"><constraints nullable="false"/></column>
-			<column name="amount" type="decimal(14,2)"><constraints nullable="false"/></column>
+			<column name="amount" type="decimal(16,4)"><constraints nullable="false"/></column>
 			<column name="from_source" type="int"><constraints nullable="false"/></column>
 			<column name="to_source" type="int"><constraints nullable="false"/></column>
 			<column name="memo" type="varchar(4096)"/>
-			<column name="from_balance" type="decimal(14,2)"/>
-			<column name="to_balance" type="decimal(14,2)"/>
+			<column name="from_balance" type="decimal(16,4)"/>
+			<column name="to_balance" type="decimal(16,4)"/>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
 			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
 		</createTable>
