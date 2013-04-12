@@ -19,7 +19,6 @@ import org.restlet.routing.TemplateRoute;
 
 import ca.digitalcave.buddi.live.db.handler.BooleanHandler;
 import ca.digitalcave.buddi.live.db.handler.CurrencyHandler;
-import ca.digitalcave.buddi.live.db.handler.DateTimeZoneHandler;
 import ca.digitalcave.buddi.live.db.handler.LocaleHandler;
 import ca.digitalcave.buddi.live.db.liquibase.Migration;
 import ca.digitalcave.buddi.live.resource.FreemarkerResource;
@@ -37,7 +36,6 @@ import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.CurrenciesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
-import ca.digitalcave.buddi.live.resource.buddilive.preferences.TimezonesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
@@ -86,7 +84,6 @@ public class BuddiApplication extends Application{
 		router.attach("/buddilive/userpreferences", new BuddiAuthenticator(this, getContext(), false, UserPreferencesResource.class));
 		router.attach("/buddilive/preferences/currencies", new BuddiAuthenticator(this, getContext(), true, CurrenciesResource.class));
 		router.attach("/buddilive/preferences/locales", new BuddiAuthenticator(this, getContext(), true, LocalesResource.class));
-		router.attach("/buddilive/preferences/timezones", new BuddiAuthenticator(this, getContext(), true, TimezonesResource.class));
 
 		//TODO If Sencha Touch uses same store formats, then move reports to a common URL path
 		router.attach("/buddilive/report/pietotalsbycategory", new BuddiAuthenticator(this, getContext(), false, PieTotalsByCategoryResource.class));
@@ -137,7 +134,6 @@ public class BuddiApplication extends Application{
 		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
 		configuration.getTypeHandlerRegistry().register(BooleanHandler.class);
 		configuration.getTypeHandlerRegistry().register(CurrencyHandler.class);
-		configuration.getTypeHandlerRegistry().register(DateTimeZoneHandler.class);
 		configuration.getTypeHandlerRegistry().register(LocaleHandler.class);
 		
 		configuration.addMappers("ca.digitalcave.buddi.live.db");

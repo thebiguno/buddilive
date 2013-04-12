@@ -5,7 +5,6 @@ import java.util.Currency;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.joda.time.DateTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -18,8 +17,8 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
-import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
@@ -39,7 +38,6 @@ public class UserPreferencesResource extends ServerResource {
 			final JSONObject result = new JSONObject();
 			result.put("encrypt", user.isEncrypted());
 			result.put("locale", user.getLocale().toString());
-			result.put("timezone", user.getTimezone().getID());
 			result.put("currency", user.getCurrency().getCurrencyCode());
 			result.put("dateFormat", user.getOverrideDateFormat());
 			//result.put("currencyAfter", user.isCurrencyAfter());
@@ -73,7 +71,6 @@ public class UserPreferencesResource extends ServerResource {
 					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
 				}
 				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
-				user.setTimezone(DateTimeZone.forID(json.optString("timezone", "America/Boise")));
 				user.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
 				user.setOverrideDateFormat(json.optString("dateFormat", null));
 				//user.setCurrencyAfter(json.optBoolean("currencyAfter", false));

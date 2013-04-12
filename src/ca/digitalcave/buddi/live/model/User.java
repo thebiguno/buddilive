@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,7 +33,6 @@ public class User extends org.restlet.security.User {
 	private Boolean premium = false;
 	private Locale locale;
 	private Currency currency;
-	private DateTimeZone timezone;
 	private String overrideDateFormat;
 	private Boolean showCleared;
 	private Boolean showReconciled;
@@ -62,7 +60,6 @@ public class User extends org.restlet.security.User {
 		else if (json.optBoolean("storeEmail", false)) this.setEmail(json.getString("identifier"));
 		this.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
 		this.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
-		this.setTimezone(DateTimeZone.forID(json.optString("timezone", "America/Boise")));
 		this.setPremium(false);
 	}
 	
@@ -149,12 +146,6 @@ public class User extends org.restlet.security.User {
 	}
 	public void setLocale(Locale locale) {
 		this.locale = locale;
-	}
-	public DateTimeZone getTimezone() {
-		return timezone;
-	}
-	public void setTimezone(DateTimeZone timezone) {
-		this.timezone = timezone;
 	}
 	public String getExtDateFormat(){
 		//Auto converts from Java format to EXT JS (PHP) format.

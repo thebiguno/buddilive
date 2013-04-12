@@ -11,7 +11,6 @@
 			premium,
 			locale,
 			currency,
-			timezone,
 			override_date_format overrideDateFormat,
 			show_deleted showDeleted,
 			created,
@@ -34,10 +33,7 @@
 				premium,
 				locale,
 				currency,
-				timezone,
 				show_deleted,
-				show_reconciled,
-				show_cleared,
 				created, 
 				modified
 			)
@@ -51,10 +47,7 @@
 				'N',
 				#{user.locale,javaType=java.util.Locale},
 				#{user.currency,javaType=java.util.Currency},
-				#{user.timezone,javaType=org.joda.time.DateTimeZone},
 				'Y',
-				'N',
-				'N',
 				CURRENT_TIMESTAMP, 
 				CURRENT_TIMESTAMP
 			)
@@ -67,7 +60,6 @@
 			email = #{user.email,jdbcType=VARCHAR},
 			locale = #{user.locale,javaType=java.util.Locale},
 			currency = #{user.currency,javaType=java.util.Currency},
-			timezone = #{user.timezone,javaType=org.joda.time.DateTimeZone},
 			override_date_format = #{user.overrideDateFormat,jdbcType=VARCHAR},
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP
