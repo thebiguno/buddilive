@@ -28,10 +28,10 @@ Ext.define("BuddiLive.controller.transaction.List", {
 		if (selected.length > 0){
 			var transaction = selected[0].raw;
 			panel.down("transactioneditor").setTransaction(transaction);
-			panel.down("button[itemId='deleteTransaction']").setEnabled();
+			panel.down("button[itemId='deleteTransaction']").enable();
 		}
 		else {
-			panel.down("button[itemId='deleteTransaction']").setDisabled();
+			panel.down("button[itemId='deleteTransaction']").disable();
 		}
 	},
 	
