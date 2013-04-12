@@ -53,14 +53,6 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 					},
 					{
 						"xtype": "selfdocumentingfield",
-						"messageBody": "${translation("HELP_TIMEZONE")?json_string}",
-						"type": "timezonescombobox",
-						"itemId": "timezone",
-						"fieldLabel": "${translation("TIMEZONE")?json_string}",
-						"value": d.timezone
-					},
-					{
-						"xtype": "selfdocumentingfield",
 						"messageBody": "${translation("HELP_CURRENCY")?json_string}",
 						"type": "currenciescombobox",
 						"itemId": "currency",

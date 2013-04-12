@@ -2,13 +2,11 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 	"extend": "Ext.app.Controller",
 	"stores": [
 		"preferences.CurrenciesComboboxStore",
-		"preferences.LocalesComboboxStore",
-		"preferences.TimezonesComboboxStore"
+		"preferences.LocalesComboboxStore"
 	],
 	"onLaunch": function(){
 		this.getPreferencesCurrenciesComboboxStoreStore().load();
 		this.getPreferencesLocalesComboboxStoreStore().load();
-		this.getPreferencesTimezonesComboboxStoreStore().load();
 	},
 
 	"init": function() {
@@ -40,7 +38,6 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		request.encrypt = window.down("checkbox[itemId='encrypt']").getValue();
 		request.encryptPassword = window.down("textfield[itemId='password']").getValue();
 		request.locale = window.down("combobox[itemId='locale']").getValue();
-		request.timezone = window.down("combobox[itemId='timezone']").getValue();
 		request.currency = window.down("combobox[itemId='currency']").getValue();
 		var dateFormat = window.down("combobox[itemId='dateFormat']").getValue();
 		request.dateFormat = dateFormat ? dateFormat : "";

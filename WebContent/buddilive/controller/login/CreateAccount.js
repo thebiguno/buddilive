@@ -2,13 +2,11 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 	"extend": "Ext.app.Controller",
 	"stores": [
 		"preferences.CurrenciesComboboxStore",
-		"preferences.LocalesComboboxStore",
-		"preferences.TimezonesComboboxStore"
+		"preferences.LocalesComboboxStore"
 	],
 	"onLaunch": function(){
 		this.getPreferencesCurrenciesComboboxStoreStore().load();
 		this.getPreferencesLocalesComboboxStoreStore().load();
-		this.getPreferencesTimezonesComboboxStoreStore().load();
 	},
 
 	"init": function() {
@@ -47,7 +45,6 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 		request.encrypt = form.down("checkbox[itemId='encrypt']").getValue();
 		request.storeEmail = form.down("checkbox[itemId='email']").getValue();
 		request.locale = form.down("combobox[itemId='locale']").getValue();
-		request.timezone = form.down("combobox[itemId='timezone']").getValue();
 		request.currency = form.down("combobox[itemId='currency']").getValue();
 		var conn = new Ext.data.Connection();
 		conn.request({

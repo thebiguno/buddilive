@@ -52,14 +52,6 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 							},
 							{
 								"xtype": "selfdocumentingfield",
-								"messageBody": "${translation("HELP_TIMEZONE")?json_string}",
-								"type": "timezonescombobox",
-								"itemId": "timezone",
-								"fieldLabel": "${translation("TIMEZONE")?json_string}",
-								"value": "America/Boise"
-							},
-							{
-								"xtype": "selfdocumentingfield",
 								"messageBody": "${translation("HELP_CURRENCY")?json_string}",
 								"type": "currenciescombobox",
 								"itemId": "currency",
