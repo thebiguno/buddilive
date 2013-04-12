@@ -91,7 +91,7 @@ Ext.define('BuddiLive.view.account.Editor', {
 				"text": "${translation("CANCEL")?json_string}",
 				"itemId": "cancel"
 			}
-		]
+		];
 	
 		this.callParent(arguments);
 	}
