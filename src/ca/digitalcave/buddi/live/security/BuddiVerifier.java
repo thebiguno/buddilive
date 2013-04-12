@@ -13,6 +13,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.ibatis.session.SqlSession;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.json.JSONObject;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -61,21 +63,20 @@ public class BuddiVerifier implements Verifier {
 				}, 0, TimeUnit.MILLISECONDS);
 				final JSONObject token = decryptCookie.get(1, TimeUnit.SECONDS);
 				
-				if (token.has("clientIp")){
-					if (!token.get("clientIp").equals(request.getClientInfo().getAddress())){
-						throw new Exception("Stored IP address does not match client IP; denying login");
-					}
+				//Verify the IP is the same
+				if (!token.has("clientIp") || !token.get("clientIp").equals(request.getClientInfo().getAddress())){
+					throw new Exception("Stored IP address does not match client IP; denying login");
 				}
 				
-				Date expiry = null;
-				try {
-					expiry = FormatUtil.parseDateTimeInternal(token.getString("expiry"));
+				//Grab the date, to be used for running scheduled transactions.  If it is not set / is invalid, use server time.
+				Date date = null;
+				try { date = FormatUtil.parseDateInternal(token.getString("date")); } catch (Throwable e){}
+				if (date == null || Days.daysBetween(new DateTime(), new DateTime(date)).size() > 1) {
+					date = new Date();
 				}
-				catch (Throwable e){}
 				
-				if (expiry == null || expiry.after(new Date())) {
-					request.setChallengeResponse(new ChallengeResponse(ChallengeScheme.CUSTOM, token.getString("identifier"), token.getString("credentials")));
-				}
+				request.setChallengeResponse(new ChallengeResponse(ChallengeScheme.CUSTOM, token.getString("identifier"), token.getString("credentials")));
+				request.getAttributes().put("date", date);
 			}
 			catch (Throwable t){
 				//If we failed to decrypt it, delete the cookie so we don't have to bother again

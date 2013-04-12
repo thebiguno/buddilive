@@ -103,9 +103,9 @@ public class DataUpdater {
  	 * 
  	 * Returns a string containing all messages for scheduled transactions which had been added.
 	 */
-	public static String updateScheduledTransactions(User user, SqlSession sqlSession) throws CryptoException, DatabaseException {
+	public static String updateScheduledTransactions(User user, SqlSession sqlSession, Date userDate) throws CryptoException, DatabaseException {
 		//Update any scheduled transactions
-		final Date today = DateUtil.getEndOfDay(new Date());
+		final Date today = DateUtil.getEndOfDay(userDate);
 		
 		//If there was at least one update, we will force a recalculation of all balances.
 		boolean thereWasAnUpate = false;

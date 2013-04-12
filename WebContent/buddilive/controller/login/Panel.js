@@ -17,6 +17,7 @@ Ext.define("BuddiLive.controller.login.Panel", {
 		var request = {"action": "login"};
 		request.identifier = panel.down("textfield[itemId='identifier']").getValue();
 		request.credentials = panel.down("textfield[itemId='credentials']").getValue();
+		request.date = Ext.Date.format(new Date(), "Y-m-d");
 		
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": panel});
 		mask.show();
@@ -30,7 +31,7 @@ Ext.define("BuddiLive.controller.login.Panel", {
 			"jsonData": request,
 			"success": function(response){
 				mask.hide();
-				window.location.href += "";
+				location.reload();
 			},
 			"failure": function(response){
 				mask.hide();
