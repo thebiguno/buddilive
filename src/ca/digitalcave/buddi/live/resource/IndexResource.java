@@ -2,6 +2,8 @@ package ca.digitalcave.buddi.live.resource;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
+import org.restlet.data.ChallengeResponse;
+import org.restlet.data.ChallengeScheme;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -11,6 +13,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
+import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
@@ -81,7 +84,14 @@ public class IndexResource extends ServerResource {
 			
 			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, CryptoUtil.encrypt(token.toString(), BuddiVerifier.COOKIE_PASSWORD));
 			c.setAccessRestricted(true);
-			c.setMaxAge(-1);	//Browser close
+			c.setMaxAge(-1);	//Delete on browser close
+
+			//Check the authentication right now, so that we can return an error if it is not valid.  This is somewhat
+			// awkward, but it makes for a better user experience.
+			getRequest().setChallengeResponse(new ChallengeResponse(ChallengeScheme.CUSTOM, token.getString("identifier"), token.getString("credentials")));
+			if (new BuddiVerifier((BuddiApplication) getApplication()).verify(getRequest(), getResponse()) != Verifier.RESULT_VALID){
+				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);	
+			}
 			
 			getResponse().getCookieSettings().add(c);
 			getResponse().redirectSeeOther(".");
