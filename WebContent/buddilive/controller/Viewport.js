@@ -70,6 +70,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 				"msg": "${translation("CONFIRM_DELETE_ACCOUNT")?json_string}",
 				"buttons": Ext.MessageBox.YESNO,
 				"fn": function(buttonId){
+					if (buttonId != "yes") return;
+					
 					var request = {"action": "delete", "id": selected.id};
 					var conn = new Ext.data.Connection();
 					var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
@@ -148,6 +150,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 				"msg": "${translation("CONFIRM_DELETE_CATEGORY")?json_string}",
 				"buttons": Ext.MessageBox.YESNO,
 				"fn": function(buttonId){
+					if (buttonId != "yes") return;
+					
 					var request = {"action": "delete", "id": selected.id};
 					var conn = new Ext.data.Connection();
 					var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
@@ -263,7 +267,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 
 	"restore": function(component){
-		
+		Ext.widget("restoreform").show();
 	},
 	
 	"logout": function(component){
