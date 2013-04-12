@@ -1,7 +1,6 @@
 package ca.digitalcave.buddi.live.resource.buddilive.preferences;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Set;
@@ -17,7 +16,6 @@ import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
-import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class CurrenciesResource extends ServerResource {
@@ -29,24 +27,17 @@ public class CurrenciesResource extends ServerResource {
 
 	@Override
 	protected Representation get(Variant variant) throws ResourceException {
-		final User user = (User) getRequest().getClientInfo().getUser();
-		final Currency[] commonCurrencies = new Currency[]{
-				Currency.getInstance("CAD"),
-				Currency.getInstance("USD"),
-				Currency.getInstance("EUR"),
-				Currency.getInstance("GBP"),
-				Currency.getInstance("AUD"),
+		final String[] commonCurrencies = new String[]{
+				Currency.getInstance("CAD").getCurrencyCode(),
+				Currency.getInstance("USD").getCurrencyCode(),
+				Currency.getInstance("EUR").getCurrencyCode(),
+				Currency.getInstance("GBP").getCurrencyCode(),
+				Currency.getInstance("AUD").getCurrencyCode(),
 		};
-		final Set<Currency> allCurrencies = new TreeSet<Currency>(new Comparator<Currency>() {
-			@Override
-			public int compare(Currency o1, Currency o2) {
-				if (o1 == null || o2 == null) return 0;
-				return o1.getSymbol(user.getLocale()).compareTo(o2.getSymbol(user.getLocale()));
-			}
-		});
+		final Set<String> allCurrencies = new TreeSet<String>();
 		for(Locale locale : Locale.getAvailableLocales()) {
 			try {
-				allCurrencies.add(Currency.getInstance(locale));
+				allCurrencies.add(Currency.getInstance(locale).getCurrencyCode());
 			}
 			catch(Exception e) {}
 		}
@@ -57,10 +48,10 @@ public class CurrenciesResource extends ServerResource {
 			final JSONObject result = new JSONObject();
 			result.put("success", true);
 
-			for (Currency currency : commonCurrencies) {
+			for (String currency : commonCurrencies) {
 				final JSONObject entry = new JSONObject();
-				entry.put("text", currency.getSymbol(user.getLocale()));	//TODO Change all instances of getSymbol(locale) to getDisplayName(locale) when I upgrade my server to JVM 7
-				entry.put("value", currency.getCurrencyCode());
+				entry.put("text", currency);	//TODO Change the display string to getDisplayName(locale) when I upgrade my server to JVM 7
+				entry.put("value", currency);
 				result.append("data", entry);
 			}
 			
@@ -70,10 +61,10 @@ public class CurrenciesResource extends ServerResource {
 			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
 			result.append("data", separator);
 			
-			for (Currency currency : allCurrencies) {
+			for (String currency : allCurrencies) {
 				final JSONObject entry = new JSONObject();
-				entry.put("text", currency.getSymbol(user.getLocale()));
-				entry.put("value", currency.getCurrencyCode());
+				entry.put("text", currency);
+				entry.put("value", currency);
 				result.append("data", entry);
 			}
 			return new JsonRepresentation(result);
