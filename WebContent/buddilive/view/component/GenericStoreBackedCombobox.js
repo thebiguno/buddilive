@@ -6,13 +6,12 @@ Ext.define("BuddiLive.view.component.GenericStoreBackedCombobox", {
 		Ext.applyIf(this, this.initialConfig);
 
 		this.forceSelection = true;
-		this.displayField = "text";
-		this.valueField = "value";
+		this.displayField = this.displayField || "text";
+		this.valueField = this.valueField || "value";
 		this.enableKeyEvents = true;
-		this.editable = false;
-		this.triggerAction = "all";
+		this.editable = this.editable || false;
 
-		this.listConfig = {
+		this.listConfig = this.listConfig || {
 			"itemTpl": "<div style='{style}'>{text}</div>"
 		};
 	
