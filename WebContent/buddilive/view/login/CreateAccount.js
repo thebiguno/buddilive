@@ -10,7 +10,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 	],
 		
 	"initComponent": function(){
-		this.title = "Buddi Live Create Account";	//TODO i18n
+		this.title = "${translation("CREATE_ACCOUNT")?json_string}";
 		this.renderTo = "form";
 		this.layout = "fit";
 		this.modal = true;
