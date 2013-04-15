@@ -23,5 +23,10 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 				combo.up("transactioneditor").setTransaction(record[0].raw.transaction, true);
 			}
 		});
+		
+		this.addListener("keyup", function(){
+			this.getStore().clearFilter(true);	//Clear filter without updating UI
+			this.getStore().filter({"property": "value", "value": this.getRawValue(), "anyMatch": true, "caseSensitive": false});
+		});
 	}
 });
