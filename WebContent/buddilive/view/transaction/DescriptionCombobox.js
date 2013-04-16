@@ -24,9 +24,24 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 			}
 		});
 		
-		this.addListener("keyup", function(){
-			this.getStore().clearFilter(true);	//Clear filter without updating UI
-			this.getStore().filter({"property": "value", "value": this.getRawValue(), "anyMatch": true, "caseSensitive": false});
+		this.addListener("keyup", function(combo, e){
+			if (e.getKey() == e.ESC){
+				combo.setRawValue("");
+				combo.getStore().clearFilter();
+			}
+			else if (e.getKey() == e.DOWN || e.getKey() == e.UP){
+				return;
+			}
+			else {
+				combo.getStore().clearFilter(true);	//Clear filter without updating UI
+				combo.getStore().filter({"property": "value", "value": combo.getRawValue(), "anyMatch": true, "caseSensitive": false});
+			}
+		});
+		this.addListener("blur", function(combo){
+			combo.getStore().clearFilter();
+		});
+		this.addListener("focus", function(combo){
+			combo.getStore().clearFilter();
 		});
 	}
 });
