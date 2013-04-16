@@ -19,11 +19,13 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Entries;
+import ca.digitalcave.buddi.live.db.ScheduledTransactions;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.Entry;
+import ca.digitalcave.buddi.live.model.ScheduledTransaction;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
@@ -48,6 +50,7 @@ public class BackupResource extends ServerResource {
 			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
 			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user));
 			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user);
+			final List<ScheduledTransaction> scheduledTransactions = sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user);
 			final List<Entry> entries = sqlSession.getMapper(Entries.class).selectEntries(user);
 			final Map<Integer, String> sourceUUIDsById = new HashMap<Integer, String>();
 			
@@ -62,6 +65,10 @@ public class BackupResource extends ServerResource {
 			}
 			for (Transaction transaction : transactions) {
 				addTransaction(result, user, transaction, sourceUUIDsById);
+			}
+			
+			for (ScheduledTransaction scheduledTransaction : scheduledTransactions){
+				addScheduledTransaction(result, user, scheduledTransaction, sourceUUIDsById);
 			}
 			
 			final JsonRepresentation json = new JsonRepresentation(result);
@@ -136,4 +143,32 @@ public class BackupResource extends ServerResource {
 		}
 		result.append("transactions", t);
 	}
+
+	private void addScheduledTransaction(JSONObject result, User user, ScheduledTransaction scheduledTransaction, Map<Integer, String> sourceUUIDsById) throws JSONException, CryptoException {
+		final JSONObject t = new JSONObject();
+		t.put("uuid", scheduledTransaction.getUuid());
+		t.put("description", CryptoUtil.decryptWrapper(scheduledTransaction.getDescription(), user));
+		t.put("number", CryptoUtil.decryptWrapper(scheduledTransaction.getNumber(), user));
+		t.put("scheduleName", scheduledTransaction.getScheduleName());
+		t.put("scheduleDay", scheduledTransaction.getScheduleDay());
+		t.put("scheduleWeek", scheduledTransaction.getScheduleWeek());
+		t.put("scheduleMonth", scheduledTransaction.getScheduleMonth());
+		t.put("frequencyType", scheduledTransaction.getFrequencyType());
+		t.put("startDate", FormatUtil.formatDateInternal((Date) scheduledTransaction.getStartDate()));
+		t.put("endDate", FormatUtil.formatDateInternal((Date) scheduledTransaction.getEndDate()));
+		t.put("lastCreatedDate", FormatUtil.formatDateInternal((Date) scheduledTransaction.getLastCreatedDate()));
+		t.put("message", CryptoUtil.decryptWrapper(scheduledTransaction.getMessage(), user));
+		if (scheduledTransaction.getSplits() != null){
+			for (Split split : scheduledTransaction.getSplits()) {
+				final JSONObject s = new JSONObject();
+				s.put("amount", split.getAmount().toPlainString());
+				s.put("from", sourceUUIDsById.get(split.getFromSource()));
+				s.put("to", sourceUUIDsById.get(split.getToSource()));
+				s.put("memo", CryptoUtil.decryptWrapper(split.getMemo(), user));
+				t.append("splits", s);
+			}
+		}
+		result.append("scheduledTransactions", t);
+	}
+
 }
