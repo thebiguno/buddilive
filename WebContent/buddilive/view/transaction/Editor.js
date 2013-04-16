@@ -126,17 +126,21 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		if (splits && splits.length > 0){
 			//Add a new split editor for each split
 			for (var i = 0; i < splits.length; i++){
-				this.add({"xtype": "spliteditor", "value": splits[i], "scheduledTransaction": this.initialConfig.scheduledTransaction});
+				this.add({"xtype": "spliteditor", "source": this.source, "value": splits[i], "scheduledTransaction": this.initialConfig.scheduledTransaction});
 			}
 		}
 		else {
 			//If the passed in splits are empty, add an empty editor
-			this.add({"xtype": "spliteditor", "scheduledTransaction": this.initialConfig.scheduledTransaction});
+			this.add({"xtype": "spliteditor", "source": this.source, "scheduledTransaction": this.initialConfig.scheduledTransaction});
 		}
 		
 		Ext.resumeLayouts(true);
 		
 		this.fireEvent("change", this);
+	},
+	
+	"setSource": function(source){
+		this.source = source;
 	},
 	
 	"validate": function(){

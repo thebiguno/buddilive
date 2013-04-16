@@ -80,12 +80,12 @@ public class SourcesResource extends ServerResource {
 						if (!a.isDeleted() || user.isShowDeleted()){
 							final JSONObject account = new JSONObject();
 							account.put("value", a.getId());
-							account.put("text", StringUtils.repeat("\u00a0", 2) + CryptoUtil.decryptWrapper(a.getName(), user));
-							account.put("search", CryptoUtil.decryptWrapper(a.getName(), user));
+							account.put("text", StringUtils.repeat("\u00a0", 2) + CryptoUtil.decryptWrapper(a.getName(), user).replaceAll(" ", "\u00a0"));
 							if (a.isDeleted()) sb.append(" text-decoration: line-through;");
 							if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 							account.put("style", sb.toString());
 							sb.setLength(0);
+							account.put("type", a.getType());
 							result.append("data", account);
 						}
 					}
@@ -120,8 +120,8 @@ public class SourcesResource extends ServerResource {
 			if (!c.isDeleted() || user.isShowDeleted()){
 				final JSONObject category = new JSONObject();
 				category.put("value", c.getId());
-				category.put("text", StringUtils.repeat("\u00a0", depth * 2) + CryptoUtil.decryptWrapper(c.getName(), user));
-				category.put("search", CryptoUtil.decryptWrapper(c.getName(), user));
+				category.put("type", c.getType());
+				category.put("text", StringUtils.repeat("\u00a0", depth * 2) + CryptoUtil.decryptWrapper(c.getName(), user).replaceAll(" ", "\u00a0"));
 				if (c.isDeleted()) sb.append(" text-decoration: line-through;");
 				if (!c.isIncome()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 				category.put("style", sb.toString());

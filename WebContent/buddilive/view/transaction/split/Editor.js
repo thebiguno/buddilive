@@ -39,6 +39,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "fromcombobox",
 				"itemId": "from",
 				"flex": 1,
+				"source": this.initialConfig.source,
 				"emptyText": "From",	//TODO i18n
 				"value": v.fromId
 			},
@@ -47,6 +48,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "tocombobox",
 				"itemId": "to",
 				"flex": 1,
+				"source": this.initialConfig.source,
 				"emptyText": "To",	//TODO i18n
 				"value": v.toId
 			},
@@ -85,6 +87,9 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 		];
 		
 		this.callParent(arguments);
+		
+		this.down("fromcombobox").getStore().clearFilter();
+		this.down("tocombobox").getStore().clearFilter();
 	},
 	
 	"getSplit": function(){
