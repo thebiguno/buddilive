@@ -77,35 +77,15 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 								"boxLabel": "${translation("ENCRYPT_DATA")?json_string}"
 							},
 							{
-								"xtype": "panel",
-								"border": false,
-								"layout": "hbox",
-								"items": [
-									{
-										"xtype": "checkbox",
-										"itemId": "agree",
-										"fieldLabel": " ",
-										"labelSeparator": "",
-										"allowBlank": false
-									},
-									{
-										"xtype": "clicklabel",
-										"flex": 1,
-										"style": "padding-left: 4px; padding-top: 3px;",
-										"html": "${translation("AGREE_TERMS_AND_CONDITIONS")?json_string}",
-										"listeners": {
-											"click": function(){
-												Ext.MessageBox.show({
-													"title": "${translation("CREATE_USER_TERMS_AND_CONDITIONS_TITLE")?json_string}",
-													"msg": "${translation("CREATE_USER_TERMS_AND_CONDITIONS")?json_string}",
-													"buttons": Ext.MessageBox.OK
-												});
-											}
-										}
-									}
-								]
-							},
-						
+								"xtype": "selfdocumentingfield",
+								"messageBody": "${translation("CREATE_USER_AGREEMENT_REQUIRED")?json_string}",
+								"type": "checkbox",
+								"boxLabel": "${translation("AGREE_TERMS_AND_CONDITIONS")?json_string}",
+								"itemId": "agree",
+								"fieldLabel": " ",
+								"labelSeparator": "",
+								"allowBlank": false
+							}
 						]
 					}
 				],
