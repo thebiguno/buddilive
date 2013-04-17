@@ -13,16 +13,8 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.stateId = "transactionlist";
 		this.stateful = true;
 		this.disabled = true;
-		this.viewConfig = {
-			"stripeRows": true
-		};
-		
-		this.plugins = [
-			{
-				"ptype": "bufferedrenderer"
-			}
-		];
-		
+		this.viewConfig = {"stripeRows": true};
+		this.plugins = [{"ptype": "bufferedrenderer"}];
 		this.features = [
 			{
 				"ftype": "rowbody",
@@ -117,9 +109,6 @@ Ext.define('BuddiLive.view.transaction.List', {
 		this.getStore().addListener("load", function(store, records){
 			//We start the transaction list disabled, for now.  Unsure if this will stay.
 			transactionList.enable();
-		
-			//var dateField = transactionList.down("datefield[itemId='date']");
-			//dateField.focus(true);
 		});
 	}
 });
