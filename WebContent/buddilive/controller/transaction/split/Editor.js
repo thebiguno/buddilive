@@ -5,10 +5,8 @@ Ext.define("BuddiLive.controller.transaction.split.Editor", {
 		"transaction.split.ToComboboxStore"
 	],
 	"onLaunch": function(){
-		var fromComboboxStore = this.getTransactionSplitFromComboboxStoreStore();
-		fromComboboxStore.load();
-		var toComboboxStore = this.getTransactionSplitToComboboxStoreStore();
-		toComboboxStore.load();
+		this.getTransactionSplitFromComboboxStoreStore().load();
+		this.getTransactionSplitToComboboxStoreStore().load();
 	},
 	
 	"init": function() {

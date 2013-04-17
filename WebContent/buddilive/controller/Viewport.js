@@ -1,5 +1,9 @@
 Ext.define("BuddiLive.controller.Viewport", {
 	"extend": "Ext.app.Controller",
+	"stores": [
+		"transaction.split.FromComboboxStore",
+		"transaction.split.ToComboboxStore"
+	],
 
 	"init": function() {
 		this.control({
@@ -35,6 +39,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 		}).show();
 	},
 	"deleteAccount": function(component){
+		var me = this;
 		var viewport = component.up("buddiviewport");
 		var grid = viewport.down("accounttree");
 		var selected = grid.getSelectionModel().getSelection()[0].raw;
@@ -57,6 +62,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 					mask.hide();
 					window.close();
 					grid.getStore().reload();
+					me.getTransactionSplitFromComboboxStoreStore().load();
+					me.getTransactionSplitToComboboxStoreStore().load();
 				},
 				"failure": function(response){
 					mask.hide();
@@ -87,6 +94,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 							mask.hide();
 							window.close();
 							grid.getStore().reload();
+							me.getTransactionSplitFromComboboxStoreStore().load();
+							me.getTransactionSplitToComboboxStoreStore().load();
 						},
 						"failure": function(response){
 							mask.hide();
@@ -113,6 +122,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 		}).show();
 	},
 	"deleteCategory": function(component){
+		var me = this;
 		var viewport = component.up("buddiviewport");
 		var panel = viewport.down("budgetpanel");
 		var budgetTrees = Ext.ComponentQuery.query("budgettree", panel);
@@ -137,6 +147,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 					mask.hide();
 					window.close();
 					panel.fireEvent("reload", panel);
+					me.getTransactionSplitFromComboboxStoreStore().load();
+					me.getTransactionSplitToComboboxStoreStore().load();
 				},
 				"failure": function(response){
 					mask.hide();
@@ -167,6 +179,8 @@ Ext.define("BuddiLive.controller.Viewport", {
 							mask.hide();
 							window.close();
 							panel.fireEvent("reload", panel);
+							me.getTransactionSplitFromComboboxStoreStore().load();
+							me.getTransactionSplitToComboboxStoreStore().load();
 						},
 						"failure": function(response){
 							mask.hide();

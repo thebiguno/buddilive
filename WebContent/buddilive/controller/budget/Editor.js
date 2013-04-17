@@ -1,5 +1,9 @@
 Ext.define("BuddiLive.controller.budget.Editor", {
 	"extend": "Ext.app.Controller",
+	"stores": [
+		"transaction.split.FromComboboxStore",
+		"transaction.split.ToComboboxStore"
+	],
 
 	"init": function() {
 		this.control({
@@ -19,6 +23,7 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 	},
 	
 	"ok": function(component){
+		var me = this;
 		var window = component.up("budgeteditor");
 		var panel = window.initialConfig.panel;
 		var selected = window.initialConfig.selected;
@@ -42,6 +47,8 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 			"success": function(response){
 				window.close();
 				panel.fireEvent("reload", panel);
+				me.getTransactionSplitFromComboboxStoreStore().load();
+				me.getTransactionSplitToComboboxStoreStore().load();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

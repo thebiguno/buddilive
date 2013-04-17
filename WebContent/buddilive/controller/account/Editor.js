@@ -1,5 +1,9 @@
 Ext.define("BuddiLive.controller.account.Editor", {
 	"extend": "Ext.app.Controller",
+	"stores": [
+		"transaction.split.FromComboboxStore",
+		"transaction.split.ToComboboxStore"
+	],
 
 	"init": function() {
 		this.control({
@@ -25,6 +29,7 @@ Ext.define("BuddiLive.controller.account.Editor", {
 	},
 	
 	"ok": function(component){
+		var me = this;
 		var window = component.up("accounteditor");
 		var grid = window.initialConfig.grid;
 		var selected = window.initialConfig.selected;
@@ -49,6 +54,8 @@ Ext.define("BuddiLive.controller.account.Editor", {
 			"success": function(response){
 				window.close();
 				grid.getStore().reload();
+				me.getTransactionSplitFromComboboxStoreStore().load();
+				me.getTransactionSplitToComboboxStoreStore().load();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);
