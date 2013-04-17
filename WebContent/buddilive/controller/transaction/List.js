@@ -13,6 +13,7 @@ Ext.define("BuddiLive.controller.transaction.List", {
 	},
 	
 	"add": function(component){
+		component.up("transactionlist").getStore().loadData([], false);
 		component.up("transactionlist").getStore().load();
 	},
 	
@@ -42,6 +43,7 @@ Ext.define("BuddiLive.controller.transaction.List", {
 			Ext.apply(transactionList.getStore().getProxy().extraParams, {
 				"search": searchText.getValue()
 			}); 
+			transactionList.getStore().loadData([], false);
 			transactionList.getStore().load();
 		}
 	}

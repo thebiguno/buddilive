@@ -7,6 +7,7 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.codehaus.jackson.JsonFactory;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.Language;
@@ -56,7 +57,7 @@ import freemarker.template.TemplateExceptionHandler;
 public class BuddiApplication extends Application{
 	private Configuration freemarkerConfiguration;
 	private SqlSessionFactory sqlSessionFactory;
-
+	private final JsonFactory jsonFactory = new JsonFactory();
 
 	@Override  
 	public synchronized Restlet createInboundRoot() {  
@@ -171,5 +172,9 @@ public class BuddiApplication extends Application{
 	
 	public Configuration getFreemarkerConfiguration() {
 		return freemarkerConfiguration;
+	}
+	
+	public JsonFactory getJsonFactory() {
+		return jsonFactory;
 	}
 }
