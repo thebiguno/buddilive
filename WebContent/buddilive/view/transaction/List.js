@@ -53,14 +53,14 @@ Ext.define('BuddiLive.view.transaction.List', {
 		
 		this.columns = [
 			{
-			"text": "Date",	//TODO i18n
+			"text": "${translation("DATE")?json_string}",
 				"dataIndex": "date",
 				"hideable": false,
 				"sortable": false,
 				"flex": 20
 			},
 			{
-				"text": "Description",	//TODO i18n
+				"text": "${translation("DESCRIPTION")?json_string}",
 				"dataIndex": "description",
 				"hideable": false,
 				"sortable": false,
@@ -70,21 +70,21 @@ Ext.define('BuddiLive.view.transaction.List', {
 				}
 			},
 			{
-				"text": "Debit",	//TODO i18n
+				"text": "${translation("AMOUNT_FROM")?json_string}",
 				"hideable": false,
 				"sortable": false,
 				"flex": 15,
 				"align": "right"
 			},
 			{
-				"text": "Credit",	//TODO i18n
+				"text": "${translation("AMOUNT_TO")?json_string}",
 				"hideable": false,
 				"sortable": false,
 				"flex": 15,
 				"align": "right"
 			},
 			{
-				"text": "Balance",	//TODO i18n
+				"text": "${translation("BALANCE")?json_string}",
 				"hideable": false,
 				"sortable": false,
 				"flex": 20,
@@ -105,7 +105,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 						"xtype": "textfield",
 						"width": 200,
 						"itemId": "search",
-						"emptyText": "Search"	//TODO i18n
+						"emptyText": "${translation("SEARCH")?json_string}"
 					}
 				]
 			},

@@ -40,7 +40,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "from",
 				"flex": 1,
 				"source": this.initialConfig.source,
-				"emptyText": "From",	//TODO i18n
+				"emptyText": "${translation("FROM")?json_string}",
 				"value": v.fromId
 			},
 			{"xtype": "panel", "html": "<img style='padding-top: 3px;' src='img/arrow.png'/>", "border": false, "width": 25, "height": 25},
@@ -49,14 +49,14 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"itemId": "to",
 				"flex": 1,
 				"source": this.initialConfig.source,
-				"emptyText": "To",	//TODO i18n
+				"emptyText": "${translation("TO")?json_string}",
 				"value": v.toId
 			},
 			{
 				"xtype": "textfield",
 				"itemId": "memo",
 				"flex": 1,
-				"emptyText": "Memo",	//TODO i18n
+				"emptyText": "${translation("MEMO")?json_string}",
 				"value": v.memo,
 				"padding": this.initialConfig.scheduledTransaction ? "1 0 5 5" : "0 0 5 5"
 			},
@@ -64,7 +64,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "button",
 				"icon": "img/minus-circle.png",
 				"itemId": "removeSplit",
-				"tooltip": "Remove split",	//TODO i18n
+				"tooltip": "${translation("REMOVE_SPLIT")?json_string}",
 				"padding": "2 5 2 5",
 				"margin": this.initialConfig.scheduledTransaction ? "2 0 0 5" : "0 0 0 5",
 				"hidden": true
@@ -80,7 +80,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"xtype": "button",
 				"icon": "img/plus-circle.png",
 				"itemId": "addSplit",
-				"tooltip": "Add split",	//TODO i18n
+				"tooltip": "${translation("ADD_SPLIT")?json_string}",
 				"padding": "2 5 2 5",
 				"margin": this.initialConfig.scheduledTransaction ? "2 0 0 5" : "0 5 0 5"
 			}

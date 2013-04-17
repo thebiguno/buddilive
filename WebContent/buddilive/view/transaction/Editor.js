@@ -36,20 +36,20 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 						"hidden": this.initialConfig.scheduledTransaction == true,
 						"flex": 1,
 						"enableKeyEvents": true,
-						"emptyText": "Date"	//TODO i18n
+						"emptyText": "${translation("DATE")?json_string}"
 					},
 					{
 						"xtype": "descriptioncombobox",
 						"itemId": "description",
 						"flex": 2,
-						"emptyText": "Description",	//TODO i18n
+						"emptyText": "${translation("DESCRIPTION")?json_string}",
 						"enableKeyEvents": true
 					},
 					{
 						"xtype": "textfield",
 						"itemId": "number",
 						"flex": 1,
-						"emptyText": "Number",	//TODO i18n
+						"emptyText": "${translation("NUMBER")?json_string}",
 						"padding": (this.initialConfig.scheduledTransaction ? "1 0 5 5" : "5 5 5 5")
 					}
 				]
@@ -60,19 +60,19 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 				"dock": "bottom",
 				"items": [
 					{
-						"text": "Delete",	//TODO i18n
+						"text": "${translation("DELETE")?json_string}",
 						"icon": "img/minus-circle.png",
 						"itemId": "deleteTransaction",
 						"disabled": true
 					},
 					"->",
 					{
-						"text": "Clear",	//TODO i18n
+						"text": "${translation("CLEAR")?json_string}",
 						"icon": "img/exclamation-circle.png",
 						"itemId": "clearTransaction"
 					},
 					{
-						"text": "Record",	//TODO i18n
+						"text": "${translation("RECORD_UPDATE_TRANSACTION")?json_string}",
 						"icon": "img/tick-circle.png",
 						"itemId": "recordTransaction",
 						"disabled": true
