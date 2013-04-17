@@ -61,14 +61,14 @@ public class TransactionsResource extends ServerResource {
 					split.put("id", s.getId());
 					split.put("amount", FormatUtil.formatCurrency(s.getAmount(), user));
 					split.put("amountInDebitColumn", s.isDebit(source));
-					split.put("amountStyle", (FormatUtil.isRed(s) ? FormatUtil.formatRed() : ""));
+					split.put("amountStyle", (FormatUtil.isRed(source, s) ? FormatUtil.formatRed() : ""));
 					split.put("fromId", s.getFromSource());
 					split.put("from", CryptoUtil.decryptWrapper(s.getFromSourceName(), user));
 					split.put("toId", s.getToSource());
 					split.put("to", CryptoUtil.decryptWrapper(s.getToSourceName(), user));
 					split.put("debit", s.isDebit(source));
 					final BigDecimal balance = s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance();
-					split.put("balance", FormatUtil.formatCurrency(balance, user));
+					split.put("balance", FormatUtil.formatCurrency(balance, user, source));
 					split.put("balanceStyle", (FormatUtil.isRed(source, balance) ? FormatUtil.formatRed() : ""));
 					split.put("memo", CryptoUtil.decryptWrapper(s.getMemo(), user));
 					transaction.append("splits", split);

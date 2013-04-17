@@ -129,17 +129,17 @@ public class Split {
 		this.modified = modified;
 	}
 	
-	public boolean isInflow(){
-		if ("I".equals(getFromType())){
-			return this.getAmount().compareTo(BigDecimal.ZERO) >= 0;
-		}
-		if ("E".equals(getToType())){
-			return this.getAmount().compareTo(BigDecimal.ZERO) < 0;
-		}
-
-		//If neither sources are BudgetCategory, this is not an inflow.
-		return false;
-	}
+//	public boolean isInflow(){
+//		if ("I".equals(getFromType())){
+//			return this.getAmount().compareTo(BigDecimal.ZERO) >= 0;
+//		}
+//		if ("E".equals(getToType())){
+//			return this.getAmount().compareTo(BigDecimal.ZERO) < 0;
+//		}
+//
+//		//If neither sources are BudgetCategory, this is not an inflow.
+//		return false;
+//	}
 	
 	@Override
 	public String toString() {
@@ -162,6 +162,7 @@ public class Split {
 	 * @return
 	 */
 	public boolean isDebit(Source source){
-		return (this.getFromSource() == source.getId() && "D".equals(source.getType())) || (this.getFromSource() == source.getId() && "C".equals(source.getType()));
+		return (this.getFromSource() == source.getId() && "D".equals(source.getType())) 
+				|| (this.getFromSource() == source.getId() && "C".equals(source.getType()));
 	}
 }
