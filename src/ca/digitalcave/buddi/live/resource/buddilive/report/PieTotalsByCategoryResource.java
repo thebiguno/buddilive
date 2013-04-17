@@ -27,6 +27,7 @@ import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.model.report.Pie;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
@@ -55,7 +56,7 @@ public class PieTotalsByCategoryResource extends ServerResource {
 			final JSONObject result = new JSONObject();
 			for (Pie pie : data){
 				final JSONObject object = new JSONObject();
-				object.put("label", pie.getLabel());
+				object.put("label", CryptoUtil.decryptWrapper(pie.getLabel(), user));
 				object.put("amount", pie.getAmount());
 				object.put("formattedAmount", FormatUtil.formatCurrency(pie.getAmount(), user));
 				object.put("percent", pie.getAmount().divide(total, RoundingMode.HALF_UP).multiply(ONE_HUNDRED));
@@ -67,6 +68,9 @@ public class PieTotalsByCategoryResource extends ServerResource {
 		}
 		catch (NumberFormatException e){
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
