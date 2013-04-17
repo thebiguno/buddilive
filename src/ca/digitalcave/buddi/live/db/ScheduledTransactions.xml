@@ -204,6 +204,17 @@
 		WHERE id = #{transaction.id} AND user_id = #{user.id}
 	</update>
 	
+	<update id="updateScheduledSplit">
+		UPDATE scheduledsplits
+		SET 
+			from_balance = #{split.fromBalance,jdbcType=DECIMAL},
+			to_balance = #{split.toBalance,jdbcType=DECIMAL},
+			memo = #{split.memo,jdbcType=VARCHAR},
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{split.id} AND user_id = #{user.id}
+	</update>
+
+	
 	<delete id="deleteScheduledTransaction">
 		DELETE FROM scheduledtransactions
 		WHERE
