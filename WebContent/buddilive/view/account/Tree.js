@@ -10,6 +10,9 @@ Ext.define('BuddiLive.view.account.Tree', {
 		this.rootVisible = false;
 		this.border = false;
 		this.store = Ext.create("BuddiLive.store.account.TreeStore");
+		this.viewConfig = {
+			"stripeRows": true
+		};
 		
 		this.columns = [
 			{

@@ -16,6 +16,9 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		this.title = this.initialConfig.periodText;
 		this.flex = 1;
 		this.width = "100%";
+		this.viewConfig = {
+			"stripeRows": true
+		};
 		this.plugins = [
 			Ext.create("Ext.grid.plugin.CellEditing", {
 				"clicksToEdit": 1
