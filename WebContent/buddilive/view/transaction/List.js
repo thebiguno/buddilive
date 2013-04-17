@@ -93,9 +93,6 @@ Ext.define('BuddiLive.view.transaction.List', {
 		];
 		
 		this.dockedItems = [
-			<#if !encrypted>
-			//We can only currently search on non-encrypted DBs.  Eventually we may add a fallback Java search implementation which runs against the decrypted
-			// data, but that will take a fair bit of CPU / memory, which I don't have at this time.
 			{
 				"xtype": "toolbar",
 				"dock": "bottom",
@@ -109,7 +106,6 @@ Ext.define('BuddiLive.view.transaction.List', {
 					}
 				]
 			},
-			</#if>
 			{
 				"xtype": "transactioneditor",
 				"dock": "top"
