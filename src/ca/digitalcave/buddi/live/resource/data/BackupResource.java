@@ -72,7 +72,9 @@ public class BackupResource extends ServerResource {
 			}
 			
 			final JsonRepresentation json = new JsonRepresentation(result);
-			json.setDisposition(new Disposition(Disposition.TYPE_ATTACHMENT));
+			final Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
+			disposition.setFilename("Backup (" + FormatUtil.formatDate(new Date(), user) + ").json");
+			json.setDisposition(disposition);
 			return json;
 		}
 		catch (JSONException e){
