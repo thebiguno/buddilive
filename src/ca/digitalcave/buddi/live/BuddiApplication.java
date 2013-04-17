@@ -126,7 +126,7 @@ public class BuddiApplication extends Application{
 		ds.setTestConnectionOnCheckin(false);
 		ds.setTestConnectionOnCheckout(true);
 		ds.setDebugUnreturnedConnectionStackTraces(true);
-		ds.setUnreturnedConnectionTimeout(2 * 60); // 2 minutes
+		ds.setUnreturnedConnectionTimeout(10 * 60); // 10 minutes... this needs to be long enough to handle restore + encryption
 
 		org.apache.ibatis.logging.LogFactory.useJdkLogging();
 		final SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
