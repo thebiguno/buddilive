@@ -25,7 +25,8 @@ Ext.define("BuddiLive.controller.account.Tree", {
 			Ext.apply(transactionList.getStore().getProxy().extraParams, {
 				"source": selectedItem.id
 			}); 
-			transactionList.getStore().loadData([], false);	//This forces a deselect and works around bugs in buffered stores in EXT JS 4.2.0
+			transactionList.getStore().loadData([], false);		//This forces a deselect and works around bugs in buffered stores in EXT JS 4.2.0
+			transactionList.getView().refresh();				//This forces the scroll bar to move back to the top
 			transactionList.getStore().load();
 			transactionList.down("transactioneditor").setSource(selectedItem.id);
 			transactionList.down("transactioneditor").setTransaction();
