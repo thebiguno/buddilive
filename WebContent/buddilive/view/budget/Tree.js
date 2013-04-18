@@ -122,13 +122,18 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		this.callParent(arguments);
 		
 		//Load some of the contents of the loaded data packet into the GUI, and persist state for future requests
-		this.getStore().addListener("load", function(store, records){
-			var data = store.proxy.reader.rawData;
-			budgetTree.down("textfield[itemId='currentPeriod']").setValue(data.period);
-			var columns = budgetTree.getView().headerCt.items.items;
-			columns[1].setText(columns[1].initialConfig.text + " (" + data.previousPeriod + ")");
-			columns[2].setText(columns[2].initialConfig.text + " (" + data.period + ")");
-			budgetTree.currentDate = data.date;	//ISO Date string, will be used as current reference when passing nextPeriod / previousPeriod
+		this.getStore().addListener("load", function(store, records, successful){
+			if (successful){
+				var data = store.proxy.reader.rawData;
+				budgetTree.down("textfield[itemId='currentPeriod']").setValue(data.period);
+				var columns = budgetTree.getView().headerCt.items.items;
+				columns[1].setText(columns[1].initialConfig.text + " (" + data.previousPeriod + ")");
+				columns[2].setText(columns[2].initialConfig.text + " (" + data.period + ")");
+				budgetTree.currentDate = data.date;	//ISO Date string, will be used as current reference when passing nextPeriod / previousPeriod
+			}
+			else {
+				BuddiLive.app.error({"message": "Server Error loading budget categories"});
+			}
 		});
 	}
 });
