@@ -110,5 +110,11 @@ Ext.define('BuddiLive.view.transaction.List', {
 			//We start the transaction list disabled, for now.  Unsure if this will stay.
 			transactionList.enable();
 		});
+	},
+	
+	"reload": function(){
+		this.getStore().loadData([], false);		//This forces a deselect and works around bugs in buffered stores in EXT JS 4.2.0
+		this.getView().refresh();					//This forces the scroll bar to move back to the top
+		this.getStore().load();
 	}
 });

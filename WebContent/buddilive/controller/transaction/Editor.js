@@ -69,8 +69,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 				me.getTransactionDescriptionComboboxStoreStore().load();
 				editor.setTransaction(null, false, true);
 				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
-				editor.up("transactionlist").getSelectionModel().deselectAll();
-				editor.up("transactionlist").getStore().reload();
+				editor.up("transactionlist").reload()
 				editor.down("datefield[itemId='date']").focus(false, 500);
 			},
 			"failure": function(response){
