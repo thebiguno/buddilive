@@ -150,7 +150,15 @@ public class User extends org.restlet.security.User {
 	public String getExtDateFormat(){
 		//Auto converts from Java format to EXT JS (PHP) format.
 		//TODO This may need tweaking for accuracy and performance.
-		return getDateFormat().replaceAll("yyyy", "Y").replaceAll("yy", "y").replaceAll("ddd", "D").replaceAll("dd?", "d").replaceAll("MMMM", "F").replaceAll("MMM", "M").replaceAll("MM", "m");
+		return getDateFormat()
+				.replaceAll("yyyy", "Y")
+				.replaceAll("yy", "y")
+				.replaceAll("ddd", "D")
+				.replaceAll("dd?", "d")
+				//.replaceAll("([^M]?)M([^M]?)", "$1n$2")		//Single M should be replaced with non-leading zero month
+				.replaceAll("MMMM", "F")
+				.replaceAll("MMM", "M")
+				.replaceAll("MM?", "m");
 	}
 	public String getDateFormat() {
 		if (StringUtils.isBlank(overrideDateFormat)) {
