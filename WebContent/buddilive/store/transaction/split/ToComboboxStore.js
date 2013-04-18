@@ -6,6 +6,9 @@ Ext.define("BuddiLive.store.transaction.split.ToComboboxStore", {
 		"type": "ajax",
 		"autoAbort": true, 
 		"url": "buddilive/sources/to.json",
+		"limitParam": null,
+		"startParam": null,
+		"pageParam": null,
 		"reader": {
 			"type": "json",
 			"root": "data"

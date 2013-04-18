@@ -6,6 +6,10 @@ Ext.define("BuddiLive.store.transaction.DescriptionComboboxStore", {
 		"type": "ajax",
 		"autoAbort": true, 
 		"url": "buddilive/transactions/descriptions.json",
+		"filterParam": null,
+		"limitParam": null,
+		"startParam": null,
+		"pageParam": null,
 		"reader": {
 			"type": "json",
 			"root": "data"

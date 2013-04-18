@@ -6,6 +6,9 @@ Ext.define("BuddiLive.store.preferences.CurrenciesComboboxStore", {
 		"type": "ajax",
 		"autoAbort": true, 
 		"url": "buddilive/preferences/currencies.json",
+		"limitParam": null,
+		"startParam": null,
+		"pageParam": null,
 		"reader": {
 			"type": "json",
 			"root": "data"
