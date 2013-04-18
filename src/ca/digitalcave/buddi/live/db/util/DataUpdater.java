@@ -381,6 +381,7 @@ public class DataUpdater {
 			st.setScheduleName(CryptoUtil.encrypt(st.getScheduleName(), encryptionKey));
 			st.setDescription(CryptoUtil.encrypt(st.getDescription(), encryptionKey));
 			st.setNumber(CryptoUtil.encrypt(st.getNumber(), encryptionKey));
+			st.setMessage(CryptoUtil.encrypt(st.getMessage(), encryptionKey));
 			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
 			for (Split s : st.getSplits()) {
 				s.setMemo(CryptoUtil.encrypt(s.getMemo(), encryptionKey));
@@ -418,6 +419,17 @@ public class DataUpdater {
 			if (s.getMemo() != null){
 				s.setMemo(CryptoUtil.decrypt(s.getMemo(), encryptionKey));
 				sqlSession.getMapper(Transactions.class).updateSplit(user, s);
+			}
+		}
+		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
+			st.setScheduleName(CryptoUtil.decrypt(st.getScheduleName(), encryptionKey));
+			st.setDescription(CryptoUtil.decrypt(st.getDescription(), encryptionKey));
+			st.setNumber(CryptoUtil.decrypt(st.getNumber(), encryptionKey));
+			st.setMessage(CryptoUtil.decrypt(st.getMessage(), encryptionKey));
+			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
+			for (Split s : st.getSplits()) {
+				s.setMemo(CryptoUtil.decrypt(s.getMemo(), encryptionKey));
+				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, s);
 			}
 		}
 	}
