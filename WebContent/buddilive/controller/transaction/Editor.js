@@ -20,6 +20,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 				"select": this.validateFields,
 				"keypress": this.validateFields
 			},
+			"transactioneditor datefield[itemId='date']": { "specialkey": this.checkKeys },
+			"transactioneditor combobox[itemId='description']": { "specialkey": this.checkKeys },
+			"transactioneditor textfield[itemId='number']": { "specialkey": this.checkKeys },
 			"transactioneditor numberfield[itemId='amount']": { "specialkey": this.checkKeys },
 			"transactioneditor textfield[itemId='memo']": { "specialkey": this.checkKeys }
 		});
