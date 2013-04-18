@@ -115,7 +115,7 @@
 			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent
 			<if test="_parameter.containsKey('categoryPeriod')">
-			, ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.date ce_date, pe.date pe_date
+			, ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.entry_date ce_date, pe.entry_date pe_date
 				<if test="showActual">
 				--We just add both of these, rather than subtracting as we do in accounts, because there can only be values in one 
 				-- of these fields, depending on whether this is a I or E category.  I categories are always in the from field,
@@ -125,10 +125,10 @@
 			</if> 
 		FROM sources c
 		<if test="_parameter.containsKey('categoryPeriod')">
-			LEFT JOIN entries ce ON ce.category = c.id AND ce.date = #{categoryPeriod.currentPeriodStartDate} AND ce.user_id = #{user.id}
-			LEFT JOIN entries pe ON pe.category = c.id AND pe.date = #{categoryPeriod.previousPeriodStartDate} AND pe.user_id = #{user.id}
+			LEFT JOIN entries ce ON ce.category = c.id AND ce.entry_date = #{categoryPeriod.currentPeriodStartDate} AND ce.user_id = #{user.id}
+			LEFT JOIN entries pe ON pe.category = c.id AND pe.entry_date = #{categoryPeriod.previousPeriodStartDate} AND pe.user_id = #{user.id}
 			<if test="showActual">
-			LEFT JOIN transactions t ON t.date >= #{categoryPeriod.currentPeriodStartDate} AND t.date &lt;= #{categoryPeriod.currentPeriodEndDate}
+			LEFT JOIN transactions t ON t.transaction_date >= #{categoryPeriod.currentPeriodStartDate} AND t.transaction_date &lt;= #{categoryPeriod.currentPeriodEndDate}
 			LEFT JOIN splits to_splits ON to_splits.to_source = c.id AND to_splits.transaction_id = t.id 
 			LEFT JOIN splits from_splits ON from_splits.from_source = c.id AND from_splits.transaction_id = t.id
 			</if>
@@ -148,7 +148,7 @@
 			c.id, c.user_id, c.uuid, c.name, c.start_date, c.deleted, c.type, c.created, c.modified,
 			c.period_type, c.parent
 			<if test="_parameter.containsKey('categoryPeriod')">
-			, ce.id, pe.id, ce.amount, pe.amount, ce.date, pe.date
+			, ce.id, pe.id, ce.amount, pe.amount, ce.entry_date, pe.entry_date
 			</if>
 		ORDER BY c.type DESC, c.name
 
