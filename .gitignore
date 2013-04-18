@@ -3,3 +3,5 @@
 /db/
 /derby.log
 /conf/server-config.properties
+/conf/test-config.properties
+
