@@ -4,9 +4,8 @@ Ext.define("BuddiLive.store.transaction.ListStore", {
 		"BuddiLive.model.transaction.ListModel"
 	],
 	"model": "BuddiLive.model.transaction.ListModel",
-	"pageSize": 50,
+	"pageSize": 250,
 	"buffered": true,
-	"leadingBufferZone": 25,
 	"proxy": {
 		"type": "ajax",
 		"url": "buddilive/transactions.json",
