@@ -72,13 +72,16 @@
 			<column name="category" type="int"><constraints nullable="false"/></column>
 			<column name="user_id" type="int"><constraints  nullable="false"/></column>
 			<column name="amount" type="decimal(16,4)"><constraints nullable="false"/></column>
-			<column name="date" type="date"><constraints nullable="false"/></column>
+			<column name="entry_date" type="date"><constraints nullable="false"/></column>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
 			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="fk_sources_entries" referencedTableName="sources" referencedColumnNames="id" baseTableName="entries" baseColumnNames="category" onDelete="CASCADE"/>
 		<addForeignKeyConstraint constraintName="fk_users_entries" referencedTableName="users" referencedColumnNames="id" baseTableName="entries" baseColumnNames="user_id" onDelete="CASCADE"/>
+		
+		<sql>CREATE INDEX ix_entries_entrydate ON entries(entry_date)</sql>
+
 	</changeSet>
 	
 	<changeSet id="create transactions" author="wyatt">
@@ -88,7 +91,7 @@
 			<column name="user_id" type="int"><constraints nullable="false"/></column>
 			<column name="description" type="varchar(1024)"><constraints nullable="false"/></column>
 			<column name="number" type="varchar(1024)"/>
-			<column name="date" type="date"><constraints nullable="false"/></column>
+			<column name="transaction_date" type="date" remarks="The date on which the transaction has occurred."><constraints nullable="false"/></column>
 			<column name="deleted" type="char(1)"><constraints nullable="false"/></column>
 			<column name="scheduled_transaction_id" type="bigint" remarks="Refers to the scheduled transaction ID.  Null if this is not scheduled."/>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
@@ -98,6 +101,10 @@
 		<addForeignKeyConstraint constraintName="fk_users_transactions" referencedTableName="users" referencedColumnNames="id" baseTableName="transactions" baseColumnNames="user_id" onDelete="CASCADE"/>
 
 		<sql>ALTER TABLE transactions ADD CONSTRAINT cc_transactions_deleted CHECK (deleted IN ('Y', 'N'))</sql>
+		
+		<sql>CREATE INDEX ux_transactions_uuid ON transactions(uuid)</sql>
+
+		<sql>CREATE INDEX ix_transactions_transactiondate ON transactions(transaction_date)</sql>
 	</changeSet>
 	
 	<changeSet id="create splits" author="wyatt">

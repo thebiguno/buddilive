@@ -14,7 +14,7 @@
 		--Used for backup
 		SELECT 
 			category e_category,
-			date e_date,
+			entry_date e_date,
 			amount e_amount
 		FROM entries
 		WHERE 
@@ -26,7 +26,7 @@
 			id e_id,
 			category e_category,
 			amount e_amount,
-			date e_date,
+			entry_date e_date,
 			created e_created,
 			modified e_modified
 		FROM entries
@@ -34,7 +34,7 @@
 			user_id = #{user.id}
 			<if test="_parameter.containsKey('entry')">
 			AND category = #{entry.categoryId}
-			AND date = #{entry.date}
+			AND entry_date = #{entry.date}
 			</if>
 			<if test="_parameter.containsKey('id')">
 			AND id = #{id}
@@ -43,7 +43,7 @@
 			AND category = #{categoryId}
 			</if>
 			<if test="_parameter.containsKey('date')">
-			AND date = #{date}
+			AND entry_date = #{date}
 			</if>
 	</select>
 	
@@ -56,7 +56,7 @@
 			user_id,
 			category,
 			amount,
-			date,
+			entry_date,
 			created,
 			modified
 		)
@@ -79,6 +79,6 @@
 		WHERE
 			user_id = #{user.id}
 			AND category = #{entry.categoryId} 
-			AND date = #{entry.date}
+			AND entry_date = #{entry.date}
 	</update>
 </mapper>
