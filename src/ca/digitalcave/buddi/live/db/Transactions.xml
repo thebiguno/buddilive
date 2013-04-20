@@ -71,9 +71,11 @@
 
 	<select id="selectDescriptions" resultMap="transaction">
 		SELECT 
-			t.id t_id, t.description, s.id s_id, s.amount, s.from_source, s.to_source
+			t.id t_id, t.description, s.id s_id, s.amount, s.from_source, s.to_source, fs.type from_type, ts.type to_type
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
+		INNER JOIN sources fs ON fs.id = s.from_source
+		INNER JOIN sources ts ON ts.id = s.to_source
 		WHERE t.deleted = 'N' AND t.user_id = #{user.id}
 		ORDER BY t.transaction_date DESC, s.id DESC
 	</select>

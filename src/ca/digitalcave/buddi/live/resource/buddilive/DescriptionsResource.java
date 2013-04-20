@@ -65,6 +65,8 @@ public class DescriptionsResource extends ServerResource {
 					split.put("amount", s.getAmount().toPlainString());
 					split.put("fromId", s.getFromSource());
 					split.put("toId", s.getToSource());
+					split.put("fromType", s.getFromType());
+					split.put("toType", s.getToType());
 					transaction.append("splits", split);
 				}
 				item.put("transaction", transaction);
