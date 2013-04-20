@@ -18,13 +18,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			"transactioneditor field": {
 				"blur": this.validateFields,
 				"select": this.validateFields,
-				"keypress": this.validateFields
-			},
-			"transactioneditor datefield[itemId='date']": { "specialkey": this.checkKeys },
-			"transactioneditor combobox[itemId='description']": { "specialkey": this.checkKeys },
-			"transactioneditor textfield[itemId='number']": { "specialkey": this.checkKeys },
-			"transactioneditor numberfield[itemId='amount']": { "specialkey": this.checkKeys },
-			"transactioneditor textfield[itemId='memo']": { "specialkey": this.checkKeys }
+				"keypress": this.validateFields,
+				"specialkey": this.checkKeys
+			}
 		});
 	},
 	
@@ -32,7 +28,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		this.validateFields(component);
 		var editor = component.up("transactioneditor");
 		var record = editor.down("button[itemId='recordTransaction']");
-		if (e.getKey() == e.ENTER && !record.isDisabled()){
+		if (e.getKey() == e.ENTER && e.ctrlKey && !record.isDisabled()){
 			record.fireEvent("click", record);
 		}
 	},
