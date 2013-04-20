@@ -40,6 +40,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	},
 	
 	"recordTransaction": function(component){
+		//TODO Check for large changes and confirm
+		//TODO Check for reasonably valid dates and confirm (date <> 1 year or so?)
+	
 		var me = this;
 		var editor = component.up("transactioneditor");
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": editor});
@@ -79,7 +82,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	},
 	
 	"clearTransaction": function(component){
-		//TODO check if there is data here... if so, verify
+		//TODO check if there is data here... if so, verify that we really want to clear it
 		
 		var editor = component.up("transactioneditor");
 		var list = component.up("transactionlist");
