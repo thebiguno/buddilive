@@ -20,6 +20,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport menuitem[itemId='showPreferences']": {"click": this.showPreferences},
 			"buddiviewport menuitem[itemId='backup']": {"click": this.backup},
 			"buddiviewport menuitem[itemId='restore']": {"click": this.restore},
+			"buddiviewport menuitem[itemId='gettingStarted']": {"click": this.gettingStarted},
 			"buddiviewport button[itemId='logout']": {"click": this.logout}
 		});
 	},
@@ -274,6 +275,14 @@ Ext.define("BuddiLive.controller.Viewport", {
 			tabPanel.add({"xtype": "scheduledlist"});
 		}
 		tabPanel.setActiveTab(tabPanel.down("scheduledlist"));
+	},
+	
+	"gettingStarted": function(){
+		Ext.MessageBox.show({
+			"title": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
+			"msg": "${translation("HELP_GETTING_STARTED")?json_string}",
+			"buttons": Ext.Msg.OK
+		});
 	},
 	
 	"backup": function(component){

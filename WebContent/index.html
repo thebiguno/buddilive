@@ -16,6 +16,17 @@
 			}, 500);
 		</script>
 </#if>
+<#if data("newUser")??>
+		<script type="text/javascript">
+			Ext.defer(function(){
+				Ext.MessageBox.show({
+					"title": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
+					"msg": "${translation("HELP_GETTING_STARTED")?json_string}",
+					"buttons": Ext.Msg.OK
+				});
+			}, 500);
+		</script>
+</#if>
 	</head>
 	<body>
 	</body>

@@ -201,6 +201,7 @@ Ext.define("BuddiLive.view.Viewport", {
 						"icon": "img/alarm-clock.png",
 						"itemId": "showScheduled"
 					},
+					"-",
 					{
 						"text": "${translation("BACKUP")?json_string}",
 						"icon": "img/drive-download.png",
@@ -210,6 +211,12 @@ Ext.define("BuddiLive.view.Viewport", {
 						"text": "${translation("RESTORE")?json_string}",
 						"icon": "img/drive-upload.png",
 						"itemId": "restore"
+					},
+					"-",
+					{
+						"text": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
+						"icon": "img/question.png",
+						"itemId": "gettingStarted"
 					}
 				]
 			},

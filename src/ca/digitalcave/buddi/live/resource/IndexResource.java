@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONObject;
@@ -18,9 +19,13 @@ import org.restlet.resource.ServerResource;
 import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.Sources;
+import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
+import ca.digitalcave.buddi.live.model.Account;
+import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
@@ -57,6 +62,9 @@ public class IndexResource extends ServerResource {
 				final Date userDate = (Date) getRequest().getAttributes().get("date");
 				final String messages = DataUpdater.updateScheduledTransactions(user, sqlSession, userDate);
 				user.getData().put("messages", messages);
+				
+				final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
+				if (accounts.size() == 0) user.getData().put("newUser", "true");
 				
 				//Update the user's last login date
 				sqlSession.getMapper(Users.class).updateUserLoginTime(user);
