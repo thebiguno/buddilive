@@ -82,7 +82,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		//TODO check if there is data here... if so, verify
 		
 		var editor = component.up("transactioneditor");
+		var list = component.up("transactionlist");
 		editor.setTransaction();
+		list.getSelectionModel().deselectAll();
 	},
 	
 	"deleteTransaction": function(component){
