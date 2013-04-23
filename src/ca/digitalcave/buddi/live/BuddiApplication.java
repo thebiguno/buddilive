@@ -58,6 +58,7 @@ public class BuddiApplication extends Application{
 	private Configuration freemarkerConfiguration;
 	private SqlSessionFactory sqlSessionFactory;
 	private final JsonFactory jsonFactory = new JsonFactory();
+	private ComboPooledDataSource ds;
 
 	@Override  
 	public synchronized Restlet createInboundRoot() {  
@@ -116,8 +117,7 @@ public class BuddiApplication extends Application{
 		final Properties p = new Properties();
 		p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
 		BuddiVerifier.COOKIE_PASSWORD = p.getProperty("verifier.encryptionKey", new String(CryptoUtil.getSecureRandom(64)));
-		final ComboPooledDataSource ds;
-
+		
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(p.getProperty("db.driver"));
 		ds.setJdbcUrl(p.getProperty("db.url"));
@@ -163,6 +163,8 @@ public class BuddiApplication extends Application{
 	
 	@Override
 	public synchronized void stop() throws Exception {
+		ds.close();
+		
 		super.stop();
 	}
 	
