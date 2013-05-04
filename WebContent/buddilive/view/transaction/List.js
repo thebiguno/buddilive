@@ -45,7 +45,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 		
 		this.columns = [
 			{
-			"text": "${translation("DATE")?json_string}",
+				"text": "${translation("DATE")?json_string}",
 				"dataIndex": "date",
 				"hideable": false,
 				"sortable": false,
