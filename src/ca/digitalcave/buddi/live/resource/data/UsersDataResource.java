@@ -42,7 +42,7 @@ public class UsersDataResource extends ServerResource {
 	
 	@Override
 	protected Representation post(Representation entity, Variant variant) throws ResourceException {
-		if (!"127.0.0.1".equals(getRequest().getClientInfo().getAddress())){
+		if (!"127.0.0.1".equals(getRequest().getClientInfo().getAddress()) && !"0:0:0:0:0:0:0:1%0".equals(getRequest().getClientInfo().getAddress())){
 			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
 		}
 		final BuddiApplication application = (BuddiApplication) getApplication();
