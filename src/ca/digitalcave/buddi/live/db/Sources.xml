@@ -151,7 +151,6 @@
 			, ce.id, pe.id, ce.amount, pe.amount, ce.entry_date, pe.entry_date
 			</if>
 		ORDER BY c.type DESC, c.name
-
 	</sql>
 	
 	<select id="selectCategoryPeriods" resultType="string">

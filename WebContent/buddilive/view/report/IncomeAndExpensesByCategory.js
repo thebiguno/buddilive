@@ -14,38 +14,23 @@ Ext.define('BuddiLive.view.report.PieTotalsByCategory', {
 		
 		this.items = [
 			{
-				"xtype": "grid",
-				"store": Ext.create("BuddiLive.store.report.IncomeAndExpensesByCategoryStore", {"query": this.initialConfig.query}),
-				"columns": [
-					{
-						"text": "${translation("NAME")?json_string}",
-						"dataIndex": "category",
-						"hideable": false,
-						"sortable": false,
-						"flex": 2
-					},
-					{
-						"text": "${translation("ACTUAL")?json_string}",
-						"dataIndex": "actual",
-						"hideable": false,
-						"sortable": false,
-						"flex": 1
-					},
-					{
-						"text": "${translation("BUDGETED")?json_string}",
-						"dataIndex": "budgeted",
-						"hideable": false,
-						"sortable": false,
-						"flex": 1
-					},
-					{
-						"text": "${translation("DIFFERENCE")?json_string}",
-						"dataIndex": "difference",
-						"hideable": false,
-						"sortable": false,
-						"flex": 1
+				"xtype": "chart",
+				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"query": this.initialConfig.query, "type": this.initialConfig.type}),
+				"legend": {
+					"position": "bottom"
+				},
+				"series": [{
+					"type": "bar",
+					"showInLegend": true,
+					"label": {
+						"field": "label",
+						"display": "rotate",
+						"contrast": true,
+						"renderer": function(value, storeItem, item) {
+							return value + ": " + item.get("formattedAmount");
+						}
 					}
-				]
+				}]
 			}
 		]
 	

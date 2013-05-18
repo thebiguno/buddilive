@@ -1,7 +1,10 @@
 package ca.digitalcave.buddi.live.resource.buddilive.report;
 
+import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
@@ -16,8 +19,9 @@ import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Reports;
+import ca.digitalcave.buddi.live.db.Sources;
+import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.model.report.Summary;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
@@ -36,16 +40,30 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final Date[] dates = ReportHelper.processInterval(getQuery());
-			final List<Summary> data = sqlSession.getMapper(Reports.class).selectActualIncomeAndExpensesByCategory(user, dates[0], dates[1]);
+			final Map<Integer, Map<String, Object>> data = sqlSession.getMapper(Reports.class).selectActualByCategory(user, dates[0], dates[1]);
+			final List<Category> categories = sqlSession.getMapper(Sources.class).selectCategories(user);
 			
 			final JSONObject result = new JSONObject();
-			for (Summary summary : data){
-				final JSONObject object = new JSONObject();
-				object.put("source", CryptoUtil.decryptWrapper(summary.getSource().getName(), user));
-				object.put("actual", FormatUtil.formatCurrency(summary.getActual(), user, summary.getSource()));
-				object.put("budgeted", FormatUtil.formatCurrency(summary.getBudgeted(), user, summary.getSource()));
-				object.put("difference", FormatUtil.formatCurrency(summary.getDifference(), user, summary.getSource()));
-				result.append("data", object);
+			for (Category category : categories) {
+				final BigDecimal budgetedAmount = category.getAmount(user, sqlSession, dates[0], dates[1]);
+				final BigDecimal actualAmount = data.get(category.getId()) == null ? BigDecimal.ZERO : (BigDecimal) data.get(category.getId()).get("actual");
+				if (budgetedAmount.compareTo(BigDecimal.ZERO) != 0 || actualAmount.compareTo(BigDecimal.ZERO) != 0){
+					final JSONObject object = new JSONObject();
+					object.put("category", CryptoUtil.decryptWrapper(category.getName(), user));
+
+					object.put("actual", FormatUtil.formatCurrency(actualAmount, user));
+					object.put("actualStyle", (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));
+					
+					object.put("currentAmount", FormatUtil.formatCurrency(budgetedAmount, user));
+					object.put("currentAmountStyle", (FormatUtil.isRed(category, budgetedAmount) ? FormatUtil.formatRed() : ""));
+					
+					final BigDecimal difference = (actualAmount.subtract(budgetedAmount != null ? budgetedAmount : BigDecimal.ZERO));
+					object.put("difference", FormatUtil.formatCurrency(category.isIncome() ? difference : difference.negate(), user));
+					object.put("differenceStyle", (FormatUtil.isRed(category.isIncome() ? difference : difference.negate()) ? FormatUtil.formatRed() : ""));
+
+					result.append("data", object);
+				}
+				
 			}
 
 			result.put("success", true);
@@ -58,6 +76,9 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (SQLException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {

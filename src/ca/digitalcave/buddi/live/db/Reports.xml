@@ -5,17 +5,10 @@
 		<id column="label" property="label"/>
 		<result column="amount" property="amount"/>
 	</resultMap>
-	
-	<resultMap id="summary" type="ca.digitalcave.buddi.live.model.report.Summary">
-		<result column="actual" property="actual"/>
-		<result column="budgeted" property="budgeted"/>
-		<association property="source" resultMap="ca.digitalcave.buddi.live.model.Source"/>
-	</resultMap>
-
 	<select id="selectPieIncomeOrExpensesByCategory" resultMap="pie">
 		SELECT 
 			c.name AS label,
-			sum(s.amount) AS amount
+			sum(s.amount) AS actual
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		INNER JOIN sources c ON (c.id = s.from_source OR c.id = s.to_source) AND c.type = #{type}
@@ -26,11 +19,13 @@
 		ORDER BY sum(s.amount) DESC
 	</select>
 	
-	<select id="selectActualIncomeAndExpensesByCategory" resultMap="summary">
+	<resultMap id="actualByCategory" type="map">
+		<id column="id"/>
+		<result column="actual" property="actual"/>
+	</resultMap>
+	<select id="selectActualByCategory" resultMap="actualByCategory">
 		SELECT 
-			c.id s_id, c.name s_name, c.type s_type,
-			
-			sum(s.amount) AS amount
+			c.id, sum(s.amount) AS actual
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		INNER JOIN sources c ON (c.id = s.from_source OR c.id = s.to_source)
@@ -38,7 +33,11 @@
 			AND t.transaction_date >= #{startDate}
 			AND t.transaction_date &lt;= #{endDate}
 			AND (c.type = 'E' OR c.type = 'I')
-		GROUP BY c.id, c.name, c.type
+		GROUP BY c.id, c.user_id, c.uuid, c.name, c.deleted, c.type, c.created, c.modified, c.period_type, c.parent
 		ORDER BY c.type DESC, sum(s.amount) DESC
+	</select>
+	
+	<select id="selectBudgetedIncomeAndExpensesByCategory" resultMap="actualByCategory">
+	
 	</select>
 </mapper>

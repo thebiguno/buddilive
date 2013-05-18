@@ -64,7 +64,7 @@ public class FormatUtil {
 	
 	public static String formatCurrency(BigDecimal value, User user, Source source){
 		if ("C".equals(source.getType()) || "E".equals(source.getType())){
-			return formatCurrency(value.negate(), user);
+			return formatCurrency(value == null ? null : value.negate(), user);
 		}
 		return formatCurrency(value, user);
 	}
