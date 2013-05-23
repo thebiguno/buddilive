@@ -19,6 +19,9 @@
 		FROM entries
 		WHERE 
 			user_id = #{user.id}
+			<if test="_parameter.containsKey('date')">
+			AND entry_date = #{date}
+			</if>
 	</select>
 	
 	<select id="selectEntry" resultMap="entry">

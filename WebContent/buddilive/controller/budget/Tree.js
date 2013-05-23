@@ -7,6 +7,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 				"edit": this.editCell,
 				"selectionchange": this.selectionChange
 			},
+			"budgettree button[itemId='copyFromPreviousPeriod']": { "click": this.clickCopyFromPreviousPeriod },
 			"budgettree button[itemId='previousPeriod']": { "click": this.clickChangePeriod },
 			"budgettree button[itemId='nextPeriod']": { "click": this.clickChangePeriod }
 		});
@@ -52,7 +53,33 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 			viewport.down("button[itemId='deleteCategory']").setText("Delete Budget Category");	//TODO i18n
 		}
 	},
-	
+
+	"clickCopyFromPreviousPeriod": function(component){
+		var budgetTree = component.up("budgettree");
+		var request = {"action": "copyFromPrevious"};
+		request.type = budgetTree.periodValue;
+		request.date = budgetTree.currentDate;
+		var conn = new Ext.data.Connection();
+		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": budgetTree});
+		mask.show();
+		conn.request({
+			"url": "buddilive/categories",
+			"headers": {
+				"Accept": "application/json"
+			},
+			"method": "POST",
+			"jsonData": request,
+			"success": function(response){
+				mask.hide();
+				budgetTree.getStore().reload();
+			},
+			"failure": function(response){
+				mask.hide();
+				BuddiLive.app.error(response);
+			}
+		});
+	},
+		
 	"clickChangePeriod": function(component){
 		var budgetTree = component.up("budgettree");
 		var offset = (component.itemId == "previousPeriod" ? -1 : 1);

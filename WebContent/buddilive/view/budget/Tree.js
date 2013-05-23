@@ -92,6 +92,13 @@ Ext.define('BuddiLive.view.budget.Tree', {
 			"items": [
 				"->",
 				{
+					"xtype": "button",
+					"tooltip": "${translation("COPY_FROM_PREVIOUS_BUDGET_PERIOD")?json_string}",
+					"icon": "img/calendar-previous.png",
+					"itemId": "copyFromPreviousPeriod"
+				},
+				" ",
+				{
 					"xtype": "label",
 					"text": "${translation("CURRENT_BUDGET_PERIOD")?json_string}"
 				},

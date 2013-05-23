@@ -2,7 +2,9 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
@@ -17,6 +19,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
@@ -24,6 +27,7 @@ import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.CategoryPeriod;
 import ca.digitalcave.buddi.live.model.CategoryPeriod.CategoryPeriods;
+import ca.digitalcave.buddi.live.model.Entry;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
@@ -166,6 +170,32 @@ public class CategoriesResource extends ServerResource {
 				ConstraintsChecker.checkUpdateCategory(category, user, sqlSession);
 				int count = sqlSession.getMapper(Sources.class).updateCategory(user, category);
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+			}
+			else if ("copyFromPrevious".equals(action)){
+				final CategoryPeriods period = CategoryPeriods.valueOf(request.getString("type"));
+				final Date currentDate = period.getStartOfBudgetPeriod(FormatUtil.parseDateInternal(request.getString("date")));
+				final Date previousDate = period.getBudgetPeriodOffset(currentDate, -1);
+				
+				final Map<Integer, Entry> previousEntries = sqlSession.getMapper(Entries.class).selectEntries(user, previousDate);
+				final Map<Integer, Entry> currentEntries = sqlSession.getMapper(Entries.class).selectEntries(user, currentDate);
+				for (Integer categoryId : previousEntries.keySet()) {
+					if (previousEntries.get(categoryId).getAmount().compareTo(BigDecimal.ZERO) != 0){
+						if (currentEntries.get(categoryId) == null){
+							final Entry entry = previousEntries.get(categoryId);
+							entry.setDate(currentDate);
+							ConstraintsChecker.checkInsertEntry(entry, user, sqlSession);
+							int count = sqlSession.getMapper(Entries.class).insertEntry(user, entry);
+							if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+						}
+						else if (currentEntries.get(categoryId).getAmount().compareTo(BigDecimal.ZERO) == 0){
+							final Entry entry = currentEntries.get(categoryId);
+							entry.setAmount(previousEntries.get(categoryId).getAmount());
+							ConstraintsChecker.checkUpdateEntry(entry, user, sqlSession);
+							int count = sqlSession.getMapper(Entries.class).updateEntry(user, entry);
+							if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+						}
+					}
+				}
 			}
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
