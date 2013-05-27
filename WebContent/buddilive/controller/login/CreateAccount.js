@@ -46,6 +46,7 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 		request.storeEmail = form.down("checkbox[itemId='email']").getValue();
 		request.locale = form.down("combobox[itemId='locale']").getValue();
 		request.currency = form.down("combobox[itemId='currency']").getValue();
+		request.referrer = document.location.href;
 		var conn = new Ext.data.Connection();
 		conn.request({
 			"url": "buddilive/createaccount",

@@ -8,6 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.EmptyRepresentation;
@@ -87,11 +88,20 @@ public class CreateUserResource extends ServerResource {
 			final User user = new User(request);
 			final String identifier = request.getString("identifier");
 			if ("insert".equals(request.getString("action"))){
-				final String url = getRequest().getOriginalRef().addQueryParameter("nonce", CryptoUtil.encrypt(request.toString(), nonceSecret)).toString();
+				request.get("referrer");
+//				final Reference ref = getRequest().getOriginalRef();
+//				if (getRequestAttributes().get("X-Forwarded-For") != null){
+//					getRequest().getHostRef()
+//				}
+				
+				final Reference ref = new Reference(request.getString("referrer"));
+				ref.setSegments(getRequest().getOriginalRef().getSegments());
+				final String url = ref.addQueryParameter("nonce", CryptoUtil.encrypt(request.toString(), nonceSecret)).toString();
 				final HtmlEmail email = new HtmlEmail();
 				email.addTo(identifier);
 				email.setSubject(user.getTranslation().getString("CREATE_USER_EMAIL_SUBJECT"));
-				email.setMsg(String.format(user.getTranslation().getString("CREATE_USER_EMAIL_BODY"), getRequest().getClientInfo().getAddress(), url));
+				final String clientIp = getRequest().getClientInfo().getAddress();
+				email.setMsg(String.format(user.getTranslation().getString("CREATE_USER_EMAIL_BODY"), clientIp, url));
 				email.setFrom("no-reply@digitalcave.ca", "Buddi Live Account Creation");
 				email.setHostName("localhost");
 				email.send();
