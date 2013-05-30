@@ -69,7 +69,7 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 				var message = "Unknown error";	//TODO i18n
 				var json = Ext.decode(response.responseText, true);
 				if (json == null){
-					message = error.responseText;
+					message = response.responseText;
 				}
 				else {
 					message = json.msg;
