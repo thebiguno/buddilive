@@ -126,10 +126,11 @@ public class BuddiApplication extends Application{
 		ds.setUser(p.getProperty("db.user"));
 		ds.setPassword(p.getProperty("db.password"));
 		ds.setPreferredTestQuery(p.getProperty("db.query"));
-		ds.setTestConnectionOnCheckin(false);
-		ds.setTestConnectionOnCheckout(true);
+		ds.setTestConnectionOnCheckin(true);
+		ds.setIdleConnectionTestPeriod(30 * 60);	//value in seconds
+		ds.setTestConnectionOnCheckout(false);
 		ds.setDebugUnreturnedConnectionStackTraces(true);
-		ds.setUnreturnedConnectionTimeout(10 * 60); // 10 minutes... this needs to be long enough to handle restore + encryption
+		ds.setUnreturnedConnectionTimeout(10 * 60); //value in seconds.  this needs to be long enough to handle restore + encryption on my slow server
 
 		org.apache.ibatis.logging.LogFactory.useJdkLogging();
 		final SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
