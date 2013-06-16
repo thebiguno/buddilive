@@ -10,7 +10,7 @@
 	</tstamp>
 	
 	<!-- Set up all the project specific properties -->
-	<property name="PROJECT_SHORT_NAME" value="buddi-live"/>
+	<property name="PROJECT_SHORT_NAME" value="buddilive"/>
 
 	<path id="classpath">
 		<fileset dir="lib" includes="*.jar"/>
@@ -20,23 +20,15 @@
 	<target name="war-buddilive" depends="jar" description="Build Buddi Live server instance">
 		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
 			<param name="conf" value="server"/>
-			<param name="war-name" value="buddi-live"/>
+			<param name="war-name" value="buddilive"/>
 		</antcall>
 	</target>
 	<target name="war-buddilive-test" depends="jar" description="Build Buddi Live Test server instance">
 		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
 			<param name="conf" value="test"/>
-			<param name="war-name" value="buddi-live-test"/>
+			<param name="war-name" value="buddilive-test"/>
 		</antcall>
 	</target>
-
-	<target name="war-buddi-standalone" depends="jar" description="Build Buddi Web standalone instance">
-		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
-			<param name="conf" value="standalone"/>
-			<param name="war-name" value="buddi-standalone"/>
-		</antcall>
-	</target>
-
 
 	<target name="bundle-war">
 		<mkdir dir="build/dist"/>
