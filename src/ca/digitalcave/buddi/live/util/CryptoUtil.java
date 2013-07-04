@@ -12,6 +12,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.lang.StringUtils;
 import org.restlet.engine.util.Base64;
 
 import ca.digitalcave.buddi.live.model.User;
@@ -26,7 +27,7 @@ public class CryptoUtil {
 	private static final int KEY_LENGTH = 256;
 
 	public static String decryptWrapper(String value, User user) throws CryptoException {
-		if (value != null && user.isEncrypted()){
+		if (StringUtils.isNotBlank(value) && user.isEncrypted()){
 			return decrypt(value, user.getDecryptedEncryptionKey());
 		}
 		return value;
