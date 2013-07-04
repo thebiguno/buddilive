@@ -195,7 +195,14 @@
 		SET
 			from_balance = NULL,
 			to_balance = NULL
-		WHERE user_id = #{user.id}
+		<if test="_parameter.containsKey('date')">
+		FROM splits s
+		INNER JOIN transactions t ON t.id = s.transaction_id
+		</if>
+		WHERE splits.user_id = #{user.id}
+		<if test="_parameter.containsKey('date')">
+		AND t.transaction_date >= #{date}
+		</if>
 	</update>
 	
 	<delete id="deleteTransaction">
