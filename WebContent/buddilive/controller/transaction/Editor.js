@@ -71,7 +71,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 				me.getTransactionDescriptionComboboxStoreStore().load();
 				editor.setTransaction(null, false, true);
 				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
-				editor.up("transactionlist").reload()
+				editor.up("transactionlist").reload();
 				editor.down("datefield[itemId='date']").focus(false, 500);
 			},
 			"failure": function(response){
@@ -107,7 +107,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 				"jsonData": {"action": "delete", "id": id},
 				"success": function(response){
 					editor.setTransaction();
-					editor.up("transactionlist").getStore().reload();
+					editor.up("transactionlist").reload();
 					editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
 				},
 				"failure": function(response){
