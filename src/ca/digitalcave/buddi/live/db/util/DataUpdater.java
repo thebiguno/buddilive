@@ -29,9 +29,9 @@ public class DataUpdater {
 
 	public static void updateBalances(User user, SqlSession sqlSession, boolean forceAll) throws DatabaseException {
 		//If the forceAll flag is passed, we first clear all balances to ensure a fresh start.  This is a good idea when adding new accounts, etc.
-		if (forceAll){
+		//if (forceAll){
 			sqlSession.getMapper(Transactions.class).updateSplitsClearBalances(user);
-		}
+		//}
 		
 		//Update all balances, starting from the earliest split which has a null balance, and moving forward updating each one in turn.
 		//We first loop through all accounts for the user
