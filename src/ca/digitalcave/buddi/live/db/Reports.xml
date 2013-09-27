@@ -8,7 +8,7 @@
 	<select id="selectPieIncomeOrExpensesByCategory" resultMap="pie">
 		SELECT 
 			c.name AS label,
-			sum(s.amount) AS actual
+			sum(s.amount) AS amount
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		INNER JOIN sources c ON (c.id = s.from_source OR c.id = s.to_source) AND c.type = #{type}
@@ -25,7 +25,7 @@
 	</resultMap>
 	<select id="selectActualByCategory" resultMap="actualByCategory">
 		SELECT 
-			c.id, sum(s.amount) AS actual
+			c.id, sum(s.amount) AS amount
 		FROM transactions t
 		LEFT JOIN splits s ON s.transaction_id = t.id
 		INNER JOIN sources c ON (c.id = s.from_source OR c.id = s.to_source)
