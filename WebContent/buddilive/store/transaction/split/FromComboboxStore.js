@@ -5,7 +5,7 @@ Ext.define("BuddiLive.store.transaction.split.FromComboboxStore", {
 	"proxy": {
 		"type": "ajax",
 		"autoAbort": true, 
-		"url": "buddilive/sources/from.json",
+		"url": "data/sources/from.json",
 		"limitParam": null,
 		"startParam": null,
 		"pageParam": null,

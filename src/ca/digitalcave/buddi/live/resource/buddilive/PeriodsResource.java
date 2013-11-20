@@ -19,6 +19,7 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.model.CategoryPeriod.CategoryPeriods;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
 
 public class PeriodsResource extends ServerResource {
 
@@ -40,7 +41,7 @@ public class PeriodsResource extends ServerResource {
 				if (categoryPeriods.contains(cp.toString())){
 					JSONObject item = new JSONObject();
 					item.put("value", cp.toString());
-					item.put("text", user.getTranslation().getString("BUDGET_CATEGORY_TYPE_" + cp.toString()));
+					item.put("text", LocaleUtil.getTranslation(getRequest()).getString("BUDGET_CATEGORY_TYPE_" + cp.toString()));
 					data.put(item);
 				}
 			}

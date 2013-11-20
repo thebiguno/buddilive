@@ -19,6 +19,7 @@ import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Entry;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
 
 public class EntriesResource extends ServerResource {
 
@@ -56,7 +57,7 @@ public class EntriesResource extends ServerResource {
 				}
 			} 
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
 			sqlSession.commit();

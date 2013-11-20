@@ -7,7 +7,7 @@ Ext.define("BuddiLive.store.scheduled.ListStore", {
 	"autoLoad": true,
 	"proxy": {
 		"type": "ajax",
-		"url": "buddilive/scheduledtransactions.json",
+		"url": "data/scheduledtransactions.json",
 		"reader": {
 			"type": "json",
 			"root": "data"

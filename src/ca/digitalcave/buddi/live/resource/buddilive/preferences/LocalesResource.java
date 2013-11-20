@@ -60,7 +60,7 @@ public class LocalesResource extends ServerResource {
 
 			for (Locale locale : commonLocales) {
 				final JSONObject entry = new JSONObject();
-				entry.put("text", locale.getDisplayName(user.getLocale()));
+				entry.put("text", locale.getDisplayName(user != null && user.getLocale() != null ? user.getLocale() : Locale.ENGLISH));
 				entry.put("value", locale.toString());
 				result.append("data", entry);
 			}
@@ -73,7 +73,7 @@ public class LocalesResource extends ServerResource {
 			
 			for (Locale locale : allLocales) {
 				final JSONObject entry = new JSONObject();
-				entry.put("text", locale.getDisplayName(user.getLocale()));
+				entry.put("text", locale.getDisplayName(user != null && user.getLocale() != null ? user.getLocale() : Locale.ENGLISH));
 				entry.put("value", locale.toString());
 				result.append("data", entry);
 			}

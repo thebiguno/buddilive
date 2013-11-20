@@ -5,7 +5,7 @@
 		SELECT 
 			id,
 			identifier,
-			credentials,
+			credentials AS secretString,
 			encryption_key encryptionKey,
 			email,
 			premium,
@@ -16,7 +16,7 @@
 			created,
 			modified
 		FROM users 
-		WHERE identifier = #{identifier}
+		WHERE identifier = #{identifier} OR activation_key = #{identifier}
 	</select>
 	
 	<insert id="insertUser">
@@ -26,14 +26,14 @@
 		INSERT INTO users
 			(
 				id,
-				identifier, 
+				identifier,
 				credentials,
 				uuid,
-				email,
 				premium,
 				locale,
 				currency,
 				show_deleted,
+				activation_key,
 				created, 
 				modified
 			)
@@ -41,13 +41,13 @@
 			(
 				#{user.id}, 
 				#{user.identifier},
-				#{user.credentials},
+				'',
 				#{user.uuid}, 
-				#{user.email,jdbcType=VARCHAR},
 				'N',
 				#{user.locale,javaType=java.util.Locale},
 				#{user.currency,javaType=java.util.Currency},
 				'Y',
+				#{activationKey},
 				CURRENT_TIMESTAMP, 
 				CURRENT_TIMESTAMP
 			)
@@ -56,7 +56,7 @@
 	<update id="updateUser">
 		UPDATE users
 		SET
-			<if test="user.credentials != null">credentials = #{user.credentials},</if>
+			<if test="user.secretString != null">credentials = #{user.secretString},</if>
 			email = #{user.email,jdbcType=VARCHAR},
 			locale = #{user.locale,javaType=java.util.Locale},
 			currency = #{user.currency,javaType=java.util.Currency},
@@ -64,6 +64,16 @@
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
+	</update>
+	
+	<update id="updateUserActivate">
+		UPDATE users
+		SET
+			identifier = #{user.identifier},
+			credentials = #{user.secretString},
+			activation_key = NULL,
+			modified = CURRENT_TIMESTAMP
+		WHERE activation_key = #{activationKey}
 	</update>
 	
 	<update id="updateUserLoginTime">

@@ -32,6 +32,7 @@ import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 
@@ -193,7 +194,7 @@ public class TransactionsResource extends ServerResource {
 				sqlSession.getMapper(Transactions.class).updateSplitsClearBalances(user, transaction.getDate());
 			}
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 
 			DataUpdater.updateBalances(user, sqlSession, false);

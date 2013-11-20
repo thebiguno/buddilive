@@ -23,5 +23,9 @@ Ext.define("BuddiLive.view.component.GenericStoreBackedCombobox", {
 				combo.setValue();
 			}
 		});
+		
+		this.addListener("afterrender", function(){
+			combo.setValue(this.initialConfig.value);
+		});
 	}
 });

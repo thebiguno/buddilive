@@ -25,7 +25,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 	
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/categories/entries",
+			"url": "data/categories/entries",
 			"headers": {
 				"Accept": "application/json"
 			},
@@ -63,7 +63,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": budgetTree});
 		mask.show();
 		conn.request({
-			"url": "buddilive/categories",
+			"url": "data/categories",
 			"headers": {
 				"Accept": "application/json"
 			},

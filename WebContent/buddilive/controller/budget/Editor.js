@@ -38,7 +38,7 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/categories",
+			"url": "data/categories",
 			"headers": {
 				"Accept": "application/json"
 			},

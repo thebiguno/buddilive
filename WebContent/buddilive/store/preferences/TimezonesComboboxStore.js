@@ -5,7 +5,7 @@ Ext.define("BuddiLive.store.preferences.TimezonesComboboxStore", {
 	"proxy": {
 		"type": "ajax",
 		"autoAbort": true, 
-		"url": "buddilive/preferences/timezones.json",
+		"url": "data/preferences/timezones.json",
 		"limitParam": null,
 		"startParam": null,
 		"pageParam": null,

@@ -49,7 +49,7 @@ Ext.define("BuddiLive.controller.login.CreateAccount", {
 		request.referrer = document.location.href;
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/createaccount",
+			"url": "data/createaccount",
 			"headers": {
 				"Accept": "application/json"
 			},

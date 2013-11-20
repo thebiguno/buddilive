@@ -5,7 +5,7 @@ Ext.define("BuddiLive.store.preferences.LocalesComboboxStore", {
 	"proxy": {
 		"type": "ajax",
 		"autoAbort": true, 
-		"url": "buddilive/preferences/locales.json",
+		"url": "data/preferences/locales.json",
 		"limitParam": null,
 		"startParam": null,
 		"pageParam": null,

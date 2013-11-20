@@ -8,7 +8,7 @@ Ext.define("BuddiLive.store.report.PieTotalsByCategoryStore", {
 	"constructor": function(config){
 		this.proxy = {
 			"type": "ajax",
-			"url": "buddilive/report/incomeandexpensesbycategory.json?" + config.query,
+			"url": "data/report/incomeandexpensesbycategory.json?" + config.query,
 			"reader": {
 				"type": "json",
 				"root": "data"

@@ -2,7 +2,7 @@
 	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-						http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+						http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
 	<changeSet id="create users" author="wyatt">
 		<createTable tableName="users">
@@ -170,5 +170,11 @@
 		<addForeignKeyConstraint constraintName="fk_users_scheduledsplits" referencedTableName="users" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="user_id" onDelete="CASCADE"/>
 		<addForeignKeyConstraint constraintName="fk_fromsources_scheduledsplits" referencedTableName="sources" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="from_source" onDelete="CASCADE"/>
 		<addForeignKeyConstraint constraintName="fk_tosourcs_scheduledsplits" referencedTableName="sources" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="to_source" onDelete="CASCADE"/>
+	</changeSet>
+	
+	<changeSet id="add activation key to user" author="wyatt">
+		<addColumn tableName="users">
+			<column name="activation_key" type="varchar(36)"><constraints unique="true"/></column>
+		</addColumn>
 	</changeSet>
 </databaseChangeLog>

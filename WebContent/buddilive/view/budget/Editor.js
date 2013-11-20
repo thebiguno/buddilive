@@ -49,7 +49,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"fieldLabel": "${translation("BUDGET_CATEGORY_PARENT")?json_string}",
 						"emptyText": "Parent",
 						"value": (s ? s.parent : null),
-						"url": "buddilive/categories/parents.json" + (s ? "?exclude=" + s.id : ""),
+						"url": "data/categories/parents.json" + (s ? "?exclude=" + s.id : ""),
 						"listeners": {
 							"change": function(){
 								var parent = editor.down("combobox[itemId='parent']");

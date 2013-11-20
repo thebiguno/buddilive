@@ -1,115 +1,104 @@
 package ca.digitalcave.buddi.live.resource;
 
-import java.util.Date;
-import java.util.List;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.UUID;
 
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.json.JSONObject;
-import org.restlet.data.ChallengeResponse;
-import org.restlet.data.ChallengeScheme;
-import org.restlet.data.CookieSetting;
-import org.restlet.data.MediaType;
+import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.TemplateRepresentation;
-import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
-import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
-import ca.digitalcave.buddi.live.db.Sources;
-import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.Users;
-import ca.digitalcave.buddi.live.db.util.DataUpdater;
+import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
-import ca.digitalcave.buddi.live.model.Account;
-import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.security.BuddiVerifier;
-import ca.digitalcave.buddi.live.util.CryptoUtil;
-import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
+import ca.digitalcave.moss.crypto.MossHash;
+import ca.digitalcave.moss.restlet.AbstractCookieIndexResource;
 
-public class IndexResource extends ServerResource {
-	@Override
-	protected void doInit() throws ResourceException {
-		getVariants().add(new Variant(MediaType.TEXT_HTML));
-		getVariants().add(new Variant(MediaType.APPLICATION_JSON));
-	}
-	
+public class IndexResource extends AbstractCookieIndexResource {
+
 	@Override
 	protected Representation get(Variant variant) throws ResourceException {
-		
-		//Handle Logout
-		if (getQuery().getFirst("logout") != null) {
-			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, "");
-			c.setAccessRestricted(true);
-			c.setMaxAge(0);
-			getResponse().getCookieSettings().add(c);
-			
-			getResponse().redirectSeeOther(".");
-			return new EmptyRepresentation();
-		}
-		
+		final HashMap<String, Object> dataModel = new HashMap<String, Object>();
+		dataModel.put("user", getClientInfo().getUser());
+		dataModel.put("requestAttributes", getRequestAttributes());
+		dataModel.put("systemProperties", ((BuddiApplication) getApplication()).getSystemProperties());
+
+		return new TemplateRepresentation("/index.html", ((BuddiApplication) getApplication()).getFreemarkerConfiguration(), dataModel, variant.getMediaType());
+	}
+
+	@Override
+	protected String insertUser(org.restlet.security.User user, String activationKey) {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
-			final User user = (User) getRequest().getClientInfo().getUser();
+			final Form form = (Form) getRequest().getAttributes().get("form");
+			
+			if (!"on".equals(form.getFirstValue("agree", "off"))) throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("CREATE_USER_AGREEMENT_REQUIRED"));
+			
+			final User newUser = new User();
+			newUser.setIdentifier(user.getIdentifier());	//At first we don't hash the user; when activated, it will be hashed.
+			newUser.setUuid(UUID.randomUUID().toString());
+			newUser.setCurrency(Currency.getInstance(form.getFirstValue("currency", "USD")));
+			newUser.setLocale(LocaleUtils.toLocale(form.getFirstValue("locale", "en_US")));
+			ConstraintsChecker.checkInsertUser(newUser, sqlSession);
+			
+			final Integer count = sqlSession.getMapper(Users.class).insertUser(newUser, activationKey);
+			if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+			
+			sqlSession.commit();
 
-			if (user.isAuthenticated()){
-				//Check for outstanding scheduled transactions
-				final Date userDate = (Date) getRequest().getAttributes().get("date");
-				final String messages = DataUpdater.updateScheduledTransactions(user, sqlSession, userDate);
-				user.getData().put("messages", messages);
-				
-				final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
-				if (accounts.size() == 0) user.getData().put("newUser", "true");
-				
-				//Update the user's last login date
-				sqlSession.getMapper(Users.class).updateUserLoginTime(user);
-				
-				sqlSession.commit();
-				return new TemplateRepresentation("index.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
-			}
-			else {
-				return new TemplateRepresentation("login.html", application.getFreemarkerConfiguration(), user, MediaType.TEXT_HTML);
-			}
-		}
-		catch (CryptoException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			return user.getIdentifier();
 		}
 		catch (DatabaseException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {
+			sqlSession.close();
+		}
+		return null;
+	}
+	
+	@Override
+	protected String updateActivationKey(String identifier, String activationKey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	protected void updateSecret(String activationKey, String hash) {
+		final BuddiApplication application = (BuddiApplication) getApplication();
+		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
+		try {
+			final User user = sqlSession.getMapper(Users.class).selectUser(activationKey);
+			if (!user.getIdentifier().startsWith("SHA256:")){
+				user.setIdentifier(new MossHash().setSaltLength(0).setIterations(1).generate(user.getIdentifier()));
+			}
+			user.setSecretString(hash);
+			final Integer count = sqlSession.getMapper(Users.class).updateUserActivate(user, activationKey);
+			if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+			
+			sqlSession.commit();
+		} catch (DatabaseException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		} finally {
 			sqlSession.close();
 		}
 	}
 	
 	@Override
-	protected Representation post(Representation entity, Variant variant) throws ResourceException {
-		try {
-			final JSONObject token = new JSONObject(entity.getText());
-			token.put("clientIp", getRequest().getClientInfo().getAddress());
-			
-			//Check the authentication right now, so that we can return an error if it is not valid.  This is somewhat
-			// awkward, but it makes for a better user experience.
-			getRequest().setChallengeResponse(new ChallengeResponse(ChallengeScheme.CUSTOM, token.getString("identifier"), token.getString("credentials")));
-			if (new BuddiVerifier((BuddiApplication) getApplication()).verify(getRequest(), getResponse()) != Verifier.RESULT_VALID){
-				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);	
-			}
-			
-			final CookieSetting c = new CookieSetting(BuddiVerifier.COOKIE_NAME, CryptoUtil.encrypt(token.toString(), BuddiVerifier.COOKIE_PASSWORD));
-			c.setAccessRestricted(true);
-			c.setMaxAge(-1);	//Delete on browser close
-			
-			getResponse().getCookieSettings().add(c);
-			getResponse().redirectSeeOther(".");
-			return new EmptyRepresentation();
-		}
-		catch (Exception e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
+	protected boolean isAllowEnrole() {
+		return true;
+	}
+	
+	@Override
+	protected boolean isAllowReset() {
+		return true;
 	}
 }

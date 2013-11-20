@@ -12,9 +12,9 @@ public class BuddiLiveStandalone {
 	 * Start the embedded Jetty server for testing / standalone use.
 	 */
 	public static void main(String[] args) throws Exception {
-		final Server server = new Server(8080);
+		final Server server = new Server(8686);
 		final URL warUrl = new File("WebContent").toURI().toURL(); 
-		final WebAppContext context = new WebAppContext(warUrl.toExternalForm(), "/");
+		final WebAppContext context = new WebAppContext(warUrl.toExternalForm(), "/buddilive");
 		
 		context.setClassLoader(BuddiLiveStandalone.class.getClassLoader());
 		server.setHandler(context);

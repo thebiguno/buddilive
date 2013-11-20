@@ -21,7 +21,15 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport menuitem[itemId='backup']": {"click": this.backup},
 			"buddiviewport menuitem[itemId='restore']": {"click": this.restore},
 			"buddiviewport menuitem[itemId='gettingStarted']": {"click": this.gettingStarted},
-			"buddiviewport button[itemId='logout']": {"click": this.logout}
+			"buddiviewport button[itemId='logout']": {"click": function(component){
+				Ext.Ajax.request({
+					"url": "index",
+					"method": "DELETE",
+					"success": function() {
+						window.location.reload();
+					}
+				});
+			}}
 		});
 	},
 	
@@ -53,7 +61,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
 			mask.show();
 			conn.request({
-				"url": "buddilive/accounts",
+				"url": "data/accounts",
 				"headers": {
 					"Accept": "application/json"
 				},
@@ -85,7 +93,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 					var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
 					mask.show();
 					conn.request({
-						"url": "buddilive/accounts",
+						"url": "data/accounts",
 						"headers": {
 							"Accept": "application/json"
 						},
@@ -138,7 +146,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
 			mask.show();
 			conn.request({
-				"url": "buddilive/categories",
+				"url": "data/categories",
 				"headers": {
 					"Accept": "application/json"
 				},
@@ -170,7 +178,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 					var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
 					mask.show();
 					conn.request({
-						"url": "buddilive/categories",
+						"url": "data/categories",
 						"headers": {
 							"Accept": "application/json"
 						},
@@ -227,7 +235,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 				var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
 				mask.show();
 				conn.request({
-					"url": "buddilive/scheduledtransactions",
+					"url": "data/scheduledtransactions",
 					"headers": {
 						"Accept": "application/json"
 					},
@@ -251,7 +259,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 		var panel = component.up("buddiviewport");
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/userpreferences",
+			"url": "data/userpreferences",
 			"headers": {
 				"Accept": "application/json"
 			},
@@ -291,9 +299,5 @@ Ext.define("BuddiLive.controller.Viewport", {
 
 	"restore": function(component){
 		Ext.widget("restoreform").show();
-	},
-	
-	"logout": function(component){
-		window.location.search += '&logout';
 	}
 });

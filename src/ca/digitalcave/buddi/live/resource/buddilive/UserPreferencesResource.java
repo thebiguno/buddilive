@@ -22,6 +22,7 @@ import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 
 public class UserPreferencesResource extends ServerResource {
@@ -65,7 +66,7 @@ public class UserPreferencesResource extends ServerResource {
 				if (json.optBoolean("encrypt", false) != user.isEncrypted()){
 					//First check that the password is correct
 					final String encryptPassword = json.getString("encryptPassword");
-					if (!CryptoUtil.verify(user.getCredentials(), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, user.getTranslation().getString("INCORRECT_PASSWORD"));
+					if (!CryptoUtil.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
 
 					if (user.isEncrypted())DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
@@ -84,7 +85,7 @@ public class UserPreferencesResource extends ServerResource {
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, user.getTranslation().getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
 			DataUpdater.updateBalances(user, sqlSession, false);

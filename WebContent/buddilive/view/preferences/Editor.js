@@ -72,11 +72,11 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 							"fields": ["text", "value"],
 							"data": [
 								{"text": "${translation("USE_LOCALE_DEFAULTS")?json_string}", "value": ""},
-								{"text": "${today?string("yyyy-MM-dd")}", "value": "yyyy-MM-dd"},
-								{"text": "${today?string("MM/dd/yyyy")}", "value": "MM/dd/yyyy"},
-								{"text": "${today?string("dd/MM/yyyy")}", "value": "dd/MM/yyyy"},
-								{"text": "${today?string("MMM dd, yyyy")}", "value": "MMM dd, yyyy"},
-								{"text": "${today?string("MMMM dd, yyyy")}", "value": "MMMM dd, yyyy"}
+								{"text": "${.now?string("yyyy-MM-dd")}", "value": "yyyy-MM-dd"},
+								{"text": "${.now?string("MM/dd/yyyy")}", "value": "MM/dd/yyyy"},
+								{"text": "${.now?string("dd/MM/yyyy")}", "value": "dd/MM/yyyy"},
+								{"text": "${.now?string("MMM dd, yyyy")}", "value": "MMM dd, yyyy"},
+								{"text": "${.now?string("MMMM dd, yyyy")}", "value": "MMMM dd, yyyy"}
 							]
 						}),
 						"queryMode": "local",

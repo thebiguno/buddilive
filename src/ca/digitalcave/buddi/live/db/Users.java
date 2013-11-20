@@ -8,11 +8,12 @@ import ca.digitalcave.buddi.live.model.User;
 public interface Users {
 	public User selectUser(@Param("identifier") String identifier);
 	
-	public Integer insertUser(@Param("user") User user);
+	public Integer insertUser(@Param("user") User user, @Param("activationKey") String activationKey);
 	
 	public Integer updateUser(@Param("user") User user);
 	public Integer updateUserEncryptionKey(@Param("user") User user);
 	public Integer updateUserLoginTime(@Param("user") User user);
+	public Integer updateUserActivate(@Param("user") User user, @Param("activationKey") String activationKey);
 	
 	public Integer deleteUser(@Param("user") User user);
 }

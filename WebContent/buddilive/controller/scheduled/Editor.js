@@ -51,7 +51,7 @@ Ext.define("BuddiLive.controller.scheduled.Editor", {
 		
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/scheduledtransactions",
+			"url": "data/scheduledtransactions",
 			"headers": {
 				"Accept": "application/json"
 			},

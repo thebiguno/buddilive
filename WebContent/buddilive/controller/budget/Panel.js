@@ -14,7 +14,7 @@ Ext.define("BuddiLive.controller.budget.Panel", {
 		var budgetPanel = (component.xtype == "budgetpanel" ? component : component.up("budgetpanel"));
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/categories/periods",
+			"url": "data/categories/periods",
 			"headers": {
 				"Accept": "application/json"
 			},

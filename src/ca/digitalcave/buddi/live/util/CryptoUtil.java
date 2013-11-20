@@ -16,9 +16,10 @@ import org.apache.commons.lang.StringUtils;
 import org.restlet.engine.util.Base64;
 
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.moss.crypto.MossHash;
 
 public class CryptoUtil {
-
+	
 	private static final String DEFAULT_RNG_ALGORITHM = "SHA1PRNG";
 	private static final String DEFAULT_KEY_ALGORITHM = "PBKDF2WithHmacSHA1";
 	private static final String DEFAULT_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";

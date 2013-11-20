@@ -48,7 +48,7 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "buddilive/userpreferences",
+			"url": "data/userpreferences",
 			"headers": {
 				"Accept": "application/json"
 			},

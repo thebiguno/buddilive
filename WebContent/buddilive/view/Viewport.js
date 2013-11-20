@@ -20,7 +20,7 @@ Ext.define("BuddiLive.view.Viewport", {
 		this.width = "100%";
 		
 		this.items = [
-			<#if !premium>
+			<#if !((user.premium)!false)>
 			{
 				"xtype": "panel",
 				"region": "north",
@@ -158,7 +158,7 @@ Ext.define("BuddiLive.view.Viewport", {
 		
 		items.push(
 			"->",
-			<#if encrypted>
+			<#if (user.encrypted)!false>
 			{
 				"icon": "img/lock.png",
 				"overCls": "",
@@ -222,7 +222,6 @@ Ext.define("BuddiLive.view.Viewport", {
 			},
 			{
 				"text": "${translation("LOGOUT")?json_string}",
-				"tooltip": "${translation("LOGOUT")?json_string} ${plaintextIdentifier}",
 				"icon": "img/control-power.png",
 				"itemId": "logout"
 			}
