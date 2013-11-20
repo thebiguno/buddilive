@@ -66,11 +66,17 @@
 		WHERE identifier = #{user.identifier}
 	</update>
 	
-	<update id="updateUserActivate">
+	<update id="updateUserActivationKey">
 		UPDATE users
 		SET
-			identifier = #{user.identifier},
-			credentials = #{user.secretString},
+			activation_key = #{activationKey},
+			modified = CURRENT_TIMESTAMP
+		WHERE identifier = #{hashedIdentifier} AND encryption_key IS NULL
+	</update>
+	<update id="updateUserSecret">
+		UPDATE users
+		SET
+			credentials = #{hashedSecret},
 			activation_key = NULL,
 			modified = CURRENT_TIMESTAMP
 		WHERE activation_key = #{activationKey}

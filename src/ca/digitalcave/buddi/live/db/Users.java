@@ -10,10 +10,11 @@ public interface Users {
 	
 	public Integer insertUser(@Param("user") User user, @Param("activationKey") String activationKey);
 	
+	public Integer updateUserLoginTime(@Param("user") User user);
 	public Integer updateUser(@Param("user") User user);
 	public Integer updateUserEncryptionKey(@Param("user") User user);
-	public Integer updateUserLoginTime(@Param("user") User user);
-	public Integer updateUserActivate(@Param("user") User user, @Param("activationKey") String activationKey);
+	public Integer updateUserActivationKey(@Param("hashedIdentifier") String hashedIdentifier, @Param("activationKey") String activationKey);
+	public Integer updateUserSecret(@Param("activationKey") String activationKey, @Param("hashedSecret") String hashedSecret);
 	
 	public Integer deleteUser(@Param("user") User user);
 }

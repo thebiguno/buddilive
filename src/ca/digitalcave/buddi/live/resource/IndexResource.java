@@ -1,7 +1,9 @@
 package ca.digitalcave.buddi.live.resource;
 
 import java.util.Currency;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.LocaleUtils;
@@ -14,10 +16,14 @@ import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
+import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.MossHash;
 import ca.digitalcave.moss.restlet.AbstractCookieIndexResource;
@@ -27,9 +33,40 @@ public class IndexResource extends AbstractCookieIndexResource {
 	@Override
 	protected Representation get(Variant variant) throws ResourceException {
 		final HashMap<String, Object> dataModel = new HashMap<String, Object>();
+		final BuddiApplication application = (BuddiApplication) getApplication();
+		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
+		try {
+			final User user = (User) getRequest().getClientInfo().getUser();
+
+			if (user != null){
+				//Check for outstanding scheduled transactions
+				final Date userDate = (Date) getRequest().getAttributes().get("date");
+				final String messages = DataUpdater.updateScheduledTransactions(user, sqlSession, userDate);
+				dataModel.put("messages", messages);
+				
+				final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
+				if (accounts.size() == 0) dataModel.put("newUser", "true");
+				
+				//Update the user's last login date
+				sqlSession.getMapper(Users.class).updateUserLoginTime(user);
+				
+				sqlSession.commit();
+			}
+		}
+		catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		catch (DatabaseException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		finally {
+			sqlSession.close();
+		}
+		
 		dataModel.put("user", getClientInfo().getUser());
 		dataModel.put("requestAttributes", getRequestAttributes());
 		dataModel.put("systemProperties", ((BuddiApplication) getApplication()).getSystemProperties());
+		dataModel.put("translation", LocaleUtil.getTranslation(getRequest()));
 
 		return new TemplateRepresentation("/index.html", ((BuddiApplication) getApplication()).getFreemarkerConfiguration(), dataModel, variant.getMediaType());
 	}
@@ -44,7 +81,7 @@ public class IndexResource extends AbstractCookieIndexResource {
 			if (!"on".equals(form.getFirstValue("agree", "off"))) throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("CREATE_USER_AGREEMENT_REQUIRED"));
 			
 			final User newUser = new User();
-			newUser.setIdentifier(user.getIdentifier());	//At first we don't hash the user; when activated, it will be hashed.
+			newUser.setIdentifier(new MossHash().setSaltLength(0).setIterations(1).generate(user.getIdentifier()));
 			newUser.setUuid(UUID.randomUUID().toString());
 			newUser.setCurrency(Currency.getInstance(form.getFirstValue("currency", "USD")));
 			newUser.setLocale(LocaleUtils.toLocale(form.getFirstValue("locale", "en_US")));
@@ -67,7 +104,21 @@ public class IndexResource extends AbstractCookieIndexResource {
 	
 	@Override
 	protected String updateActivationKey(String identifier, String activationKey) {
-		// TODO Auto-generated method stub
+		final BuddiApplication application = (BuddiApplication) getApplication();
+		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
+		try {
+			final Integer count = sqlSession.getMapper(Users.class).updateUserActivationKey(new MossHash().setSaltLength(0).setIterations(1).generate(identifier), activationKey);
+			if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+			
+			sqlSession.commit();
+
+			return identifier;
+		}
+		catch (DatabaseException e){
+		}
+		finally {
+			sqlSession.close();
+		}
 		return null;
 	}
 	
@@ -76,12 +127,7 @@ public class IndexResource extends AbstractCookieIndexResource {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
-			final User user = sqlSession.getMapper(Users.class).selectUser(activationKey);
-			if (!user.getIdentifier().startsWith("SHA256:")){
-				user.setIdentifier(new MossHash().setSaltLength(0).setIterations(1).generate(user.getIdentifier()));
-			}
-			user.setSecretString(hash);
-			final Integer count = sqlSession.getMapper(Users.class).updateUserActivate(user, activationKey);
+			final Integer count = sqlSession.getMapper(Users.class).updateUserSecret(activationKey, hash);
 			if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			
 			sqlSession.commit();

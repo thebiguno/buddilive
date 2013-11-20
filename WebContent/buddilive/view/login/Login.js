@@ -130,13 +130,19 @@ Ext.define('BuddiLive.view.login.Login', {
 					"itemId": "enrole",
 					"defaults": { "anchor": "100%", "allowBlank": false, "xtype": "textfield", "enableKeyEvents": true },
 					"items": [
-						{ "fieldLabel": "Email", "name": "identifier" },
-						{ "xtype": "label", "itemId": "message" }
+						{ 
+							"xtype": "selfdocumentingfield",
+							"messageBody": "Password reset is unavailable for encrypted accounts.",
+							"type": "textfield", 
+							"fieldLabel": "Email", 
+							"name": "identifier" 
+						},
+						{ "xtype": "label", "itemId": "message", "text": "\xA0" }
 					],
 					"buttons": [
 						{ "text": "I have a key", "itemId": "forward" },
 						"->",
-						{ "text": "Reset Password", "itemId": "reset" }
+						{ "text": "Generate a key", "itemId": "reset" }
 					]
 				},
 				{
@@ -147,7 +153,7 @@ Ext.define('BuddiLive.view.login.Login', {
 						{ "fieldLabel": "Activation Key", "name": "identifier" },
 						{ "fieldLabel": "New Password", "name": "secret", "inputType": "password" },
 						{ "fieldLabel": "Password", "name": "verify", "inputType": "password" },
-						{ "xtype": "label", "itemId": "message" }
+						{ "xtype": "label", "itemId": "message", "text": "\xA0" }
 					],
 					"buttons": [
 						{ "text": "< Back", "itemId": "back" },
