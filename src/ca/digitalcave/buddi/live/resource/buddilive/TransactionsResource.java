@@ -100,6 +100,7 @@ public class TransactionsResource extends ServerResource {
 									generator.writeStartObject();
 									generator.writeNumberField("id", s.getId());
 									generator.writeStringField("amount", FormatUtil.formatCurrency(s.getAmount(), user));
+									generator.writeNumberField("amountNumber", s.getAmount());
 									generator.writeBooleanField("amountInDebitColumn", s.isDebit(source));
 									generator.writeStringField("amountStyle", (FormatUtil.isRed(source, s) ? FormatUtil.formatRed() : ""));
 									generator.writeNumberField("fromId", s.getFromSource());

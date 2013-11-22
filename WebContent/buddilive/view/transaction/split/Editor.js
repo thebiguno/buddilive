@@ -33,7 +33,7 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 				"flex": 1,
 				"forcePrecision": true,
 				"padding": this.initialConfig.scheduledTransaction ? "0 0 5 0" : "0 0 5 5",
-				"value": v.amount
+				"value": v.amountNumber
 			},
 			{
 				"xtype": "fromcombobox",
