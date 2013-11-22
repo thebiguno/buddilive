@@ -40,7 +40,7 @@ public class IndexResource extends AbstractCookieIndexResource {
 
 			if (user != null){
 				//Check for outstanding scheduled transactions
-				final Date userDate = (Date) getRequest().getAttributes().get("date");
+				final Date userDate = new Date();	//TODO This should be the user's date, not system date; otherwise depending on time zones, scheduled transactions may execute a day early or late.
 				final String messages = DataUpdater.updateScheduledTransactions(user, sqlSession, userDate);
 				dataModel.put("messages", messages);
 				
