@@ -139,7 +139,7 @@ public class IndexResource extends AbstractCookieIndexResource {
 	}
 	
 	@Override
-	protected boolean isAllowEnrole() {
+	protected boolean isAllowRegister() {
 		return true;
 	}
 	

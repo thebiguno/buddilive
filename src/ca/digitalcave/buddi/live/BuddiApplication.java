@@ -1,7 +1,6 @@
 package ca.digitalcave.buddi.live;
 
 import java.security.Key;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -172,10 +171,10 @@ public class BuddiApplication extends Application{
 		publicRouter.attach("/", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/index", IndexResource.class);
 		publicRouter.attach("/data", privateRouter);
-		final HashMap<String, Object> loginConfig = new HashMap<String, Object>();
-		loginConfig.put("extraLoginPanelFields", "{ 'fieldLabel': 'Foo', 'inputType': 'password', 'name': 'secret' },");
-		loginConfig.put("showEnrole", false);
-		publicRouter.attach("/login", new LoginRouter(loginConfig));
+		final LoginRouter.Configuration loginConfig = new LoginRouter.Configuration();
+		loginConfig.extraLoginStep1Fields = "{ 'fieldLabel': 'Foo', 'inputType': 'password', 'name': 'secret' },";
+		loginConfig.showRegister = true;
+		publicRouter.attach("/login", new LoginRouter(this, loginConfig));
 		publicRouter.attachDefault(DefaultResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
 		
 		final Encoder encoder = new Encoder(getContext(), false, true, getEncoderService());
