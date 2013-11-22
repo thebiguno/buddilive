@@ -29,6 +29,15 @@
 		</script>
 	</#if>
 <#else>
+		<script type="text/javascript">
+			Ext.Loader.setConfig({
+				"enabled": true,
+				"paths": {
+					"BuddiLive": "buddilive"
+				}
+			});
+			Ext.Loader.require(["BuddiLive.view.component.SelfDocumentingField", "BuddiLive.view.component.CurrenciesCombobox", "BuddiLive.view.component.LocalesCombobox"]);
+		</script>
 		<script type="text/javascript" src="login/app/Application.js"></script>
 </#if>
 	</head>
@@ -39,7 +48,7 @@
 				<p><span style=' color: #c33;'>WARNING</span>: This is a beta quality, pre-production system.  The data should be stable, and it can be used for keeping track of real finances (and in fact I am using it myself).  However, there are likely still bugs in the system.  If you prefer a stable, tested platform for your budgeting, please consider using the <a href='http://buddi.digitalcave.ca'>desktop edition of Buddi</a>.  If you do choose to use Buddi Live, please backup your data regularly using the System / Backup menu option.</p>
 				<p>Please <a href="mailto:buddilive@digitalcave.ca">contact me</a> if you encounter bugs, or have comments on the design, layout, etc.</p>
 			</div>
-			<div id="form" style="width: 500px; height: 200px; margin-top: 50px; margin-left: auto; margin-right: auto; "></div>
+			<div id="loginform" style="width: 500px; height: 250px; margin-top: 50px; margin-left: auto; margin-right: auto; "></div>
 			<div style="width: 128px; height: 128px; margin-top: 50px; margin-left: auto; margin-right: auto; "><img src="img/logo.png"/></div>
 		</div>
 		<div style="width: 100%; height: 2em; border-top: 1px solid black;">

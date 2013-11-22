@@ -122,6 +122,9 @@ public class ConstraintsChecker {
 			}
 		}
 
+		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getScheduleName())){
+			scheduledTransaction.setScheduleName(CryptoUtil.encrypt(scheduledTransaction.getScheduleName(), user.getDecryptedEncryptionKey()));
+		}
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getDescription())){
 			scheduledTransaction.setDescription(CryptoUtil.encrypt(scheduledTransaction.getDescription(), user.getDecryptedEncryptionKey()));
 		}

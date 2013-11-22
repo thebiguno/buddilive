@@ -1,8 +1,11 @@
 package ca.digitalcave.buddi.live;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.security.Key;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import javax.crypto.spec.PBEKeySpec;
 
@@ -11,6 +14,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.Language;
@@ -51,7 +55,9 @@ import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.Algorithm;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.restlet.CookieAuthenticator;
+import ca.digitalcave.moss.restlet.login.ExtraFieldsDirective;
 import ca.digitalcave.moss.restlet.login.LoginRouter;
+import ca.digitalcave.moss.restlet.login.LoginRouterConfiguration;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -171,9 +177,51 @@ public class BuddiApplication extends Application{
 		publicRouter.attach("/", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/index", IndexResource.class);
 		publicRouter.attach("/data", privateRouter);
-		final LoginRouter.Configuration loginConfig = new LoginRouter.Configuration();
-		loginConfig.extraLoginStep1Fields = "{ 'fieldLabel': 'Foo', 'inputType': 'password', 'name': 'secret' },";
+		final LoginRouterConfiguration loginConfig = new LoginRouterConfiguration();
+		final BuddiApplication application = this;
+		loginConfig.extraRegisterStep1Fields = new ExtraFieldsDirective(){
+			@Override
+			public void writeFields(Writer out, ResourceBundle translation, ResourceBundle customTranslation) {
+				try {
+					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "selfdocumentingfield");
+					generator.writeStringField("messageBody", customTranslation.getString("HELP_LOCALE"));
+					generator.writeStringField("type", "localescombobox");
+					generator.writeStringField("name", "locale");
+					generator.writeStringField("fieldLabel", customTranslation.getString("LOCALE"));
+					generator.writeStringField("value", "en_US");
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "selfdocumentingfield");
+					generator.writeStringField("messageBody", customTranslation.getString("HELP_CURRENCY"));
+					generator.writeStringField("type", "currenciescombobox");
+					generator.writeStringField("name", "currency");
+					generator.writeStringField("fieldLabel", customTranslation.getString("CURRENCY"));
+					generator.writeStringField("value", "USD");
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "selfdocumentingfield");
+					generator.writeStringField("messageBody", customTranslation.getString("CREATE_USER_AGREEMENT_REQUIRED"));
+					generator.writeStringField("type", "checkbox");
+					generator.writeStringField("boxLabel", customTranslation.getString("AGREE_TERMS_AND_CONDITIONS"));
+					generator.writeStringField("name", "agree");
+					generator.writeStringField("fieldLabel", " ");
+					generator.writeStringField("labelSeparator", "");
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.flush();
+				} catch (IOException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+			}
+		};
+		loginConfig.applicationControllers = ", \"BuddiLive.controller.preferences.Editor\"";
+		loginConfig.identifierLabelKey = "EMAIL_LABEL";
 		loginConfig.showRegister = true;
+		loginConfig.i18nBaseCustom = "i18n";
 		publicRouter.attach("/login", new LoginRouter(this, loginConfig));
 		publicRouter.attachDefault(DefaultResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
 		
