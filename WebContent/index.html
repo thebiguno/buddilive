@@ -29,15 +29,6 @@
 		</script>
 	</#if>
 <#else>
-		<script type="text/javascript">
-			Ext.Loader.setConfig({
-				"enabled": true,
-				"paths": {
-					"BuddiLive": "buddilive"
-				}
-			});
-			Ext.Loader.require(["BuddiLive.view.component.SelfDocumentingField", "BuddiLive.view.component.CurrenciesCombobox", "BuddiLive.view.component.LocalesCombobox"]);
-		</script>
 		<script type="text/javascript" src="login/app/Application.js"></script>
 </#if>
 	</head>

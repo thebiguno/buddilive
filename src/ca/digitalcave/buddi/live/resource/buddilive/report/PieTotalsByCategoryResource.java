@@ -21,8 +21,8 @@ import ca.digitalcave.buddi.live.db.Reports;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.model.report.Pie;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
-import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class PieTotalsByCategoryResource extends ServerResource {
 

@@ -9,9 +9,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import liquibase.Liquibase;
-import liquibase.resource.ResourceAccessor;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.ValidationFailedException;
+import liquibase.resource.ResourceAccessor;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;

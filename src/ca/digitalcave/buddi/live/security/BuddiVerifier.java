@@ -13,8 +13,8 @@ import org.restlet.security.Verifier;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.util.CryptoUtil;
-import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
+import ca.digitalcave.moss.crypto.Crypto;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.crypto.MossHash;
 
 public class BuddiVerifier implements Verifier {
@@ -51,10 +51,10 @@ public class BuddiVerifier implements Verifier {
 		
 		final String challengeSecret = new String(cr.getSecret());
 		final String storedSecret = new String(user.getSecret());
-		if (CryptoUtil.verify(storedSecret, challengeSecret)){
+		if (MossHash.verify(storedSecret, challengeSecret)){
 			if (user.isEncrypted()){
 				//This decryption procedure must be the same as is used in DataUpdater.  If one of these changes, be sure to update them both.
-				user.setDecryptedEncryptionKey(CryptoUtil.decrypt(user.getEncryptionKey(), challengeSecret));
+				user.setDecryptedEncryptionKey(Crypto.decrypt(challengeSecret, user.getEncryptionKey()));
 			}
 			return true;
 		}

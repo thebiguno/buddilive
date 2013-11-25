@@ -22,8 +22,8 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
-import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
+import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.CategoryPeriod;
 import ca.digitalcave.buddi.live.model.CategoryPeriod.CategoryPeriods;
@@ -32,7 +32,7 @@ import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
-import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class CategoriesResource extends ServerResource {
 

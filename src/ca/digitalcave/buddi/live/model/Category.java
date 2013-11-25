@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ca.digitalcave.buddi.live.db.Entries;
-import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.model.CategoryPeriod.CategoryPeriods;
 import ca.digitalcave.moss.common.DateUtil;
 

@@ -37,8 +37,8 @@ import ca.digitalcave.buddi.live.model.ScheduledTransaction;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.util.CryptoUtil.CryptoException;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class RestoreResource extends ServerResource {
 

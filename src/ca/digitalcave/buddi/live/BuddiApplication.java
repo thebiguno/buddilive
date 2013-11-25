@@ -3,6 +3,7 @@ package ca.digitalcave.buddi.live;
 import java.io.IOException;
 import java.io.Writer;
 import java.security.Key;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -50,7 +51,6 @@ import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.service.BuddiStatusService;
-import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.Algorithm;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
@@ -80,7 +80,7 @@ public class BuddiApplication extends Application{
 		
 		final Properties p = new Properties();
 		p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
-		cookieKey = p.getProperty("verifier.encryptionKey", new String(CryptoUtil.getSecureRandom(64)));
+		cookieKey = p.getProperty("verifier.encryptionKey", new String(new Crypto().setSaltLength(64).getRandomSalt()));
 		
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(p.getProperty("db.driver"));
@@ -218,7 +218,11 @@ public class BuddiApplication extends Application{
 				}
 			}
 		};
-		loginConfig.applicationControllers = ", \"BuddiLive.controller.preferences.Editor\"";
+		final HashMap<String, String> applicationLoaderPaths = new HashMap<String, String>();
+		applicationLoaderPaths.put("BuddiLive", "buddilive");
+		loginConfig.applicationLoaderPaths = applicationLoaderPaths;
+		loginConfig.applicationControllers = new String[]{"BuddiLive.controller.preferences.Editor"};
+		loginConfig.applicationViews = new String[]{"BuddiLive.view.component.SelfDocumentingField", "BuddiLive.view.component.CurrenciesCombobox", "BuddiLive.view.component.LocalesCombobox"};
 		loginConfig.identifierLabelKey = "EMAIL_LABEL";
 		loginConfig.showRegister = true;
 		loginConfig.i18nBaseCustom = "i18n";
