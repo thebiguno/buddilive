@@ -1,4 +1,4 @@
-Ext.define("BuddiLive.store.report.PieTotalsByCategoryStore", {
+Ext.define("BuddiLive.store.report.IncomeAndExpensesByCategoryStore", {
 	"extend": "Ext.data.Store",
 	"requires": [
 		"BuddiLive.model.report.SummaryModel"

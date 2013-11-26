@@ -3,7 +3,8 @@ Ext.define("BuddiLive.controller.Reports", {
 	
 	"requires": [
 		"BuddiLive.view.report.picker.Interval",
-		"BuddiLive.view.report.PieTotalsByCategory"
+		"BuddiLive.view.report.PieTotalsByCategory",
+		"BuddiLive.view.report.IncomeAndExpensesByCategory"
 	],
 
 	"init": function() {
@@ -46,12 +47,18 @@ Ext.define("BuddiLive.controller.Reports", {
 	},
 	
 	"showIncomeAndExpensesByCategoryTable": function(component){
-		var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
-		var report = Ext.widget({
-			"xtype": "reportincomeandexpensesbycategory"
-		});
-
-		tabPanel.add(report);
-		tabPanel.setActiveTab(report);
+		Ext.widget({
+			"xtype": "reportpickerinterval",
+			"callback": function(query){
+				var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
+				var report = Ext.widget({
+					"xtype": "reportincomeandexpensesbycategory",
+					"query": query,
+					"type": "E"
+				});
+				tabPanel.add(report);
+				tabPanel.setActiveTab(report);
+			}
+		}).show();
 	}
 });

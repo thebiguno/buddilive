@@ -117,7 +117,7 @@ public class Category extends Source {
 		final CategoryPeriods categoryPeriod = CategoryPeriods.valueOf(getPeriodType());
 		
 		//If the start date and end date are in the same period, then our job is easy: find the entry, 
-		// and return the amount * percent ofhow many days were used in the period. 
+		// and return the amount * percent of how many days were used in the period. 
 		if (categoryPeriod.getStartOfBudgetPeriod(startDate).equals(categoryPeriod.getStartOfBudgetPeriod(endDate))){
 			final Entry entry = sql.getMapper(Entries.class).selectEntry(user, categoryPeriod.getStartOfBudgetPeriod(startDate), getId());
 			if (entry == null) return BigDecimal.ZERO;
@@ -132,9 +132,9 @@ public class Category extends Source {
 		// rules as the simple case above.
 		else {
 			Date periodStartDate = startDate;
-			Date periodEndDate = categoryPeriod.getEndOfBudgetPeriod(endDate);
+			Date periodEndDate = categoryPeriod.getEndOfBudgetPeriod(startDate);
 			BigDecimal total = BigDecimal.ZERO;
-			while (categoryPeriod.getEndOfBudgetPeriod(endDate).before(endDate)){
+			while (categoryPeriod.getEndOfBudgetPeriod(periodEndDate).before(endDate)){
 				total = total.add(getAmount(user, sql, periodStartDate, periodEndDate));
 				
 				//The next start date is the first day in the next period

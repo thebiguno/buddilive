@@ -1,4 +1,4 @@
-Ext.define('BuddiLive.model.report.PieModel', {
+Ext.define('BuddiLive.model.report.SummaryModel', {
 	"extend": "Ext.data.Model",
-	"fields": ["source", "actual", "budgeted", "difference"]
+	"fields": ["source", "actual", "budgeted", "difference", "transactions"]
 });

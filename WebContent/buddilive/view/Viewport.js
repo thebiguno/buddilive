@@ -9,7 +9,6 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.component.SelfDocumentingField",
 		"BuddiLive.view.restore.Form",
 		"BuddiLive.view.preferences.Editor",
-		"BuddiLive.view.report.Panel",
 		"BuddiLive.view.scheduled.List",
 		"BuddiLive.view.transaction.List",
 		"BuddiLive.view.transaction.Editor"
@@ -173,7 +172,7 @@ Ext.define("BuddiLive.view.Viewport", {
 					{
 						"text": "${translation("REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY")?json_string}",
 						"icon": "img/chart.png",
-						"itemId": "showIncomeAndExpensesByCategoryReport"
+						"itemId": "showIncomeAndExpensesByCategoryTable"
 					},
 					{
 						"text": "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string}",

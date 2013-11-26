@@ -18,26 +18,5 @@
 		GROUP BY c.name
 		ORDER BY sum(s.amount) DESC
 	</select>
-	
-	<resultMap id="actualByCategory" type="map">
-		<id column="id"/>
-		<result column="actual" property="actual"/>
-	</resultMap>
-	<select id="selectActualByCategory" resultMap="actualByCategory">
-		SELECT 
-			c.id, sum(s.amount) AS amount
-		FROM transactions t
-		LEFT JOIN splits s ON s.transaction_id = t.id
-		INNER JOIN sources c ON (c.id = s.from_source OR c.id = s.to_source)
-		WHERE t.user_id = #{user.id}
-			AND t.transaction_date >= #{startDate}
-			AND t.transaction_date &lt;= #{endDate}
-			AND (c.type = 'E' OR c.type = 'I')
-		GROUP BY c.id, c.user_id, c.uuid, c.name, c.deleted, c.type, c.created, c.modified, c.period_type, c.parent
-		ORDER BY c.type DESC, sum(s.amount) DESC
-	</select>
-	
-	<select id="selectBudgetedIncomeAndExpensesByCategory" resultMap="actualByCategory">
-	
-	</select>
+
 </mapper>
