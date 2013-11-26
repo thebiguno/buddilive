@@ -26,9 +26,9 @@ import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.crypto.MossHash;
-import ca.digitalcave.moss.restlet.AbstractCookieIndexResource;
+import ca.digitalcave.moss.restlet.CookieAuthInterceptResource;
 
-public class IndexResource extends AbstractCookieIndexResource {
+public class IndexResource extends CookieAuthInterceptResource {
 
 	@Override
 	protected Representation get(Variant variant) throws ResourceException {
