@@ -6,12 +6,12 @@ Ext.define("BuddiLive.view.scheduled.List", {
 		"BuddiLive.view.scheduled.Editor"
 	],
 	
+	"title": "${translation("SCHEDULED_TRANSACTIONS")?json_string}",
+	"layout": "fit",
+	"closable": true,
 	"initComponent": function(){
 		var d = this.initialConfig.data
 
-		this.title = "${translation("SCHEDULED_TRANSACTIONS")?json_string}";
-		this.layout = "fit";
-		this.closable = true;
 		this.items = [
 			{
 				"xtype": "grid",
