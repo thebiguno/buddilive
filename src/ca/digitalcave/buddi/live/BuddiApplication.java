@@ -40,6 +40,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.EntriesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ParentsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.PeriodsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ScheduledTransactionsResource;
+import ca.digitalcave.buddi.live.resource.buddilive.ScheduledTransactionsRunnerResource;
 import ca.digitalcave.buddi.live.resource.buddilive.SourcesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
@@ -154,6 +155,7 @@ public class BuddiApplication extends Application{
 		privateRouter.attach("/transactions", TransactionsResource.class);
 		privateRouter.attach("/transactions/descriptions", DescriptionsResource.class);
 		privateRouter.attach("/scheduledtransactions", ScheduledTransactionsResource.class);
+		privateRouter.attach("/scheduledtransactions/execute", ScheduledTransactionsRunnerResource.class);
 		privateRouter.attach("/sources/from", SourcesResource.class);
 		privateRouter.attach("/sources/to", SourcesResource.class);
 		privateRouter.attach("/userpreferences", UserPreferencesResource.class);

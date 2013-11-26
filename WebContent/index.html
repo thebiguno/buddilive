@@ -6,17 +6,6 @@
 		<script src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script>
 <#if user??>
 		<script type="text/javascript" src="buddilive/Application.js"></script>
-	<#if messages??>
-		<script type="text/javascript">
-			Ext.defer(function(){
-				Ext.MessageBox.show({
-					"title": "${translation("SCHEDULED_TRANSACTION_MESSAGES")?json_string}",
-					"msg": "${messages!?json_string}",
-					"buttons": Ext.Msg.OK
-				});
-			}, 500);
-		</script>
-	</#if>
 	<#if newUser??>
 		<script type="text/javascript">
 			Ext.defer(function(){

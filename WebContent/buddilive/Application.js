@@ -31,6 +31,38 @@ Ext.application({
 		var viewport = Ext.create("BuddiLive.view.Viewport");
 		BuddiLive.app = this;
 		BuddiLive.app.viewport = viewport;
+		
+		Ext.util.TaskManager.start({
+			"interval": 1000 * 60 * 60,  //1 hour
+			"run": function(){
+				var conn = Ext.create("Ext.data.Connection");
+				conn.request({
+					"url": "data/scheduledtransactions/execute",
+					"method": "POST",
+					"jsonData": Ext.Date.format(new Date(), "Y-m-d"),
+					"success": function(response){
+						var messages = Ext.decode(response.responseText, true);
+						if (messages != null && messages.messages != null){
+							if (messages.messages.length > 0){
+								Ext.MessageBox.show({
+									"title": "${translation("SCHEDULED_TRANSACTION_MESSAGES")?json_string}",
+									"msg": messages.messages,
+									"buttons": Ext.Msg.OK
+								});
+							}
+							//If we are in here, it means that messages.messages was not null; therefore, there
+							// was at least one transaction inserted.  Refresh the stores to ensure we are current.
+							BuddiLive.app.controllers.get("transaction.Editor").getTransactionDescriptionComboboxStoreStore().load();
+							BuddiLive.app.viewport.down("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
+							if (BuddiLive.app.viewport.down("transactionlist").getStore().getCount() > 0){
+								//getCount() > 0 is not the same as the (non existent) isLoaded(), but it is close enough for our purposes.
+								BuddiLive.app.viewport.down("transactionlist").reload();
+							}
+						}
+					}
+				});
+			}
+		});
 	},
 	"error": function(error){
 		var message;

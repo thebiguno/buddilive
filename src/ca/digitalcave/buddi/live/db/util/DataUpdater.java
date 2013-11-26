@@ -103,7 +103,9 @@ public class DataUpdater {
  	 * This method includes an argument to specify what the current date is.  This can
  	 * be useful if you want to add transactions after the current date.
  	 * 
- 	 * Returns a string containing all messages for scheduled transactions which had been added.
+ 	 * Returns one of:
+ 	 * a) null if nothing has been added
+ 	 * b) string containing all messages for scheduled transactions which had been added (or an empty string if transactions were added, but there were no messages)
 	 */
 	public static String updateScheduledTransactions(User user, SqlSession sqlSession, Date userDate) throws CryptoException, DatabaseException {
 		//Update any scheduled transactions
@@ -337,7 +339,7 @@ public class DataUpdater {
 		}
 		
 		final String messages = sb.toString();
-		return (messages.trim().length() == 0 ? null : messages);
+		return (thereWasAnUpate ? messages : null);
 	}
 	
 	public static void turnOnEncryption(User user, String password, SqlSession sqlSession) throws DatabaseException, CryptoException {

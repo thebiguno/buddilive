@@ -1,9 +1,7 @@
 package ca.digitalcave.buddi.live.resource;
 
 import java.util.Currency;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.LocaleUtils;
@@ -16,15 +14,11 @@ import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
-import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
-import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
-import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
-import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.crypto.MossHash;
 import ca.digitalcave.moss.restlet.CookieAuthInterceptResource;
 
@@ -39,25 +33,11 @@ public class IndexResource extends CookieAuthInterceptResource {
 			final User user = (User) getRequest().getClientInfo().getUser();
 
 			if (user != null){
-				//Check for outstanding scheduled transactions
-				final Date userDate = new Date();	//TODO This should be the user's date, not system date; otherwise depending on time zones, scheduled transactions may execute a day early or late.
-				final String messages = DataUpdater.updateScheduledTransactions(user, sqlSession, userDate);
-				dataModel.put("messages", messages);
-				
-				final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
-				if (accounts.size() == 0) dataModel.put("newUser", "true");
-				
 				//Update the user's last login date
 				sqlSession.getMapper(Users.class).updateUserLoginTime(user);
 				
 				sqlSession.commit();
 			}
-		}
-		catch (CryptoException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
-		catch (DatabaseException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		finally {
 			sqlSession.close();
