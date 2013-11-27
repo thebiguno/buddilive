@@ -1,6 +1,8 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,6 +26,7 @@ import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.AccountType;
+import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
@@ -69,7 +72,20 @@ public class AccountsResource extends ServerResource {
 				sb.setLength(0);
 				type.put("nodeType", "type");
 				type.put("icon", "img/folder-open-table.png");
-				for (Account a : t.getAccounts()) {
+				List<Account> accounts = t.getAccounts();
+				Collections.sort(accounts, new Comparator<Account>() {
+					@Override
+					public int compare(Account o1, Account o2) {
+						if (o1 == null || o2 == null) return 0;
+						try {
+							return CryptoUtil.decryptWrapper(o1.getName(), user).compareTo(CryptoUtil.decryptWrapper(o2.getName(), user));
+						}
+						catch (CryptoException e){
+							return 0;
+						}
+					}
+				});
+				for (Account a : accounts) {
 					if (!a.isDeleted() || user.isShowDeleted()){
 						final JSONObject account = new JSONObject();
 						account.put("id", a.getId());

@@ -2,6 +2,8 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +82,7 @@ public class CategoriesResource extends ServerResource {
 		}
 	}
 	
-	private JSONObject getJsonObject(Category category, CategoryPeriod categoryPeriod, User user) throws JSONException, CryptoException {
+	private JSONObject getJsonObject(Category category, CategoryPeriod categoryPeriod, final User user) throws JSONException, CryptoException {
 		if (category.isDeleted() && !user.isShowDeleted()) return null;
 		final JSONObject result = new JSONObject();
 		result.put("id", category.getId());
@@ -125,8 +127,21 @@ public class CategoriesResource extends ServerResource {
 		result.put("parent", category.getParent());
 		result.put("deleted", category.isDeleted());
 
-		if (category.getChildren() != null){
-			for (Category child : category.getChildren()) {
+		final List<Category> children = category.getChildren();
+		if (children != null){
+			Collections.sort(children, new Comparator<Category>() {
+				@Override
+				public int compare(Category o1, Category o2) {
+					if (o1 == null || o2 == null) return 0;
+					try {
+						return CryptoUtil.decryptWrapper(o1.getName(), user).compareTo(CryptoUtil.decryptWrapper(o2.getName(), user));
+					}
+					catch (CryptoException e){
+						return 0;
+					}
+				}
+			});
+			for (Category child : children) {
 				final JSONObject c = getJsonObject(child, categoryPeriod, user);
 				if (c != null) result.append("children", c);
 			}
