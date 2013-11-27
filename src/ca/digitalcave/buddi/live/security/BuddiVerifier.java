@@ -33,10 +33,9 @@ public class BuddiVerifier implements Verifier {
 			final User user = sql.getMapper(Users.class).selectUser(hashedIdentifier);
 			if (user == null) return RESULT_UNKNOWN;
 			
-//			cr.setIdentifier(user.getIdentifier()); // the identifier could be an activation key so replace it
 			if (checkSecret(cr, user) == false) return RESULT_INVALID;
-			
 			if (user.getLocale() == null) user.setLocale(ServletUtils.getRequest(request).getLocale());
+			user.setPlaintextIdentifier(identifier);
 			request.getClientInfo().setUser(user);
 			return RESULT_VALID;
 		} catch (CryptoException e) {

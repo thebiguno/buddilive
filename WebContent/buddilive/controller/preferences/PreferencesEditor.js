@@ -1,4 +1,4 @@
-Ext.define("BuddiLive.controller.preferences.Editor", {
+Ext.define("BuddiLive.controller.preferences.PreferencesEditor", {
 	"extend": "Ext.app.Controller",
 	"stores": [
 		"preferences.CurrenciesComboboxStore",
@@ -37,6 +37,7 @@ Ext.define("BuddiLive.controller.preferences.Editor", {
 		var request = {"action": "update"};
 		request.encrypt = window.down("checkbox[itemId='encrypt']").getValue();
 		request.encryptPassword = window.down("textfield[itemId='password']").getValue();
+		request.storeEmail = window.down("checkbox[itemId='storeEmail']").getValue();
 		request.locale = window.down("combobox[itemId='locale']").getValue();
 		request.currency = window.down("combobox[itemId='currency']").getValue();
 		var dateFormat = window.down("combobox[itemId='dateFormat']").getValue();

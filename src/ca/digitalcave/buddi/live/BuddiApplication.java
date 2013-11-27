@@ -35,6 +35,7 @@ import ca.digitalcave.buddi.live.resource.DefaultResource;
 import ca.digitalcave.buddi.live.resource.IndexResource;
 import ca.digitalcave.buddi.live.resource.buddilive.AccountsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.CategoriesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.ChangePasswordResource;
 import ca.digitalcave.buddi.live.resource.buddilive.DescriptionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.EntriesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ParentsResource;
@@ -59,6 +60,7 @@ import ca.digitalcave.moss.restlet.CookieAuthenticator;
 import ca.digitalcave.moss.restlet.login.ExtraFieldsDirective;
 import ca.digitalcave.moss.restlet.login.LoginRouter;
 import ca.digitalcave.moss.restlet.login.LoginRouterConfiguration;
+import ca.digitalcave.moss.restlet.util.PasswordChecker;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -75,6 +77,7 @@ public class BuddiApplication extends Application{
 	private BuddiVerifier verifier = new BuddiVerifier();
 	private String cookieKey = null;
 	private Properties systemProperties = new Properties();
+	private PasswordChecker passwordChecker = new PasswordChecker().setHistoryEnforced(false);
 
 	public synchronized void start() throws Exception {
 		try { systemProperties.load(new ClientResource(getContext(), "war:///WEB-INF/classes/version.properties").get().getStream()); } catch (Throwable e){}
@@ -152,6 +155,7 @@ public class BuddiApplication extends Application{
 		privateRouter.attach("/categories/periods", PeriodsResource.class);
 		privateRouter.attach("/categories/entries", EntriesResource.class);
 		privateRouter.attach("/categories/parents", ParentsResource.class);
+		privateRouter.attach("/changepassword", ChangePasswordResource.class);
 		privateRouter.attach("/transactions", TransactionsResource.class);
 		privateRouter.attach("/transactions/descriptions", DescriptionsResource.class);
 		privateRouter.attach("/scheduledtransactions", ScheduledTransactionsResource.class);
@@ -223,11 +227,12 @@ public class BuddiApplication extends Application{
 		final HashMap<String, String> applicationLoaderPaths = new HashMap<String, String>();
 		applicationLoaderPaths.put("BuddiLive", "buddilive");
 		loginConfig.applicationLoaderPaths = applicationLoaderPaths;
-		loginConfig.applicationControllers = new String[]{"BuddiLive.controller.preferences.Editor"};
+		loginConfig.applicationControllers = new String[]{"BuddiLive.controller.preferences.PreferencesEditor"};	//This will load the stores for currencies and locales combos; we could load them manually, but this works and is easier...
 		loginConfig.applicationViews = new String[]{"BuddiLive.view.component.SelfDocumentingField", "BuddiLive.view.component.CurrenciesCombobox", "BuddiLive.view.component.LocalesCombobox"};
 		loginConfig.identifierLabelKey = "EMAIL_LABEL";
 		loginConfig.showRegister = true;
 		loginConfig.i18nBaseCustom = "i18n";
+		loginConfig.passwordChecker = passwordChecker;
 		publicRouter.attach("/login", new LoginRouter(this, loginConfig));
 		publicRouter.attachDefault(DefaultResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
 		
@@ -267,5 +272,8 @@ public class BuddiApplication extends Application{
 	}
 	public Properties getSystemProperties(){
 		return systemProperties;
+	}
+	public PasswordChecker getPasswordChecker() {
+		return passwordChecker;
 	}
 }

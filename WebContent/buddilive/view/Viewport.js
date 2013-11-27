@@ -8,7 +8,8 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.budget.Tree",
 		"BuddiLive.view.component.SelfDocumentingField",
 		"BuddiLive.view.restore.Form",
-		"BuddiLive.view.preferences.Editor",
+		"BuddiLive.view.preferences.PreferencesEditor",
+		"BuddiLive.view.preferences.ChangePasswordEditor",
 		"BuddiLive.view.scheduled.List",
 		"BuddiLive.view.transaction.List",
 		"BuddiLive.view.transaction.Editor"
@@ -190,6 +191,11 @@ Ext.define("BuddiLive.view.Viewport", {
 				"text": "${translation("SYSTEM")?json_string}",
 				"icon": "img/switch.png",
 				"menu": [
+					{
+						"text": "${translation("CHANGE_PASSWORD")?json_string}",
+						"icon": "img/ui-text-field-password.png",
+						"itemId": "changePassword"
+					},
 					{
 						"text": "${translation("PREFERENCES")?json_string}",
 						"icon": "img/gear.png",

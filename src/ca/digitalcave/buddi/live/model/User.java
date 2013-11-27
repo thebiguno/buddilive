@@ -12,12 +12,9 @@ import org.apache.commons.lang.StringUtils;
 
 public class User extends org.restlet.security.User {
 	private Integer id;
-//	private String identifier;	//Hashed, recovered from DB
-//	private String plaintextIdentifier;	//Not hashed, injected by BuddiVerifier
-//	private String credentials;
+	private String plaintextIdentifier;	//Not hashed, injected by BuddiVerifier
 	private String encryptionKey;
 	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier
-//	private String email;
 	private String uuid;
 	private Boolean premium = false;
 	private Locale locale;
@@ -26,67 +23,26 @@ public class User extends org.restlet.security.User {
 	private Boolean showCleared;
 	private Boolean showReconciled;
 	private Boolean showDeleted;
-//	private Boolean currencyAfter;
 	private Date created;
 	private Date modified;
-//	private final Map<String, String> data = new HashMap<String, String>();
-//	
-//	private boolean authenticated = false;
-//	
-//	public User() {}
-//	
-//	public User(Locale locale){
-//		this.locale = locale;
-//	}
-//	
-//	public User(JSONObject json) throws JSONException{
-//		if (json.optString("identifier", null) != null)this.setIdentifier(json.getString("identifier").startsWith("SHA1:") ? json.getString("identifier") : CryptoUtil.getSha256Hash(1, new byte[0], json.getString("identifier")));
-//		if (json.optString("credentials", null) != null) this.setCredentials(json.getString("credentials").startsWith("SHA1:") ? json.getString("credentials") : CryptoUtil.getSha256Hash(json.getString("credentials")));
-//		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
-//		//Prefer the email param, but if that is missing we can fill it in via the identifier if the storeEmail option is set.
-//		if (json.optString("email", null) != null) this.setEmail(json.getString("email"));
-//		else if (json.optBoolean("storeEmail", false)) this.setEmail(json.getString("identifier"));
-//		this.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
-//		this.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
-//		this.setPremium(false);
-//	}
-//	
-//	public JSONObject toJson() throws JSONException {
-//		final JSONObject result = new JSONObject();
-//		result.put("id", this.getId());
-//		result.put("uuid", this.getUuid());
-//		result.put("identifier", this.getIdentifier());
-//		result.put("credentials", this.getCredentials());
-//		result.put("email", this.getEmail());
-//		result.put("locale", this.getLocale());
-//		result.put("created", FormatUtil.formatDateTimeInternal(this.getCreated()));
-//		result.put("modified", FormatUtil.formatDateTimeInternal(this.getModified()));
-//		
-//		return result;
-//	}
+
 	public Integer getId() {
 		return id;
 	}
 	public void setId(Integer id) {
 		this.id = id;
 	}
-//	public String getIdentifier() {
-//		return identifier;
-//	}
-//	public void setIdentifier(String identifier) {
-//		this.identifier = identifier;
-//	}
-//	public String getEmail() {
-//		return email;
-//	}
-//	public void setEmail(String email) {
-//		this.email = email;
-//	}
 	public String getUuid() {
 		return uuid;
 	}
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+	public String getPlaintextIdentifier() {
+		return plaintextIdentifier;
+	}
+	public void setPlaintextIdentifier(String plaintextIdentifier) {
+		this.plaintextIdentifier = plaintextIdentifier;
 	}
 	public void setSecretString(String secret) {
 		setSecret(secret == null ? null : secret.toCharArray());
@@ -94,12 +50,6 @@ public class User extends org.restlet.security.User {
 	public String getSecretString() {
 		return getSecret() == null ? null : new String(getSecret());
 	}
-//	public String getCredentials() {
-//		return credentials;
-//	}
-//	public void setCredentials(String credentials) {
-//		this.credentials = credentials;
-//	}
 	public String getEncryptionKey() {
 		return encryptionKey;
 	}
@@ -183,12 +133,6 @@ public class User extends org.restlet.security.User {
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
 	}
-//	public boolean isCurrencyAfter() {
-//		return currencyAfter;
-//	}
-//	public void setCurrencyAfter(boolean currencyAfter) {
-//		this.currencyAfter = currencyAfter;
-//	}
 	public String getCurrencySymbol(){
 		return currency.getSymbol(locale);
 	}
@@ -210,22 +154,6 @@ public class User extends org.restlet.security.User {
 	public void setShowReconciled(boolean showReconciled) {
 		this.showReconciled = showReconciled;
 	}
-//	public boolean isAuthenticated() {
-//		return authenticated;
-//	}
-//	public void setAuthenticated(boolean authenticated) {
-//		this.authenticated = authenticated;
-//	}
-//	public String getPlaintextIdentifier() {
-//		return plaintextIdentifier;
-//	}
-//	public void setPlaintextIdentifier(String plaintextIdentifier) {
-//		this.plaintextIdentifier = plaintextIdentifier;
-//	}
-//	
-//	public Map<String, String> getData() {
-//		return data;
-//	}
 	public String getDecimalSeparator(){
 		return ((DecimalFormat) NumberFormat.getInstance(getLocale())).getDecimalFormatSymbols().getDecimalSeparator() + "";
 	}

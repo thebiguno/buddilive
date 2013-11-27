@@ -17,6 +17,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='editScheduled']": {"click": this.editScheduled},
 			"buddiviewport button[itemId='deleteScheduled']": {"click": this.deleteScheduled},
 			"buddiviewport menuitem[itemId='showScheduled']": {"click": this.showScheduled},
+			"buddiviewport menuitem[itemId='changePassword']": {"click": this.changePassword},
 			"buddiviewport menuitem[itemId='showPreferences']": {"click": this.showPreferences},
 			"buddiviewport menuitem[itemId='backup']": {"click": this.backup},
 			"buddiviewport menuitem[itemId='restore']": {"click": this.restore},
@@ -253,6 +254,14 @@ Ext.define("BuddiLive.controller.Viewport", {
 				});
 			}
 		});
+	},
+	
+	"changePassword": function(component){
+		var panel = component.up("buddiviewport");
+		var conn = new Ext.data.Connection();
+		Ext.widget("changepasswordeditor", {
+			"panel": panel
+		}).show();
 	},
 	
 	"showPreferences": function(component){

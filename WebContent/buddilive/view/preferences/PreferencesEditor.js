@@ -1,4 +1,4 @@
-Ext.define('BuddiLive.view.preferences.Editor', {
+Ext.define('BuddiLive.view.preferences.PreferencesEditor', {
 	"extend": "Ext.window.Window",
 	"alias": "widget.preferenceseditor",
 	"requires": [
@@ -36,12 +36,24 @@ Ext.define('BuddiLive.view.preferences.Editor', {
 						}
 					},
 					{
-						"xtype": "textfield",
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_ENCRYPT_DATA_PASSWORD")?json_string}",
+						"type": "textfield",
 						"inputType": "password", 
 						"allowBlank": false,
 						"itemId": "password",
 						"hidden": true,
-						"fieldLabel": "Password"	//TODO i18n
+						"fieldLabel": "${translation("PASSWORD")?json_string}"
+					},
+					{
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_STORE_EMAIL")?json_string}",
+						"type": "checkbox",
+						"itemId": "storeEmail",
+						"fieldLabel": " ",
+						"labelSeparator": "",
+						"checked": d.storeEmail,
+						"boxLabel": "${translation("STORE_EMAIL")?json_string}"
 					},
 					{
 						"xtype": "selfdocumentingfield",

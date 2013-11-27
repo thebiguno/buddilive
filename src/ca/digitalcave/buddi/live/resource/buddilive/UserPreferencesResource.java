@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Currency;
 
 import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +39,7 @@ public class UserPreferencesResource extends ServerResource {
 		try {
 			final JSONObject result = new JSONObject();
 			result.put("encrypt", user.isEncrypted());
+			result.put("storeEmail", StringUtils.isNotBlank(user.getEmail()));
 			result.put("locale", user.getLocale().toString());
 			result.put("currency", user.getCurrency().getCurrencyCode());
 			result.put("dateFormat", user.getOverrideDateFormat());
@@ -71,6 +73,7 @@ public class UserPreferencesResource extends ServerResource {
 					if (user.isEncrypted())DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
 				}
+				user.setEmail(json.optBoolean("storeEmail", false) ? user.getPlaintextIdentifier() : null);
 				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
 				user.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
 				user.setOverrideDateFormat(json.optString("dateFormat", null));

@@ -1,4 +1,10 @@
-Ext.Loader.setConfig({"enabled": true, "disableCaching": true});
+Ext.Loader.setConfig({
+	"enabled": true,
+	"disableCaching": true,
+	"paths": {
+		"Login": "login"
+	}
+});
 
 Ext.state.Manager.setProvider(Ext.supports.LocalStorage ? new Ext.state.LocalStorageProvider() : new Ext.state.CookieProvider());
 
@@ -20,7 +26,9 @@ Ext.application({
 		"budget.Tree",
 		"scheduled.Editor",
 		"scheduled.List",
-		"preferences.Editor",
+		"preferences.PreferencesEditor",
+		"preferences.ChangePasswordEditor",
+		"Login.controller.PasswordFieldController",
 		"restore.Form",
 		"transaction.List",
 		"transaction.Editor",
