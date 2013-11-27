@@ -31,6 +31,7 @@ import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class IncomeAndExpensesByCategoryResource extends ServerResource {
@@ -116,9 +117,14 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 			}
 			
 			final JSONObject result = new JSONObject();
+			BigDecimal totalActual = BigDecimal.ZERO;
+			BigDecimal totalBudgeted = BigDecimal.ZERO;
 			for (Category category : categories) {
 				final BigDecimal budgetedAmount = category.getAmount(user, sqlSession, dates[0], dates[1]);
 				final BigDecimal actualAmount = totalsBySource.get(category.getId()) == null ? BigDecimal.ZERO : totalsBySource.get(category.getId());
+				
+				totalActual = totalActual.add(category.isIncome() ? actualAmount : actualAmount.negate());
+				totalBudgeted = totalBudgeted.add(category.isIncome() ? budgetedAmount : budgetedAmount.negate());
 				if (budgetedAmount.compareTo(BigDecimal.ZERO) != 0 || actualAmount.compareTo(BigDecimal.ZERO) != 0){
 					final JSONObject object = new JSONObject();
 					object.put("source", CryptoUtil.decryptWrapper(category.getName(), user));
@@ -148,9 +154,11 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 							o.put("date", FormatUtil.formatDate(t.getDate(), user));
 							o.put("description", CryptoUtil.decryptWrapper(t.getDescription(), user));
 							o.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
-							o.put("from", CryptoUtil.decryptWrapper(t.getSplits().get(0).getFromSourceName(), user));
-							o.put("to", CryptoUtil.decryptWrapper(t.getSplits().get(0).getToSourceName(), user));
-							o.put("amount", t.getSplits().get(0).getAmount());
+							final Split split = t.getSplits().get(0);
+							o.put("from", CryptoUtil.decryptWrapper(split.getFromSourceName(), user));
+							o.put("to", CryptoUtil.decryptWrapper(split.getToSourceName(), user));
+							o.put("amount", FormatUtil.formatCurrency(split.getAmount(), user));
+							o.put("amountStyle", (FormatUtil.isRed(category, split.getAmount()) ? FormatUtil.formatRed() : ""));
 							ts.put(o);
 						}
 						object.put("transactions", ts);
@@ -159,6 +167,22 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 					result.append("data", object);
 				}
 			}
+			
+			final JSONObject object = new JSONObject();
+			object.put("source", LocaleUtil.getTranslation(getRequest()).getString("TOTAL"));
+			object.put("sourceStyle", "font-weight: bold;");
+
+			object.put("actual", FormatUtil.formatCurrency(totalActual, user));
+			object.put("actualStyle", (FormatUtil.isRed(totalActual) ? FormatUtil.formatRed() : "") + " font-weight: bold; ");
+			
+			object.put("budgeted", FormatUtil.formatCurrency(totalBudgeted, user));
+			object.put("budgetedStyle", (FormatUtil.isRed(totalBudgeted) ? FormatUtil.formatRed() : "") + " font-weight: bold; ");
+			
+			final BigDecimal difference = (totalActual.subtract(totalBudgeted != null ? totalBudgeted : BigDecimal.ZERO));
+			object.put("difference", FormatUtil.formatCurrency(difference, user));
+			object.put("differenceStyle", (FormatUtil.isRed(difference) ? FormatUtil.formatRed() : "") + " font-weight: bold; ");
+
+			result.append("data", object);
 
 			result.put("success", true);
 			return new JsonRepresentation(result);
