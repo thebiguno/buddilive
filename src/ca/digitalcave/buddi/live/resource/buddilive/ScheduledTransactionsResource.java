@@ -1,6 +1,8 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
@@ -43,6 +45,17 @@ public class ScheduledTransactionsResource extends ServerResource {
 			final List<ScheduledTransaction> scheduledTransactions = sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user);
 			final JSONObject result = new JSONObject();
 			
+			Collections.sort(scheduledTransactions, new Comparator<ScheduledTransaction>() {
+				@Override
+				public int compare(ScheduledTransaction o1, ScheduledTransaction o2) {
+					if (o1 == null || o2 == null) return 0;
+					try {
+						return CryptoUtil.decryptWrapper(o1.getScheduleName(), user).compareTo(CryptoUtil.decryptWrapper(o2.getScheduleName(), user));
+					} catch (CryptoException e) {
+						return 0;
+					}
+				}
+			});
 			for (ScheduledTransaction t : scheduledTransactions) {
 				final JSONObject scheduledTransaction = new JSONObject();
 				scheduledTransaction.put("id", t.getId());

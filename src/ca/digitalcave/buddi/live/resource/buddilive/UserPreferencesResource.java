@@ -68,9 +68,9 @@ public class UserPreferencesResource extends ServerResource {
 				if (json.optBoolean("encrypt", false) != user.isEncrypted()){
 					//First check that the password is correct
 					final String encryptPassword = json.getString("encryptPassword");
-					if (!MossHash.verify(encryptPassword, new String(user.getSecret()))) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
+					if (!MossHash.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
 
-					if (user.isEncrypted())DataUpdater.turnOffEncryption(user, sqlSession);
+					if (user.isEncrypted()) DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
 				}
 				user.setEmail(json.optBoolean("storeEmail", false) ? user.getPlaintextIdentifier() : null);

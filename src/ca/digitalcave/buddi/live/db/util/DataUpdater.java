@@ -8,7 +8,10 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
+import org.restlet.Application;
+import org.restlet.resource.ResourceException;
 
+import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.ScheduledTransactions;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
@@ -20,7 +23,6 @@ import ca.digitalcave.buddi.live.model.ScheduledTransaction.ScheduleFrequency;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 import ca.digitalcave.moss.common.DateUtil;
 import ca.digitalcave.moss.crypto.Base64;
@@ -355,40 +357,42 @@ public class DataUpdater {
 		//	 v) Split memo,
 		//   vi) Scheduled transaction name, description, number, split memo
 		
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (user.isEncrypted()) throw new DatabaseException("This account is already encrypted");
 		
 		final String encryptionKey = Base64.encode(new Crypto().setSaltLength(128).getRandomSalt());
 		user.setDecryptedEncryptionKey(encryptionKey);
-		user.setEncryptionKey(CryptoUtil.encrypt(encryptionKey, password));
+		user.setEncryptionKey(application.getCrypto().encrypt(encryptionKey, password));
 		
-		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
+		int count = sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
+		if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 		
 		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
-			a.setName(CryptoUtil.encrypt(a.getName(), encryptionKey));
-			a.setAccountType(CryptoUtil.encrypt(a.getAccountType(), encryptionKey));
+			a.setName(application.getCrypto().encrypt(encryptionKey, a.getName()));
+			a.setAccountType(application.getCrypto().encrypt(encryptionKey, a.getAccountType()));
 			sqlSession.getMapper(Sources.class).updateAccount(user, a);
 		}
 		for (Category c : sqlSession.getMapper(Sources.class).selectCategories(user)) {
-			c.setName(CryptoUtil.encrypt(c.getName(), encryptionKey));
+			c.setName(application.getCrypto().encrypt(encryptionKey, c.getName()));
 			sqlSession.getMapper(Sources.class).updateCategory(user, c);
 		}
 		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
-			t.setDescription(CryptoUtil.encrypt(t.getDescription(), encryptionKey));
-			t.setNumber(CryptoUtil.encrypt(t.getNumber(), encryptionKey));
+			t.setDescription(application.getCrypto().encrypt(encryptionKey, t.getDescription()));
+			t.setNumber(application.getCrypto().encrypt(encryptionKey, t.getNumber()));
 			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
 		}
 		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
-			s.setMemo(CryptoUtil.encrypt(s.getMemo(), encryptionKey));
+			s.setMemo(application.getCrypto().encrypt(encryptionKey, s.getMemo()));
 			sqlSession.getMapper(Transactions.class).updateSplit(user, s);
 		}
 		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
-			st.setScheduleName(CryptoUtil.encrypt(st.getScheduleName(), encryptionKey));
-			st.setDescription(CryptoUtil.encrypt(st.getDescription(), encryptionKey));
-			st.setNumber(CryptoUtil.encrypt(st.getNumber(), encryptionKey));
-			st.setMessage(CryptoUtil.encrypt(st.getMessage(), encryptionKey));
+			st.setScheduleName(application.getCrypto().encrypt(encryptionKey, st.getScheduleName()));
+			st.setDescription(application.getCrypto().encrypt(encryptionKey, st.getDescription()));
+			st.setNumber(application.getCrypto().encrypt(encryptionKey, st.getNumber()));
+			st.setMessage(application.getCrypto().encrypt(encryptionKey, st.getMessage()));
 			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
 			for (Split s : st.getSplits()) {
-				s.setMemo(CryptoUtil.encrypt(s.getMemo(), encryptionKey));
+				s.setMemo(application.getCrypto().encrypt(encryptionKey, s.getMemo()));
 				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, s);
 			}
 		}
@@ -403,7 +407,8 @@ public class DataUpdater {
 		
 		final String encryptionKey = user.getDecryptedEncryptionKey();
 		user.setEncryptionKey(null);
-		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
+		int count = sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
+		if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 
 		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
 			a.setName(Crypto.decrypt(encryptionKey, a.getName()));

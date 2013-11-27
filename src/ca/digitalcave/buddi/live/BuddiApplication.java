@@ -78,6 +78,7 @@ public class BuddiApplication extends Application{
 	private String cookieKey = null;
 	private Properties systemProperties = new Properties();
 	private PasswordChecker passwordChecker = new PasswordChecker().setHistoryEnforced(false);
+	private Crypto crypto = new Crypto().setAlgorithm(Algorithm.AES_256).setSaltLength(32).setKeyIterations(1);
 
 	public synchronized void start() throws Exception {
 		try { systemProperties.load(new ClientResource(getContext(), "war:///WEB-INF/classes/version.properties").get().getStream()); } catch (Throwable e){}
@@ -275,5 +276,8 @@ public class BuddiApplication extends Application{
 	}
 	public PasswordChecker getPasswordChecker() {
 		return passwordChecker;
+	}
+	public Crypto getCrypto() {
+		return crypto;
 	}
 }

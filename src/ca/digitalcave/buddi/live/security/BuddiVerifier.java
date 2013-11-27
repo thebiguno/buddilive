@@ -33,28 +33,26 @@ public class BuddiVerifier implements Verifier {
 			final User user = sql.getMapper(Users.class).selectUser(hashedIdentifier);
 			if (user == null) return RESULT_UNKNOWN;
 			
-			if (checkSecret(cr, user) == false) return RESULT_INVALID;
+			final String secret = new String(cr.getSecret());
+			if (checkSecret(secret, user) == false) return RESULT_INVALID;
 			if (user.getLocale() == null) user.setLocale(ServletUtils.getRequest(request).getLocale());
+			if (user.isEncrypted()) user.setDecryptedEncryptionKey(Crypto.decrypt(secret, user.getEncryptionKey()));  //This decryption procedure must be the same as is used in DataUpdater.  If one of these changes, be sure to update them both.
+
 			user.setPlaintextIdentifier(identifier);
 			request.getClientInfo().setUser(user);
 			return RESULT_VALID;
 		} catch (CryptoException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			return RESULT_INVALID;
 		} finally {
 			sql.close();
 		}
 	}
 	
-	private boolean checkSecret(ChallengeResponse cr, User user) throws CryptoException {
-		if ((cr.getSecret() == null) || user.getSecret() == null) return false;
+	private boolean checkSecret(String secret, User user) {
+		if (secret == null || user.getSecret() == null) return false;
 		
-		final String challengeSecret = new String(cr.getSecret());
 		final String storedSecret = new String(user.getSecret());
-		if (MossHash.verify(storedSecret, challengeSecret)){
-			if (user.isEncrypted()){
-				//This decryption procedure must be the same as is used in DataUpdater.  If one of these changes, be sure to update them both.
-				user.setDecryptedEncryptionKey(Crypto.decrypt(challengeSecret, user.getEncryptionKey()));
-			}
+		if (MossHash.verify(storedSecret, secret)){
 			return true;
 		}
 		

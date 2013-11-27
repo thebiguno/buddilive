@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
+import org.restlet.Application;
 
+import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Users;
@@ -44,7 +46,8 @@ public class ConstraintsChecker {
 		}
 
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(category.getName())){
-			category.setName(CryptoUtil.encrypt(category.getName(), user.getDecryptedEncryptionKey()));
+			final BuddiApplication application = (BuddiApplication) Application.getCurrent();
+			category.setName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), category.getName()));
 		}
 	}
 
@@ -63,11 +66,12 @@ public class ConstraintsChecker {
 				}
 			}
 		}
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(account.getName())){
-			account.setName(CryptoUtil.encrypt(account.getName(), user.getDecryptedEncryptionKey()));
+			account.setName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), account.getName()));
 		}
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(account.getAccountType())){
-			account.setAccountType(CryptoUtil.encrypt(account.getAccountType(), user.getDecryptedEncryptionKey()));
+			account.setAccountType(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), account.getAccountType()));
 		}
 	}
 
@@ -78,6 +82,7 @@ public class ConstraintsChecker {
 
 	public static void checkInsertTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Perform integrity checks
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		if (transaction.getDate() == null) throw new DatabaseException("The transaction date must be set");
 		for (Split split : transaction.getSplits()) {
@@ -89,15 +94,15 @@ public class ConstraintsChecker {
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 
 			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
-				split.setMemo(CryptoUtil.encrypt(split.getMemo(), user.getDecryptedEncryptionKey()));
+				split.setMemo(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), split.getMemo()));
 			}
 		}
 
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(transaction.getDescription())){
-			transaction.setDescription(CryptoUtil.encrypt(transaction.getDescription(), user.getDecryptedEncryptionKey()));
+			transaction.setDescription(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), transaction.getDescription()));
 		}
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(transaction.getNumber())){
-			transaction.setNumber(CryptoUtil.encrypt(transaction.getNumber(), user.getDecryptedEncryptionKey()));
+			transaction.setNumber(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), transaction.getNumber()));
 		}
 	}
 
@@ -108,6 +113,7 @@ public class ConstraintsChecker {
 
 	public static void checkInsertScheduledTransaction(ScheduledTransaction scheduledTransaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Perform integrity checks
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (scheduledTransaction.getSplits() == null || scheduledTransaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		for (Split split : scheduledTransaction.getSplits()) {
 			if (split.getAmount().compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
@@ -118,24 +124,24 @@ public class ConstraintsChecker {
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 
 			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
-				split.setMemo(CryptoUtil.encrypt(split.getMemo(), user.getDecryptedEncryptionKey()));
+				split.setMemo(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), split.getMemo()));
 			}
 		}
 
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getScheduleName())){
-			scheduledTransaction.setScheduleName(CryptoUtil.encrypt(scheduledTransaction.getScheduleName(), user.getDecryptedEncryptionKey()));
+			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getScheduleName()));
 		}
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getDescription())){
-			scheduledTransaction.setDescription(CryptoUtil.encrypt(scheduledTransaction.getDescription(), user.getDecryptedEncryptionKey()));
+			scheduledTransaction.setDescription(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getDescription()));
 		}
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getNumber())){
-			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getNumber(), user.getDecryptedEncryptionKey()));
+			scheduledTransaction.setNumber(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getNumber()));
 		}
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getScheduleName())){
-			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getScheduleName(), user.getDecryptedEncryptionKey()));
+			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getScheduleName()));
 		}
 		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getMessage())){
-			scheduledTransaction.setNumber(CryptoUtil.encrypt(scheduledTransaction.getMessage(), user.getDecryptedEncryptionKey()));
+			scheduledTransaction.setMessage(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getMessage()));
 		}
 	}
 

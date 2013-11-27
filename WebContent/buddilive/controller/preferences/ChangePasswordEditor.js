@@ -34,7 +34,16 @@ Ext.define("BuddiLive.controller.preferences.ChangePasswordEditor", {
 			"success": function(response){
 				mask.hide();
 				window.close();
-				panel.reload();
+				var connLogin = new Ext.data.Connection();
+				connLogin.request({
+					"url": "index",
+					"method": "POST",
+					"params": { "action": "login", "identifier": "${user.plaintextIdentifier}", "secret": request.newPassword },
+					"failure": function(response){
+						mask.hide();
+						BuddiLive.app.error(response);
+					}
+				});
 			},
 			"failure": function(response){
 				mask.hide();

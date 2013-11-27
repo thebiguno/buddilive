@@ -5,7 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.moss.crypto.Base64;
 import ca.digitalcave.moss.crypto.Crypto;
-import ca.digitalcave.moss.crypto.Crypto.Algorithm;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class CryptoUtil {
@@ -27,12 +26,8 @@ public class CryptoUtil {
 		return value;
 	}
 	
-	public static String encrypt(String plainText, String password) throws CryptoException {
-		return new Crypto().setAlgorithm(Algorithm.AES_256).setSaltLength(32).setKeyIterations(1).encrypt(password, plainText);
-	}
-	
 	public static boolean isEncryptedValue(String value){
-		if (value == null) return false;
+		if (StringUtils.isBlank(value)) return false;
 		final String[] split = value.split(":");
 		//Depending on the encryption scheme used, the length will be one of 3, 4, or 5.
 		if (split.length != 3 && split.length != 4 && split.length != 5) {
