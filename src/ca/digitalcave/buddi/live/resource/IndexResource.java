@@ -2,6 +2,7 @@ package ca.digitalcave.buddi.live.resource;
 
 import java.util.Currency;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.LocaleUtils;
@@ -14,9 +15,11 @@ import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
+import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.MossHash;
@@ -31,6 +34,9 @@ public class IndexResource extends CookieAuthInterceptResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
 			final User user = (User) getRequest().getClientInfo().getUser();
+
+			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
+			if (accounts.size() == 0) dataModel.put("newUser", "true");
 
 			if (user != null){
 				//Update the user's last login date
