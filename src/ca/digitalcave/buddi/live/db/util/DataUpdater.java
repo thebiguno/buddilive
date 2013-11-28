@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.restlet.Application;
-import org.restlet.resource.ResourceException;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.ScheduledTransactions;
