@@ -362,7 +362,7 @@ public class DataUpdater {
 		
 		final String encryptionKey = Base64.encode(new Crypto().setSaltLength(128).getRandomSalt());
 		user.setDecryptedEncryptionKey(encryptionKey);
-		user.setEncryptionKey(application.getCrypto().encrypt(encryptionKey, password));
+		user.setEncryptionKey(application.getCrypto().encrypt(password, encryptionKey));
 		
 		int count = sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 		if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
