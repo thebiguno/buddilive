@@ -48,7 +48,7 @@ public class ChangePasswordResource extends ServerResource {
 						if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 						if (user.isEncrypted()){
 							final String encryptionKey = user.getDecryptedEncryptionKey();
-							user.setEncryptionKey(application.getCrypto().encrypt(encryptionKey, newPassword));
+							user.setEncryptionKey(application.getCrypto().encrypt(newPassword, encryptionKey));
 							count = sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 							if (count != 1) throw new DatabaseException(String.format("Encryption key update failed; expected 1 row, returned %s", count));
 						}
