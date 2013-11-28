@@ -303,7 +303,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	
 	"backup": function(component){
-		window.open(window.location.href + "data/backup.json");
+		window.open("data/backup.json");
 	},
 
 	"restore": function(component){
