@@ -21,7 +21,7 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 	"parseValue": function(value){
 		var me = this;
 		if (!isNaN(value)) return value;	//If this is already a number, then just return it.
-		var parsedValue = parseFloat(String(value).replace("${currencySymbol!?json_string}", "").replace(me.thousandSeparator, "").replace(me.decimalSeparator, "."));
+		var parsedValue = parseFloat(String(value).split("${currencySymbol!?json_string}").join("").split(me.thousandSeparator).join("").split(me.decimalSeparator).join("."));
 		return isNaN(parsedValue) ? null : parsedValue;
 	},
 	
