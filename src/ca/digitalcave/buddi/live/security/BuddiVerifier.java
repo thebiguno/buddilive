@@ -5,9 +5,7 @@ import org.restlet.Application;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.ChallengeResponse;
-import org.restlet.data.Status;
 import org.restlet.ext.servlet.ServletUtils;
-import org.restlet.resource.ResourceException;
 import org.restlet.security.Verifier;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
@@ -22,7 +20,7 @@ public class BuddiVerifier implements Verifier {
 	@Override
 	public int verify(Request request, Response response) {
 		final ChallengeResponse cr = request.getChallengeResponse();
-		if (cr == null) return RESULT_MISSING;
+		if (cr == null || cr.getSecret() == null) return RESULT_MISSING;
 
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 
