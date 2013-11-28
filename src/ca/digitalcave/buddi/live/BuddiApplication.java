@@ -183,7 +183,7 @@ public class BuddiApplication extends Application{
 		publicRouter.attach("", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/index", IndexResource.class);
-		publicRouter.attach("/data", privateRouter);
+		publicRouter.attach("/data", privateAuth);
 		final LoginRouterConfiguration loginConfig = new LoginRouterConfiguration();
 		final BuddiApplication application = this;
 		loginConfig.extraRegisterStep1Fields = new ExtraFieldsDirective(){
