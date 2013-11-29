@@ -2,15 +2,15 @@ package ca.digitalcave.buddi.live;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.security.Key;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.SecretKey;
 
 import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
@@ -27,6 +27,7 @@ import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 
+import ca.digitalcave.buddi.live.db.BuddiSystem;
 import ca.digitalcave.buddi.live.db.handler.BooleanHandler;
 import ca.digitalcave.buddi.live.db.handler.CurrencyHandler;
 import ca.digitalcave.buddi.live.db.handler.LocaleHandler;
@@ -75,7 +76,6 @@ public class BuddiApplication extends Application{
 	private final JsonFactory jsonFactory = new JsonFactory();
 	private ComboPooledDataSource ds;
 	private BuddiVerifier verifier = new BuddiVerifier();
-	private String cookieKey = null;
 	private Properties systemProperties = new Properties();
 	private PasswordChecker passwordChecker = new PasswordChecker().setHistoryEnforced(false);
 	private Crypto crypto = new Crypto().setAlgorithm(Algorithm.AES_256).setSaltLength(32).setKeyIterations(1);
@@ -85,7 +85,6 @@ public class BuddiApplication extends Application{
 		
 		final Properties p = new Properties();
 		p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
-		cookieKey = p.getProperty("verifier.encryptionKey", new String(new Crypto().setSaltLength(64).getRandomSalt()));
 		
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(p.getProperty("db.driver"));
@@ -140,12 +139,23 @@ public class BuddiApplication extends Application{
 		getTunnelService().setExtensionsTunnel(true);
 
 		final Router privateRouter = new Router(getContext());
-		Key key;
+		SecretKey key;
+		final SqlSession sql = sqlSessionFactory.openSession();
 		try {
-			key = Crypto.recoverKey(Algorithm.AES_128, new PBEKeySpec(cookieKey.toCharArray(), new byte[]{0x00, 0x01}, 1, 128));
+			String keyEncoded = sql.getMapper(BuddiSystem.class).selectCookieEncryptionKey();
+			if (keyEncoded == null){
+				key = new Crypto().setAlgorithm(Algorithm.AES_256).generateSecretKey();
+				keyEncoded = Crypto.encodeSecretKey(key);
+				sql.getMapper(BuddiSystem.class).updateCookieEncryptionKey(keyEncoded);
+				sql.commit();
+			}
+			key = Crypto.recoverSecretKey(keyEncoded);
 		} catch (CryptoException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		} finally {
+			sql.close();
 		}
+		
 		final CookieAuthenticator privateAuth = new CookieAuthenticator(getContext(), false, key);
 		privateAuth.setVerifier(verifier);
 		privateAuth.setNext(privateRouter);

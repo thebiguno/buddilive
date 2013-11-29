@@ -18,11 +18,13 @@ import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
+import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.MossHash;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.restlet.CookieAuthInterceptResource;
 
 public class IndexResource extends CookieAuthInterceptResource {
@@ -34,18 +36,25 @@ public class IndexResource extends CookieAuthInterceptResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
 			final User user = (User) getRequest().getClientInfo().getUser();
-
-			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
-			if (accounts.size() == 0) dataModel.put("newUser", "true");
-
 			if (user != null){
+				final int encryptionVersion = sqlSession.getMapper(Users.class).selectEncryptionVersion(user);
+				if (encryptionVersion == 0){
+					DataUpdater.upgradeEncryptionFrom0(user, new String(getRequest().getChallengeResponse().getSecret()), sqlSession);
+				}
+
+				final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
+				if (accounts.size() == 0) dataModel.put("newUser", "true");
+
 				//Update the user's last login date
 				sqlSession.getMapper(Users.class).updateUserLoginTime(user);
-				
+
 				sqlSession.commit();
 			}
-		}
-		finally {
+		} catch (CryptoException e){
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		} catch (DatabaseException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		} finally {
 			sqlSession.close();
 		}
 		

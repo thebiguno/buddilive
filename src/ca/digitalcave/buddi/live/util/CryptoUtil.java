@@ -12,7 +12,7 @@ public class CryptoUtil {
 	public static String decryptWrapper(String value, User user) throws CryptoException {
 		if (StringUtils.isNotBlank(value) && user.isEncrypted()){
 			try {
-				return Crypto.decrypt(user.getDecryptedEncryptionKey(), value);
+				return Crypto.decrypt(user.getDecryptedSecretKey(), value);
 			}
 			catch (CryptoException e){
 				//I saw some weirdness where an encrypted value would not decrypt properly; most likely from

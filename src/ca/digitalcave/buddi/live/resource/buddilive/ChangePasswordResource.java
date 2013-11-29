@@ -2,6 +2,8 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
 
+import javax.crypto.SecretKey;
+
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +20,7 @@ import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
+import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.crypto.MossHash;
 
@@ -47,8 +50,8 @@ public class ChangePasswordResource extends ServerResource {
 						int count = sqlSession.getMapper(Users.class).updateUser(user);
 						if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 						if (user.isEncrypted()){
-							final String encryptionKey = user.getDecryptedEncryptionKey();
-							user.setEncryptionKey(application.getCrypto().encrypt(newPassword, encryptionKey));
+							final SecretKey encryptionKey = user.getDecryptedSecretKey();
+							user.setEncryptionKey(application.getCrypto().encrypt(newPassword, Crypto.encodeSecretKey(encryptionKey)));
 							count = sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 							if (count != 1) throw new DatabaseException(String.format("Encryption key update failed; expected 1 row, returned %s", count));
 						}

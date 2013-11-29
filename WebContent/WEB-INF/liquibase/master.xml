@@ -177,4 +177,28 @@
 			<column name="activation_key" type="varchar(36)"><constraints unique="true"/></column>
 		</addColumn>
 	</changeSet>
+	
+	<changeSet id="add encryption key version to user" author="wyatt">
+		<addColumn tableName="users">
+			<column name="encryption_version" type="int" defaultValue="0"><constraints nullable="false"/></column>
+		</addColumn>
+	</changeSet>
+	
+	<changeSet id="create buddi system table" author="wyatt">
+		<createTable tableName="buddi_system">
+			<column name="id" type="int"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_buddisystem_id"/></column>
+			<column name="cookie_encryption_key" type="varchar(512)" remarks="ASCII-encoded version of the cookie encryption key.  Set this to null to invalidate the cookie encryption key, and force new cookies for all users."/>
+			<column name="created" type="timestamp"><constraints nullable="false"/></column>
+			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
+		</createTable>
+	</changeSet>
+	
+	<changeSet id="populate buddi system table" author="wyatt">
+		<insert tableName="buddi_system">
+			<column name="id" value="1"/>
+			<column name="created" valueDate="CURRENT_TIMESTAMP"/>
+			<column name="modified" valueDate="CURRENT_TIMESTAMP"/>
+		</insert>
+	</changeSet>
+
 </databaseChangeLog>

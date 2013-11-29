@@ -34,7 +34,15 @@ public class BuddiVerifier implements Verifier {
 			final String secret = new String(cr.getSecret());
 			if (checkSecret(secret, user) == false) return RESULT_INVALID;
 			if (user.getLocale() == null) user.setLocale(ServletUtils.getRequest(request).getLocale());
-			if (user.isEncrypted()) user.setDecryptedEncryptionKey(Crypto.decrypt(secret, user.getEncryptionKey()));  //This decryption procedure must be the same as is used in DataUpdater.  If one of these changes, be sure to update them both.
+			if (user.isEncrypted()) {
+				final String decryptedKey = Crypto.decrypt(secret, user.getEncryptionKey());
+				try {
+					user.setDecryptedSecretKey(Crypto.recoverSecretKey(decryptedKey));	//Encryption version 1; encoded SecretKey
+				}
+				catch (CryptoException e) {
+					user.setDecryptedEncryptionKey(decryptedKey);	//Encryption version 0; random password for on-the-fly PBE encryption
+				}
+			}
 
 			user.setPlaintextIdentifier(identifier);
 			request.getClientInfo().setUser(user);

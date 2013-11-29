@@ -8,13 +8,16 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.crypto.SecretKey;
+
 import org.apache.commons.lang.StringUtils;
 
 public class User extends org.restlet.security.User {
 	private Integer id;
 	private String plaintextIdentifier;	//Not hashed, injected by BuddiVerifier
 	private String encryptionKey;
-	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier
+	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier; deprecated.  Once all users are off of encryption version 1, we can delete this.
+	private SecretKey decryptedSecretKey;	//Not persisted, injected by BuddiVerifier
 	private String uuid;
 	private Boolean premium = false;
 	private Locale locale;
@@ -61,6 +64,12 @@ public class User extends org.restlet.security.User {
 	}
 	public void setDecryptedEncryptionKey(String decryptedEncryptionKey) {
 		this.decryptedEncryptionKey = decryptedEncryptionKey;
+	}
+	public SecretKey getDecryptedSecretKey() {
+		return decryptedSecretKey;
+	}
+	public void setDecryptedSecretKey(SecretKey decryptedSecretKey) {
+		this.decryptedSecretKey = decryptedSecretKey;
 	}
 	public boolean isEncrypted(){
 		return encryptionKey != null;

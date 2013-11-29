@@ -19,6 +19,13 @@
 		WHERE identifier = #{identifier} OR activation_key = #{identifier}
 	</select>
 	
+	<select id="selectEncryptionVersion" resultType="int">
+		SELECT
+			encryption_version
+		FROM users
+		WHERE identifier = #{user.identifier}
+	</select>
+	
 	<insert id="insertUser">
 		<selectKey keyProperty="user.id" resultType="int" order="BEFORE">
 			SELECT coalesce(max(id), 0) + 1 from users
@@ -34,6 +41,7 @@
 				currency,
 				show_deleted,
 				activation_key,
+				encryption_version,
 				created, 
 				modified
 			)
@@ -48,6 +56,7 @@
 				#{user.currency,javaType=java.util.Currency},
 				'Y',
 				#{activationKey},
+				1,
 				CURRENT_TIMESTAMP, 
 				CURRENT_TIMESTAMP
 			)
@@ -93,6 +102,14 @@
 		UPDATE users
 		SET
 			encryption_key = #{user.encryptionKey,jdbcType=VARCHAR},
+			modified = CURRENT_TIMESTAMP
+		WHERE identifier = #{user.identifier}
+	</update>
+
+	<update id="updateUserEncryptionVersion">
+		UPDATE users
+		SET
+			encryption_version = #{encryptionVersion},
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
 	</update>

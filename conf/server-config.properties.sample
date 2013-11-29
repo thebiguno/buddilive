@@ -4,8 +4,3 @@ db.url=jdbc:postgresql://localhost/buddilive
 db.user=buddilive
 db.password=password
 db.query=select 1
-
-#If you enable this, and supply a password, then we use it as the encryption key for encrypted cookies and nonces for new user generation.  If 
-# you leave it blank, we generate a random key on startup.  Random keys are more secure, but doing so will prevent cookies from being re-used
-# over a server restart.
-#verifier.encryptionKey=goodpassword
