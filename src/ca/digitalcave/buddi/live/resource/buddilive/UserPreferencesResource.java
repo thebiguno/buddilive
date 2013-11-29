@@ -71,7 +71,7 @@ public class UserPreferencesResource extends ServerResource {
 					if (!MossHash.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
 
 					if (user.isEncrypted()) DataUpdater.turnOffEncryption(user, sqlSession);
-					else DataUpdater.turnOnEncryption(user, encryptPassword, sqlSession);
+					else DataUpdater.turnOnEncryption(user, sqlSession);
 				}
 				user.setEmail(json.optBoolean("storeEmail", false) ? user.getPlaintextIdentifier() : null);
 				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));

@@ -39,7 +39,7 @@ public class IndexResource extends CookieAuthInterceptResource {
 			if (user != null){
 				final int encryptionVersion = sqlSession.getMapper(Users.class).selectEncryptionVersion(user);
 				if (encryptionVersion == 0){
-					DataUpdater.upgradeEncryptionFrom0(user, new String(getRequest().getChallengeResponse().getSecret()), sqlSession);
+					DataUpdater.upgradeEncryptionFrom0(user, sqlSession);
 				}
 
 				final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);

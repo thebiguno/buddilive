@@ -11,8 +11,6 @@ import org.restlet.security.Verifier;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.moss.crypto.Crypto;
-import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.crypto.MossHash;
 
 public class BuddiVerifier implements Verifier {
@@ -34,21 +32,10 @@ public class BuddiVerifier implements Verifier {
 			final String secret = new String(cr.getSecret());
 			if (checkSecret(secret, user) == false) return RESULT_INVALID;
 			if (user.getLocale() == null) user.setLocale(ServletUtils.getRequest(request).getLocale());
-			if (user.isEncrypted()) {
-				final String decryptedKey = Crypto.decrypt(secret, user.getEncryptionKey());
-				try {
-					user.setDecryptedSecretKey(Crypto.recoverSecretKey(decryptedKey));	//Encryption version 1; encoded SecretKey
-				}
-				catch (CryptoException e) {
-					user.setDecryptedEncryptionKey(decryptedKey);	//Encryption version 0; random password for on-the-fly PBE encryption
-				}
-			}
-
+			user.setPlaintextSecret(secret);
 			user.setPlaintextIdentifier(identifier);
 			request.getClientInfo().setUser(user);
 			return RESULT_VALID;
-		} catch (CryptoException e) {
-			return RESULT_INVALID;
 		} finally {
 			sql.close();
 		}

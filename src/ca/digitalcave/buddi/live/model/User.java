@@ -12,9 +12,13 @@ import javax.crypto.SecretKey;
 
 import org.apache.commons.lang.StringUtils;
 
+import ca.digitalcave.moss.crypto.Crypto;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
+
 public class User extends org.restlet.security.User {
 	private Integer id;
-	private String plaintextIdentifier;	//Not hashed, injected by BuddiVerifier
+	private String plaintextIdentifier;	//Not persisted, injected by BuddiVerifier
+	private String plaintextSecret;	//Not persisted, injected by BuddiVerifier
 	private String encryptionKey;
 	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier; deprecated.  Once all users are off of encryption version 1, we can delete this.
 	private SecretKey decryptedSecretKey;	//Not persisted, injected by BuddiVerifier
@@ -47,6 +51,12 @@ public class User extends org.restlet.security.User {
 	public void setPlaintextIdentifier(String plaintextIdentifier) {
 		this.plaintextIdentifier = plaintextIdentifier;
 	}
+	public String getPlaintextSecret() {
+		return plaintextSecret;
+	}
+	public void setPlaintextSecret(String plaintextSecret) {
+		this.plaintextSecret = plaintextSecret;
+	}
 	public void setSecretString(String secret) {
 		setSecret(secret == null ? null : secret.toCharArray());
 	}
@@ -58,18 +68,20 @@ public class User extends org.restlet.security.User {
 	}
 	public void setEncryptionKey(String encryptionKey) {
 		this.encryptionKey = encryptionKey;
+		decryptedEncryptionKey = null;
+		decryptedSecretKey = null;
 	}
-	public String getDecryptedEncryptionKey() {
+	public String getDecryptedEncryptionKey() throws CryptoException {
+		if (decryptedEncryptionKey == null && isEncrypted()) {
+			decryptedEncryptionKey = Crypto.decrypt(plaintextSecret, encryptionKey);
+		}
 		return decryptedEncryptionKey;
 	}
-	public void setDecryptedEncryptionKey(String decryptedEncryptionKey) {
-		this.decryptedEncryptionKey = decryptedEncryptionKey;
-	}
-	public SecretKey getDecryptedSecretKey() {
+	public SecretKey getDecryptedSecretKey() throws CryptoException {
+		if (decryptedSecretKey == null && isEncrypted()){
+			decryptedSecretKey = Crypto.recoverSecretKey(Crypto.decrypt(plaintextSecret, encryptionKey));
+		}
 		return decryptedSecretKey;
-	}
-	public void setDecryptedSecretKey(SecretKey decryptedSecretKey) {
-		this.decryptedSecretKey = decryptedSecretKey;
 	}
 	public boolean isEncrypted(){
 		return encryptionKey != null;

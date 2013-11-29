@@ -344,7 +344,7 @@ public class DataUpdater {
 		return (thereWasAnUpate ? messages : null);
 	}
 	
-	public static void turnOnEncryption(User user, String password, SqlSession sqlSession) throws DatabaseException, CryptoException {
+	public static void turnOnEncryption(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//To turn on encryption, we must do the following:
 		// a) Generate a new random key for the user
 		// b) Encrypt this key using their password
@@ -360,8 +360,8 @@ public class DataUpdater {
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (user.isEncrypted()) throw new DatabaseException("This account is already encrypted");
 		
+		final String password = user.getPlaintextSecret();
 		final SecretKey key = application.getCrypto().generateSecretKey();
-		user.setDecryptedSecretKey(key);
 		user.setEncryptionKey(application.getCrypto().encrypt(password, Crypto.encodeSecretKey(key)));
 		
 		int count = sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
@@ -443,7 +443,7 @@ public class DataUpdater {
 		}
 	}
 	
-	public static void upgradeEncryptionFrom0(User user, String password, SqlSession sqlSession) throws DatabaseException, CryptoException {
+	public static void upgradeEncryptionFrom0(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (!user.isEncrypted()) {
 			//If the account is not encrypted, there is nothing to be done; just update the encryption version number.
 			sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 1);
@@ -451,6 +451,7 @@ public class DataUpdater {
 		}
 		
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
+		final String password = user.getPlaintextSecret();
 		final String oldEncryptionKey = user.getDecryptedEncryptionKey();
 		final SecretKey key = application.getCrypto().generateSecretKey();
 		final Crypto crypto = application.getCrypto();
@@ -490,7 +491,6 @@ public class DataUpdater {
 			}
 		}
 		
-		user.setDecryptedSecretKey(key);
 		user.setEncryptionKey(application.getCrypto().encrypt(password, Crypto.encodeSecretKey(key)));
 		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 		sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 1);
