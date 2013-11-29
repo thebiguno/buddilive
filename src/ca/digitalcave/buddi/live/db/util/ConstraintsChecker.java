@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.restlet.Application;
 
@@ -19,7 +20,7 @@ import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.util.CryptoUtil;
+import ca.digitalcave.moss.crypto.Base64;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class ConstraintsChecker {
@@ -45,7 +46,7 @@ public class ConstraintsChecker {
 			}
 		}
 
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(category.getName())){
+		if (user.isEncrypted() && !isEncryptedValue(category.getName())){
 			final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 			category.setName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), category.getName()));
 		}
@@ -67,10 +68,10 @@ public class ConstraintsChecker {
 			}
 		}
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(account.getName())){
+		if (user.isEncrypted() && !isEncryptedValue(account.getName())){
 			account.setName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), account.getName()));
 		}
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(account.getAccountType())){
+		if (user.isEncrypted() && !isEncryptedValue(account.getAccountType())){
 			account.setAccountType(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), account.getAccountType()));
 		}
 	}
@@ -93,15 +94,15 @@ public class ConstraintsChecker {
 			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 
-			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
+			if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
 				split.setMemo(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), split.getMemo()));
 			}
 		}
 
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(transaction.getDescription())){
+		if (user.isEncrypted() && !isEncryptedValue(transaction.getDescription())){
 			transaction.setDescription(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), transaction.getDescription()));
 		}
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(transaction.getNumber())){
+		if (user.isEncrypted() && !isEncryptedValue(transaction.getNumber())){
 			transaction.setNumber(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), transaction.getNumber()));
 		}
 	}
@@ -123,24 +124,24 @@ public class ConstraintsChecker {
 			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 
-			if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(split.getMemo())){
+			if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
 				split.setMemo(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), split.getMemo()));
 			}
 		}
 
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getScheduleName())){
+		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getScheduleName())){
 			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getScheduleName()));
 		}
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getDescription())){
+		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getDescription())){
 			scheduledTransaction.setDescription(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getDescription()));
 		}
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getNumber())){
+		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getNumber())){
 			scheduledTransaction.setNumber(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getNumber()));
 		}
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getScheduleName())){
+		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getScheduleName())){
 			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getScheduleName()));
 		}
-		if (user.isEncrypted() && !CryptoUtil.isEncryptedValue(scheduledTransaction.getMessage())){
+		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getMessage())){
 			scheduledTransaction.setMessage(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getMessage()));
 		}
 	}
@@ -169,5 +170,25 @@ public class ConstraintsChecker {
 	public static void checkUpdateUserPreferences(User user, SqlSession sqlSession) throws DatabaseException {
 		if (!user.isPremium()) user.setShowCleared(false);
 		if (!user.isPremium()) user.setShowReconciled(false);
+	}
+	
+	private static boolean isEncryptedValue(String value){
+		if (StringUtils.isBlank(value)) return false;
+		final String[] split = value.split(":");
+		//Depending on the encryption scheme used, the length will be one of 3, 4, or 5.
+		if (split.length != 3 && split.length != 4 && split.length != 5) {
+			return false;
+		}
+		
+		try {
+			//Nothing is really special about 4 here... it is just a small value which is smaller than any valid value I have seen.  We could probably calculate what the actual value is, but this is fine for now.
+			//Try decoding the last segment; this is always going to be the message.
+			if (Base64.decode(split[split.length - 1]).length <= 4) return false;	
+		}
+		catch (Throwable e){
+			return false;
+		}
+		
+		return true;
 	}
 }
