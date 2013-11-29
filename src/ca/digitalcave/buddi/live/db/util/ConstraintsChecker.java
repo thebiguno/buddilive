@@ -48,7 +48,7 @@ public class ConstraintsChecker {
 
 		if (user.isEncrypted() && !isEncryptedValue(category.getName())){
 			final BuddiApplication application = (BuddiApplication) Application.getCurrent();
-			category.setName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), category.getName()));
+			category.setName(application.getCrypto().encrypt(user.getDecryptedSecretKey(), category.getName()));
 		}
 	}
 
@@ -69,10 +69,10 @@ public class ConstraintsChecker {
 		}
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (user.isEncrypted() && !isEncryptedValue(account.getName())){
-			account.setName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), account.getName()));
+			account.setName(application.getCrypto().encrypt(user.getDecryptedSecretKey(), account.getName()));
 		}
 		if (user.isEncrypted() && !isEncryptedValue(account.getAccountType())){
-			account.setAccountType(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), account.getAccountType()));
+			account.setAccountType(application.getCrypto().encrypt(user.getDecryptedSecretKey(), account.getAccountType()));
 		}
 	}
 
@@ -95,15 +95,15 @@ public class ConstraintsChecker {
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 
 			if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
-				split.setMemo(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), split.getMemo()));
+				split.setMemo(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getMemo()));
 			}
 		}
 
 		if (user.isEncrypted() && !isEncryptedValue(transaction.getDescription())){
-			transaction.setDescription(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), transaction.getDescription()));
+			transaction.setDescription(application.getCrypto().encrypt(user.getDecryptedSecretKey(), transaction.getDescription()));
 		}
 		if (user.isEncrypted() && !isEncryptedValue(transaction.getNumber())){
-			transaction.setNumber(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), transaction.getNumber()));
+			transaction.setNumber(application.getCrypto().encrypt(user.getDecryptedSecretKey(), transaction.getNumber()));
 		}
 	}
 
@@ -125,24 +125,24 @@ public class ConstraintsChecker {
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 
 			if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
-				split.setMemo(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), split.getMemo()));
+				split.setMemo(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getMemo()));
 			}
 		}
 
 		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getScheduleName())){
-			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getScheduleName()));
+			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedSecretKey(), scheduledTransaction.getScheduleName()));
 		}
 		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getDescription())){
-			scheduledTransaction.setDescription(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getDescription()));
+			scheduledTransaction.setDescription(application.getCrypto().encrypt(user.getDecryptedSecretKey(), scheduledTransaction.getDescription()));
 		}
 		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getNumber())){
-			scheduledTransaction.setNumber(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getNumber()));
+			scheduledTransaction.setNumber(application.getCrypto().encrypt(user.getDecryptedSecretKey(), scheduledTransaction.getNumber()));
 		}
 		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getScheduleName())){
-			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getScheduleName()));
+			scheduledTransaction.setScheduleName(application.getCrypto().encrypt(user.getDecryptedSecretKey(), scheduledTransaction.getScheduleName()));
 		}
 		if (user.isEncrypted() && !isEncryptedValue(scheduledTransaction.getMessage())){
-			scheduledTransaction.setMessage(application.getCrypto().encrypt(user.getDecryptedEncryptionKey(), scheduledTransaction.getMessage()));
+			scheduledTransaction.setMessage(application.getCrypto().encrypt(user.getDecryptedSecretKey(), scheduledTransaction.getMessage()));
 		}
 	}
 
