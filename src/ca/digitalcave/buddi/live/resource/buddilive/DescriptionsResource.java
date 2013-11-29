@@ -64,6 +64,7 @@ public class DescriptionsResource extends ServerResource {
 				for (Split s : t.getSplits() != null ? t.getSplits() : new ArrayList<Split>()) {
 					final JSONObject split = new JSONObject();
 					split.put("amount", s.getAmount().toPlainString());
+					split.put("amountNumber", s.getAmount());
 					split.put("fromId", s.getFromSource());
 					split.put("toId", s.getToSource());
 					split.put("fromType", s.getFromType());
