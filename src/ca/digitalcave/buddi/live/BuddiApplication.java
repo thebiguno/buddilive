@@ -175,14 +175,17 @@ public class BuddiApplication extends Application{
 		privateRouter.attach("/sources/to", SourcesResource.class);
 		privateRouter.attach("/userpreferences", UserPreferencesResource.class);
 		
-		privateRouter.attach("/preferences/currencies", CurrenciesResource.class);
-		privateRouter.attach("/preferences/locales", LocalesResource.class);
-
 		privateRouter.attach("/report/pietotalsbycategory", PieTotalsByCategoryResource.class);
 		privateRouter.attach("/report/incomeandexpensesbycategory", IncomeAndExpensesByCategoryResource.class);
 		
 		privateRouter.attach("/backup", BackupResource.class);
 		privateRouter.attach("/restore", RestoreResource.class);
+		
+		
+		final Router comboStoreRouter = new Router(getContext());
+		comboStoreRouter.attach("/currencies", CurrenciesResource.class);
+		comboStoreRouter.attach("/locales", LocalesResource.class);
+
 		
 		final Router publicRouter = new Router(getContext());
 		final CookieAuthenticator optionalAuth = new CookieAuthenticator(getContext(), true, key);
@@ -193,6 +196,7 @@ public class BuddiApplication extends Application{
 		publicRouter.attach("", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/index", IndexResource.class);
+		publicRouter.attach("/stores", comboStoreRouter);
 		publicRouter.attach("/data", privateAuth);
 		final LoginRouterConfiguration loginConfig = new LoginRouterConfiguration();
 		final BuddiApplication application = this;
