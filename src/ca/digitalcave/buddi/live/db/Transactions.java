@@ -14,21 +14,16 @@ import ca.digitalcave.buddi.live.model.User;
 
 
 public interface Transactions {
-	public Transaction selectTransaction(@Param("user") User user, @Param("id") Long id);
-	
 	public int selectTransactionCount(@Param("user") User user, @Param("uuid") String uuid);
 	
 	public List<Transaction> selectTransactions(@Param("user") User user);
-	public List<Transaction> selectTransactions(@Param("user") User user, @Param("source") Source source);
 	public List<Transaction> selectTransactions(@Param("user") User user, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
 	public void selectTransactions(@Param("user") User user, @Param("source") Source source, ResultHandler handler);
 	
 	public List<Transaction> selectDescriptions(@Param("user") User user);
 	
-	public Split selectEarliestSplitWithoutBalances(@Param("user") User user, @Param("account") Account account);
-	public Split selectLatestSplit(@Param("user") User user, @Param("account") Account account);
-	
 	public List<Split> selectSplits(@Param("user") User user);
+	public List<Split> selectSplits(@Param("user") User user, @Param("account") Account account);
 	public List<Split> selectSplits(@Param("user") User user, @Param("account") Account account, @Param("date") Date date);
 	
 	public Integer insertTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);
@@ -36,8 +31,6 @@ public interface Transactions {
 	
 	public Integer updateTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);
 	public Integer updateSplit(@Param("user") User user, @Param("split") Split split);
-	public Integer updateSplitsClearBalances(@Param("user") User user);
-	public Integer updateSplitsClearBalances(@Param("user") User user, @Param("date") Date date);
 	
 	public Integer deleteAllTransactions(@Param("user") User user);
 	public Integer deleteTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);

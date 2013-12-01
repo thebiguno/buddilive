@@ -192,13 +192,12 @@ public class TransactionsResource extends ServerResource {
 				transaction.setId(json.getLong("id"));
 				int count = sqlSession.getMapper(Transactions.class).deleteTransaction(user, transaction);
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
-				sqlSession.getMapper(Transactions.class).updateSplitsClearBalances(user, transaction.getDate());
 			}
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 
-			DataUpdater.updateBalances(user, sqlSession, false);
+			DataUpdater.updateBalances(user, sqlSession);
 
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

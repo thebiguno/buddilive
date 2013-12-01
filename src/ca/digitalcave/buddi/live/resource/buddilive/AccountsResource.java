@@ -26,7 +26,6 @@ import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.AccountType;
-import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
@@ -164,7 +163,7 @@ public class AccountsResource extends ServerResource {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			DataUpdater.updateBalances(user, sqlSession, true);
+			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

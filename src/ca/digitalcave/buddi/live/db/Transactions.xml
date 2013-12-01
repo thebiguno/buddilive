@@ -55,14 +55,6 @@
 		ORDER BY t.transaction_date DESC, s.id DESC
 	</select>
 	
-	<select id="selectTransaction" resultMap="transaction">
-		SELECT 
-			t.id t_id, t.uuid, t.user_id t_user_id, t.description, t.number, t.transaction_date, t.deleted, t.created t_created, t.modified t_modified
-		FROM transactions t
-		WHERE t.user_id = #{user.id}
-		AND t.id = #{id}
-	</select>
-	
 	<select id="selectTransactionCount" resultType="int">
 		SELECT count(id)
 		FROM transactions
@@ -79,31 +71,7 @@
 		WHERE t.deleted = 'N' AND t.user_id = #{user.id}
 		ORDER BY t.transaction_date DESC, s.id DESC
 	</select>
-	
-	<select id="selectEarliestSplitWithoutBalances" resultMap="split">
-		SELECT 
-			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance
-		FROM splits s
-		INNER JOIN transactions t ON t.id = s.transaction_id
-		WHERE 
-			(s.from_source = #{account.id} AND s.from_balance IS NULL) OR (s.to_source = #{account.id} AND s.to_balance IS NULL)
-			AND s.user_id = #{user.id}
-		ORDER BY t.transaction_date, s.id
-		FETCH FIRST 1 ROWS ONLY
-	</select>
-	
-	<select id="selectLatestSplit" resultMap="split">
-		SELECT 
-			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance
-		FROM splits s
-		INNER JOIN transactions t ON t.id = s.transaction_id
-		WHERE 
-			(s.from_source = #{account.id} OR s.to_source = #{account.id})
-			AND s.user_id = #{user.id}
-		ORDER BY t.transaction_date DESC, s.id DESC
-		FETCH FIRST 1 ROWS ONLY
-	</select>
-	
+
 	<select id="selectSplits" resultMap="split">
 		<!-- This is used by DataUpdater.updateBalances, and should not be changed unless you ensure the updater works.  In particular, the ORDER BY is essential in its current form. -->
 		SELECT
@@ -188,21 +156,6 @@
 			memo = #{split.memo,jdbcType=VARCHAR},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{split.id} AND user_id = #{user.id}
-	</update>
-	
-	<update id="updateSplitsClearBalances">
-		UPDATE splits
-		SET
-			from_balance = NULL,
-			to_balance = NULL
-		<if test="_parameter.containsKey('date')">
-		FROM splits s
-		INNER JOIN transactions t ON t.id = s.transaction_id
-		</if>
-		WHERE splits.user_id = #{user.id}
-		<if test="_parameter.containsKey('date')">
-		AND t.transaction_date >= #{date}
-		</if>
 	</update>
 	
 	<delete id="deleteTransaction">

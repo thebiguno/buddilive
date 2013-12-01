@@ -217,7 +217,7 @@ public class CategoriesResource extends ServerResource {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			DataUpdater.updateBalances(user, sqlSession, true);
+			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();

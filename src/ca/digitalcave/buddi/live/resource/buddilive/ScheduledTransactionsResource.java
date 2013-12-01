@@ -147,7 +147,7 @@ public class ScheduledTransactionsResource extends ServerResource {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
 			
-			DataUpdater.updateBalances(user, sqlSession, false);
+			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();
