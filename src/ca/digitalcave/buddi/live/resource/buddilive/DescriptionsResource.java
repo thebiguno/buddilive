@@ -1,13 +1,14 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
-import org.json.JSONArray;
+import org.codehaus.jackson.JsonGenerator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -15,6 +16,7 @@ import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
+import org.restlet.representation.WriterRepresentation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
@@ -53,35 +55,45 @@ public class DescriptionsResource extends ServerResource {
 				}
 			}
 			
-			final JSONArray data = new JSONArray();
-			for (String description : transactionsByDescription.keySet()) {
-				final JSONObject item = new JSONObject();
-				final Transaction t = transactionsByDescription.get(description);
-				item.put("value", description);
-				final JSONObject transaction = new JSONObject();
-				transaction.put("description", description);
-				transaction.put("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
-				for (Split s : t.getSplits() != null ? t.getSplits() : new ArrayList<Split>()) {
-					final JSONObject split = new JSONObject();
-					split.put("amount", s.getAmount().toPlainString());
-					split.put("amountNumber", s.getAmount());
-					split.put("fromId", s.getFromSource());
-					split.put("toId", s.getToSource());
-					split.put("fromType", s.getFromType());
-					split.put("toType", s.getToType());
-					transaction.append("splits", split);
+			return new WriterRepresentation(MediaType.APPLICATION_JSON) {
+				@Override
+				public void write(Writer writer) throws IOException {
+					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(writer);
+					try {
+						generator.writeStartObject();
+						generator.writeBooleanField("success", true);
+						generator.writeArrayFieldStart("data");
+						for (String description : transactionsByDescription.keySet()) {
+							final Transaction t = transactionsByDescription.get(description);
+							generator.writeStartObject();
+							generator.writeStringField("value", description);
+							generator.writeObjectFieldStart("transaction");
+							generator.writeStringField("description", description);
+							generator.writeStringField("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
+							generator.writeArrayFieldStart("splits");
+							for (Split s : t.getSplits() != null ? t.getSplits() : new ArrayList<Split>()) {
+								generator.writeStartObject();
+								generator.writeStringField("amount", s.getAmount().toPlainString());
+								generator.writeNumberField("amountNumber", s.getAmount());
+								generator.writeNumberField("fromId", s.getFromSource());
+								generator.writeNumberField("toId", s.getToSource());
+								generator.writeStringField("fromType", s.getFromType());
+								generator.writeStringField("toType", s.getToType());
+								generator.writeEndObject();
+							}
+							generator.writeEndArray();	//splits
+							generator.writeEndObject();	//transaction
+							generator.writeEndObject();	//array entry object
+						}
+						generator.writeEndArray();	//data
+						generator.writeEndObject();	//entire object
+						generator.flush();
+					}
+					catch (CryptoException e){
+						throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+					}
 				}
-				item.put("transaction", transaction);
-				data.put(item);
-			}
-			
-			final JSONObject result = new JSONObject();
-			result.put("data", data);
-			result.put("success", true);
-			return new JsonRepresentation(result);
-		}
-		catch (JSONException e){
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			};
 		}
 		catch (CryptoException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
