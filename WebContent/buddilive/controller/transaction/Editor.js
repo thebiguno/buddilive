@@ -41,7 +41,6 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	
 	"recordTransaction": function(component){
 		//TODO Check for large changes and confirm
-		//TODO Check for reasonably valid dates and confirm (date <> 1 year or so?)
 	
 		var me = this;
 		var editor = component.up("transactioneditor");
@@ -58,27 +57,54 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		//Disable the button before submitting to prevent double clicks
 		editor.down("button[itemId='recordTransaction']").disable();
 
-		var conn = new Ext.data.Connection();
-		conn.request({
-			"url": "data/transactions",
-			"headers": {
-				"Accept": "application/json"
-			},
-			"method": "POST",
-			"jsonData": request,
-			"success": function(response){
-				mask.hide();
-				me.getTransactionDescriptionComboboxStoreStore().load();
-				editor.setTransaction(null, false, true);
-				editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
-				editor.up("transactionlist").reload();
-				editor.down("datefield[itemId='date']").focus(false, 500);
-			},
-			"failure": function(response){
-				mask.hide();
-				BuddiLive.app.error(response);
-			}
-		});
+		var doPost = function(){
+			var conn = new Ext.data.Connection();
+			conn.request({
+				"url": "data/transactions",
+				"headers": {
+					"Accept": "application/json"
+				},
+				"method": "POST",
+				"jsonData": request,
+				"success": function(response){
+					mask.hide();
+					me.getTransactionDescriptionComboboxStoreStore().load();
+					editor.setTransaction(null, false, true);
+					editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
+					editor.up("transactionlist").reload();
+					editor.down("datefield[itemId='date']").focus(false, 500);
+				},
+				"failure": function(response){
+					mask.hide();
+					BuddiLive.app.error(response);
+				}
+			});
+		}
+		
+		var d = Ext.Date.parse(request.date, "Y-m-d");
+		var validBeginDate = Ext.Date.add(new Date(), Ext.Date.YEAR, -1);
+		var validEndDate = Ext.Date.add(new Date(), Ext.Date.MONTH, 1);
+		if (d < validBeginDate || d > validEndDate){
+			var msg = d < validBeginDate ? "${translation("DATE_OUT_OF_RANGE_BEFORE")?json_string}" : "${translation("DATE_OUT_OF_RANGE_AFTER")?json_string}";
+			Ext.MessageBox.show({
+				"title": "${translation("DATE_OUT_OF_RANGE_TITLE")?json_string}",
+				"msg": msg,
+				"buttons": Ext.MessageBox.YESNO,
+				"fn": function(buttonId){
+					if (buttonId == "yes"){
+						doPost();
+					}
+					else {
+						mask.hide();
+						//Re-enable the button
+						editor.down("button[itemId='recordTransaction']").enable();
+					}
+				}
+			});
+		}
+		else {
+			doPost();
+		}
 	},
 	
 	"clearTransaction": function(component){
