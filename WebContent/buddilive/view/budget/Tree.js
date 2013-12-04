@@ -32,7 +32,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		
 		this.columns = [
 			{
-				"text": "Name",	//TODO i18n
+				"text": "${translation("NAME")?json_string}",
 				"dataIndex": "name",
 				"flex": 2,
 				"xtype": "treecolumn",
@@ -42,14 +42,14 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				}
 			},
 			{
-				"text": "Previous",	//TODO i18n
+				"text": "${translation("PREVIOUS")?json_string}",
 				"dataIndex": "previousAmount",
 				"flex": 1,
 				"align": "right",
 				"renderer": styledRenderer
 			},
 			{
-				"text": "Current",	//TODO i18n
+				"text": "${translation("CURRENT")?json_string}",
 				"dataIndex": "currentAmount",
 				"flex": 1,
 				"align": "right",
@@ -71,14 +71,14 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				}
 			},
 			{
-				"text": "Actual Income / Expenses",	//TODO i18n
+				"text": "${translation("ACTUAL_INCOME_EXPENSES")?json_string}",
 				"dataIndex": "actual",
 				"flex": 1,
 				"align": "right",
 				"renderer": styledRenderer
 			},
 			{
-				"text": "Amount Remaining",	//TODO i18n
+				"text": "${translation("AMOUNT_REMAINING")?json_string}",
 				"dataIndex": "difference",
 				"flex": 1,
 				"align": "right",

@@ -8,7 +8,7 @@ Ext.define('BuddiLive.view.account.Editor', {
 	"initComponent": function(){
 		var s = this.initialConfig.selected
 
-		this.title = (s ? "Edit Account" : "Add Account");	//TODO i18n
+		this.title = (s ? "${translation("EDIT_ACCOUNT")?json_string}" : "${translation("ADD_ACCOUNT")?json_string}");
 		this.layout = "fit";
 		this.modal = true;
 		this.width = 400;
@@ -62,8 +62,8 @@ Ext.define('BuddiLive.view.account.Editor', {
 						"store": new Ext.data.Store({
 							"fields": ["text", "value"],
 							"data": [
-								{"text": "Debit", "value": "D"},	//TODO i18n
-								{"text": "Credit", "value": "C"}	//TODO i18n
+								{"text": "${translation("DEBIT")?json_string}", "value": "D"},
+								{"text": "${translation("CREDIT")?json_string}", "value": "C"}
 							]
 						}),
 						"queryMode": "local",

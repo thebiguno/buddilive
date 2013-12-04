@@ -10,7 +10,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 		var s = this.initialConfig.selected
 		var editor = this;
 		
-		this.title = (s ? "Edit Budget Category" : "Add Budget Category");	//TODO i18n
+		this.title = (s ? "${translation("EDIT_BUDGET_CATEGORY")?json_string}" : "${translation("ADD_BUDGET_CATEGORY")?json_string}")
 		this.layout = "fit";
 		this.modal = true;
 		this.width = 400;
@@ -34,7 +34,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"fieldLabel": "${translation("BUDGET_CATEGORY_NAME")?json_string}",
 						"allowBlank": false,
 						"enableKeyEvents": true,
-						"emptyText": "Salary, Groceries, Auto Insurance, etc",	//TODO i18n
+						"emptyText": "${translation("BUDGET_CATEGORY_EXAMPLES")?json_string}",
 						"listeners": {
 							"afterrender": function(field) {
 								field.focus(false, 500);
@@ -99,8 +99,8 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"store": new Ext.data.Store({
 							"fields": ["text", "value"],
 							"data": [
-								{"text": "Income", "value": "I"},	//TODO i18n
-								{"text": "Expense", "value": "E"}	//TODO i18n
+								{"text": "${translation("INCOME")?json_string}", "value": "I"},
+								{"text": "${translation("EXPENSE")?json_string}", "value": "E"}
 							]
 						}),
 						"queryMode": "local",

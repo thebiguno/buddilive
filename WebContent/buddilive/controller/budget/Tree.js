@@ -47,10 +47,10 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 		viewport.down("button[itemId='editCategory']").setDisabled(!enabled);
 		viewport.down("button[itemId='deleteCategory']").setDisabled(!enabled);
 		if (selected && selected.length > 0 && selected[0].raw.deleted){
-			viewport.down("button[itemId='deleteCategory']").setText("Undelete Budget Category");	//TODO i18n
+			viewport.down("button[itemId='deleteCategory']").setText("${translation("UNDELETE_BUDGET_CATEGORY")?json_string}");
 		}
 		else {
-			viewport.down("button[itemId='deleteCategory']").setText("Delete Budget Category");	//TODO i18n
+			viewport.down("button[itemId='deleteCategory']").setText("${translation("DELETE_BUDGET_CATEGORY")?json_string}");
 		}
 	},
 

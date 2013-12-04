@@ -38,7 +38,7 @@ Ext.define('BuddiLive.view.preferences.Restore', {
 						"allowBlank": false,
 						"itemId": "password",
 						"hidden": true,
-						"fieldLabel": "Password"	//TODO i18n
+						"fieldLabel": "${translation("PASSWORD")?json_string}"
 					},
 					{
 						"xtype": "combobox",

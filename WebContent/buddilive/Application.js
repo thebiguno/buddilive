@@ -80,7 +80,7 @@ Ext.application({
 			title = "Error";
 		}
 		else if (error.responseText != null){
-			title = (error.statusText ? error.statusText : "Error");	//TODO i18n
+			title = (error.statusText ? error.statusText : "${translation("ERROR")?json_string}");
 			var json = Ext.decode(error.responseText, true);
 			if (json == null){
 				message = error.responseText;
@@ -90,8 +90,8 @@ Ext.application({
 			}
 		}
 		else {
-			message = "Unknown error";	//TODO i18n
-			title = "Error";	//TODO i18n
+			message = "${translation("ERROR_UNKNOWN")?json_string}";
+			title = "${translation("ERROR")?json_string}";
 		}
 		
 		Ext.MessageBox.show({

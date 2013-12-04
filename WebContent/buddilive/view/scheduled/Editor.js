@@ -17,7 +17,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 		var s = this.initialConfig.selected
 		var editor = this;
 		
-		this.title = (s ? "Edit Scheduled Transaction" : "Add Scheduled Transaction");	//TODO i18n
+		this.title = (s ? "${translation("EDIT_SCHEDULED_TRANSACTION")?json_string}" : "${translation("ADD_SCHEDULED_TRANSACTION")?json_string}");
 		this.layout = "fit";
 		this.modal = true;
 		this.width = 750;
