@@ -109,6 +109,10 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 	//preserveDate is true if we want to keep the date.  This is used when we have just recorded a transaction, and want to keep it for the next one.
 	"setTransaction": function(transaction, loadFromDescription, preserveDate){
 		Ext.suspendLayouts();
+		
+		//Save this so that we can check in the controller what has changed.
+		this.lastTransaction = transaction;
+		
 		transaction = (transaction ? transaction : {});
 		
 		if (!loadFromDescription) {

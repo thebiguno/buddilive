@@ -47,6 +47,8 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": editor});
 		mask.show();
 		
+		var lastTransaction = editor.lastTransaction;
+		
 		var request = editor.getTransaction();
 		if (request.date == null || request.description == null || request.splits.length == 0){
 			mask.hide();
@@ -89,6 +91,27 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 			Ext.MessageBox.show({
 				"title": "${translation("CONFIRM_DATE_OUT_OF_RANGE_TITLE")?json_string}",
 				"msg": msg,
+				"buttons": Ext.MessageBox.YESNO,
+				"fn": function(buttonId){
+					if (buttonId == "yes"){
+						doPost();
+					}
+					else {
+						mask.hide();
+						//Re-enable the button
+						editor.down("button[itemId='recordTransaction']").enable();
+					}
+				}
+			});
+		}
+		else if (lastTransaction != null && (
+				lastTransaction.date != request.date ||
+				lastTransaction.description != request.description ||
+				lastTransaction.number != request.number ||
+				lastTransaction.splits.length != request.splits.length)){
+			Ext.MessageBox.show({
+				"title": "${translation("CONFIRM_CHANGE_EXISTING_TRANSACTION_TITLE")?json_string}",
+				"msg": "${translation("CONFIRM_CHANGE_EXISTING_TRANSACTION")?json_string}",
 				"buttons": Ext.MessageBox.YESNO,
 				"fn": function(buttonId){
 					if (buttonId == "yes"){
