@@ -40,8 +40,6 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	},
 	
 	"recordTransaction": function(component){
-		//TODO Check for large changes and confirm
-	
 		var me = this;
 		var editor = component.up("transactioneditor");
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": editor});
@@ -131,8 +129,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 	},
 	
 	"clearTransaction": function(component){
-		//TODO check if there is data here... if so, verify that we really want to clear it
-		
+		//TODO Possibly check if there is data here... if so, verify that we really want to clear it?  This may be excessive...
 		var editor = component.up("transactioneditor");
 		var list = component.up("transactionlist");
 		editor.setTransaction();
