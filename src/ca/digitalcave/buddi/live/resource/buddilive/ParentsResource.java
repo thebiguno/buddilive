@@ -21,6 +21,7 @@ import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class ParentsResource extends ServerResource {
@@ -47,7 +48,7 @@ public class ParentsResource extends ServerResource {
 			
 			final JSONObject item = new JSONObject();
 			item.put("value", "");
-			item.put("text", "Top Level");	//TODO i18n
+			item.put("text", LocaleUtil.getTranslation(getRequest()).getString("TOP_LEVEL"));
 			data.put(item);
 
 			
