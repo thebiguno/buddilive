@@ -85,9 +85,9 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		var validBeginDate = Ext.Date.add(new Date(), Ext.Date.YEAR, -1);
 		var validEndDate = Ext.Date.add(new Date(), Ext.Date.MONTH, 1);
 		if (d < validBeginDate || d > validEndDate){
-			var msg = d < validBeginDate ? "${translation("DATE_OUT_OF_RANGE_BEFORE")?json_string}" : "${translation("DATE_OUT_OF_RANGE_AFTER")?json_string}";
+			var msg = d < validBeginDate ? "${translation("CONFIRM_DATE_OUT_OF_RANGE_BEFORE")?json_string}" : "${translation("CONFIRM_DATE_OUT_OF_RANGE_AFTER")?json_string}";
 			Ext.MessageBox.show({
-				"title": "${translation("DATE_OUT_OF_RANGE_TITLE")?json_string}",
+				"title": "${translation("CONFIRM_DATE_OUT_OF_RANGE_TITLE")?json_string}",
 				"msg": msg,
 				"buttons": Ext.MessageBox.YESNO,
 				"fn": function(buttonId){
