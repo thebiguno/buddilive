@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.live.util;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.restlet.Request;
@@ -13,7 +12,13 @@ public class LocaleUtil {
 	public static ResourceBundle getTranslation(Request r){
 		if (r.getAttributes().get(key) == null){
 			final User user = (User) r.getClientInfo().getUser();
-			final ResourceBundle translations = ResourceBundle.getBundle("i18n", user == null || user.getLocale() == null ? Locale.ENGLISH : user.getLocale());	//TODO Pick browser locale
+			ResourceBundle translations;
+			if (user != null && user.getLocale() != null){
+				translations = ResourceBundle.getBundle("i18n", user.getLocale());
+			}
+			else {
+				translations = ResourceBundle.getBundle("i18n", ca.digitalcave.moss.restlet.util.LocaleUtil.parseLocales(r.getClientInfo().getAcceptedLanguages()));
+			}
 			r.getAttributes().put(key, translations);
 		}
 		return (ResourceBundle) r.getAttributes().get(key);
