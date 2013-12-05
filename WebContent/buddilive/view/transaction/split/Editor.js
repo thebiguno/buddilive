@@ -90,6 +90,15 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 		
 		this.down("fromcombobox").getStore().clearFilter();
 		this.down("tocombobox").getStore().clearFilter();
+		
+		if (this.down("currencyfield").getValue() != "" 
+				&& (this.down("fromcombobox").getValue() == null || this.down("tocombobox").getValue() == null)){
+			Ext.MessageBox.show({
+				"title": "${translation("INFO_LOADING_DELETED_SOURCE_TITLE")?json_string}",
+				"msg": "${translation("INFO_LOADING_DELETED_SOURCE")?json_string}",
+				"buttons": Ext.MessageBox.OK
+			});
+		}
 	},
 	
 	"getSplit": function(){
