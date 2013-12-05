@@ -8,16 +8,16 @@ Ext.define('BuddiLive.view.transaction.split.Editor', {
 		"BuddiLive.view.transaction.split.ToCombobox"
 	],
 	
+	"layout": "hbox",
+	"border": false,
+	"width": "100%",
+	"height": 28,
+	"defaults": {
+		"padding": "0 0 5 5"
+	},
 	"initComponent": function(){
 		var v = this.initialConfig.value ? this.initialConfig.value : {};
 		var splitEditor = this;
-		this.layout = "hbox";
-		this.border = false;
-		this.width = "100%";
-		this.height = 28;
-		this.defaults = {
-			"padding": "0 0 5 5"
-		};
 		
 		this.listeners = {
 			"boxready": function(){

@@ -7,9 +7,9 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		"BuddiLive.view.transaction.split.Editor"
 	],
 	
+	"layout": "vbox",
+	"border": false,
 	"initComponent": function(){
-		this.layout = "vbox";
-		this.border = false;
 		this.items = [
 			{"xtype": "spliteditor"}
 		];
