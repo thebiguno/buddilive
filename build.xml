@@ -39,6 +39,7 @@
 		<copy filtering="true" file="WebContent/WEB-INF/web.xml" tofile="build/temp/web.xml" overwrite="true"/>
 		<copy filtering="true" file="WebContent/WEB-INF/liquibase/master.xml" tofile="build/temp/liquibase/master.xml" overwrite="true"/>
 		<copy filtering="true" file="conf/${conf}-config.properties" tofile="build/temp/config.properties" overwrite="true"/>
+		<copy filtering="true" file="conf/logging.properties" tofile="build/temp/logging.properties" overwrite="true"/>
 		<echo append="false" file="build/temp/version.properties">BUILD_DATE=${timestamp}${line.separator}VERSION=${git}</echo>
 		
 		<war destfile="build/dist/${war-name}.war" webxml="build/temp/web.xml">
