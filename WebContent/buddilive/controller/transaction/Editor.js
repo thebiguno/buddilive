@@ -141,23 +141,32 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 		var list = editor.up("transactionlist");
 		var selection = list.getSelectionModel().getSelection();
 		if (selection.length > 0){
-			var id = selection[0].raw.id;
-			
-			var conn = new Ext.data.Connection();
-			conn.request({
-				"url": "data/transactions",
-				"headers": {
-					"Accept": "application/json"
-				},
-				"method": "POST",
-				"jsonData": {"action": "delete", "id": id},
-				"success": function(response){
-					editor.setTransaction();
-					editor.up("transactionlist").reload();
-					editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
-				},
-				"failure": function(response){
-					BuddiLive.app.error(response);
+			Ext.MessageBox.show({
+				"title": "${translation("DELETE_TRANSACTION")?json_string}",
+				"msg": "${translation("CONFIRM_DELETE_TRANSACTION")?json_string}",
+				"buttons": Ext.MessageBox.YESNO,
+				"fn": function(buttonId){
+					if (buttonId == "yes"){
+						var id = selection[0].raw.id;
+						
+						var conn = new Ext.data.Connection();
+						conn.request({
+							"url": "data/transactions",
+							"headers": {
+								"Accept": "application/json"
+							},
+							"method": "POST",
+							"jsonData": {"action": "delete", "id": id},
+							"success": function(response){
+								editor.setTransaction();
+								editor.up("transactionlist").reload();
+								editor.up("panel[itemId='myAccounts']").down("accounttree").getStore().reload();
+							},
+							"failure": function(response){
+								BuddiLive.app.error(response);
+							}
+						});
+					}
 				}
 			});
 		}
