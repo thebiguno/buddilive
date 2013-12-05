@@ -37,6 +37,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_NAME")?json_string}",
 						"type": "textfield",
 						"itemId": "name",
+						"enableKeyEvents": true,
 						"value": (s ? s.name : null),
 						"fieldLabel": "${translation("SCHEDULED_TRANSACTION_NAME")?json_string}",
 						"allowBlank": false,

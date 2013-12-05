@@ -134,7 +134,7 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 			//Add a new split editor for each split
 			for (var i = 0; i < splits.length; i++){
 				var split = Ext.apply(splits[i]);
-				if (loadFromDescription){
+				if (loadFromDescription && !this.initialConfig.scheduledTransaction){
 					//If this is being set from a description selection, we need to ensure that
 					// a) one of the sources is set to the selected source
 					// b) if not a), then the source we change to selected source should be an account, not a budget category.

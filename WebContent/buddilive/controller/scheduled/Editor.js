@@ -5,7 +5,7 @@ Ext.define("BuddiLive.controller.scheduled.Editor", {
 		this.control({
 			"schedulededitor component": {
 				"blur": this.updateButtons,
-				"keypress": this.updateButtons,
+				"keyup": this.updateButtons,
 				"afterrender": this.updateButtons
 			},
 			"schedulededitor button[itemId='ok']": {"click": this.ok},
