@@ -51,9 +51,6 @@ Ext.define("BuddiLive.view.budget.ParentCombobox", {
 			if (combo.getValue() == ""){
 				combo.setValue();
 			}
-			
-			//TODO Don't let them select two categories
-			//TODO Ensure one of the items is the currently selected source
 		});
 	}
 });
