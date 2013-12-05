@@ -71,7 +71,7 @@ public class ParentsResource extends ServerResource {
 	private void getJsonArray(JSONArray array, List<Category> categories, Category exclude, User user, int depth) throws JSONException, CryptoException {
 		final StringBuilder sb = new StringBuilder();
 		for (Category category : categories) {
-			if (exclude != null && (category.getId() == exclude.getId() || !category.getType().equals(exclude.getType()) || !category.getPeriodType().equals(exclude.getPeriodType()))) continue;
+			if (exclude != null && (category.getId().equals(exclude.getId()) || !category.getType().equals(exclude.getType()) || !category.getPeriodType().equals(exclude.getPeriodType()))) continue;
 			final JSONObject item = new JSONObject();
 			item.put("value", category.getId());
 			if (category.isDeleted()) sb.append(" text-decoration: line-through;");
