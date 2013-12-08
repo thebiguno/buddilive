@@ -265,17 +265,7 @@ public class BuddiApplication extends Application{
 	}
 	
 	public SqlSessionFactory getSqlSessionFactory() {
-//		return sqlSessionFactory;
-		final SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
-		final Environment environment = new Environment("prod", new JdbcTransactionFactory(), ds);
-		final org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration(environment);
-		configuration.getTypeHandlerRegistry().register(BooleanHandler.class);
-		configuration.getTypeHandlerRegistry().register(CurrencyHandler.class);
-		configuration.getTypeHandlerRegistry().register(LocaleHandler.class);
-		
-		configuration.addMappers("ca.digitalcave.buddi.live.db");
-		
-		return sqlSessionFactoryBuilder.build(configuration);
+		return sqlSessionFactory;
 	}
 	
 	public Configuration getFreemarkerConfiguration() {
