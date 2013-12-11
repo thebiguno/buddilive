@@ -54,6 +54,7 @@ public class ScheduledTransaction {
 		this.setFrequencyType(json.getString("repeat"));
 		this.setStartDate(FormatUtil.parseDateInternal(json.getString("start")));
 		this.setEndDate(FormatUtil.parseDateInternal(json.getString("end")));
+		this.setLastCreatedDate(FormatUtil.parseDateInternal(json.getString("lastCreatedDate")));
 		this.setMessage(json.optString("message", null));
 
 		final JSONObject transaction = json.getJSONObject("transaction");
@@ -63,27 +64,7 @@ public class ScheduledTransaction {
 			splits.add(new Split(transaction.getJSONArray("splits").getJSONObject(i)));
 		}
 	}
-	//	
-	//	public JSONObject toJson() throws JSONException {
-	//		final JSONObject result = new JSONObject();
-	//		result.put("id", this.getId());
-	//		result.put("userId", this.getUserId());
-	//		result.put("uuid", this.getUuid());
-	//		result.put("description", this.getDescription());
-	//		result.put("number", this.getNumber());
-	//		result.put("date", FormatUtil.formatDateInternal((Date) this.getDate()));
-	//		result.put("deleted", this.isDeleted());
-	//		JSONArray splits = new JSONArray();
-	//		if (getSplits() != null){
-	//			for (Split split : getSplits()) {
-	//				splits.put(split.toJson());
-	//			}
-	//		}
-	//		result.put("splits", splits);
-	//		result.put("created", FormatUtil.formatDateTimeInternal((Date) this.getCreated()));
-	//		result.put("modified", FormatUtil.formatDateTimeInternal((Date) this.getModified()));
-	//		return result;
-	//	}
+
 	public Long getId() {
 		return id;
 	}

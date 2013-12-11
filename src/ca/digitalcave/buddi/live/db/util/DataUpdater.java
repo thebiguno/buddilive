@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.crypto.SecretKey;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.restlet.Application;
 
@@ -24,6 +25,7 @@ import ca.digitalcave.buddi.live.model.ScheduledTransaction.ScheduleFrequency;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 import ca.digitalcave.moss.common.DateUtil;
 import ca.digitalcave.moss.crypto.Crypto;
@@ -32,11 +34,6 @@ import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 public class DataUpdater {
 
 	public static void updateBalances(User user, SqlSession sqlSession) throws DatabaseException {
-		//If the forceAll flag is passed, we first clear all balances to ensure a fresh start.  This is a good idea when adding new accounts, etc.
-//		if (forceAll){
-//			sqlSession.getMapper(Transactions.class).updateSplitsClearBalances(user);
-//		}
-		
 		//Look through all splits in all accounts.  Start with the earliest split in each account.  If we find a
 		// split which does not have the correct balance, we update it; if the balance is already good, leave it alone.
 		final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
@@ -277,8 +274,9 @@ public class DataUpdater {
 
 					scheduledTransaction.setLastCreatedDate(DateUtil.getEndOfDay(tempDate));
 
-					if (scheduledTransaction.getMessage() != null && scheduledTransaction.getMessage().trim().length() > 0){
-						sb.append(FormatUtil.formatDate(tempDate, user)).append(": ").append(scheduledTransaction.getMessage()).append("<br/>");
+					final String decryptedMessage = CryptoUtil.decryptWrapper(scheduledTransaction.getMessage(), user);
+					if (scheduledTransaction.getMessage() != null && StringUtils.isNotBlank(decryptedMessage)){
+						sb.append(FormatUtil.formatDate(tempDate, user)).append(": ").append(decryptedMessage).append("<br/>");
 					}
 
 					if (tempDate != null && scheduledTransaction.getDescription() != null) {

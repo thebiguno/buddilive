@@ -84,7 +84,13 @@ public class BuddiApplication extends Application{
 		try { systemProperties.load(new ClientResource(getContext(), "war:///WEB-INF/classes/version.properties").get().getStream()); } catch (Throwable e){}
 		
 		final Properties p = new Properties();
-		p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
+		try {
+			p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
+		}
+		catch (Exception e){
+			getLogger().severe("There was an error loading the config file from WEB-INF/classes/config.properties.  Please ensure that this file exists and is readable.");
+			throw e;
+		}
 		
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(p.getProperty("db.driver"));

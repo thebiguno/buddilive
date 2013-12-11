@@ -34,6 +34,7 @@ Ext.define("BuddiLive.controller.scheduled.Editor", {
 
 		var request = {"action": (selected ? "update" : "insert")};
 		request.id = window.down("hidden[itemId='id']").getValue();
+		request.lastCreatedDate = window.down("hidden[itemId='lastCreatedDate']").getValue();
 		request.name = window.down("textfield[itemId='name']").getValue();
 		request.repeat = window.down("combobox[itemId='repeat']").getValue();
 		request.start = Ext.Date.format(window.down("datefield[itemId='startDate']").getValue(), "Y-m-d");

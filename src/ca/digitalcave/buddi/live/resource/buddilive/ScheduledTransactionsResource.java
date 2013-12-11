@@ -68,6 +68,7 @@ public class ScheduledTransactionsResource extends ServerResource {
 				scheduledTransaction.put("start", FormatUtil.formatDateInternal(t.getStartDate()));
 				scheduledTransaction.put("end", FormatUtil.formatDateInternal(t.getEndDate()));
 				scheduledTransaction.put("repeat", t.getFrequencyType());
+				scheduledTransaction.put("lastCreatedDate", FormatUtil.formatDateInternal(t.getLastCreatedDate()));
 				scheduledTransaction.put("message", CryptoUtil.decryptWrapper(t.getMessage(), user));
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();

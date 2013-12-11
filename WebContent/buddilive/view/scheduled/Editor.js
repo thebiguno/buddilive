@@ -33,6 +33,11 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 						"value": (s ? s.id : null)
 					},
 					{
+						"xtype": "hidden",
+						"itemId": "lastCreatedDate",
+						"value": (s ? s.lastCreatedDate : null)
+					},
+					{
 						"xtype": "selfdocumentingfield",
 						"messageBody": "${translation("HELP_SCHEDULED_TRANSACTION_NAME")?json_string}",
 						"type": "textfield",
