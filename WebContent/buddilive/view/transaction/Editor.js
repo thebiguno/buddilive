@@ -111,7 +111,9 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 		Ext.suspendLayouts();
 		
 		//Save this so that we can check in the controller what has changed.
-		this.lastTransaction = transaction;
+		if (!loadFromDescription){
+			this.lastTransaction = transaction;
+		}
 		
 		transaction = (transaction ? transaction : {});
 		
