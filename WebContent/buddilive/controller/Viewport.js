@@ -21,6 +21,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport menuitem[itemId='showPreferences']": {"click": this.showPreferences},
 			"buddiviewport menuitem[itemId='backup']": {"click": this.backup},
 			"buddiviewport menuitem[itemId='restore']": {"click": this.restore},
+			"buddiviewport menuitem[itemId='deleteUser']": {"click": this.deleteUser},
 			"buddiviewport menuitem[itemId='gettingStarted']": {"click": this.gettingStarted},
 			"buddiviewport button[itemId='logout']": {"click": function(component){
 				Ext.Ajax.request({
@@ -308,5 +309,44 @@ Ext.define("BuddiLive.controller.Viewport", {
 
 	"restore": function(component){
 		Ext.widget("restoreform").show();
+	},
+	
+	"deleteUser": function(component){
+		var viewport = component.up("buddiviewport");
+		Ext.MessageBox.show({
+			"title": "${translation("DELETE_USER")?json_string}",
+			"msg": "${translation("CONFIRM_DELETE_USER")?json_string}",
+			"buttons": Ext.MessageBox.YESNO,
+			"fn": function(buttonId){
+				if (buttonId != "yes") return;
+				
+					Ext.MessageBox.show({
+						"title": "${translation("DELETE_USER")?json_string}",
+						"msg": "${translation("CONFIRM_DELETE_USER2")?json_string}",
+						"buttons": Ext.MessageBox.YESNO,
+						"fn": function(buttonId){
+							if (buttonId != "yes") return;
+							
+							var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
+							mask.show();
+							new Ext.data.Connection().request({
+								"url": "data/userpreferences",
+								"jsonData": {"action": "delete"},
+								"headers": {"Accept": "application/json"},
+								"method": "POST",
+								"timeout": 10 * 60 * 1000,	//Set a high timeout value to give time for deleting everything
+								"success": function(response){
+									mask.hide();
+									location.reload();
+								},
+								"failure": function(response){
+									mask.hide();
+									BuddiLive.app.error(response);
+								}
+							});
+						}
+					});
+			}
+		});
 	}
 });

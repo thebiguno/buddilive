@@ -17,6 +17,9 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.ScheduledTransactions;
+import ca.digitalcave.buddi.live.db.Sources;
+import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
@@ -86,12 +89,19 @@ public class UserPreferencesResource extends ServerResource {
 				
 				int count = sqlSession.getMapper(Users.class).updateUser(user);
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+
+				DataUpdater.updateBalances(user, sqlSession);
+			}
+			else if ("delete".equals(action)){
+				//Everything in the system will cascade from sources, transactions, and users
+				sqlSession.getMapper(Transactions.class).deleteAllTransactions(user);
+				sqlSession.getMapper(ScheduledTransactions.class).deleteAllScheduledTransactions(user);
+				sqlSession.getMapper(Sources.class).deleteAllSources(user);
+				sqlSession.getMapper(Users.class).deleteUser(user);
 			}
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
-			
-			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
 			final JSONObject result = new JSONObject();
