@@ -51,19 +51,28 @@ public class CategoriesResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(getQuery().getFirstValue("periodType")), FormatUtil.parseDateInternal(getQuery().getFirstValue("date")), Integer.parseInt(getQuery().getFirstValue("offset", "0")));
-			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp, true));
-			
+			final CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(getQuery().getFirstValue("periodType")), FormatUtil.parseDateInternal(getQuery().getFirstValue("date")), Integer.parseInt(getQuery().getFirstValue("offset", "0")));
+			final JSONObject result = new JSONObject();
 			final JSONArray data = new JSONArray();
-			for (Category c : categories) {
+			
+			if (getQuery().getFirstValue("node") != null){
+				final Category c = sqlSession.getMapper(Sources.class).selectCategory(user, Integer.parseInt(getQuery().getFirstValue("node")));
 				final JSONObject category = getJsonObject(c, cp, user);
 				if (category != null) data.put(category);
 			}
+			else {
+				final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp, true));
+
+				for (Category c : categories) {
+					final JSONObject category = getJsonObject(c, cp, user);
+					if (category != null) data.put(category);
+				}
+
+				result.put("period", FormatUtil.formatDate(cp.getCurrentPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getCurrentPeriodEndDate(), user));
+				result.put("date", FormatUtil.formatDateInternal(cp.getCurrentPeriodStartDate()));
+				result.put("previousPeriod", FormatUtil.formatDate(cp.getPreviousPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getPreviousPeriodEndDate(), user));
+			}
 			
-			final JSONObject result = new JSONObject();
-			result.put("period", FormatUtil.formatDate(cp.getCurrentPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getCurrentPeriodEndDate(), user));
-			result.put("date", FormatUtil.formatDateInternal(cp.getCurrentPeriodStartDate()));
-			result.put("previousPeriod", FormatUtil.formatDate(cp.getPreviousPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getPreviousPeriodEndDate(), user));
 			result.put("children", data);
 			result.put("success", true);
 			return new JsonRepresentation(result);
@@ -97,32 +106,24 @@ public class CategoriesResource extends ServerResource {
 		
 
 		final BigDecimal currentAmount = category.getCurrentEntry().getAmount() != null ? category.getCurrentEntry().getAmount() : BigDecimal.ZERO;
-		if (currentAmount.compareTo(BigDecimal.ZERO) == 0){
-			result.put("currentAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO, user));
-			result.put("currentAmountStyle", FormatUtil.formatGray());
-		}
-		else {
-			result.put("currentAmount", FormatUtil.formatCurrency(currentAmount, user));
-			result.put("currentAmountStyle", (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
-		}
+		result.put("current", FormatUtil.formatCurrency(currentAmount, user));
+		result.put("currentAmount", currentAmount);
+		result.put("currentStyle", (currentAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
 		
 		final BigDecimal previousAmount = category.getPreviousEntry().getAmount() != null ? category.getPreviousEntry().getAmount() : BigDecimal.ZERO;
-		if (previousAmount.compareTo(BigDecimal.ZERO) == 0){
-			result.put("previousAmount", FormatUtil.formatCurrency(BIGDECIMAL_ZERO, user));
-			result.put("previousAmountStyle", FormatUtil.formatGray());
-		}
-		else {
-			result.put("previousAmount", FormatUtil.formatCurrency(previousAmount, user));
-			result.put("previousAmountStyle", (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
-		}
+		result.put("previous", FormatUtil.formatCurrency(previousAmount, user));
+		result.put("previousAmount", previousAmount);
+		result.put("previousStyle", (previousAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
 		
 		final BigDecimal actualAmount = category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance();
 		result.put("actual", FormatUtil.formatCurrency(actualAmount, user));
-		result.put("actualStyle", (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));
+		result.put("actualAmount", actualAmount);
+		result.put("actualStyle", (previousAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));
 
-		final BigDecimal difference = (actualAmount.subtract(currentAmount != null ? currentAmount : BigDecimal.ZERO));
-		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? difference : difference.negate(), user));
-		result.put("differenceStyle", (FormatUtil.isRed(category.isIncome() ? difference : difference.negate()) ? FormatUtil.formatRed() : ""));
+		final BigDecimal differenceAmount = (actualAmount.subtract(currentAmount != null ? currentAmount : BigDecimal.ZERO));
+		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? differenceAmount : differenceAmount.negate(), user));
+		result.put("differenceAmount", differenceAmount);
+		result.put("differenceStyle", (differenceAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category.isIncome() ? differenceAmount : differenceAmount.negate()) ? FormatUtil.formatRed() : ""));
 
 		result.put("parent", category.getParent());
 		result.put("deleted", category.isDeleted());

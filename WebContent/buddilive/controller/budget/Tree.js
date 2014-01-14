@@ -32,7 +32,10 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
-				budgetTree.getStore().reload();
+				//budgetTree.getStore().commitChanges();
+				budgetTree.getStore().load({
+					"node": data.record
+				});
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

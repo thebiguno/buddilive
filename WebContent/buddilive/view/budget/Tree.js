@@ -43,14 +43,14 @@ Ext.define('BuddiLive.view.budget.Tree', {
 			},
 			{
 				"text": "${translation("PREVIOUS")?json_string}",
-				"dataIndex": "previousAmount",
+				"dataIndex": "previous",
 				"flex": 1,
 				"align": "right",
 				"renderer": styledRenderer
 			},
 			{
 				"text": "${translation("CURRENT")?json_string}",
-				"dataIndex": "currentAmount",
+				"dataIndex": "current",
 				"flex": 1,
 				"align": "right",
 				"editor": {
@@ -63,8 +63,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 					}
 				},
 				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.currentAmountStyle;
-					if (value == "0.00") {
+					metaData.style = record.raw.currentStyle;
+					if (record.raw.currentAmount == 0) {
 						return "${translation("CLICK_TO_ENTER_BUDGETED_AMOUNT")}";
 					}
 					return value;
