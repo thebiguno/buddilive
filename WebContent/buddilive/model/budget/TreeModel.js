@@ -1,5 +1,5 @@
 Ext.define('BuddiLive.model.budget.TreeModel', {
-	"extend": "Ext.data.Model",
+	"extend": "Ext.data.TreeModel",
 	"fields": [
 		"id",
 		"name",

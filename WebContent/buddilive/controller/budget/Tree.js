@@ -4,7 +4,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 	"init": function() {
 		this.control({
 			"budgettree": {
-				"edit": this.editCell,
+				"edit": this.edit,
 				"selectionchange": this.selectionChange
 			},
 			"budgettree button[itemId='copyFromPreviousPeriod']": { "click": this.clickCopyFromPreviousPeriod },
@@ -13,16 +13,17 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 		});
 	},
 	
-	"editCell": function(editor, data){
+	"edit": function(editor, data){
 		//If nothing has changed, no point in reloading
 		if (data.originalValue == data.value) return;
+		if (data.value == "") data.value = 0;
 		
 		var budgetTree = editor.cmp;
 		var request = {"action": "update"};
 		request.categoryId = data.record.raw.id;
 		request.date = data.record.raw.dateIso;
 		request.amount = data.value;
-	
+		
 		var conn = new Ext.data.Connection();
 		conn.request({
 			"url": "data/categories/entries",
@@ -32,10 +33,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
-				//budgetTree.getStore().commitChanges();
-				budgetTree.getStore().load({
-					"node": data.record
-				});
+				budgetTree.getStore().reload();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);

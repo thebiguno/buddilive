@@ -320,32 +320,32 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"fn": function(buttonId){
 				if (buttonId != "yes") return;
 				
-					Ext.MessageBox.show({
-						"title": "${translation("DELETE_USER")?json_string}",
-						"msg": "${translation("CONFIRM_DELETE_USER2")?json_string}",
-						"buttons": Ext.MessageBox.YESNO,
-						"fn": function(buttonId){
-							if (buttonId != "yes") return;
-							
-							var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
-							mask.show();
-							new Ext.data.Connection().request({
-								"url": "data/userpreferences",
-								"jsonData": {"action": "delete"},
-								"headers": {"Accept": "application/json"},
-								"method": "POST",
-								"timeout": 10 * 60 * 1000,	//Set a high timeout value to give time for deleting everything
-								"success": function(response){
-									mask.hide();
-									location.reload();
-								},
-								"failure": function(response){
-									mask.hide();
-									BuddiLive.app.error(response);
-								}
-							});
-						}
-					});
+				Ext.MessageBox.show({
+					"title": "${translation("DELETE_USER")?json_string}",
+					"msg": "${translation("CONFIRM_DELETE_USER2")?json_string}",
+					"buttons": Ext.MessageBox.YESNO,
+					"fn": function(buttonId){
+						if (buttonId != "yes") return;
+						
+						var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": viewport});
+						mask.show();
+						new Ext.data.Connection().request({
+							"url": "data/userpreferences",
+							"jsonData": {"action": "delete"},
+							"headers": {"Accept": "application/json"},
+							"method": "POST",
+							"timeout": 10 * 60 * 1000,	//Set a high timeout value to give time for deleting everything
+							"success": function(response){
+								mask.hide();
+								location.reload();
+							},
+							"failure": function(response){
+								mask.hide();
+								BuddiLive.app.error(response);
+							}
+						});
+					}
+				});
 			}
 		});
 	}
