@@ -3,11 +3,17 @@ Ext.define('BuddiLive.model.budget.TreeModel', {
 	"fields": [
 		"id",
 		"name",
+		"nameStyle",
+		"date",
 		"type",
 		"deleted",
 		"previous",
+		"previousStyle",
 		"current",
+		"currentStyle",
 		"actual",
-		"difference"
+		"actualStyle",
+		"difference",
+		"differenceStyle"
 	]
 });

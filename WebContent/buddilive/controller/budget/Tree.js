@@ -19,23 +19,35 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 		if (data.value == "") data.value = 0;
 		
 		var budgetTree = editor.cmp;
-		var request = {"action": "update"};
-		request.categoryId = data.record.raw.id;
-		request.date = data.record.raw.dateIso;
+		var request = {"action": "set"};
+		request.categoryId = data.record.data.id;
+		request.date = data.record.data.date;
+		request.periodType = data.record.data.type;
 		request.amount = data.value;
-		
+	
 		var conn = new Ext.data.Connection();
 		conn.request({
-			"url": "data/categories/entries",
+			"url": "data/categories",
 			"headers": {
 				"Accept": "application/json"
 			},
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
-				budgetTree.getStore().reload();
+				var v = Ext.decode(response.responseText);
+				if (v && v.data){
+					v = v.data;
+					data.record.set("current", v.current);
+					data.record.set("currentStyle", v.currentStyle);
+					data.record.set("actual", v.actual);
+					data.record.set("actualStyle", v.actualStyle);
+					data.record.set("difference", v.difference);
+					data.record.set("differenceStyle", v.differenceStyle);
+				}
+				data.record.commit();
 			},
 			"failure": function(response){
+				data.record.reject();
 				BuddiLive.app.error(response);
 			}
 		});

@@ -23,6 +23,7 @@ public interface Sources {
 	public List<AccountType> selectAccountTypes(@Param("user") User user);
 	
 	public Category selectCategory(@Param("user") User user, @Param("id") Integer id);
+	public Category selectCategory(@Param("user") User user, @Param("categoryPeriod") CategoryPeriod categoryPeriod, @Param("id") Integer id);
 	public Category selectCategory(@Param("user") User user, @Param("uuid") String uuid);
 	
 	public List<Category> selectCategories(@Param("user") User user);

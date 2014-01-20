@@ -26,7 +26,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 		];
 		
 		var styledRenderer = function(value, metaData, record){
-			metaData.style = record.raw[metaData.column.dataIndex + "Style"];
+			metaData.style = record.data[metaData.column.dataIndex + "Style"];
 			return value;
 		};
 		
@@ -37,7 +37,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"flex": 2,
 				"xtype": "treecolumn",
 				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.nameStyle;
+					metaData.style = record.data.nameStyle;
 					return value;
 				}
 			},
@@ -63,7 +63,7 @@ Ext.define('BuddiLive.view.budget.Tree', {
 					}
 				},
 				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.currentStyle;
+					metaData.style = record.data.currentStyle;
 					if (record.raw.currentAmount == 0) {
 						return "${translation("CLICK_TO_ENTER_BUDGETED_AMOUNT")}";
 					}

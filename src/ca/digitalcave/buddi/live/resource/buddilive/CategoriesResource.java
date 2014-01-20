@@ -55,25 +55,18 @@ public class CategoriesResource extends ServerResource {
 			final JSONObject result = new JSONObject();
 			final JSONArray data = new JSONArray();
 			
-//			if (getQuery().getFirstValue("node") != null && !"root".equals(getQuery().getFirstValue("node"))){
-//				final Category c = sqlSession.getMapper(Sources.class).selectCategory(user, Integer.parseInt(getQuery().getFirstValue("node")));
-//				final JSONObject category = getJsonObject(c, cp, user);
-//				if (category != null) data.put(category);
-//			}
-//			else {
-				final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp, true));
+			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp, true));
 
-				for (Category c : categories) {
-					final JSONObject category = getJsonObject(c, cp, user);
-					if (category != null) data.put(category);
-				}
+			for (Category c : categories) {
+				final JSONObject category = getJsonObject(c, cp, user);
+				if (category != null) data.put(category);
+			}
 
-				result.put("period", FormatUtil.formatDate(cp.getCurrentPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getCurrentPeriodEndDate(), user));
-				result.put("date", FormatUtil.formatDateInternal(cp.getCurrentPeriodStartDate()));
-				result.put("previousPeriod", FormatUtil.formatDate(cp.getPreviousPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getPreviousPeriodEndDate(), user));
-//			}
-			
+			result.put("period", FormatUtil.formatDate(cp.getCurrentPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getCurrentPeriodEndDate(), user));
+			result.put("date", FormatUtil.formatDateInternal(cp.getCurrentPeriodStartDate()));
+			result.put("previousPeriod", FormatUtil.formatDate(cp.getPreviousPeriodStartDate(), user) + " - " + FormatUtil.formatDate(cp.getPreviousPeriodEndDate(), user));
 			result.put("children", data);
+			
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}
@@ -96,7 +89,8 @@ public class CategoriesResource extends ServerResource {
 		final JSONObject result = new JSONObject();
 		result.put("id", category.getId());
 		result.put("icon", "img/folder-open-table.png");
-		result.put("dateIso", FormatUtil.formatDateInternal(categoryPeriod.getCurrentPeriodStartDate()));
+		result.put("date", FormatUtil.formatDateInternal(categoryPeriod.getCurrentPeriodStartDate()));
+		result.put("type", categoryPeriod.getPeriodType());
 		result.put("name", CryptoUtil.decryptWrapper(category.getName(), user));
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");
@@ -107,22 +101,22 @@ public class CategoriesResource extends ServerResource {
 
 		final BigDecimal currentAmount = category.getCurrentEntry().getAmount() != null ? category.getCurrentEntry().getAmount() : BigDecimal.ZERO;
 		result.put("current", FormatUtil.formatCurrency(currentAmount, user));
-		result.put("currentAmount", currentAmount);
+//		result.put("currentAmount", currentAmount);
 		result.put("currentStyle", (currentAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
 		
 		final BigDecimal previousAmount = category.getPreviousEntry().getAmount() != null ? category.getPreviousEntry().getAmount() : BigDecimal.ZERO;
 		result.put("previous", FormatUtil.formatCurrency(previousAmount, user));
-		result.put("previousAmount", previousAmount);
+//		result.put("previousAmount", previousAmount);
 		result.put("previousStyle", (previousAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
 		
 		final BigDecimal actualAmount = category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance();
 		result.put("actual", FormatUtil.formatCurrency(actualAmount, user));
-		result.put("actualAmount", actualAmount);
+//		result.put("actualAmount", actualAmount);
 		result.put("actualStyle", (actualAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));
 
 		final BigDecimal differenceAmount = (actualAmount.subtract(currentAmount != null ? currentAmount : BigDecimal.ZERO));
 		result.put("difference", FormatUtil.formatCurrency(category.isIncome() ? differenceAmount : differenceAmount.negate(), user));
-		result.put("differenceAmount", differenceAmount);
+//		result.put("differenceAmount", differenceAmount);
 		result.put("differenceStyle", (differenceAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category.isIncome() ? differenceAmount : differenceAmount.negate()) ? FormatUtil.formatRed() : ""));
 
 		result.put("parent", category.getParent());
@@ -163,6 +157,7 @@ public class CategoriesResource extends ServerResource {
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
 			final JSONObject request = new JSONObject(entity.getText());
+			final JSONObject result = new JSONObject();
 			final String action = request.optString("action");
 			
 			final Category category = new Category(request);
@@ -214,6 +209,30 @@ public class CategoriesResource extends ServerResource {
 					}
 				}
 			}
+			else if ("set".equals(action)){
+				final Entry entry = new Entry(request);
+				final Entry existingEntry = sqlSession.getMapper(Entries.class).selectEntry(user, entry);
+
+				if (existingEntry == null){
+					//New entry
+					ConstraintsChecker.checkInsertEntry(entry, user, sqlSession);
+					int count = sqlSession.getMapper(Entries.class).insertEntry(user, entry);
+					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+				}
+				else {
+					//Update entry
+					ConstraintsChecker.checkUpdateEntry(entry, user, sqlSession);
+					int count = sqlSession.getMapper(Entries.class).updateEntry(user, entry);
+					if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
+				}
+				sqlSession.commit();
+				
+				final CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(request.getString("periodType")), FormatUtil.parseDateInternal(request.getString("date")), Integer.parseInt(request.optString("offset", "0")));
+				
+				final Category c = sqlSession.getMapper(Sources.class).selectCategory(user, cp, request.getInt("categoryId"));
+				final JSONObject data = getJsonObject(c, cp, user);
+				result.put("data", data);
+			} 
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, LocaleUtil.getTranslation(getRequest()).getString("ACTION_PARAMETER_MUST_BE_SPECIFIED"));
 			}
@@ -221,7 +240,6 @@ public class CategoriesResource extends ServerResource {
 			DataUpdater.updateBalances(user, sqlSession);
 			
 			sqlSession.commit();
-			final JSONObject result = new JSONObject();
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}
