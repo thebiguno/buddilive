@@ -49,6 +49,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.preferences.CurrenciesResour
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.IncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
+import ca.digitalcave.buddi.live.resource.buddilivem.AccountsMobileResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
@@ -167,6 +168,7 @@ public class BuddiApplication extends Application{
 		
 		//Handles the desktop GUI stuff
 		privateRouter.attach("/accounts", AccountsResource.class);
+		privateRouter.attach("/accounts-m", AccountsMobileResource.class);
 		privateRouter.attach("/categories", CategoriesResource.class);
 		privateRouter.attach("/categories/periods", PeriodsResource.class);
 		privateRouter.attach("/categories/parents", ParentsResource.class);

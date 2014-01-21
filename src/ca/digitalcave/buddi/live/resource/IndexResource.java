@@ -29,6 +29,8 @@ import ca.digitalcave.moss.restlet.CookieAuthInterceptResource;
 
 public class IndexResource extends CookieAuthInterceptResource {
 
+	final String mobile = ".*android.*|.*blackberry.*|.*iphone.*|.*ipod.*|.*iemobile.*|.*opera mobile.*|.*palmos.*|.*webos.*|.*googlebot-mobile.*";
+	
 	@Override
 	protected Representation get(Variant variant) throws ResourceException {
 		final HashMap<String, Object> dataModel = new HashMap<String, Object>();
@@ -65,6 +67,9 @@ public class IndexResource extends CookieAuthInterceptResource {
 			sqlSession.close();
 		}
 		
+		if (getClientInfo().getAgent().toLowerCase().matches(mobile)) {
+			dataModel.put("mobile", true);
+		}
 		dataModel.put("user", getClientInfo().getUser());
 		dataModel.put("requestAttributes", getRequestAttributes());
 		dataModel.put("systemProperties", ((BuddiApplication) getApplication()).getSystemProperties());
