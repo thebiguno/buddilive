@@ -3,7 +3,9 @@ Ext.define("BuddiLive.controller.account.List", {
 	"requires": [
 		"BuddiLive.store.account.List",
 		"BuddiLive.view.account.List",
+		"BuddiLive.store.transaction.List",
 		"BuddiLive.view.transaction.List"
+		
 	],
 	"config": {
 		"refs": {

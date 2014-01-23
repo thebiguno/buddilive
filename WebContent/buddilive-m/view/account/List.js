@@ -9,6 +9,21 @@ Ext.define("BuddiLive.view.account.List", {
 		"fullscreen": true,
 		"store": Ext.create("BuddiLive.store.account.List"),
 		"grouped": true,
-		"itemTpl": "<div>{name}</div>"
+		"itemTpl": "<div>{name}</div>",
+		"items": [
+			{
+				"xtype": "titlebar",
+				"docked": "top",
+				"height": 50,
+				"items": [
+					{
+						"xtype": "button",
+						"text": "Logout",
+						"itemId": "logout",
+						"align": "right"
+					}
+				]
+			}
+		]
 	}
 });
