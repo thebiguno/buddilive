@@ -21,6 +21,9 @@
 			<if test="_parameter.containsKey('date')">
 			AND entry_date = #{date}
 			</if>
+			<if test="_parameter.containsKey('categoryId')">
+			AND category = #{categoryId}
+			</if>
 	</select>
 	
 	<select id="selectEntry" resultMap="entry">

@@ -17,6 +17,9 @@ public interface Entries {
 	@MapKey("categoryId")
 	public Map<Integer, Entry> selectEntries(@Param("user") User user, @Param("date") Date date);
 	
+	@MapKey("date")
+	public Map<Date, Entry> selectEntries(@Param("user") User user, @Param("categoryId") Integer categoryId);
+	
 	public Entry selectEntry(@Param("user") User user, @Param("id") Long id);
 	public Entry selectEntry(@Param("user") User user, @Param("entry") Entry entry);	//date and category ID must be populated
 	public Entry selectEntry(@Param("user") User user, @Param("date") Date date, @Param("categoryId") Integer categoryId);

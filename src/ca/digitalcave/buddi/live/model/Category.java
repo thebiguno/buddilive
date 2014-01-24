@@ -108,14 +108,18 @@ public class Category extends Source {
 	 * @throws SQLException
 	 */
 	public BigDecimal getAmount(User user, SqlSession sql, Date startDate, Date endDate) throws SQLException, CryptoException {
+		return getAmountRecursive(user, sql, startDate, endDate, null);
+	}
+	
+	private BigDecimal getAmountRecursive(User user, SqlSession sql, Date startDate, Date endDate, Map<Date, Entry> entries) throws SQLException, CryptoException {
 		final CategoryPeriods categoryPeriod = CategoryPeriods.valueOf(getPeriodType());
+		if (entries == null) entries = sql.getMapper(Entries.class).selectEntries(user, getId());
 		
 		//If the start date and end date are in the same period, then our job is easy: find the entry, 
 		// and return the amount * percent of how many days were used in the period. 
 		if (categoryPeriod.getStartOfBudgetPeriod(startDate).equals(categoryPeriod.getStartOfBudgetPeriod(endDate))){
-			final Entry entry = sql.getMapper(Entries.class).selectEntry(user, categoryPeriod.getStartOfBudgetPeriod(startDate), getId());
-			if (entry == null) return BigDecimal.ZERO;
-			final BigDecimal totalAmount = new BigDecimal(CryptoUtil.decryptWrapper(entry.getAmount(), user));
+			if (entries.get(startDate) == null) return BigDecimal.ZERO;
+			final BigDecimal totalAmount = new BigDecimal(CryptoUtil.decryptWrapper(entries.get(startDate).getAmount(), user));
 			final double totalDays = categoryPeriod.getDaysInPeriod(startDate);
 			final double daysBetween = DateUtil.getDaysBetween(startDate, endDate, true);
 			final BigDecimal result = new BigDecimal(totalAmount.doubleValue() * (daysBetween / totalDays));
@@ -129,14 +133,14 @@ public class Category extends Source {
 			Date periodEndDate = categoryPeriod.getEndOfBudgetPeriod(startDate);
 			BigDecimal total = BigDecimal.ZERO;
 			while (categoryPeriod.getEndOfBudgetPeriod(periodEndDate).before(endDate)){
-				total = total.add(getAmount(user, sql, periodStartDate, periodEndDate));
+				total = total.add(getAmountRecursive(user, sql, periodStartDate, periodEndDate, entries));
 				
 				//The next start date is the first day in the next period
 				periodStartDate = categoryPeriod.getBudgetPeriodOffset(periodStartDate, 1);
 				//The next end date is the overall end date, or the end date in the next period, whichever is earlier
 				periodEndDate = categoryPeriod.getEndOfBudgetPeriod(periodStartDate).before(endDate) ? categoryPeriod.getEndOfBudgetPeriod(periodStartDate) : endDate;
  			}
-			total = total.add(getAmount(user, sql, periodStartDate, periodEndDate));
+			total = total.add(getAmountRecursive(user, sql, periodStartDate, periodEndDate, entries));
 			
 			return total;
 		}
