@@ -96,7 +96,7 @@ public class AccountsResource extends ServerResource {
 						account.put("type", a.getType());
 						account.put("accountType", CryptoUtil.decryptWrapper(a.getAccountType(), user));
 						final BigDecimal startBalance = CryptoUtil.decryptWrapperBigDecimal(a.getStartBalance(), user, true);
-						account.put("startBalance", FormatUtil.formatCurrency(startBalance, user));
+						account.put("startBalance", startBalance);
 						account.put("debit", a.isDebit());
 						account.put("deleted", a.isDeleted());
 						if (a.isDeleted()) sb.append(" text-decoration: line-through;");

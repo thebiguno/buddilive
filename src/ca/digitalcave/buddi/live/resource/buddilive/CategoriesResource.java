@@ -23,6 +23,7 @@ import org.restlet.resource.ServerResource;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.Sources;
+import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.util.ConstraintsChecker;
 import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
@@ -30,6 +31,8 @@ import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.CategoryPeriod;
 import ca.digitalcave.buddi.live.model.CategoryPeriod.CategoryPeriods;
 import ca.digitalcave.buddi.live.model.Entry;
+import ca.digitalcave.buddi.live.model.Split;
+import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
@@ -38,8 +41,6 @@ import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class CategoriesResource extends ServerResource {
 
-	private static final BigDecimal BIGDECIMAL_ZERO = FormatUtil.parseCurrency("0.00");
-	
 	@Override
 	protected void doInit() throws ResourceException {
 		getVariants().add(new Variant(MediaType.APPLICATION_JSON));
@@ -55,10 +56,10 @@ public class CategoriesResource extends ServerResource {
 			final JSONObject result = new JSONObject();
 			final JSONArray data = new JSONArray();
 			
-			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp, true));
+			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp));
 
 			for (Category c : categories) {
-				final JSONObject category = getJsonObject(c, cp, user);
+				final JSONObject category = getJsonObject(sqlSession, c, cp, user);
 				if (category != null) data.put(category);
 			}
 
@@ -84,8 +85,20 @@ public class CategoriesResource extends ServerResource {
 		}
 	}
 	
-	private JSONObject getJsonObject(Category category, CategoryPeriod categoryPeriod, final User user) throws JSONException, CryptoException {
+	private JSONObject getJsonObject(SqlSession sqlSession, Category category, CategoryPeriod categoryPeriod, final User user) throws JSONException, CryptoException {
 		if (category.isDeleted() && !user.isShowDeleted()) return null;
+		
+		BigDecimal actualAmount = BigDecimal.ZERO;
+		final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, category, categoryPeriod.getCurrentPeriodStartDate(), categoryPeriod.getCurrentPeriodEndDate());
+		for (Transaction transaction : transactions) {
+			for (Split split : transaction.getSplits()) {
+				//The query will have filtered out all splits which are not related to the given category;
+				// since a given category (unlike an account) cannot be in both from and to on two different
+				// splits, we just add the values up directly.
+				actualAmount = actualAmount.add(CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true));
+			}
+		}
+		
 		final JSONObject result = new JSONObject();
 		result.put("id", category.getId());
 		result.put("icon", "img/folder-open-table.png");
@@ -109,7 +122,6 @@ public class CategoriesResource extends ServerResource {
 //		result.put("previousAmount", previousAmount);
 		result.put("previousStyle", (previousAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
 		
-		final BigDecimal actualAmount = category.getPeriodBalance() == null ? BIGDECIMAL_ZERO : category.getPeriodBalance();
 		result.put("actual", FormatUtil.formatCurrency(actualAmount, user));
 //		result.put("actualAmount", actualAmount);
 		result.put("actualStyle", (actualAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));
@@ -137,7 +149,7 @@ public class CategoriesResource extends ServerResource {
 				}
 			});
 			for (Category child : children) {
-				final JSONObject c = getJsonObject(child, categoryPeriod, user);
+				final JSONObject c = getJsonObject(sqlSession, child, categoryPeriod, user);
 				if (c != null) result.append("children", c);
 			}
 		}
@@ -230,7 +242,7 @@ public class CategoriesResource extends ServerResource {
 				final CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(request.getString("periodType")), FormatUtil.parseDateInternal(request.getString("date")), Integer.parseInt(request.optString("offset", "0")));
 				
 				final Category c = sqlSession.getMapper(Sources.class).selectCategory(user, cp, request.getInt("categoryId"));
-				final JSONObject data = getJsonObject(c, cp, user);
+				final JSONObject data = getJsonObject(sqlSession, c, cp, user);
 				result.put("data", data);
 			} 
 			else {

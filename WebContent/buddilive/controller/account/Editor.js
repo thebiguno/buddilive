@@ -42,6 +42,9 @@ Ext.define("BuddiLive.controller.account.Editor", {
 		request.type = window.down("combobox[itemId='type']").getValue();
 		var startBalance = window.down("numberfield[itemId='startBalance']").getValue();
 		if (startBalance) request.startBalance = startBalance;
+		
+		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": window});
+		mask.show();
 
 		var conn = new Ext.data.Connection();
 		conn.request({
@@ -53,12 +56,12 @@ Ext.define("BuddiLive.controller.account.Editor", {
 			"jsonData": request,
 			"success": function(response){
 				window.close();
-				grid.getStore().reload();
-				me.getTransactionSplitFromComboboxStoreStore().load();
-				me.getTransactionSplitToComboboxStoreStore().load();
+				mask.hide();
+				location.reload();
 			},
 			"failure": function(response){
 				BuddiLive.app.error(response);
+				mask.hide();
 			}
 		});
 	},

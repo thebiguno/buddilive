@@ -2,8 +2,13 @@ package ca.digitalcave.buddi.live.resource.buddilive.report;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
@@ -17,9 +22,10 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
-import ca.digitalcave.buddi.live.db.Reports;
+import ca.digitalcave.buddi.live.db.Transactions;
+import ca.digitalcave.buddi.live.model.Split;
+import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.buddi.live.model.report.Pie;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
@@ -41,18 +47,48 @@ public class PieTotalsByCategoryResource extends ServerResource {
 			if (!"E".equals(type) && !"I".equals(type)) throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "type parameter (I or E) is required");
 			
 			final Date[] dates = ReportHelper.processInterval(getQuery());
-			final List<Pie> data = sqlSession.getMapper(Reports.class).selectPieIncomeOrExpensesByCategory(user, type, dates[0], dates[1]);
+			final Map<Integer, BigDecimal> totalsByCategory = new HashMap<Integer, BigDecimal>();
+			final Map<Integer, String> labelsByCategory = new HashMap<Integer, String>();
+			final List<Transaction> data = sqlSession.getMapper(Transactions.class).selectTransactions(user, type, dates[0], dates[1]);
+			for (Transaction transaction : data) {
+				for (Split split : transaction.getSplits()) {
+					//The query will already have filtered the splits to only those which have a from or to source type
+					// of I or E; since both from and to sources will not be the same (you can't have a split with both
+					// sources being a category), we can safely say that if the from type is not the requested type, then
+					// the to type must be.
+					final Integer categoryId = type.equals(split.getFromType()) ? split.getFromSource() : split.getToSource();
+					final BigDecimal amount = CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true);
+					totalsByCategory.put(categoryId, totalsByCategory.get(categoryId) == null ? amount : totalsByCategory.get(categoryId).add(amount));
+					
+					//Keep track of the label for the given source
+					if (labelsByCategory.get(categoryId) == null) {
+						labelsByCategory.put(categoryId, type.equals(split.getFromType()) ? split.getFromSourceName() : split.getToSourceName());
+					}
+				}
+			}
 			BigDecimal total = BigDecimal.ZERO;
-			final BigDecimal ONE_HUNDRED = new BigDecimal(100);
-			for (Pie pie : data) { total = total.add(pie.getAmount()); }
+			for (BigDecimal subtotal : totalsByCategory.values()) {
+				total = total.add(subtotal);
+			}
+			total = total.multiply(new BigDecimal(100));  //The total is only used for calculating percents; multiply by 100 now instead of after every calculation
+			
+			//Sort categories by total
+			final List<Integer> categories = new ArrayList<Integer>(totalsByCategory.keySet());
+			Collections.sort(categories, new Comparator<Integer>() {
+				@Override
+				public int compare(Integer o1, Integer o2) {
+					return totalsByCategory.get(o1).compareTo(totalsByCategory.get(o2));
+				}
+			});
 			
 			final JSONObject result = new JSONObject();
-			for (Pie pie : data){
+			for (Integer categoryId : categories){
 				final JSONObject object = new JSONObject();
-				object.put("label", CryptoUtil.decryptWrapper(pie.getLabel(), user));
-				object.put("amount", pie.getAmount());
-				object.put("formattedAmount", FormatUtil.formatCurrency(pie.getAmount(), user));
-				object.put("percent", pie.getAmount().divide(total, RoundingMode.HALF_UP).multiply(ONE_HUNDRED));
+				object.put("label", CryptoUtil.decryptWrapper(labelsByCategory.get(categoryId), user));
+				final BigDecimal amount = totalsByCategory.get(categoryId);
+				object.put("amount", amount);
+				object.put("formattedAmount", FormatUtil.formatCurrency(amount, user));
+				object.put("percent", amount.divide(total, RoundingMode.HALF_UP));
 				result.append("data", object);
 			}
 

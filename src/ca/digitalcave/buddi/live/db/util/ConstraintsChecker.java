@@ -88,31 +88,42 @@ public class ConstraintsChecker {
 		checkInsertAccount(account, user, sqlSession);
 	}
 
+	public static void checkInsertSplit(Split split, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
+		
+		final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
+		final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
+		if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
+		if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
+
+		if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
+			split.setMemo(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getMemo()));
+		}
+		if (user.isEncrypted() && !isEncryptedValue(split.getAmount())){
+			split.setAmount(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getAmount()));
+		}
+		if (user.isEncrypted() && !isEncryptedValue(split.getFromBalance())){
+			split.setFromBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getFromBalance()));
+		}
+		if (user.isEncrypted() && !isEncryptedValue(split.getToBalance())){
+			split.setToBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getToBalance()));
+		}
+		
+		if (CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
+	}
+	
+	public static void checkUpdateSplit(Split split, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+		if (split.getId() == null) throw new DatabaseException("The id must be set to perform an update");
+		checkInsertSplit(split, user, sqlSession);
+	}
+	
 	public static void checkInsertTransaction(Transaction transaction, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Perform integrity checks
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		if (transaction.getDate() == null) throw new DatabaseException("The transaction date must be set");
 		for (Split split : transaction.getSplits()) {
-			if (CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
-
-			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
-			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
-			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
-			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
-
-			if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
-				split.setMemo(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getMemo()));
-			}
-			if (user.isEncrypted() && !isEncryptedValue(split.getAmount())){
-				split.setAmount(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getAmount()));
-			}
-			if (user.isEncrypted() && !isEncryptedValue(split.getFromBalance())){
-				split.setFromBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getFromBalance()));
-			}
-			if (user.isEncrypted() && !isEncryptedValue(split.getToBalance())){
-				split.setToBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getToBalance()));
-			}
+			checkInsertSplit(split, user, sqlSession);
 		}
 
 		if (user.isEncrypted() && !isEncryptedValue(transaction.getDescription())){

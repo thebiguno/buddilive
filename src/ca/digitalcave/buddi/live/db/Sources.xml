@@ -23,7 +23,6 @@
 	<resultMap id="category" type="ca.digitalcave.buddi.live.model.Category" extends="source">
 		<result column="c_period_type" property="periodType" />
 		<result column="c_parent" property="parent"/>
-		<result column="c_period_balance" property="periodBalance"/>
 		<association property="previousEntry" javaType="ca.digitalcave.buddi.live.model.Entry">
 			<id column="pe_id" property="id"/>
 			<result column="s_id" property="categoryId"/>
@@ -78,7 +77,7 @@
 	<select id="selectAccountTypes" resultMap="accountsByType">
 		SELECT 
 			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
-			a.account_type a_account_type, coalesce(a.start_balance, 0) a_start_balance, coalesce(a.balance, 0) a_balance
+			a.account_type a_account_type, coalesce(a.start_balance, '0') a_start_balance, coalesce(a.balance, '0') a_balance
 		FROM sources a
 		WHERE 
 			a.user_id = #{user.id} 
@@ -94,8 +93,7 @@
 			c.id s_id, c.user_id s_user_id, c.uuid s_uuid, c.name s_name, c.deleted s_deleted, c.type s_type, c.created s_created, c.modified s_modified,
 			c.period_type c_period_type, c.parent c_parent
 			<if test="_parameter.containsKey('categoryPeriod')">
-			,ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.entry_date ce_date, pe.entry_date pe_date,
-			coalesce(sum(to_splits.amount), 0) + coalesce(sum(from_splits.amount), 0) as c_period_balance
+			,ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.entry_date ce_date, pe.entry_date pe_date
 			</if>
 		FROM sources c
 		<if test="_parameter.containsKey('categoryPeriod')">
@@ -133,22 +131,11 @@
 			c.period_type c_period_type, c.parent c_parent
 			<if test="_parameter.containsKey('categoryPeriod')">
 			, ce.id ce_id, pe.id pe_id, ce.amount ce_amount, pe.amount pe_amount, ce.entry_date ce_date, pe.entry_date pe_date
-				<if test="showActual">
-				--We just add both of these, rather than subtracting as we do in accounts, because there can only be values in one 
-				-- of these fields, depending on whether this is a I or E category.  I categories are always in the from field,
-				-- and E categories are always in the to field.
-				, coalesce(sum(to_splits.amount), 0) + coalesce(sum(from_splits.amount), 0) as c_period_balance
-				</if>
 			</if> 
 		FROM sources c
 		<if test="_parameter.containsKey('categoryPeriod')">
 			LEFT JOIN entries ce ON ce.category = c.id AND ce.entry_date = #{categoryPeriod.currentPeriodStartDate} AND ce.user_id = #{user.id}
 			LEFT JOIN entries pe ON pe.category = c.id AND pe.entry_date = #{categoryPeriod.previousPeriodStartDate} AND pe.user_id = #{user.id}
-			<if test="showActual">
-			LEFT JOIN transactions t ON t.transaction_date >= #{categoryPeriod.currentPeriodStartDate} AND t.transaction_date &lt;= #{categoryPeriod.currentPeriodEndDate}
-			LEFT JOIN splits to_splits ON to_splits.to_source = c.id AND to_splits.transaction_id = t.id 
-			LEFT JOIN splits from_splits ON from_splits.from_source = c.id AND from_splits.transaction_id = t.id
-			</if>
 		</if>
 		WHERE c.user_id = #{user.id} AND type IN ('I', 'E')
 		<if test="_parameter.containsKey('categoryPeriod')">

@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.json.JSONException;
@@ -19,7 +20,8 @@ public class Account extends Source {
 	public Account(JSONObject json) throws JSONException {
 		super(json);
 		this.setAccountType(json.optString("accountType", null));
-		this.setStartBalance(FormatUtil.parseCurrency(json.optString("startBalance", null)).toPlainString());
+		final BigDecimal startBalance = FormatUtil.parseCurrency(json.optString("startBalance", null));
+		if (startBalance != null) this.setStartBalance(startBalance.toPlainString());
 		this.setStartDate(FormatUtil.parseDateInternal(json.optString("startDate", "1900-01-01")));
 	}
 	

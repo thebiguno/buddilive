@@ -28,11 +28,13 @@ public class CryptoUtil {
 				return Crypto.decrypt(user.getDecryptedSecretKey(), value);
 			}
 			catch (CryptoException e){
-				//I saw some weirdness where an encrypted value would not decrypt properly; most likely from
-				// an old bug.  Regardless, we now return the unencrypted value if there was a problem
-				// returning the decrypted value.  This value may be an encrypted string, or it may
-				// just be the plaintext value; regardless, by returning it instead of just failing, we
-				// give the user the ability to correct the data and recover (somewhat) gracefully.
+				//Especially when upgrading from previous encryption versions, there are some times
+				// where we are expecting an encrypted value but it is actually not encrypted.  This
+				// should not happen in normal operation.
+				//An alternative to this would be to check each value before decrypting to see if it
+				// is in the proper 'encryption-looking' format.  However, since this should be the
+				// exception rather than the rule, and since we would have to check every single value,
+				// it is easier and more efficient to just catch the exception from incorrect decrypting.
 				return value;
 			}
 		}

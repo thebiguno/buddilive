@@ -49,6 +49,9 @@
 		<if test="_parameter.containsKey('source')">
 			AND (s.from_source = #{source.id} OR s.to_source = #{source.id})
 		</if>
+		<if test="_parameter.containsKey('type')">
+			AND (fs.type = #{type} OR ts.type = #{type})
+		</if>
 		<if test="_parameter.containsKey('fromDate') and _parameter.containsKey('toDate')">
 			AND t.transaction_date >= #{fromDate} AND t.transaction_date &lt;= #{toDate}
 		</if>
@@ -151,8 +154,9 @@
 	<update id="updateSplit">
 		UPDATE splits
 		SET 
-			from_balance = #{split.fromBalance,jdbcType=DECIMAL},
-			to_balance = #{split.toBalance,jdbcType=DECIMAL},
+			amount = #{split.amount},
+			from_balance = #{split.fromBalance,jdbcType=VARCHAR},
+			to_balance = #{split.toBalance,jdbcType=VARCHAR},
 			memo = #{split.memo,jdbcType=VARCHAR},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{split.id} AND user_id = #{user.id}

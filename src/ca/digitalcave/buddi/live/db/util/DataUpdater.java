@@ -51,6 +51,7 @@ public class DataUpdater {
 					BigDecimal splitFromBalance = CryptoUtil.decryptWrapperBigDecimal(split.getFromBalance(), user, false);
 					if (splitFromBalance == null || splitFromBalance.compareTo(newBalance) != 0) {
 						split.setFromBalance(newBalance.toPlainString());
+						ConstraintsChecker.checkUpdateSplit(split, user, sqlSession);
 						count = sqlSession.getMapper(Transactions.class).updateSplit(user, split);
 						if (count != 1) throw new DatabaseException("Expected 1 split row updated; returned " + count);
 					}
@@ -60,6 +61,7 @@ public class DataUpdater {
 					BigDecimal splitToBalance = CryptoUtil.decryptWrapperBigDecimal(split.getToBalance(), user, false);
 					if (splitToBalance == null || splitToBalance.compareTo(newBalance) != 0) {
 						split.setToBalance(newBalance.toPlainString());
+						ConstraintsChecker.checkUpdateSplit(split, user, sqlSession);
 						count = sqlSession.getMapper(Transactions.class).updateSplit(user, split);
 						if (count != 1) throw new DatabaseException("Expected 1 split row updated; returned " + count);
 					}
@@ -73,6 +75,7 @@ public class DataUpdater {
 
 			//Set the account balance to the latest balance.
 			account.setBalance(newBalance.toPlainString());
+			ConstraintsChecker.checkUpdateAccount(account, user, sqlSession);
 			count = sqlSession.getMapper(Sources.class).updateAccount(user, account);
 			if (count != 1) throw new DatabaseException("Expected 1 account row updated; returned " + count);
 		}

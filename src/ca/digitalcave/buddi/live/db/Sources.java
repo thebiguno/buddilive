@@ -29,7 +29,7 @@ public interface Sources {
 	public List<Category> selectCategories(@Param("user") User user);
 	public List<Category> selectCategories(@Param("user") User user, @Param("income") Boolean income);
 	public List<Category> selectCategories(@Param("user") User user, @Param("periodType") String periodType);
-	public List<Category> selectCategories(@Param("user") User user, @Param("categoryPeriod") CategoryPeriod categoryPeriod, @Param("showActual") boolean showActual);
+	public List<Category> selectCategories(@Param("user") User user, @Param("categoryPeriod") CategoryPeriod categoryPeriod);
 	
 	@MapKey("id")
 	public Map<Integer, Category> selectCategoriesMap(@Param("user") User user);

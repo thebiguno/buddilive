@@ -18,6 +18,8 @@ public interface Transactions {
 	
 	public List<Transaction> selectTransactions(@Param("user") User user);
 	public List<Transaction> selectTransactions(@Param("user") User user, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
+	public List<Transaction> selectTransactions(@Param("user") User user, @Param("type") String type, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
+	public List<Transaction> selectTransactions(@Param("user") User user, @Param("source") Source source, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
 	public void selectTransactions(@Param("user") User user, @Param("source") Source source, ResultHandler handler);
 	
 	public List<Transaction> selectDescriptions(@Param("user") User user);
