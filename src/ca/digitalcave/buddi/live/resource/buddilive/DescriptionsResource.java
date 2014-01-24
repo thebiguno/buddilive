@@ -2,6 +2,7 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +74,9 @@ public class DescriptionsResource extends ServerResource {
 							generator.writeArrayFieldStart("splits");
 							for (Split s : t.getSplits() != null ? t.getSplits() : new ArrayList<Split>()) {
 								generator.writeStartObject();
-								generator.writeStringField("amount", s.getAmount().toPlainString());
-								generator.writeNumberField("amountNumber", s.getAmount());
+								final BigDecimal amount = CryptoUtil.decryptWrapperBigDecimal(s.getAmount(), user, false);
+								generator.writeStringField("amount", amount.toPlainString());
+								generator.writeNumberField("amountNumber", amount);
 								generator.writeNumberField("fromId", s.getFromSource());
 								generator.writeNumberField("toId", s.getToSource());
 								generator.writeStringField("fromType", s.getFromType());

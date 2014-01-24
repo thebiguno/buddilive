@@ -99,16 +99,17 @@ public class TransactionsResource extends ServerResource {
 								for (Split s : t.getSplits()) {
 									generator.writeStartObject();
 									generator.writeNumberField("id", s.getId());
-									generator.writeStringField("amount", FormatUtil.formatCurrency(s.getAmount(), user));
-									generator.writeNumberField("amountNumber", s.getAmount());
+									final BigDecimal amount = CryptoUtil.decryptWrapperBigDecimal(s.getAmount(), user, false);
+									generator.writeStringField("amount", FormatUtil.formatCurrency(amount, user));
+									generator.writeNumberField("amountNumber", amount);
 									generator.writeBooleanField("amountInDebitColumn", s.isDebit(source));
-									generator.writeStringField("amountStyle", (FormatUtil.isRed(source, s) ? FormatUtil.formatRed() : ""));
+									generator.writeStringField("amountStyle", (FormatUtil.isRed(source, user, s) ? FormatUtil.formatRed() : ""));
 									generator.writeNumberField("fromId", s.getFromSource());
 									generator.writeStringField("from", CryptoUtil.decryptWrapper(s.getFromSourceName(), user));
 									generator.writeNumberField("toId", s.getToSource());
 									generator.writeStringField("to", CryptoUtil.decryptWrapper(s.getToSourceName(), user));
 									generator.writeBooleanField("debit", s.isDebit(source));
-									final BigDecimal balance = s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance();
+									final BigDecimal balance = CryptoUtil.decryptWrapperBigDecimal(s.getFromSource() == source.getId() ? s.getFromBalance() : s.getToBalance(), user, true);
 									generator.writeStringField("balance", FormatUtil.formatCurrency(balance, user, source));
 									generator.writeStringField("balanceStyle", (FormatUtil.isRed(source, balance) ? FormatUtil.formatRed() : ""));
 									generator.writeStringField("memo", CryptoUtil.decryptWrapper(s.getMemo(), user));

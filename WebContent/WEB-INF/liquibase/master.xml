@@ -211,4 +211,49 @@
 		<addUniqueConstraint tableName="scheduledtransactions" columnNames="user_id,uuid" constraintName="uc_scheduledtransaction_uuid"/>
 	</changeSet>
 
+	<changeSet id="convert to encrypted number columns step 1" author="wyatt">
+		<addColumn tableName="sources">
+			<column name="start_balance_encrypted" type="varchar(128)"/>
+		</addColumn>
+		<addColumn tableName="entries">
+			<column name="amount_encrypted" type="varchar(128)"/>
+		</addColumn>
+		<addColumn tableName="splits">
+			<column name="amount_encrypted" type="varchar(128)"/>
+		</addColumn>
+		<addColumn tableName="scheduledsplits">
+			<column name="amount_encrypted" type="varchar(128)"/>
+		</addColumn>
+	</changeSet>
+	
+	<changeSet id="convert to encrypted number columns step 2" author="wyatt">
+		<sql>UPDATE sources SET start_balance_encrypted = start_balance</sql>
+		<sql>UPDATE entries SET amount_encrypted = amount</sql>
+		<sql>UPDATE splits SET amount_encrypted = amount</sql>
+		<sql>UPDATE scheduledsplits SET amount_encrypted = amount</sql>
+	</changeSet>
+	
+	<changeSet id="convert to encrypted number columns step 3" author="wyatt">
+		<dropColumn tableName="sources" columnName="balance"/>
+		<dropColumn tableName="sources" columnName="start_balance"/>
+		<dropColumn tableName="entries" columnName="amount"/>
+		<dropColumn tableName="splits" columnName="amount"/>
+		<dropColumn tableName="splits" columnName="from_balance"/>
+		<dropColumn tableName="splits" columnName="to_balance"/>
+		<dropColumn tableName="scheduledsplits" columnName="amount"/>
+
+		<addColumn tableName="sources">
+			<column name="balance" type="varchar(128)"/>
+		</addColumn>
+		<addColumn tableName="splits">
+			<column name="from_balance" type="varchar(128)"/>
+			<column name="to_balance" type="varchar(128)"/>
+		</addColumn>
+
+		<renameColumn tableName="sources" oldColumnName="start_balance_encrypted" newColumnName="start_balance"/>
+		<renameColumn tableName="entries" oldColumnName="amount_encrypted" newColumnName="amount"/>
+		<renameColumn tableName="splits" oldColumnName="amount_encrypted" newColumnName="amount"/>
+		<renameColumn tableName="scheduledsplits" oldColumnName="amount_encrypted" newColumnName="amount"/>
+	</changeSet>
+
 </databaseChangeLog>

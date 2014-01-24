@@ -9,6 +9,7 @@ import java.util.Date;
 import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class FormatUtil {
 	public static String HTML_RED = "#dd2222";
@@ -76,9 +77,9 @@ public class FormatUtil {
 		return "color: " + FormatUtil.HTML_GRAY + ";";
 	}
 	
-	public static boolean isRed(Source selected, Split split){
+	public static boolean isRed(Source selected, User user, Split split) throws CryptoException {
 		boolean toSelected = split.getToSource() == selected.getId();
-		boolean positive = split.getAmount().compareTo(BigDecimal.ZERO) >= 0;
+		boolean positive = CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).compareTo(BigDecimal.ZERO) >= 0;
 		if ((!toSelected && positive) || (toSelected && !positive)){
 			return true;
 		}

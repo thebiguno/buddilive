@@ -99,12 +99,12 @@ public class CategoriesResource extends ServerResource {
 		sb.setLength(0);
 		
 
-		final BigDecimal currentAmount = category.getCurrentEntry().getAmount() != null ? category.getCurrentEntry().getAmount() : BigDecimal.ZERO;
+		final BigDecimal currentAmount = CryptoUtil.decryptWrapperBigDecimal(category.getCurrentEntry().getAmount(), user, true);
 		result.put("current", FormatUtil.formatCurrency(currentAmount, user));
 //		result.put("currentAmount", currentAmount);
 		result.put("currentStyle", (currentAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
 		
-		final BigDecimal previousAmount = category.getPreviousEntry().getAmount() != null ? category.getPreviousEntry().getAmount() : BigDecimal.ZERO;
+		final BigDecimal previousAmount = CryptoUtil.decryptWrapperBigDecimal(category.getPreviousEntry().getAmount(), user, true);
 		result.put("previous", FormatUtil.formatCurrency(previousAmount, user));
 //		result.put("previousAmount", previousAmount);
 		result.put("previousStyle", (previousAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, previousAmount) ? FormatUtil.formatRed() : ""));
@@ -191,7 +191,7 @@ public class CategoriesResource extends ServerResource {
 				final Map<Integer, Entry> previousEntries = sqlSession.getMapper(Entries.class).selectEntries(user, previousDate);
 				final Map<Integer, Entry> currentEntries = sqlSession.getMapper(Entries.class).selectEntries(user, currentDate);
 				for (Integer categoryId : previousEntries.keySet()) {
-					if (previousEntries.get(categoryId).getAmount().compareTo(BigDecimal.ZERO) != 0){
+					if (CryptoUtil.decryptWrapperBigDecimal(previousEntries.get(categoryId).getAmount(), user, true).compareTo(BigDecimal.ZERO) != 0){
 						if (currentEntries.get(categoryId) == null){
 							final Entry entry = previousEntries.get(categoryId);
 							entry.setDate(currentDate);
@@ -199,7 +199,7 @@ public class CategoriesResource extends ServerResource {
 							int count = sqlSession.getMapper(Entries.class).insertEntry(user, entry);
 							if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
 						}
-						else if (currentEntries.get(categoryId).getAmount().compareTo(BigDecimal.ZERO) == 0){
+						else if (CryptoUtil.decryptWrapperBigDecimal(currentEntries.get(categoryId).getAmount(), user, true).compareTo(BigDecimal.ZERO) == 0){
 							final Entry entry = currentEntries.get(categoryId);
 							entry.setAmount(previousEntries.get(categoryId).getAmount());
 							ConstraintsChecker.checkUpdateEntry(entry, user, sqlSession);

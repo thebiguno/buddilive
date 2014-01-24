@@ -20,6 +20,7 @@ import ca.digitalcave.buddi.live.model.Source;
 import ca.digitalcave.buddi.live.model.Split;
 import ca.digitalcave.buddi.live.model.Transaction;
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.moss.crypto.Base64;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
@@ -74,6 +75,12 @@ public class ConstraintsChecker {
 		if (user.isEncrypted() && !isEncryptedValue(account.getAccountType())){
 			account.setAccountType(application.getCrypto().encrypt(user.getDecryptedSecretKey(), account.getAccountType()));
 		}
+		if (user.isEncrypted() && !isEncryptedValue(account.getBalance())){
+			account.setBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), account.getBalance()));
+		}
+		if (user.isEncrypted() && !isEncryptedValue(account.getStartBalance())){
+			account.setStartBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), account.getStartBalance()));
+		}
 	}
 
 	public static void checkUpdateAccount(Account account, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
@@ -87,7 +94,7 @@ public class ConstraintsChecker {
 		if (transaction.getSplits() == null || transaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		if (transaction.getDate() == null) throw new DatabaseException("The transaction date must be set");
 		for (Split split : transaction.getSplits()) {
-			if (split.getAmount().compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
+			if (CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
 
 			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
 			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
@@ -96,6 +103,15 @@ public class ConstraintsChecker {
 
 			if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
 				split.setMemo(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getMemo()));
+			}
+			if (user.isEncrypted() && !isEncryptedValue(split.getAmount())){
+				split.setAmount(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getAmount()));
+			}
+			if (user.isEncrypted() && !isEncryptedValue(split.getFromBalance())){
+				split.setFromBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getFromBalance()));
+			}
+			if (user.isEncrypted() && !isEncryptedValue(split.getToBalance())){
+				split.setToBalance(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getToBalance()));
 			}
 		}
 
@@ -117,7 +133,7 @@ public class ConstraintsChecker {
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (scheduledTransaction.getSplits() == null || scheduledTransaction.getSplits().size() == 0) throw new DatabaseException("A transaction must contain at least one split.");
 		for (Split split : scheduledTransaction.getSplits()) {
-			if (split.getAmount().compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
+			if (CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).compareTo(BigDecimal.ZERO) == 0) throw new DatabaseException("Splits cannot have amounts equal to zero.");
 
 			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
 			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
@@ -126,6 +142,9 @@ public class ConstraintsChecker {
 
 			if (user.isEncrypted() && !isEncryptedValue(split.getMemo())){
 				split.setMemo(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getMemo()));
+			}
+			if (user.isEncrypted() && !isEncryptedValue(split.getAmount())){
+				split.setAmount(application.getCrypto().encrypt(user.getDecryptedSecretKey(), split.getAmount()));
 			}
 		}
 
@@ -151,14 +170,20 @@ public class ConstraintsChecker {
 		checkInsertScheduledTransaction(scheduledTransaction, user, sqlSession);
 	}
 
-	public static void checkInsertEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
-		if (entry.getAmount() == null) entry.setAmount(BigDecimal.ZERO);
+	public static void checkInsertEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
+		
+		if (entry.getAmount() == null) entry.setAmount(BigDecimal.ZERO.toPlainString());
 		if (entry.getCategoryId() == 0) throw new DatabaseException("The category id must be set");
 		if (entry.getDate() == null) throw new DatabaseException("The date must be set");
 
 		if (sqlSession.getMapper(Sources.class).selectCategory(user, entry.getCategoryId()) == null) throw new DatabaseException("The specified category is not valid");
+		
+		if (user.isEncrypted() && !isEncryptedValue(entry.getAmount())){
+			entry.setAmount(application.getCrypto().encrypt(user.getDecryptedSecretKey(), entry.getAmount()));
+		}
 	}
-	public static void checkUpdateEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException {
+	public static void checkUpdateEntry(Entry entry, User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (sqlSession.getMapper(Entries.class).selectEntry(user, entry) == null) throw new DatabaseException("Could not find an entry to update");
 		checkInsertEntry(entry, user, sqlSession);
 	}

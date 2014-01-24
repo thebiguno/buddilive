@@ -14,12 +14,14 @@ import org.apache.ibatis.session.SqlSession;
 import org.restlet.Application;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.db.ScheduledTransactions;
 import ca.digitalcave.buddi.live.db.Sources;
 import ca.digitalcave.buddi.live.db.Transactions;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.Category;
+import ca.digitalcave.buddi.live.model.Entry;
 import ca.digitalcave.buddi.live.model.ScheduledTransaction;
 import ca.digitalcave.buddi.live.model.ScheduledTransaction.ScheduleFrequency;
 import ca.digitalcave.buddi.live.model.Split;
@@ -33,29 +35,31 @@ import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class DataUpdater {
 
-	public static void updateBalances(User user, SqlSession sqlSession) throws DatabaseException {
+	public static void updateBalances(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		//Look through all splits in all accounts.  Start with the earliest split in each account.  If we find a
 		// split which does not have the correct balance, we update it; if the balance is already good, leave it alone.
 		final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
 		for (Account account : accounts){
 			//We always start with the first split in a given account.
 			final List<Split> splits = sqlSession.getMapper(Transactions.class).selectSplits(user, account);
-			BigDecimal previousBalance = account.getStartBalance() == null ? BigDecimal.ZERO : account.getStartBalance();
+			BigDecimal previousBalance = CryptoUtil.decryptWrapperBigDecimal(account.getStartBalance(), user, true);
 			BigDecimal newBalance = previousBalance;
 			int count = 0;
 			for (Split split : splits) {
 				if (split.getFromSource() == account.getId()){
-					newBalance = previousBalance.subtract(split.getAmount());
-					if (split.getFromBalance() == null || split.getFromBalance().compareTo(newBalance) != 0) {
-						split.setFromBalance(newBalance);
+					newBalance = previousBalance.subtract(CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true));
+					BigDecimal splitFromBalance = CryptoUtil.decryptWrapperBigDecimal(split.getFromBalance(), user, false);
+					if (splitFromBalance == null || splitFromBalance.compareTo(newBalance) != 0) {
+						split.setFromBalance(newBalance.toPlainString());
 						count = sqlSession.getMapper(Transactions.class).updateSplit(user, split);
 						if (count != 1) throw new DatabaseException("Expected 1 split row updated; returned " + count);
 					}
 				}
 				else if (split.getToSource() == account.getId()){
-					newBalance = previousBalance.add(split.getAmount());
-					if (split.getToBalance() == null || split.getToBalance().compareTo(newBalance) != 0) {
-						split.setToBalance(newBalance);
+					newBalance = previousBalance.add(CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true));
+					BigDecimal splitToBalance = CryptoUtil.decryptWrapperBigDecimal(split.getToBalance(), user, false);
+					if (splitToBalance == null || splitToBalance.compareTo(newBalance) != 0) {
+						split.setToBalance(newBalance.toPlainString());
 						count = sqlSession.getMapper(Transactions.class).updateSplit(user, split);
 						if (count != 1) throw new DatabaseException("Expected 1 split row updated; returned " + count);
 					}
@@ -68,7 +72,7 @@ public class DataUpdater {
 			}
 
 			//Set the account balance to the latest balance.
-			account.setBalance(newBalance);
+			account.setBalance(newBalance.toPlainString());
 			count = sqlSession.getMapper(Sources.class).updateAccount(user, account);
 			if (count != 1) throw new DatabaseException("Expected 1 account row updated; returned " + count);
 		}
@@ -425,7 +429,7 @@ public class DataUpdater {
 	public static void upgradeEncryptionFrom0(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (!user.isEncrypted()) {
 			//If the account is not encrypted, there is nothing to be done; just update the encryption version number.
-			sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 1);
+			sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 2);
 			return;
 		}
 		
@@ -473,5 +477,41 @@ public class DataUpdater {
 		user.setEncryptionKey(application.getCrypto().encrypt(password, Crypto.encodeSecretKey(key)));
 		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
 		sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 1);
+		
+		upgradeEncryptionFrom1(user, sqlSession);
+	}
+	
+	public static void upgradeEncryptionFrom1(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+		if (!user.isEncrypted()) {
+			//If the account is not encrypted, there is nothing to be done; just update the encryption version number.
+			sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 2);
+			return;
+		}
+
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
+		final Crypto crypto = application.getCrypto();
+		final SecretKey key = user.getDecryptedSecretKey();
+		
+		for (Entry entry : sqlSession.getMapper(Entries.class).selectEntries(user)){
+			BigDecimal amount = new BigDecimal(entry.getAmount());
+			entry.setAmount(crypto.encrypt(key, amount.toPlainString()));
+			sqlSession.getMapper(Entries.class).updateEntry(user, entry);
+		}
+		for (Split split : sqlSession.getMapper(Transactions.class).selectSplits(user)){
+			BigDecimal amount = new BigDecimal(split.getAmount());
+			split.setAmount(crypto.encrypt(key, amount.toPlainString()));
+			sqlSession.getMapper(Transactions.class).updateSplit(user, split);
+		}
+		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
+			for (Split split : st.getSplits()) {
+				BigDecimal amount = new BigDecimal(split.getAmount());
+				split.setAmount(crypto.encrypt(key, amount.toPlainString()));
+				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, split);
+			}
+		}
+		
+		sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 2);
+		
+		updateBalances(user, sqlSession);
 	}
 }

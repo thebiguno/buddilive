@@ -96,7 +96,7 @@ public class BackupResource extends ServerResource {
 		a.put("startDate", FormatUtil.formatDateInternal((Date) account.getStartDate()));
 		if (account.isDeleted()) a.put("deleted", account.isDeleted());
 		a.put("type", account.getType());
-		a.put("startBalance", account.getStartBalance().toPlainString());
+		a.put("startBalance", CryptoUtil.decryptWrapperBigDecimal(account.getStartBalance(), user, true).toPlainString());
 		a.put("accountType", CryptoUtil.decryptWrapper(account.getAccountType(), user));
 		result.append("accounts", a);
 	}
@@ -122,7 +122,7 @@ public class BackupResource extends ServerResource {
 		final JSONObject e = new JSONObject();
 		e.put("date", FormatUtil.formatDateInternal((Date) entry.getDate()));
 		e.put("category", sourceUUIDsById.get(entry.getCategoryId()));
-		e.put("amount", entry.getAmount().toPlainString());
+		e.put("amount", CryptoUtil.decryptWrapperBigDecimal(entry.getAmount(), user, true).toPlainString());
 		result.append("entries", e);
 	}
 	
@@ -136,7 +136,7 @@ public class BackupResource extends ServerResource {
 		if (transaction.getSplits() != null){
 			for (Split split : transaction.getSplits()) {
 				final JSONObject s = new JSONObject();
-				s.put("amount", split.getAmount().toPlainString());
+				s.put("amount", CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).toPlainString());
 				s.put("from", sourceUUIDsById.get(split.getFromSource()));
 				s.put("to", sourceUUIDsById.get(split.getToSource()));
 				s.put("memo", CryptoUtil.decryptWrapper(split.getMemo(), user));
@@ -163,7 +163,7 @@ public class BackupResource extends ServerResource {
 		if (scheduledTransaction.getSplits() != null){
 			for (Split split : scheduledTransaction.getSplits()) {
 				final JSONObject s = new JSONObject();
-				s.put("amount", split.getAmount().toPlainString());
+				s.put("amount", CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).toPlainString());
 				s.put("from", sourceUUIDsById.get(split.getFromSource()));
 				s.put("to", sourceUUIDsById.get(split.getToSource()));
 				s.put("memo", CryptoUtil.decryptWrapper(split.getMemo(), user));

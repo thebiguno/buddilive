@@ -144,7 +144,7 @@ public class RestoreResource extends ServerResource {
 					account.setStartDate(FormatUtil.parseDateInternal(a.getString("startDate")));
 					account.setDeleted(a.optBoolean("deleted", false));
 					account.setType(a.getString("type"));
-					account.setStartBalance(FormatUtil.parseCurrency(a.getString("startBalance")));
+					account.setStartBalance(FormatUtil.parseCurrency(a.getString("startBalance")).toPlainString());
 					account.setAccountType(a.getString("accountType"));
 
 					ConstraintsChecker.checkInsertAccount(account, user, sqlSession);
@@ -197,7 +197,7 @@ public class RestoreResource extends ServerResource {
 		}
 	}
 
-	private void restoreEntries(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException {
+	private void restoreEntries(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
 		final JSONArray entries = jsonObject.optJSONArray("entries");
 		if (entries != null){
 			for (int i = 0; i < entries.length(); i++){
@@ -209,7 +209,7 @@ public class RestoreResource extends ServerResource {
 				}
 				entry.setCategoryId(categoryId);
 				entry.setDate(FormatUtil.parseDateInternal(e.getString("date")));
-				entry.setAmount(FormatUtil.parseCurrency(e.getString("amount")));
+				entry.setAmount(FormatUtil.parseCurrency(e.getString("amount")).toPlainString());
 				final Entry existingEntry = sqlSession.getMapper(Entries.class).selectEntry(user, entry);
 				if (existingEntry == null){
 					//New entry
@@ -250,7 +250,7 @@ public class RestoreResource extends ServerResource {
 						if (fromSource == null){
 							throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find transaction from source UUID " + s.getString("from") + " for split #" + j + " in transaction " + t.getString("uuid"));
 						}
-						split.setAmount(FormatUtil.parseCurrency(s.getString("amount")));
+						split.setAmount(FormatUtil.parseCurrency(s.getString("amount")).toPlainString());
 						split.setFromSource(fromSource);
 						split.setToSource(toSource);
 						split.setMemo(s.optString("memo", ""));
@@ -303,7 +303,7 @@ public class RestoreResource extends ServerResource {
 						if (toSource == null){
 							throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find transaction from source UUID " + s.getString("to") + " for split #" + j + " in transaction " + t.getString("uuid"));
 						}
-						split.setAmount(FormatUtil.parseCurrency(s.getString("amount")));
+						split.setAmount(FormatUtil.parseCurrency(s.getString("amount")).toPlainString());
 						split.setFromSource(fromSource);
 						split.setToSource(toSource);
 						split.setMemo(s.optString("memo", null));

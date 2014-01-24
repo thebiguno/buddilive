@@ -15,7 +15,9 @@ import org.json.JSONObject;
 
 import ca.digitalcave.buddi.live.db.Entries;
 import ca.digitalcave.buddi.live.model.CategoryPeriod.CategoryPeriods;
+import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.moss.common.DateUtil;
+import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class Category extends Source {
 	private String periodType;
@@ -113,7 +115,7 @@ public class Category extends Source {
 	 * @return
 	 * @throws SQLException
 	 */
-	public BigDecimal getAmount(User user, SqlSession sql, Date startDate, Date endDate) throws SQLException {
+	public BigDecimal getAmount(User user, SqlSession sql, Date startDate, Date endDate) throws SQLException, CryptoException {
 		final CategoryPeriods categoryPeriod = CategoryPeriods.valueOf(getPeriodType());
 		
 		//If the start date and end date are in the same period, then our job is easy: find the entry, 
@@ -121,7 +123,7 @@ public class Category extends Source {
 		if (categoryPeriod.getStartOfBudgetPeriod(startDate).equals(categoryPeriod.getStartOfBudgetPeriod(endDate))){
 			final Entry entry = sql.getMapper(Entries.class).selectEntry(user, categoryPeriod.getStartOfBudgetPeriod(startDate), getId());
 			if (entry == null) return BigDecimal.ZERO;
-			final BigDecimal totalAmount = entry.getAmount();
+			final BigDecimal totalAmount = new BigDecimal(CryptoUtil.decryptWrapper(entry.getAmount(), user));
 			final double totalDays = categoryPeriod.getDaysInPeriod(startDate);
 			final double daysBetween = DateUtil.getDaysBetween(startDate, endDate, true);
 			final BigDecimal result = new BigDecimal(totalAmount.doubleValue() * (daysBetween / totalDays));

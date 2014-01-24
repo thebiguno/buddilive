@@ -93,7 +93,8 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 						transactionsBySource.get(source).add(t);
 
 						//Sum the balances
-						totalsBySource.put(source, split.getAmount().add(totalsBySource.get(source) == null ? BigDecimal.ZERO : totalsBySource.get(source)));
+						final BigDecimal splitAmount = CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true);
+						totalsBySource.put(source, splitAmount.add(totalsBySource.get(source) == null ? BigDecimal.ZERO : totalsBySource.get(source)));
 					}
 					else if ("I".equals(split.getToType()) || "E".equals(split.getToType())){
 						//Ensure there is a list in the map already
@@ -112,7 +113,9 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 						transactionsBySource.get(source).add(t);
 
 						//Sum the balances
-						totalsBySource.put(source, split.getAmount().add(totalsBySource.get(source) == null ? BigDecimal.ZERO : totalsBySource.get(source)));					}
+						final BigDecimal splitAmount = CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true);
+						totalsBySource.put(source, splitAmount.add(totalsBySource.get(source) == null ? BigDecimal.ZERO : totalsBySource.get(source)));
+					}
 				}
 			}
 			
@@ -157,8 +160,9 @@ public class IncomeAndExpensesByCategoryResource extends ServerResource {
 							final Split split = t.getSplits().get(0);
 							o.put("from", CryptoUtil.decryptWrapper(split.getFromSourceName(), user));
 							o.put("to", CryptoUtil.decryptWrapper(split.getToSourceName(), user));
-							o.put("amount", FormatUtil.formatCurrency(split.getAmount(), user));
-							o.put("amountStyle", (FormatUtil.isRed(category, split.getAmount()) ? FormatUtil.formatRed() : ""));
+							final BigDecimal splitAmount = CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true);
+							o.put("amount", FormatUtil.formatCurrency(splitAmount, user));
+							o.put("amountStyle", (FormatUtil.isRed(category, splitAmount) ? FormatUtil.formatRed() : ""));
 							ts.put(o);
 						}
 						object.put("transactions", ts);

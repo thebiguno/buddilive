@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.live.model;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import org.json.JSONException;
@@ -10,28 +9,28 @@ import ca.digitalcave.buddi.live.util.FormatUtil;
 
 public class Account extends Source {
 	private String accountType;
-	private BigDecimal startBalance;
+	private String startBalance;
 	private Date startDate;
 
-	private BigDecimal balance;
+	private String balance;
 	
 	public Account() {}
 	
 	public Account(JSONObject json) throws JSONException {
 		super(json);
 		this.setAccountType(json.optString("accountType", null));
-		this.setStartBalance(FormatUtil.parseCurrency(json.optString("startBalance", null)));
+		this.setStartBalance(FormatUtil.parseCurrency(json.optString("startBalance", null)).toPlainString());
 		this.setStartDate(FormatUtil.parseDateInternal(json.optString("startDate", "1900-01-01")));
 	}
 	
-	public JSONObject toJson() throws JSONException {
-		JSONObject result = super.toJson();
-		result.put("startBalance", this.getStartBalance().toPlainString());
-		result.put("balance", this.getBalance().toPlainString());
-		result.put("startDate", FormatUtil.formatDateTimeInternal((Date) this.getStartDate()));
-		result.put("accountType", this.getAccountType());
-		return result;
-	}
+//	public JSONObject toJson() throws JSONException {
+//		JSONObject result = super.toJson();
+//		result.put("startBalance", this.getStartBalance().toPlainString());
+//		result.put("balance", this.getBalance().toPlainString());
+//		result.put("startDate", FormatUtil.formatDateTimeInternal((Date) this.getStartDate()));
+//		result.put("accountType", this.getAccountType());
+//		return result;
+//	}
 	
 	public String getAccountType() {
 		return accountType;
@@ -39,10 +38,10 @@ public class Account extends Source {
 	public void setAccountType(String accountType) {
 		this.accountType = accountType;
 	}
-	public BigDecimal getStartBalance() {
+	public String getStartBalance() {
 		return startBalance;
 	}
-	public void setStartBalance(BigDecimal startBalance) {
+	public void setStartBalance(String startBalance) {
 		this.startBalance = startBalance;
 	}
 	public Date getStartDate() {
@@ -55,10 +54,10 @@ public class Account extends Source {
 	public boolean isDebit(){
 		return "D".equals(getType());
 	}
-	public BigDecimal getBalance() {
+	public String getBalance() {
 		return balance;
 	}
-	public void setBalance(BigDecimal balance) {
+	public void setBalance(String balance) {
 		this.balance = balance;
 	}
 }

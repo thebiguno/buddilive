@@ -1,5 +1,7 @@
 package ca.digitalcave.buddi.live.util;
 
+import java.math.BigDecimal;
+
 import org.apache.commons.lang.StringUtils;
 
 import ca.digitalcave.buddi.live.model.User;
@@ -7,6 +9,18 @@ import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class CryptoUtil {
+	
+	public static BigDecimal decryptWrapperBigDecimal(String value, User user, boolean nullIsZero) throws CryptoException {
+		value = decryptWrapper(value, user);
+
+		if (StringUtils.isBlank(value)){
+			if (nullIsZero) return BigDecimal.ZERO;
+			else return null;
+		}
+		else {
+			return new BigDecimal(value);
+		}
+	}
 	
 	public static String decryptWrapper(String value, User user) throws CryptoException {
 		if (StringUtils.isNotBlank(value) && user.isEncrypted()){

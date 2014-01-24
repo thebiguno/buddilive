@@ -1,6 +1,5 @@
 package ca.digitalcave.buddi.live.model;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import org.json.JSONException;
@@ -11,7 +10,7 @@ import ca.digitalcave.buddi.live.util.FormatUtil;
 public class Entry {
 	private Long id;
 	private int categoryId;
-	private BigDecimal amount;
+	private String amount;
 	private Date date;
 	private Date created;
 	private Date modified;
@@ -21,7 +20,7 @@ public class Entry {
 	public Entry(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setCategoryId(json.getInt("categoryId"));	//This field is required
-		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")));	//This field is required, but can be zero
+		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")).toPlainString());	//This field is required, but can be zero
 		this.setDate(FormatUtil.parseDateInternal(json.getString("date")));	//This field is required
 	}
 	
@@ -48,10 +47,10 @@ public class Entry {
 	public void setCategoryId(int categoryId) {
 		this.categoryId = categoryId;
 	}
-	public BigDecimal getAmount() {
+	public String getAmount() {
 		return amount;
 	}
-	public void setAmount(BigDecimal amount) {
+	public void setAmount(String amount) {
 		this.amount = amount;
 	}
 	public Date getDate() {

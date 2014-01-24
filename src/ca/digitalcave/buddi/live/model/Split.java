@@ -12,7 +12,7 @@ public class Split {
 	private Long id;
 	private Long transactionId;
 	private int userId;
-	private BigDecimal amount;
+	private String amount;
 	private int fromSource;
 	private int toSource;
 	private String fromType;
@@ -20,8 +20,8 @@ public class Split {
 	private String memo;
 	private Date created;
 	private Date modified;
-	private BigDecimal fromBalance;
-	private BigDecimal toBalance;
+	private String fromBalance;
+	private String toBalance;
 
 	private String fromSourceName;
 	private String toSourceName;
@@ -31,7 +31,7 @@ public class Split {
 	public Split(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setTransactionId(json.has("transactionId") ? json.getLong("transactionId") : null);
-		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")));
+		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")).toPlainString());
 		this.setFromSource(json.getInt("fromId"));
 		this.setToSource(json.getInt("toId"));
 		this.setMemo(json.optString("memo", null));
@@ -42,7 +42,7 @@ public class Split {
 		result.put("id", this.getId());
 		result.put("transactionId", this.getTransactionId());
 		result.put("userId", this.getUserId());
-		result.put("amount", this.getAmount().toPlainString());
+		result.put("amount", new BigDecimal(this.getAmount()).toPlainString());
 		result.put("fromId", this.getFromSource());
 		result.put("toId", this.getToSource());
 		result.put("memo", this.getMemo());
@@ -68,10 +68,10 @@ public class Split {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
-	public BigDecimal getAmount() {
+	public String getAmount() {
 		return amount;
 	}
-	public void setAmount(BigDecimal amount) {
+	public void setAmount(String amount) {
 		this.amount = amount;
 	}
 	public int getFromSource() {
@@ -92,16 +92,16 @@ public class Split {
 	public void setMemo(String memo) {
 		this.memo = memo;
 	}
-	public BigDecimal getFromBalance() {
+	public String getFromBalance() {
 		return fromBalance;
 	}
-	public void setFromBalance(BigDecimal fromBalance) {
+	public void setFromBalance(String fromBalance) {
 		this.fromBalance = fromBalance;
 	}
-	public BigDecimal getToBalance() {
+	public String getToBalance() {
 		return toBalance;
 	}
-	public void setToBalance(BigDecimal toBalance) {
+	public void setToBalance(String toBalance) {
 		this.toBalance = toBalance;
 	}
 	public String getFromType() {

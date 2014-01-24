@@ -11,7 +11,6 @@
 	</resultMap>
 
 	<select id="selectEntries" resultMap="entry">
-		--Used for backup
 		SELECT 
 			category e_category,
 			entry_date e_date,

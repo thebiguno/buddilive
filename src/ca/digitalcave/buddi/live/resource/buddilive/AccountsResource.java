@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -89,17 +90,19 @@ public class AccountsResource extends ServerResource {
 						final JSONObject account = new JSONObject();
 						account.put("id", a.getId());
 						account.put("name", CryptoUtil.decryptWrapper(a.getName(), user));
-						account.put("balance", FormatUtil.formatCurrency(a.isDebit() ? a.getBalance() : a.getBalance().negate(), user));
+						final BigDecimal balance = CryptoUtil.decryptWrapperBigDecimal(a.getBalance(), user, true);
+						account.put("balance", FormatUtil.formatCurrency(a.isDebit() ? balance : balance.negate(), user));
+						account.put("balanceStyle", (FormatUtil.isRed(a, balance) ? FormatUtil.formatRed() : ""));
 						account.put("type", a.getType());
 						account.put("accountType", CryptoUtil.decryptWrapper(a.getAccountType(), user));
-						account.put("startBalance", FormatUtil.formatCurrency(a.getStartBalance(), user));
+						final BigDecimal startBalance = CryptoUtil.decryptWrapperBigDecimal(a.getStartBalance(), user, true);
+						account.put("startBalance", FormatUtil.formatCurrency(startBalance, user));
 						account.put("debit", a.isDebit());
 						account.put("deleted", a.isDeleted());
 						if (a.isDeleted()) sb.append(" text-decoration: line-through;");
 						if (!a.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
 						account.put("style", sb.toString());
 						sb.setLength(0);
-						account.put("balanceStyle", (FormatUtil.isRed(a, a.getBalance()) ? FormatUtil.formatRed() : ""));
 						account.put("leaf", true);
 						account.put("nodeType", "account");
 						account.put("icon", "img/table-money.png");
