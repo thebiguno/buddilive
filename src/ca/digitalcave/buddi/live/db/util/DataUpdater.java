@@ -354,12 +354,12 @@ public class DataUpdater {
 		// b) Encrypt this key using their password
 		// c) ASCII-armour the key, and store it in their user table
 		// d) Iterate through all sources, transactions, and split in the system, and encrypt the appropriate fields.  Encryptable fields are:
-		//   i) Source name
+		//   i) Source name, starting balance, (clear running balance as it will be updated later)
 		//   ii) Account type
 		//   iii) Transaction description
 		//   iv) Transaction number
-		//	 v) Split memo,
-		//   vi) Scheduled transaction name, description, number, split memo
+		//	 v) Split memo, amount, (clear from / to balances as they will be updated later),
+		//   vi) Scheduled transaction name, description, number, split memo, split amount
 		
 		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
 		if (user.isEncrypted()) throw new DatabaseException("This account is already encrypted");
@@ -374,11 +374,17 @@ public class DataUpdater {
 		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
 			a.setName(application.getCrypto().encrypt(key, a.getName()));
 			a.setAccountType(application.getCrypto().encrypt(key, a.getAccountType()));
+			a.setStartBalance(application.getCrypto().encrypt(key, a.getStartBalance()));
+			a.setBalance(null);
 			sqlSession.getMapper(Sources.class).updateAccount(user, a);
 		}
 		for (Category c : sqlSession.getMapper(Sources.class).selectCategories(user)) {
 			c.setName(application.getCrypto().encrypt(key, c.getName()));
 			sqlSession.getMapper(Sources.class).updateCategory(user, c);
+		}
+		for (Entry e : sqlSession.getMapper(Entries.class).selectEntries(user)){
+			e.setAmount(application.getCrypto().encrypt(key, e.getAmount()));
+			sqlSession.getMapper(Entries.class).updateEntry(user, e);
 		}
 		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
 			t.setDescription(application.getCrypto().encrypt(key, t.getDescription()));
@@ -386,7 +392,10 @@ public class DataUpdater {
 			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
 		}
 		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
+			s.setAmount(application.getCrypto().encrypt(key, s.getAmount()));
 			s.setMemo(application.getCrypto().encrypt(key, s.getMemo()));
+			s.setFromBalance(null);
+			s.setToBalance(null);
 			sqlSession.getMapper(Transactions.class).updateSplit(user, s);
 		}
 		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
@@ -396,6 +405,7 @@ public class DataUpdater {
 			st.setMessage(application.getCrypto().encrypt(key, st.getMessage()));
 			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
 			for (Split s : st.getSplits()) {
+				s.setAmount(application.getCrypto().encrypt(key, s.getAmount()));
 				s.setMemo(application.getCrypto().encrypt(key, s.getMemo()));
 				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, s);
 			}
@@ -417,11 +427,17 @@ public class DataUpdater {
 		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
 			a.setName(Crypto.decrypt(key, a.getName()));
 			a.setAccountType(Crypto.decrypt(key, a.getAccountType()));
+			a.setStartBalance(Crypto.decrypt(key, a.getStartBalance()));
+			a.setBalance(null);
 			sqlSession.getMapper(Sources.class).updateAccount(user, a);
 		}
 		for (Category c : sqlSession.getMapper(Sources.class).selectCategories(user)) {
 			c.setName(Crypto.decrypt(key, c.getName()));
 			sqlSession.getMapper(Sources.class).updateCategory(user, c);
+		}
+		for (Entry e : sqlSession.getMapper(Entries.class).selectEntries(user)){
+			e.setAmount(Crypto.decrypt(key, e.getAmount()));
+			sqlSession.getMapper(Entries.class).updateEntry(user, e);
 		}
 		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
 			t.setDescription(Crypto.decrypt(key, t.getDescription()));
@@ -429,10 +445,13 @@ public class DataUpdater {
 			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
 		}
 		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
+			s.setAmount(Crypto.decrypt(key, s.getAmount()));
+			s.setFromBalance(null);
+			s.setToBalance(null);
 			if (s.getMemo() != null){
 				s.setMemo(Crypto.decrypt(key, s.getMemo()));
-				sqlSession.getMapper(Transactions.class).updateSplit(user, s);
 			}
+			sqlSession.getMapper(Transactions.class).updateSplit(user, s);
 		}
 		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
 			try { st.setScheduleName(Crypto.decrypt(key, st.getScheduleName())); } catch (CryptoException e){}
@@ -441,6 +460,7 @@ public class DataUpdater {
 			try { st.setMessage(Crypto.decrypt(key, st.getMessage())); } catch (CryptoException e){}
 			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
 			for (Split s : st.getSplits()) {
+				s.setAmount(Crypto.decrypt(key, s.getAmount()));
 				s.setMemo(Crypto.decrypt(key, s.getMemo()));
 				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, s);
 			}
@@ -513,6 +533,12 @@ public class DataUpdater {
 		final Crypto crypto = application.getCrypto();
 		final SecretKey key = user.getDecryptedSecretKey();
 		
+		for (Account account: sqlSession.getMapper(Sources.class).selectAccounts(user)){
+			BigDecimal startBalance = new BigDecimal(account.getStartBalance());
+			account.setStartBalance(crypto.encrypt(key, startBalance.toPlainString()));
+			account.setBalance(null);
+			sqlSession.getMapper(Sources.class).updateAccount(user, account);
+		}
 		for (Entry entry : sqlSession.getMapper(Entries.class).selectEntries(user)){
 			BigDecimal amount = new BigDecimal(entry.getAmount());
 			entry.setAmount(crypto.encrypt(key, amount.toPlainString()));
@@ -521,6 +547,8 @@ public class DataUpdater {
 		for (Split split : sqlSession.getMapper(Transactions.class).selectSplits(user)){
 			BigDecimal amount = new BigDecimal(split.getAmount());
 			split.setAmount(crypto.encrypt(key, amount.toPlainString()));
+			split.setFromBalance(null);
+			split.setToBalance(null);
 			sqlSession.getMapper(Transactions.class).updateSplit(user, split);
 		}
 		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
