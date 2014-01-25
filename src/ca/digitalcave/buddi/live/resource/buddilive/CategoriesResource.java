@@ -57,9 +57,10 @@ public class CategoriesResource extends ServerResource {
 			final JSONArray data = new JSONArray();
 			
 			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, cp));
-
+			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, cp.getCurrentPeriodStartDate(), cp.getCurrentPeriodEndDate());
+			
 			for (Category c : categories) {
-				final JSONObject category = getJsonObject(sqlSession, c, cp, user);
+				final JSONObject category = getJsonObject(sqlSession, c, cp, transactions, user);
 				if (category != null) data.put(category);
 			}
 
@@ -85,17 +86,17 @@ public class CategoriesResource extends ServerResource {
 		}
 	}
 	
-	private JSONObject getJsonObject(SqlSession sqlSession, Category category, CategoryPeriod categoryPeriod, final User user) throws JSONException, CryptoException {
+	private JSONObject getJsonObject(final SqlSession sqlSession, final Category category, final CategoryPeriod categoryPeriod, final List<Transaction> transactions, final User user) throws JSONException, CryptoException {
 		if (category.isDeleted() && !user.isShowDeleted()) return null;
 		
 		BigDecimal actualAmount = BigDecimal.ZERO;
-		final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, category, categoryPeriod.getCurrentPeriodStartDate(), categoryPeriod.getCurrentPeriodEndDate());
 		for (Transaction transaction : transactions) {
 			for (Split split : transaction.getSplits()) {
-				//The query will have filtered out all splits which are not related to the given category;
-				// since a given category (unlike an account) cannot be in both from and to on two different
-				// splits, we just add the values up directly.
-				actualAmount = actualAmount.add(CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true));
+				if (split.getFromSource() == category.getId() || split.getToSource() == category.getId()){
+					//Since a given category (unlike an account) cannot be in both from and to on two different
+					// splits, we just add the values up directly if either from or to matches the category.
+					actualAmount = actualAmount.add(CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true));
+				}
 			}
 		}
 		
@@ -149,7 +150,7 @@ public class CategoriesResource extends ServerResource {
 				}
 			});
 			for (Category child : children) {
-				final JSONObject c = getJsonObject(sqlSession, child, categoryPeriod, user);
+				final JSONObject c = getJsonObject(sqlSession, child, categoryPeriod, transactions, user);
 				if (c != null) result.append("children", c);
 			}
 		}
@@ -242,7 +243,9 @@ public class CategoriesResource extends ServerResource {
 				final CategoryPeriod cp = new CategoryPeriod(CategoryPeriods.valueOf(request.getString("periodType")), FormatUtil.parseDateInternal(request.getString("date")), Integer.parseInt(request.optString("offset", "0")));
 				
 				final Category c = sqlSession.getMapper(Sources.class).selectCategory(user, cp, request.getInt("categoryId"));
-				final JSONObject data = getJsonObject(sqlSession, c, cp, user);
+				final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, c, cp.getCurrentPeriodStartDate(), cp.getCurrentPeriodEndDate());
+				
+				final JSONObject data = getJsonObject(sqlSession, c, cp, transactions, user);
 				result.put("data", data);
 			} 
 			else {
