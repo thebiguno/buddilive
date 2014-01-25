@@ -80,25 +80,24 @@
 	<select id="selectSplits" resultMap="split">
 		<!-- This is used by DataUpdater.updateBalances, and should not be changed unless you ensure the updater works.  In particular, the ORDER BY is essential in its current form. -->
 		SELECT
+			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance, fs.type from_type, ts.type to_type
+		FROM splits s
+		INNER JOIN transactions t ON t.id = s.transaction_id
+		INNER JOIN sources fs ON fs.id = s.from_source
+		INNER JOIN sources ts ON ts.id = s.to_source
+		WHERE 
+			s.user_id = #{user.id}
+		ORDER BY t.transaction_date, s.id
+	</select>
+	
+	<select id="selectSplitsByAccount" resultMap="split">
+		<!-- This is used by DataUpdater.updateBalances, and should not be changed unless you ensure the updater works.  In particular, the ORDER BY is essential in its current form. -->
+		SELECT
 			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance
 		FROM splits s
 		INNER JOIN transactions t ON t.id = s.transaction_id
 		WHERE 
 			s.user_id = #{user.id}
-			<if test="_parameter.containsKey('account')">
-			AND #{account.id} IN (s.from_source, s.to_source)
-			</if>
-			<if test="_parameter.containsKey('date')">
-			AND t.transaction_date >= (
-				SELECT '1900-01-01' t_date FROM transactions t
-				UNION 
-				SELECT t.transaction_date t_date
-				FROM transactions t
-				WHERE t.transaction_date &lt; #{date}
-				ORDER BY t_date DESC
-				FETCH FIRST 1 ROWS ONLY
-			)
-			</if>
 		ORDER BY t.transaction_date, s.id
 	</select>
 	
