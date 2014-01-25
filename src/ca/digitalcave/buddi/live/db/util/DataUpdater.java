@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
@@ -36,23 +38,39 @@ import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 public class DataUpdater {
 
 	public static void updateBalances(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
+		
 		//Look through all splits in all accounts.  Start with the earliest split in each account.  If we find a
 		// split which does not have the correct balance, we update it; if the balance is already good, leave it alone.
+		final List<Split> splits = sqlSession.getMapper(Transactions.class).selectSplits(user);
+		final Map<Integer, List<Split>> splitsByAccount = new HashMap<Integer, List<Split>>();
+		for (Split split : splits) {
+			//Put the splits into a map by account ID.  A split can be associated with two accounts, so we don't do 'else if' below.
+			if ("C".equals(split.getFromType()) || "D".equals(split.getFromType())){
+				final int accountId = split.getFromSource();
+				if (splitsByAccount.get(accountId) == null) splitsByAccount.put(accountId, new ArrayList<Split>());
+				splitsByAccount.get(accountId).add(split);
+			}
+			if ("C".equals(split.getToType()) || "D".equals(split.getToType())){
+				final int accountId = split.getToSource();
+				if (splitsByAccount.get(accountId) == null) splitsByAccount.put(accountId, new ArrayList<Split>());
+				splitsByAccount.get(accountId).add(split);
+			}
+		}
+		
 		final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user);
 		for (Account account : accounts){
-			//We always start with the first split in a given account.
-			final List<Split> splits = sqlSession.getMapper(Transactions.class).selectSplits(user, account);
+			if (splitsByAccount.get(account.getId()) == null) splitsByAccount.put(account.getId(), new ArrayList<Split>());
 			BigDecimal previousBalance = CryptoUtil.decryptWrapperBigDecimal(account.getStartBalance(), user, true);
 			BigDecimal newBalance = previousBalance;
 			int count = 0;
-			for (Split split : splits) {
+			for (Split split : splitsByAccount.get(account.getId())) {
 				if (split.getFromSource() == account.getId()){
 					newBalance = previousBalance.subtract(CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true));
 					BigDecimal splitFromBalance = CryptoUtil.decryptWrapperBigDecimal(split.getFromBalance(), user, false);
 					if (splitFromBalance == null || splitFromBalance.compareTo(newBalance) != 0) {
-						split.setFromBalance(newBalance.toPlainString());
-						ConstraintsChecker.checkUpdateSplit(split, user, sqlSession);
-						count = sqlSession.getMapper(Transactions.class).updateSplit(user, split);
+						final String encodedNewBalance = user.isEncrypted() ? application.getCrypto().encrypt(user.getDecryptedSecretKey(), newBalance.toPlainString()) : newBalance.toPlainString();
+						count = sqlSession.getMapper(Transactions.class).updateSplitBalance(user, split.getId(), encodedNewBalance, true);
 						if (count != 1) throw new DatabaseException("Expected 1 split row updated; returned " + count);
 					}
 				}
@@ -60,9 +78,8 @@ public class DataUpdater {
 					newBalance = previousBalance.add(CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true));
 					BigDecimal splitToBalance = CryptoUtil.decryptWrapperBigDecimal(split.getToBalance(), user, false);
 					if (splitToBalance == null || splitToBalance.compareTo(newBalance) != 0) {
-						split.setToBalance(newBalance.toPlainString());
-						ConstraintsChecker.checkUpdateSplit(split, user, sqlSession);
-						count = sqlSession.getMapper(Transactions.class).updateSplit(user, split);
+						final String encodedNewBalance = user.isEncrypted() ? application.getCrypto().encrypt(user.getDecryptedSecretKey(), newBalance.toPlainString()) : newBalance.toPlainString();
+						count = sqlSession.getMapper(Transactions.class).updateSplitBalance(user, split.getId(), encodedNewBalance, false);
 						if (count != 1) throw new DatabaseException("Expected 1 split row updated; returned " + count);
 					}
 				}
@@ -73,11 +90,12 @@ public class DataUpdater {
 				previousBalance = newBalance;
 			}
 
-			//Set the account balance to the latest balance.
-			account.setBalance(newBalance.toPlainString());
-			ConstraintsChecker.checkUpdateAccount(account, user, sqlSession);
-			count = sqlSession.getMapper(Sources.class).updateAccount(user, account);
-			if (count != 1) throw new DatabaseException("Expected 1 account row updated; returned " + count);
+			//Set the account balance to the latest balance if it has changed.
+			if (newBalance.compareTo(CryptoUtil.decryptWrapperBigDecimal(account.getBalance(), user, true)) != 0){
+				final String encodedNewBalance = user.isEncrypted() ? application.getCrypto().encrypt(user.getDecryptedSecretKey(), newBalance.toPlainString()) : newBalance.toPlainString();
+				count = sqlSession.getMapper(Sources.class).updateAccountBalance(user, account.getId(), encodedNewBalance);
+				if (count != 1) throw new DatabaseException("Expected 1 account row updated; returned " + count);
+			}
 		}
 	}
 	

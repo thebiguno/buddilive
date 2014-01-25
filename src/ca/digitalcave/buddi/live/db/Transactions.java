@@ -33,6 +33,7 @@ public interface Transactions {
 	
 	public Integer updateTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);
 	public Integer updateSplit(@Param("user") User user, @Param("split") Split split);
+	public Integer updateSplitBalance(@Param("user") User user, @Param("splitId") long splitId, @Param("balance") String balance, @Param("from") boolean updateFromBalance);
 	
 	public Integer deleteAllTransactions(@Param("user") User user);
 	public Integer deleteTransaction(@Param("user") User user, @Param("transaction") Transaction transaction);

@@ -43,6 +43,7 @@ public interface Sources {
 	public Integer insertCategory(@Param("user") User user, @Param("category") Category category);
 	
 	public Integer updateAccount(@Param("user") User user, @Param("account") Account account);
+	public Integer updateAccountBalance(@Param("user") User user, @Param("accountId") int accountId, @Param("balance") String balance);
 	public Integer updateCategory(@Param("user") User user, @Param("category") Category category);
 	public Integer updateSourceDeleted(@Param("user") User user, @Param("source") Source source);
 	

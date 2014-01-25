@@ -164,6 +164,21 @@
 		WHERE id = #{split.id} AND user_id = #{user.id}
 	</update>
 	
+	<update id="updateSplitBalance">
+		UPDATE splits
+		SET
+			<choose>
+				<when test="from">
+					from_balance = #{balance,jdbcType=VARCHAR},
+				</when>
+				<otherwise>
+					to_balance = #{balance,jdbcType=VARCHAR},
+				</otherwise>
+			</choose>
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{splitId} AND user_id = #{user.id}
+	</update>
+	
 	<delete id="deleteTransaction">
 		DELETE FROM transactions
 		WHERE

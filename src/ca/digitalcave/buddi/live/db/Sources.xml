@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.live.db.Sources">
+	
 	<resultMap id="source" type="ca.digitalcave.buddi.live.model.Source">
 		<id column="s_id" property="id" />
 		<result column="s_user_id" property="userId"/>
@@ -263,10 +264,17 @@
 			deleted = <choose><when test="account.deleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			type = #{account.type},
 			account_type = #{account.accountType},
-			start_balance = #{account.startBalance,jdbcType=BIGINT},
-			balance = #{account.balance,jdbcType=BIGINT},
+			start_balance = #{account.startBalance,jdbcType=VARCHAR},
+			balance = #{account.balance,jdbcType=VARCHAR},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{account.id} AND user_id = #{user.id}
+	</update>
+	<update id="updateAccountBalance">
+		UPDATE sources
+		SET
+			balance = #{balance,jdbcType=VARCHAR},
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{accountId} AND user_id = #{user.id}
 	</update>
 	<update id="updateCategory">
 		UPDATE sources
