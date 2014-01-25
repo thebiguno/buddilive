@@ -103,5 +103,5 @@ Ext.application({
 });
 
 Ext.override(Ext.form.DateField, {
-	"format": "${(extDateFormat!"Y-m-d")?json_string}"
+	"format": "${(user.extDateFormat!"Y-m-d")?json_string}"
 });
