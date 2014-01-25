@@ -119,7 +119,7 @@ public class Category extends Source {
 		// and return the amount * percent of how many days were used in the period. 
 		if (categoryPeriod.getStartOfBudgetPeriod(startDate).equals(categoryPeriod.getStartOfBudgetPeriod(endDate))){
 			if (entries.get(startDate) == null) return BigDecimal.ZERO;
-			final BigDecimal totalAmount = new BigDecimal(CryptoUtil.decryptWrapper(entries.get(startDate).getAmount(), user));
+			final BigDecimal totalAmount = CryptoUtil.decryptWrapperBigDecimal(entries.get(startDate).getAmount(), user, true);
 			final double totalDays = categoryPeriod.getDaysInPeriod(startDate);
 			final double daysBetween = DateUtil.getDaysBetween(startDate, endDate, true);
 			final BigDecimal result = new BigDecimal(totalAmount.doubleValue() * (daysBetween / totalDays));
