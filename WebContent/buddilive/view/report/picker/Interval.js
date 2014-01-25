@@ -99,16 +99,25 @@ Ext.define("BuddiLive.view.report.picker.Interval", {
 				"listeners": {
 					"click": function(){
 						var interval = me.down("combobox[itemId='interval']").getValue();
+						var dateRange = me.down("combobox[itemId='interval']").getRawValue();
 						var query = "interval=" + interval;
 						if (interval == "PLUGIN_FILTER_OTHER"){
 							var startValid = me.down("datefield[itemId='startDate']").validate();
 							var endValid = me.down("datefield[itemId='endDate']").validate();
 							if (!startValid || !endValid) return;
 							
-							query += ("&startDate=" + Ext.Date.format(me.down("datefield[itemId='startDate']").getValue(), "Y-m-d"));
-							query += ("&endDate=" + Ext.Date.format(me.down("datefield[itemId='endDate']").getValue(), "Y-m-d"));
+							var startDate = me.down("datefield[itemId='startDate']").getValue();
+							var endDate = me.down("datefield[itemId='endDate']").getValue();
+							query += ("&startDate=" + Ext.Date.format(startDate, "Y-m-d"));
+							query += ("&endDate=" + Ext.Date.format(endDate, "Y-m-d"));
+							
+							dateRange = Ext.Date.format(startDate, "${(user.extDateFormat!"Y-m-d")?json_string}") + " - " + Ext.Date.format(endDate, "${(user.extDateFormat!"Y-m-d")?json_string}");
 						}
-						me.initialConfig.callback(query);
+						var options = {
+							"query": query,
+							"dateRange": dateRange
+						};
+						me.initialConfig.callback(options);
 						me.close();
 					}
 				}

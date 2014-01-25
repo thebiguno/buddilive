@@ -18,11 +18,11 @@ Ext.define("BuddiLive.controller.Reports", {
 	"showIncomeByCategoryPie": function(component){
 		Ext.widget({
 			"xtype": "reportpickerinterval",
-			"callback": function(query){
+			"callback": function(options){
 				var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
 				var report = Ext.widget({
 					"xtype": "reportpietotalsbycategory",
-					"query": query,
+					"options": options,
 					"type": "I"
 				});
 				tabPanel.add(report);
@@ -33,11 +33,11 @@ Ext.define("BuddiLive.controller.Reports", {
 	"showExpensesByCategoryPie": function(component){
 		Ext.widget({
 			"xtype": "reportpickerinterval",
-			"callback": function(query){
+			"callback": function(options){
 				var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
 				var report = Ext.widget({
 					"xtype": "reportpietotalsbycategory",
-					"query": query,
+					"options": options,
 					"type": "E"
 				});
 				tabPanel.add(report);
@@ -49,12 +49,11 @@ Ext.define("BuddiLive.controller.Reports", {
 	"showIncomeAndExpensesByCategoryTable": function(component){
 		Ext.widget({
 			"xtype": "reportpickerinterval",
-			"callback": function(query){
+			"callback": function(options){
 				var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
 				var report = Ext.widget({
 					"xtype": "reportincomeandexpensesbycategory",
-					"query": query,
-					"type": "E"
+					"options": options
 				});
 				tabPanel.add(report);
 				tabPanel.setActiveTab(report);

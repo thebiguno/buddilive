@@ -6,12 +6,12 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 		"BuddiLive.store.report.IncomeAndExpensesByCategoryStore"
 	],
 	
-	"title": "${translation("REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY")?json_string}",
 	"closable": true,
 	"layout": "fit",
 	"initComponent": function(){
 		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
 		
+		this.title = "${translation("REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY")?json_string} - " + this.initialConfig.options.dateRange;
 		var styledRenderer = function(value, metaData, record){
 			metaData.style = record.raw[metaData.column.dataIndex + "Style"];
 			return value;
@@ -20,7 +20,7 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 		this.items = [
 			{
 				"xtype": "grid",
-				"store": Ext.create("BuddiLive.store.report.IncomeAndExpensesByCategoryStore", {"query": this.initialConfig.query, "type": this.initialConfig.type}),
+				"store": Ext.create("BuddiLive.store.report.IncomeAndExpensesByCategoryStore", {"query": this.initialConfig.options.query, "type": this.initialConfig.type}),
 				"plugins": [
 					{
 						"ptype": "rowexpander",

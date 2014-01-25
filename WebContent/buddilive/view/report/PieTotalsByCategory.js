@@ -6,16 +6,16 @@ Ext.define('BuddiLive.view.report.PieTotalsByCategory', {
 		"BuddiLive.store.report.PieTotalsByCategoryStore"
 	],
 	
-	"title": "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string}",
 	"closable": true,
 	"layout": "fit",
 	"initComponent": function(){
 		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
 		
+		this.title = "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string} - " + this.initialConfig.options.dateRange;
 		this.items = [
 			{
 				"xtype": "chart",
-				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"query": this.initialConfig.query, "type": this.initialConfig.type}),
+				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"query": this.initialConfig.options.query, "type": this.initialConfig.type}),
 				"legend": {
 					"position": "bottom"
 				},
