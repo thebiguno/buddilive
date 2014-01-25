@@ -58,7 +58,7 @@
 				#{user.currency,javaType=java.util.Currency},
 				'Y',
 				#{activationKey},
-				1,
+				2,
 				CURRENT_TIMESTAMP, 
 				CURRENT_TIMESTAMP
 			)
