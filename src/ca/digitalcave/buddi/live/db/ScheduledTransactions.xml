@@ -209,8 +209,9 @@
 	<update id="updateScheduledSplit">
 		UPDATE scheduledsplits
 		SET 
-			from_balance = #{split.fromBalance,jdbcType=DECIMAL},
-			to_balance = #{split.toBalance,jdbcType=DECIMAL},
+			amount = #{split.amount,jdbcType=VARCHAR},
+			from_source = #{split.fromSource},
+			to_source = #{split.toSource},
 			memo = #{split.memo,jdbcType=VARCHAR},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{split.id} AND user_id = #{user.id}

@@ -241,6 +241,8 @@
 		<dropColumn tableName="splits" columnName="from_balance"/>
 		<dropColumn tableName="splits" columnName="to_balance"/>
 		<dropColumn tableName="scheduledsplits" columnName="amount"/>
+		<dropColumn tableName="scheduledsplits" columnName="from_balance"/>
+		<dropColumn tableName="scheduledsplits" columnName="to_balance"/>
 
 		<addColumn tableName="sources">
 			<column name="balance" type="varchar(128)"/>
