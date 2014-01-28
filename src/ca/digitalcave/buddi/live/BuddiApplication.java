@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.service.BuddiStatusService;
+import ca.digitalcave.moss.common.OperatingSystemUtil;
 import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.Algorithm;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
@@ -89,6 +91,26 @@ public class BuddiApplication extends Application{
 		catch (Exception e){
 			getLogger().severe("There was an error loading the config file from WEB-INF/classes/config.properties.  Please ensure that this file exists and is readable.");
 			throw e;
+		}
+		
+		//If we are using Derby, and the user does not have a connection URL, set one up in a sane location.
+		if ("org.apache.derby.jdbc.EmbeddedDriver".equals(p.getProperty("db.driver")) && p.getProperty("db.url") == null){
+			final File buddiLiveFolder = OperatingSystemUtil.getUserFolder("BuddiLive");
+			
+			//Try to create directory if needed
+			if (!buddiLiveFolder.exists()) buddiLiveFolder.mkdirs();
+			
+			//Check if the directory exists
+			if (!buddiLiveFolder.exists()){
+				throw new RuntimeException("Unable to access folder '" + buddiLiveFolder.getAbsolutePath() + "'; please ensure this folder exists and is writable.");
+			}
+			else if (buddiLiveFolder.isFile()){
+				throw new RuntimeException("There is already a file at path '" + buddiLiveFolder.getAbsolutePath() + "'; cannot create directory.");
+			}
+
+			//Set up the URL; if the folder does not already exist, use the 'create' option on the URL.
+			final File database = new File(buddiLiveFolder, "derby");
+			p.setProperty("db.url", "jdbc:derby:directory:" + database.getAbsolutePath() + (database.exists() ? "" : ";create=true"));
 		}
 		
 		ds = new ComboPooledDataSource();

@@ -1,7 +1,13 @@
 # This is a sample config.properties for use with development systems.  Copy it to config.properties and change passwords as needed.
+
 #Sample for Postgresql connection
-db.driver=org.postgresql.Driver
-db.url=jdbc:postgresql:buddilive
-db.user=buddilive
-db.password=password
-db.query=select 1
+#db.driver=org.postgresql.Driver
+#db.url=jdbc:postgresql:buddilive
+#db.user=buddilive
+#db.password=password
+#db.query=select 1
+
+#Sample for Derby connection (using auto created DB in user's app data folder)
+db.driver=org.apache.derby.jdbc.EmbeddedDriver
+#If you want to specify a location for the Derby connection use the db.url setting; the first time you need create=true, after that you can remove it:
+#db.url=jdbc:derby:buddi;create=true
