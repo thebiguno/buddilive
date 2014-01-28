@@ -4,14 +4,16 @@ Ext.define("BuddiLive.controller.Reports", {
 	"requires": [
 		"BuddiLive.view.report.picker.Interval",
 		"BuddiLive.view.report.PieTotalsByCategory",
-		"BuddiLive.view.report.IncomeAndExpensesByCategory"
+		"BuddiLive.view.report.IncomeAndExpensesByCategory",
+		"BuddiLive.view.report.NetWorthOverTime"
 	],
 
 	"init": function() {
 		this.control({
 			"buddiviewport menuitem[itemId='showIncomeByCategoryPie']": {"click": this.showIncomeByCategoryPie},
 			"buddiviewport menuitem[itemId='showExpensesByCategoryPie']": {"click": this.showExpensesByCategoryPie},
-			"buddiviewport menuitem[itemId='showIncomeAndExpensesByCategoryTable']": {"click": this.showIncomeAndExpensesByCategoryTable}
+			"buddiviewport menuitem[itemId='showIncomeAndExpensesByCategoryTable']": {"click": this.showIncomeAndExpensesByCategoryTable},
+			"buddiviewport menuitem[itemId='showNetWorthOverTimeLine']": {"click": this.showNetWorthOverTimeLine}
 		});
 	},
 	
@@ -53,6 +55,21 @@ Ext.define("BuddiLive.controller.Reports", {
 				var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
 				var report = Ext.widget({
 					"xtype": "reportincomeandexpensesbycategory",
+					"options": options
+				});
+				tabPanel.add(report);
+				tabPanel.setActiveTab(report);
+			}
+		}).show();
+	},
+	
+	"showNetWorthOverTimeLine": function(component){
+		Ext.widget({
+			"xtype": "reportpickerinterval",
+			"callback": function(options){
+				var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
+				var report = Ext.widget({
+					"xtype": "reportnetworthovertime",
 					"options": options
 				});
 				tabPanel.add(report);

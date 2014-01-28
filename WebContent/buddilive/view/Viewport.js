@@ -184,6 +184,11 @@ Ext.define("BuddiLive.view.Viewport", {
 						"text": "${translation("REPORT_PIE_EXPENSES_BY_CATEGORY")?json_string}",
 						"icon": "img/chart-pie.png",
 						"itemId": "showExpensesByCategoryPie"
+					},
+					{
+						"text": "${translation("REPORT_NET_WORTH_OVER_TIME")?json_string}",
+						"icon": "img/chart-pie.png",
+						"itemId": "showNetWorthOverTimeLine"
 					}
 				]
 			},
