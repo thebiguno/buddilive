@@ -1,27 +1,36 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link href="../css/login.css" rel="stylesheet" />
 		<title>Buddi Live Encryption Details</title>
 	</head>
 	<body>
-<h1>
-Buddi Live Encryption Details
-</h1>
-<p>
-When using Buddi Live, your privacy and data is protected by a number of factors:
-</p>
-<ol>
-<li>
-Your user ID (email address) is stored as a <a href='http://en.wikipedia.org/wiki/Cryptographic_hash_function'>cryptographically hashed value</a>.  This means that it is not feasible for anyone to discover your email address by looking at the database.  Note that if you opt to 'Store Email', your email will be stored in plain text in another field.  If you are worried about your privacy, do not click the 'Store Email' option.
-</li>
-<li>
-If you opt to encrypt the data, then certain fields in the database are encrypted using a symmetric-key cryptographic system (currently implemented as 256-bit AES, although this may change in the future).  Fields which are encrypted include Account / Budget Category Name, Account Type, Transaction Description (Payee), Transaction Number (Cheque Number), and Transaction Memo.  Note that the amounts are not encrypted (due to technical limitations); however, since the account ID is hashed, and the account / transaction information is encrypted, the amounts by themselves are meaningless.
-</li>
-</ol>
-<p>
-Note that by enabling encryption, there is no way to reset a lost password.  There are no back doors to the system.  If you forget your password, your data is not recoverable.
-</p>
+		<div class="title"></div>
+		<div class="background-top"></div>
+		<div class="background-bottom"></div>
+		<div class="messages" style="top: 350px;">
+			<h1>
+			Buddi Live Encryption Details
+			</h1>
+			<p>
+			When using Buddi Live, user data is protected by a number of factors:
+			</p>
+			<ul>
+			<li>
+			The user id (email address) is stored as a <a href='http://en.wikipedia.org/wiki/Cryptographic_hash_function'>cryptographically hashed value</a>.  This means that it is not feasible for anyone to discover the email associated with a given account by looking at the database.  (Note that the option 'Store Email' stores a copy of the email address in an unecnrypted table.  This is so that system emails can be sent as needed.  It is recommended that users who are concerned about privacy do not enable the 'Store Email' option.)
+			</li>
+			<li>
+			Users can optionally enable encryption to prevent loss of data.  When encryption is enabled, certain fields in the database are encrypted using a symmetric-key cryptographic system (256-bit AES).  Fields which are encrypted include Account name, type, current balance, and starting balance; Budget Category name and budgeted amounts; Transaction description (payee), number (i.e. cheque number), memo, and amount.
+			</li>
+			<li>
+			The encryption key itself is randomly generated at the time that encryption is enabled for an account.  This random key is then encrypted with the user's password, and stored in the database.  When a user logs in and the web browser submits an authenticated request, the user's password is used to decrypt the main encryption key which is in turn used to decrypt requested data.  (Note that since a user's encryption key is encrypted with their own password, there is no way to reset a lost password for an encrypted account.  There are no back doors to the system.  If a user's password is forgetten, that user's data is not recoverable.  When enabling encryption it is recommended to regularly backup the data using the System / Backup menu)
+			</li>
+			</ul>
+			<p>
+				<a href='../'>Back to main page</a>
+			</p>
+		</div>
 	</body>
 </html>
 

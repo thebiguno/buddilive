@@ -26,7 +26,7 @@ Ext.define("BuddiLive.view.Viewport", {
 				"region": "north",
 				"height": 60,
 				"border": false,
-				"html": "<iframe id='adsensetop' src='buddilive/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe>",
+				"html": "<iframe id='adsensetop' src='buddilive/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe><img src='img/logo-title-small.png' style='float: right; margin-top: 2px; margin-right: 30px'/>",
 				"listeners": {
 					"afterrender": function(){
 						window.setInterval(function(){

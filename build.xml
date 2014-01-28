@@ -5,6 +5,11 @@
 		<arg value="--long"/>
 		<arg value="--tags"/>
 	</exec>
+	<exec outputproperty="changelog" executable="git">
+		<arg value="log"/>
+		<arg value="--date=short"/>
+		<arg value="--pretty=format:&lt;h2>%ad (%h)&lt;/h2>&lt;p>%s&lt;br/>%b&lt;/p>"/>
+	</exec>
 	<tstamp>
 		<format property="timestamp" pattern="yyyy-MM-dd HH:mm"/>
 	</tstamp>
@@ -35,7 +40,9 @@
 
 		<filter token="git" value="${git}"/>
 		<filter token="environment" value="${war-name}"/>
+		<filter token="changelog" value="${changelog}"/>
 		
+		<copy filtering="true" file="WebContent/doc/changelog.html" tofile="build/temp/changelog.html" overwrite="true"/>
 		<copy filtering="true" file="WebContent/WEB-INF/web.xml" tofile="build/temp/web.xml" overwrite="true"/>
 		<copy filtering="true" file="WebContent/WEB-INF/liquibase/master.xml" tofile="build/temp/liquibase/master.xml" overwrite="true"/>
 		<copy filtering="true" file="conf/${conf}-config.properties" tofile="build/temp/config.properties" overwrite="true"/>
@@ -60,9 +67,13 @@
 			</webinf>
 			<zipfileset dir="WebContent">
 				<include name="*/**"/>
+				<exclude name="doc/changelog.html"/>
 				<exclude name="WEB-INF/**"/>
 				<exclude name="extjs/**"/>
 				<exclude name="touch/**"/>
+			</zipfileset>
+			<zipfileset dir="build/temp" prefix="doc">
+				<include name="changelog.html"/>
 			</zipfileset>
 		</war>
 		
