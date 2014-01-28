@@ -10,7 +10,9 @@
 			<column name="uuid" type="varchar(64)"><constraints nullable="false" unique="true" uniqueConstraintName="uc_users_uuid"/></column>
 			<column name="identifier" type="varchar(256)" remarks="A hash of the user's login id (email)"><constraints nullable="false" unique="true" uniqueConstraintName="uc_users_identifier"/></column>
 			<column name="credentials" type="varchar(256)"><constraints nullable="false"/></column>
+			<column name="encryption_version" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
 			<column name="encryption_key" type="varchar(512)" remarks="ASCII-encoded version of the encryption key, itself encrypted with the user's password.  Null for those who don't want encryption."/>
+			<column name="activation_key" type="varchar(36)" remarks="A UUID string, used for resetting password and new user sign up"><constraints unique="true"/></column>
 			<column name="email" type="varchar(256)" remarks="An optional, recoverable, email address used for communication with the user"/>
 			<column name="premium" type="char(1)"><constraints nullable="false"/></column>
 			<column name="locale" type="varchar(32)" remarks="Locale, in Java format (e.g. 'en_CA')"><constraints nullable="false"/></column>
@@ -36,7 +38,7 @@
 		<createTable tableName="sources">
 			<column name="id" type="int"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_sources_id"/></column>
 			<column name="user_id" type="int"><constraints  nullable="false"/></column>
-			<column name="uuid" type="varchar(64)"><constraints nullable="false" unique="true" uniqueConstraintName="uc_sources_uuid"/></column>
+			<column name="uuid" type="varchar(64)"><constraints nullable="false"/></column>
 			<column name="name" type="varchar(1024)"><constraints nullable="false"/></column>
 			<column name="deleted" type="char(1)"><constraints nullable="false"/></column>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
@@ -45,8 +47,8 @@
 			
 			<!-- The following are only for accounts -->
 			<column name="account_type" type="varchar(1024)"/>
-			<column name="start_balance" type="decimal(16,4)"/>
-			<column name="balance" type="decimal(16,4)"/>
+			<column name="start_balance" type="varchar(128)"/>
+			<column name="balance" type="varchar(128)"/>
 			<column name="start_date" type="date"/>
 			
 			<!-- The following are only for categories -->
@@ -55,6 +57,7 @@
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="fk_users_sources" referencedTableName="users" referencedColumnNames="id" baseTableName="sources" baseColumnNames="user_id" onDelete="CASCADE"/>
+		<addUniqueConstraint tableName="sources" columnNames="user_id,uuid" constraintName="uc_sources_uuid"/>
 
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_deleted CHECK (deleted IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE sources ADD CONSTRAINT cc_sources_type CHECK (type IN ('D', 'C', 'I', 'E'))</sql>	<!-- Ensure type is one of Debit, Credit, Inome, Expense -->
@@ -71,7 +74,7 @@
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_entry_id"/></column>
 			<column name="category" type="int"><constraints nullable="false"/></column>
 			<column name="user_id" type="int"><constraints  nullable="false"/></column>
-			<column name="amount" type="decimal(16,4)"><constraints nullable="false"/></column>
+			<column name="amount" type="varchar(128)"><constraints nullable="false"/></column>
 			<column name="entry_date" type="date"><constraints nullable="false"/></column>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
 			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
@@ -81,13 +84,12 @@
 		<addForeignKeyConstraint constraintName="fk_users_entries" referencedTableName="users" referencedColumnNames="id" baseTableName="entries" baseColumnNames="user_id" onDelete="CASCADE"/>
 		
 		<sql>CREATE INDEX ix_entries_entrydate ON entries(entry_date)</sql>
-
 	</changeSet>
 	
 	<changeSet id="create transactions" author="wyatt">
 		<createTable tableName="transactions">
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_transaction_id"/></column>
-			<column name="uuid" type="varchar(64)"><constraints nullable="false" unique="true" uniqueConstraintName="uc_transaction_uuid"/></column>
+			<column name="uuid" type="varchar(64)"><constraints nullable="false"/></column>
 			<column name="user_id" type="int"><constraints nullable="false"/></column>
 			<column name="description" type="varchar(1024)"><constraints nullable="false"/></column>
 			<column name="number" type="varchar(1024)"/>
@@ -99,6 +101,7 @@
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="fk_users_transactions" referencedTableName="users" referencedColumnNames="id" baseTableName="transactions" baseColumnNames="user_id" onDelete="CASCADE"/>
+		<addUniqueConstraint tableName="transactions" columnNames="user_id,uuid" constraintName="uc_transaction_uuid"/>
 
 		<sql>ALTER TABLE transactions ADD CONSTRAINT cc_transactions_deleted CHECK (deleted IN ('Y', 'N'))</sql>
 		
@@ -112,12 +115,12 @@
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_split_id"/></column>
 			<column name="user_id" type="int"><constraints nullable="false"/></column>
 			<column name="transaction_id" type="bigint"><constraints nullable="false"/></column>
-			<column name="amount" type="decimal(16,4)"><constraints nullable="false"/></column>
+			<column name="amount" type="varchar(128)"><constraints nullable="false"/></column>
 			<column name="from_source" type="int"><constraints nullable="false"/></column>
 			<column name="to_source" type="int"><constraints nullable="false"/></column>
 			<column name="memo" type="varchar(4096)"/>
-			<column name="from_balance" type="decimal(16,4)"/>
-			<column name="to_balance" type="decimal(16,4)"/>
+			<column name="from_balance" type="varchar(128)"/>
+			<column name="to_balance" type="varchar(128)"/>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
 			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
 		</createTable>
@@ -131,7 +134,7 @@
 	<changeSet id="create scheduled transactions" author="wyatt">
 		<createTable tableName="scheduledtransactions">
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_scheduledtransaction_id"/></column>
-			<column name="uuid" type="varchar(64)"><constraints nullable="false" unique="true" uniqueConstraintName="uc_scheduledtransaction_uuid"/></column>
+			<column name="uuid" type="varchar(64)"><constraints nullable="false"/></column>
 			<column name="user_id" type="int"><constraints nullable="false"/></column>
 			<column name="description" type="varchar(1024)"><constraints nullable="false"/></column>
 			<column name="number" type="varchar(1024)"/>
@@ -149,6 +152,7 @@
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="fk_users_scheduledtransactions" referencedTableName="users" referencedColumnNames="id" baseTableName="scheduledtransactions" baseColumnNames="user_id" onDelete="CASCADE"/>
+		<addUniqueConstraint tableName="scheduledtransactions" columnNames="user_id,uuid" constraintName="uc_scheduledtransaction_uuid"/>
 	</changeSet>
 
 	<changeSet id="create scheduled splits" author="wyatt">
@@ -156,12 +160,10 @@
 			<column name="id" type="bigint"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_scheduledsplit_id"/></column>
 			<column name="user_id" type="int"><constraints nullable="false"/></column>
 			<column name="scheduledtransaction_id" type="bigint"><constraints nullable="false"/></column>
-			<column name="amount" type="decimal(16,4)"><constraints nullable="false"/></column>
+			<column name="amount" type="varchar(128)"><constraints nullable="false"/></column>
 			<column name="from_source" type="int"><constraints nullable="false"/></column>
 			<column name="to_source" type="int"><constraints nullable="false"/></column>
 			<column name="memo" type="varchar(4096)"/>
-			<column name="from_balance" type="decimal(16,4)"/>
-			<column name="to_balance" type="decimal(16,4)"/>
 			<column name="created" type="timestamp"><constraints nullable="false"/></column>
 			<column name="modified" type="timestamp"><constraints nullable="false"/></column>
 		</createTable>
@@ -171,19 +173,7 @@
 		<addForeignKeyConstraint constraintName="fk_fromsources_scheduledsplits" referencedTableName="sources" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="from_source" onDelete="CASCADE"/>
 		<addForeignKeyConstraint constraintName="fk_tosourcs_scheduledsplits" referencedTableName="sources" referencedColumnNames="id" baseTableName="scheduledsplits" baseColumnNames="to_source" onDelete="CASCADE"/>
 	</changeSet>
-	
-	<changeSet id="add activation key to user" author="wyatt">
-		<addColumn tableName="users">
-			<column name="activation_key" type="varchar(36)"><constraints unique="true"/></column>
-		</addColumn>
-	</changeSet>
-	
-	<changeSet id="add encryption key version to user" author="wyatt">
-		<addColumn tableName="users">
-			<column name="encryption_version" type="int" defaultValue="0"><constraints nullable="false"/></column>
-		</addColumn>
-	</changeSet>
-	
+
 	<changeSet id="create buddi system table" author="wyatt">
 		<createTable tableName="buddi_system">
 			<column name="id" type="int"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_buddisystem_id"/></column>
@@ -195,67 +185,10 @@
 	
 	<changeSet id="populate buddi system table" author="wyatt">
 		<insert tableName="buddi_system">
-			<column name="id" value="1"/>
+			<column name="id" valueNumeric="1"/>
 			<column name="created" valueDate="CURRENT_TIMESTAMP"/>
 			<column name="modified" valueDate="CURRENT_TIMESTAMP"/>
 		</insert>
-	</changeSet>
-	
-	<changeSet id="change uuid unique constraints to include user id" author="wyatt">
-		<dropUniqueConstraint tableName="sources" constraintName="uc_sources_uuid"/>
-		<dropUniqueConstraint tableName="transactions" constraintName="uc_transaction_uuid"/>
-		<dropUniqueConstraint tableName="scheduledtransactions" constraintName="uc_scheduledtransaction_uuid"/>
-	
-		<addUniqueConstraint tableName="sources" columnNames="user_id,uuid" constraintName="uc_sources_uuid"/>
-		<addUniqueConstraint tableName="transactions" columnNames="user_id,uuid" constraintName="uc_transaction_uuid"/>
-		<addUniqueConstraint tableName="scheduledtransactions" columnNames="user_id,uuid" constraintName="uc_scheduledtransaction_uuid"/>
-	</changeSet>
-
-	<changeSet id="convert to encrypted number columns step 1" author="wyatt">
-		<addColumn tableName="sources">
-			<column name="start_balance_encrypted" type="varchar(128)"/>
-		</addColumn>
-		<addColumn tableName="entries">
-			<column name="amount_encrypted" type="varchar(128)"/>
-		</addColumn>
-		<addColumn tableName="splits">
-			<column name="amount_encrypted" type="varchar(128)"/>
-		</addColumn>
-		<addColumn tableName="scheduledsplits">
-			<column name="amount_encrypted" type="varchar(128)"/>
-		</addColumn>
-	</changeSet>
-	
-	<changeSet id="convert to encrypted number columns step 2" author="wyatt">
-		<sql>UPDATE sources SET start_balance_encrypted = start_balance</sql>
-		<sql>UPDATE entries SET amount_encrypted = amount</sql>
-		<sql>UPDATE splits SET amount_encrypted = amount</sql>
-		<sql>UPDATE scheduledsplits SET amount_encrypted = amount</sql>
-	</changeSet>
-	
-	<changeSet id="convert to encrypted number columns step 3" author="wyatt">
-		<dropColumn tableName="sources" columnName="balance"/>
-		<dropColumn tableName="sources" columnName="start_balance"/>
-		<dropColumn tableName="entries" columnName="amount"/>
-		<dropColumn tableName="splits" columnName="amount"/>
-		<dropColumn tableName="splits" columnName="from_balance"/>
-		<dropColumn tableName="splits" columnName="to_balance"/>
-		<dropColumn tableName="scheduledsplits" columnName="amount"/>
-		<dropColumn tableName="scheduledsplits" columnName="from_balance"/>
-		<dropColumn tableName="scheduledsplits" columnName="to_balance"/>
-
-		<addColumn tableName="sources">
-			<column name="balance" type="varchar(128)"/>
-		</addColumn>
-		<addColumn tableName="splits">
-			<column name="from_balance" type="varchar(128)"/>
-			<column name="to_balance" type="varchar(128)"/>
-		</addColumn>
-
-		<renameColumn tableName="sources" oldColumnName="start_balance_encrypted" newColumnName="start_balance"/>
-		<renameColumn tableName="entries" oldColumnName="amount_encrypted" newColumnName="amount"/>
-		<renameColumn tableName="splits" oldColumnName="amount_encrypted" newColumnName="amount"/>
-		<renameColumn tableName="scheduledsplits" oldColumnName="amount_encrypted" newColumnName="amount"/>
 	</changeSet>
 
 </databaseChangeLog>
