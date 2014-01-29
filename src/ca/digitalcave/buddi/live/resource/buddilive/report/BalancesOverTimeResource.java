@@ -26,7 +26,7 @@ import ca.digitalcave.buddi.live.util.FormatUtil;
 import ca.digitalcave.moss.common.DateUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
-public class AccountBalancesOverTimeResource extends ServerResource {
+public class BalancesOverTimeResource extends ServerResource {
 
 	@Override
 	protected void doInit() throws ResourceException {
@@ -39,16 +39,14 @@ public class AccountBalancesOverTimeResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
+			final boolean netWorthOnly = Boolean.parseBoolean(getQuery().getFirstValue("netWorthOnly", "false"));
 			final Date[] dates = ReportHelper.processInterval(getQuery());
 			final List<Account> accountBalances = sqlSession.getMapper(Sources.class).selectAccountBalances(user);
-			//Running balances for each account; initialized with starting balances.
+			//Running balances for each account, populated by the transactions in accountBalances.
 			final Map<Integer, BigDecimal> balances = new HashMap<Integer, BigDecimal>();
-//			for (Account account : accounts) {
-//				final BigDecimal balance = CryptoUtil.decryptWrapperBigDecimal(account.getStartBalance(), user, true);
-//				balances.put(account.getId(), "C".equals(account.getType()) ? balance.negate() : balance);	//TODO This makes credit accounts appear positive.  Not sure if this is right or not...
-//				balances.put(account.getId(), balance);
-//			}
-			
+
+			//Figure out proper starting range; it doesn't matter if they asked for data from 1900, if 
+			// we only started entering transactions yesterday, that is the earliest we will get.
 			if (accountBalances.get(0).getStartDate().after(dates[0])) dates[0] = accountBalances.get(0).getStartDate();
 			int numberOfDaysBetween = DateUtil.getDaysBetween(dates[0], dates[1], false);
 			int daysBetweenReport = Math.max(1, numberOfDaysBetween / 500);	//Try for 50 items in the list; if there are less than this, no worries.
@@ -56,7 +54,10 @@ public class AccountBalancesOverTimeResource extends ServerResource {
 			final JSONObject result = new JSONObject();
 			int accountBalancesIndex = 0;
 			
+			//Iterate over dates, counting by numberOfDaysBetween, until we get to the end date.
 			while (dates[0].before(dates[1])){
+				//While iterating over dates, loop through transaction balances up to the given day.  Record
+				// running balances in the balances map.
 				while (accountBalancesIndex < accountBalances.size() && accountBalances.get(accountBalancesIndex).getStartDate().before(dates[0])){
 					//Accumulate new values until we are up to the next required date
 					final BigDecimal balance = CryptoUtil.decryptWrapperBigDecimal(accountBalances.get(accountBalancesIndex).getBalance(), user, true);
@@ -64,35 +65,19 @@ public class AccountBalancesOverTimeResource extends ServerResource {
 					accountBalancesIndex++;
 				}
 				
+				//For each interval date, show a data point, even if there has been no activity in the given account since last time.
 				final JSONObject dataItem = new JSONObject();
 				dataItem.put("date", FormatUtil.formatDate(dates[0], user));
+				BigDecimal netWorth = BigDecimal.ZERO;
 				for (int j : balances.keySet()) {
-					dataItem.put("a" + j, balances.get(j));
+					if (!netWorthOnly) dataItem.put("a" + j, balances.get(j));
+					netWorth = netWorth.add(balances.get(j));
 				}
 				dates[0] = DateUtil.addDays(dates[0], daysBetweenReport);
+				dataItem.put("netWorth", netWorth);
 				result.append("data", dataItem);
 			}
-			
-//			for (int i = 0; i < accountBalances.size(); i++) {
-//				final Account account = accountBalances.get(i);
-//				//If we have progressed beyond the next date to print, show accumulated values so far.
-//				// We (ab)use the account.startDate field to hold the actual transaction date, rather 
-//				// than the account start date itself, for this report; see SQL for details. 
-//				if (account.getStartDate().after(dates[0]) || (i == accountBalances.size() - 1 && account.getStartDate().after(dates[0]))){
-//					final JSONObject dataItem = new JSONObject();
-//					dataItem.put("date", FormatUtil.formatDate(account.getStartDate(), user));
-//					for (int j : balances.keySet()) {
-//						dataItem.put("a" + j, balances.get(j));
-//					}
-//					dates[0] = DateUtil.addDays(account.getStartDate(), daysBetweenReport);
-//					result.append("data", dataItem);
-//				}
-//				
-//				//Accumulate new values
-//				final BigDecimal balance = CryptoUtil.decryptWrapperBigDecimal(account.getBalance(), user, true);
-//				balances.put(account.getId(), balance);
-//			}
-			
+
 			result.put("success", true);
 			return new JsonRepresentation(result);
 		}

@@ -189,6 +189,11 @@ Ext.define("BuddiLive.view.Viewport", {
 						"text": "${translation("REPORT_ACCOUNT_BALANCES_OVER_TIME")?json_string}",
 						"icon": "img/chart-up.png",
 						"itemId": "showAccountBalancesOverTimeLine"
+					},
+					{
+						"text": "${translation("REPORT_NET_WORTH_OVER_TIME")?json_string}",
+						"icon": "img/chart-up.png",
+						"itemId": "showNetWorthOverTimeLine"
 					}
 				]
 			},
