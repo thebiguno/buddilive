@@ -1,14 +1,13 @@
-Ext.define("BuddiLive.store.report.NetWorthOverTimeStore", {
+Ext.define("BuddiLive.store.report.AccountBalancesOverTimeStore", {
 	"extend": "Ext.data.Store",
 	"requires": [
-		"BuddiLive.model.report.NetWorthOverTimeModel"
 	],
-	"model": "BuddiLive.model.report.NetWorthOverTimeModel",
 	"autoLoad": true,
 	"constructor": function(config){
+		this.fields = ["date", "a20", "a6"];
 		this.proxy = {
 			"type": "ajax",
-			"url": "data/report/networthovertime.json?" + config.query,
+			"url": "data/report/accountbalancesovertime.json?" + config.query,
 			"reader": {
 				"type": "json",
 				"root": "data"

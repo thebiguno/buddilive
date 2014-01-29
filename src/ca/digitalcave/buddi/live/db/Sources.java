@@ -17,6 +17,8 @@ import ca.digitalcave.buddi.live.model.User;
 public interface Sources {
 	public Account selectAccount(@Param("user") User user, @Param("uuid") String uuid);
 	
+	public List<Account> selectAccountBalances(@Param("user") User user);
+
 	public List<Account> selectAccounts(@Param("user") User user);
 	public List<Account> selectAccounts(@Param("user") User user, @Param("accountType") String accountType);
 	

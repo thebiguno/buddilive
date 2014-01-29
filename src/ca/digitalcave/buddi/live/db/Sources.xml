@@ -61,6 +61,22 @@
 			AND type IN ('D', 'C')
 	</select>
 	
+	<select id="selectAccountBalances" resultMap="account">
+		SELECT
+			a.id s_id,
+			t.transaction_date a_start_date,	--We abuse the account start date to return the transaction date
+			CASE WHEN a.id = s.from_source 
+				THEN s.from_balance
+				ELSE s.to_balance
+			END AS a_balance
+		FROM sources a
+			LEFT JOIN splits s ON a.id IN (s.from_source, s.to_source)
+			LEFT JOIN transactions t ON s.transaction_id = t.id
+		WHERE a.user_id = #{user.id} 
+			AND a.type IN ('C', 'D')
+		ORDER BY t.transaction_date, s.id
+	</select>
+	
 	<select id="selectAccounts" resultMap="account">
 		SELECT 
 			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
