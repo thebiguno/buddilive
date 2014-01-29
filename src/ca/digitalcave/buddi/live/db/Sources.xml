@@ -64,7 +64,8 @@
 	<select id="selectAccountBalances" resultMap="account">
 		SELECT
 			a.id s_id,
-			t.transaction_date a_start_date,	--We abuse the account start date to return the transaction date
+			a.type s_type,
+			t.transaction_date a_start_date,	--We (ab)use the account start date to return the transaction date
 			CASE WHEN a.id = s.from_source 
 				THEN s.from_balance
 				ELSE s.to_balance

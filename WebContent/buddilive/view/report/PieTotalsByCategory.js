@@ -17,7 +17,7 @@ Ext.define('BuddiLive.view.report.PieTotalsByCategory', {
 				"xtype": "chart",
 				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"query": this.initialConfig.options.query, "type": this.initialConfig.type}),
 				"legend": {
-					"position": "bottom"
+					"position": "right"
 				},
 				"series": [{
 					"type": "pie",

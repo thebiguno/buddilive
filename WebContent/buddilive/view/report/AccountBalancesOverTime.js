@@ -11,6 +11,8 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 	"initComponent": function(){
 		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
 		
+		var colors = ["#bf3030", "#bf8630", "#a3bf30", "#4dbf30", "#30bf69", "#30bfbf", "#3069bf", "#4c30bf", "#a330bf", "#bf3086"];
+		var colorCounter = 0;
 		var fields = ["date"];
 		var series = [];
 		BuddiLive.app.viewport.down("accounttree").getStore().getRootNode().cascadeBy(function(node){
@@ -20,10 +22,16 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 					"type": "line",
 					"axis": "left",
 					"showMarkers": false,
+					"style": {
+						"stroke": colors[colorCounter],
+						"stroke-width": 2
+					},
 					"title": node.data.name,
 					"xField": "date",
 					"yField": "a" + node.data.id
 				});
+				colorCounter++;
+				if (colorCounter >= colors.length) colorCounter = 0;
 				return true;
 			}
 		});
@@ -34,7 +42,7 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 				"xtype": "chart",
 				"store": Ext.create("BuddiLive.store.report.AccountBalancesOverTimeStore", {"query": this.initialConfig.options.query, "fields": fields}),
 				"legend": {
-					"position": "bottom"
+					"position": "right"
 				},
 				axes: [
 					{
@@ -47,6 +55,11 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 					{
 						"type": "Category",
 						"position": "bottom",
+						"label": {
+							"rotate": {
+								"degrees": -90
+							}
+						},
 						"fields": ["date"],
 						"title": "TODO Date"
 					}

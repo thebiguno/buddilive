@@ -172,7 +172,7 @@ Ext.define("BuddiLive.view.Viewport", {
 				"menu": [
 					{
 						"text": "${translation("REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY")?json_string}",
-						"icon": "img/chart.png",
+						"icon": "img/table-sum.png",
 						"itemId": "showIncomeAndExpensesByCategoryTable"
 					},
 					{
@@ -187,7 +187,7 @@ Ext.define("BuddiLive.view.Viewport", {
 					},
 					{
 						"text": "${translation("REPORT_ACCOUNT_BALANCES_OVER_TIME")?json_string}",
-						"icon": "img/chart-pie.png",
+						"icon": "img/chart-up.png",
 						"itemId": "showAccountBalancesOverTimeLine"
 					}
 				]
