@@ -49,7 +49,7 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 						"type": "Numeric",
 						"position": "left",
 						"fields": fields,
-						"title": "TODO Balances",
+						"title": "${translation("ACCOUNT_BALANCE")?json_string}",
 						"grid": true
 					},
 					{
@@ -61,7 +61,7 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 							}
 						},
 						"fields": ["date"],
-						"title": "TODO Date"
+						"title": "${translation("DATE")?json_string}"
 					}
 				],
 				"series": series

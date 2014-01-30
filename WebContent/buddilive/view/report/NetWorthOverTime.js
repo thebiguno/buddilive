@@ -24,7 +24,7 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 						"type": "Numeric",
 						"position": "left",
 						"fields": ["netWorth"],
-						"title": "TODO Net Worth",
+						"title": "${translation("NET_WORTH")?json_string}",
 						"grid": true
 					},
 					{
@@ -36,7 +36,7 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 							}
 						},
 						"fields": ["date"],
-						"title": "TODO Date"
+						"title": "${translation("DATE")?json_string}"
 					}
 				],
 				"series": [
@@ -48,7 +48,7 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 							"stroke": "#bf3030",
 							"stroke-width": 2
 						},
-						"title": "TODO Net Worth",
+						"title": "${translation("NET_WORTH")?json_string}",
 						"xField": "date",
 						"yField": "netWorth"
 					}
