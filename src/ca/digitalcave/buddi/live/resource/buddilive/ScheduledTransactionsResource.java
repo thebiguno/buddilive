@@ -1,6 +1,7 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -73,8 +74,9 @@ public class ScheduledTransactionsResource extends ServerResource {
 				for (Split s : t.getSplits()) {
 					final JSONObject split = new JSONObject();
 					split.put("id", s.getId());
-					split.put("amount", FormatUtil.formatCurrency(CryptoUtil.decryptWrapperBigDecimal(s.getAmount(), user, false), user));
-					split.put("amountNumber", s.getAmount());
+					final BigDecimal amount = CryptoUtil.decryptWrapperBigDecimal(s.getAmount(), user, false);
+					split.put("amount", FormatUtil.formatCurrency(amount, user));
+					split.put("amountNumber", amount);
 					split.put("fromId", s.getFromSource());
 					split.put("toId", s.getToSource());
 					split.put("memo", CryptoUtil.decryptWrapper(s.getMemo(), user));
