@@ -47,12 +47,12 @@ div.version-info, div.version-info a:link, div.version-info a:visited, div.versi
 }
 
 div#loginform {
-	background: url('../img/logo-title.png') no-repeat top left;
+	background: url('../img/login-shadow.png') no-repeat top left;
 	float: right;
 	width: 500px;
 	height: 200px;
-	margin: 20px;
-	padding: 20px;
+	margin-top: -50px;
+	padding: 80px;
 }
 
 div.messages {
