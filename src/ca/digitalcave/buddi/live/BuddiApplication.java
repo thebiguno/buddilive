@@ -48,8 +48,8 @@ import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.CurrenciesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
-import ca.digitalcave.buddi.live.resource.buddilive.report.IncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.BalancesOverTimeResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.IncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
@@ -276,6 +276,10 @@ public class BuddiApplication extends Application{
 		loginConfig.showRegister = true;
 		loginConfig.i18nBaseCustom = "i18n";
 		loginConfig.passwordChecker = passwordChecker;
+		loginConfig.formTitle = "";
+		loginConfig.tabBarBackgroundInvisible = true;
+		loginConfig.tabPackAlignment = "end";
+		loginConfig.tabPosition = "top";
 		publicRouter.attach("/login", new LoginRouter(this, loginConfig));
 		publicRouter.attachDefault(DefaultResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
 		
