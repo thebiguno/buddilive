@@ -18,7 +18,26 @@
 			created,
 			modified
 		FROM users 
-		WHERE identifier = #{identifier} OR activation_key = #{identifier}
+		WHERE identifier = #{identifier}
+	</select>
+	
+	<select id="selectUserByActivationKey" resultType="ca.digitalcave.buddi.live.model.User">
+		SELECT 
+			id,
+			identifier,
+			credentials AS secretString,
+			encryption_key encryptionKey,
+			email,
+			premium,
+			locale,
+			currency,
+			override_date_format overrideDateFormat,
+			show_deleted showDeleted,
+			users.created,
+			modified
+		FROM users
+		LEFT JOIN user_activations ON user_activations.user_id = users.id
+		WHERE user_activations.activation_key = #{activationKey}
 	</select>
 	
 	<select id="selectEncryptionVersion" resultType="int">
@@ -42,7 +61,6 @@
 				locale,
 				currency,
 				show_deleted,
-				activation_key,
 				encryption_version,
 				created, 
 				modified
@@ -57,9 +75,23 @@
 				#{user.locale,javaType=java.util.Locale},
 				#{user.currency,javaType=java.util.Currency},
 				'Y',
-				#{activationKey},
 				2,
 				CURRENT_TIMESTAMP, 
+				CURRENT_TIMESTAMP
+			)
+	</insert>
+	
+	<insert id="insertActivationKey">
+		INSERT INTO user_activations
+			(
+				user_id,
+				activation_key,
+				created
+			)
+		VALUES
+			(
+				#{user.id}, 
+				#{activationKey},
 				CURRENT_TIMESTAMP
 			)
 	</insert>
@@ -77,20 +109,12 @@
 		WHERE identifier = #{user.identifier}
 	</update>
 	
-	<update id="updateUserActivationKey">
-		UPDATE users
-		SET
-			activation_key = #{activationKey},
-			modified = CURRENT_TIMESTAMP
-		WHERE identifier = #{hashedIdentifier} AND encryption_key IS NULL
-	</update>
 	<update id="updateUserSecret">
 		UPDATE users
 		SET
 			credentials = #{hashedSecret},
-			activation_key = NULL,
 			modified = CURRENT_TIMESTAMP
-		WHERE activation_key = #{activationKey}
+		WHERE id = #{user.id}
 	</update>
 	
 	<update id="updateUserLoginTime">
@@ -119,5 +143,22 @@
 	<delete id="deleteUser">
 		DELETE FROM users
 		WHERE identifier = #{user.identifier}
+	</delete>
+	
+	<delete id="deleteActivationKey">
+		DELETE FROM user_activations
+		WHERE 
+			created &lt; CURRENT_TIMESTAMP - interval '1 days'
+			<if test="_parameter.containsKey('user')">
+			OR user_id = #{user.id}
+			</if>
+	</delete>
+	
+	<delete id="deleteInactiveUsers">
+		DELETE FROM users
+		WHERE 
+			last_login IS NULL
+			AND credentials = ''
+			AND id NOT IN (SELECT user_id from user_activations)
 	</delete>
 </mapper>

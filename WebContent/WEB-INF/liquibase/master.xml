@@ -9,12 +9,12 @@
 			<column name="id" type="int"><constraints primaryKey="true" nullable="false" primaryKeyName="pk_users_id"/></column>
 			<column name="uuid" type="varchar(64)"><constraints nullable="false" unique="true" uniqueConstraintName="uc_users_uuid"/></column>
 			<column name="identifier" type="varchar(256)" remarks="A hash of the user's login id (email)"><constraints nullable="false" unique="true" uniqueConstraintName="uc_users_identifier"/></column>
-			<column name="credentials" type="varchar(256)"><constraints nullable="false"/></column>
-			<column name="encryption_version" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
-			<column name="encryption_key" type="varchar(512)" remarks="ASCII-encoded version of the encryption key, itself encrypted with the user's password.  Null for those who don't want encryption."/>
-			<column name="activation_key" type="varchar(36)" remarks="A UUID string, used for resetting password and new user sign up"><constraints unique="true"/></column>
 			<column name="email" type="varchar(256)" remarks="An optional, recoverable, email address used for communication with the user"/>
+			<column name="credentials" type="varchar(256)"><constraints nullable="false"/></column>
+			<column name="encryption_key" type="varchar(512)" remarks="ASCII-encoded version of the encryption key, itself encrypted with the user's password.  Null for those who don't want encryption."/>
+			<column name="encryption_version" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
 			<column name="premium" type="char(1)"><constraints nullable="false"/></column>
+
 			<column name="locale" type="varchar(32)" remarks="Locale, in Java format (e.g. 'en_CA')"><constraints nullable="false"/></column>
 			<column name="currency" type="varchar(16)" remarks="ISO Currency code"><constraints nullable="false"/></column>
 			<column name="show_deleted" type="char(1)"><constraints nullable="false"/></column>
@@ -32,6 +32,17 @@
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_premium CHECK (premium IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_showdeleted CHECK (show_deleted IN ('Y', 'N'))</sql>
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_overridecurrencyafter CHECK (override_currency_after IS NULL OR override_currency_after IN ('Y', 'N'))</sql>
+	</changeSet>
+	
+	<changeSet id="create user_activations" author="wyatt">
+		<createTable tableName="user_activations">
+			<column name="user_id" type="int"><constraints  nullable="false"/></column>
+			<column name="activation_key" type="varchar(36)" remarks="A UUID string, used for resetting password and new user sign up"><constraints unique="true"/></column>
+			<column name="created" type="timestamp" remarks="Time at which the activation request was received.  Activations are deleted after a time."><constraints nullable="false"/></column>
+		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_users_user_activations" referencedTableName="users" referencedColumnNames="id" baseTableName="user_activations" baseColumnNames="user_id" onDelete="CASCADE"/>
+		<addUniqueConstraint tableName="user_activations" columnNames="user_id" constraintName="uc_user_activations_user_id"/>
 	</changeSet>
 
 	<changeSet id="create sources" author="wyatt">
