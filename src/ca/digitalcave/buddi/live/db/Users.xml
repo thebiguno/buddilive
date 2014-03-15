@@ -149,7 +149,7 @@
 		DELETE FROM user_activations
 		WHERE 
 			created &lt; CURRENT_TIMESTAMP - interval '1 days'
-			<if test="_parameter.containsKey('user')">
+			<if test="_parameter != null and _parameter.containsKey('user')">
 			OR user_id = #{user.id}
 			</if>
 	</delete>
