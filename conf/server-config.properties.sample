@@ -4,3 +4,12 @@ db.url=jdbc:postgresql:buddilive
 db.user=buddilive
 db.password=password
 db.query=select 1
+
+#Mail configuration.  Change as needed
+#mail.smtp.from=user@localhost
+#mail.smtp.host=localhost
+#mail.smtp.port=25
+#mail.smtp.auth=false
+#mail.smtp.username=user
+#mail.smtp.password=password
+#mail.smtp.starttls.enable=false

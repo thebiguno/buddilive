@@ -73,6 +73,7 @@ import freemarker.template.TemplateExceptionHandler;
 
 
 public class BuddiApplication extends Application{
+	private Properties configProperties;
 	private Configuration freemarkerConfiguration;
 	private SqlSessionFactory sqlSessionFactory;
 	private final JsonFactory jsonFactory = new JsonFactory();
@@ -85,9 +86,10 @@ public class BuddiApplication extends Application{
 	public synchronized void start() throws Exception {
 		try { systemProperties.load(new ClientResource(getContext(), "war:///WEB-INF/classes/version.properties").get().getStream()); } catch (Throwable e){}
 		
-		final Properties p = new Properties();
+		configProperties = new Properties();
 		try {
-			p.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
+			configProperties.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
+			configProperties.setProperty("mail.subject", "BuddiLive Account Activation");
 		}
 		catch (Exception e){
 			getLogger().severe("There was an error loading the config file from WEB-INF/classes/config.properties.  Please ensure that this file exists and is readable.");
@@ -95,7 +97,7 @@ public class BuddiApplication extends Application{
 		}
 		
 		//If we are using Derby, and the user does not have a connection URL, set one up in a sane location.
-		if ("org.apache.derby.jdbc.EmbeddedDriver".equals(p.getProperty("db.driver")) && p.getProperty("db.url") == null){
+		if ("org.apache.derby.jdbc.EmbeddedDriver".equals(configProperties.getProperty("db.driver")) && configProperties.getProperty("db.url") == null){
 			final File buddiLiveFolder = OperatingSystemUtil.getUserFolder("BuddiLive");
 			
 			//Try to create directory if needed
@@ -111,15 +113,15 @@ public class BuddiApplication extends Application{
 
 			//Set up the URL; if the folder does not already exist, use the 'create' option on the URL.
 			final File database = new File(buddiLiveFolder, "derby");
-			p.setProperty("db.url", "jdbc:derby:directory:" + database.getAbsolutePath() + (database.exists() ? "" : ";create=true"));
+			configProperties.setProperty("db.url", "jdbc:derby:directory:" + database.getAbsolutePath() + (database.exists() ? "" : ";create=true"));
 		}
 		
 		ds = new ComboPooledDataSource();
-		ds.setDriverClass(p.getProperty("db.driver"));
-		ds.setJdbcUrl(p.getProperty("db.url"));
-		ds.setUser(p.getProperty("db.user"));
-		ds.setPassword(p.getProperty("db.password"));
-		ds.setPreferredTestQuery(p.getProperty("db.query"));
+		ds.setDriverClass(configProperties.getProperty("db.driver"));
+		ds.setJdbcUrl(configProperties.getProperty("db.url"));
+		ds.setUser(configProperties.getProperty("db.user"));
+		ds.setPassword(configProperties.getProperty("db.password"));
+		ds.setPreferredTestQuery(configProperties.getProperty("db.query"));
 		ds.setTestConnectionOnCheckin(true);
 		ds.setIdleConnectionTestPeriod(30 * 60);	//value in seconds
 		ds.setTestConnectionOnCheckout(false);
@@ -294,6 +296,10 @@ public class BuddiApplication extends Application{
 		ds.close();
 		
 		super.stop();
+	}
+	
+	public Properties getConfigProperties() {
+		return configProperties;
 	}
 	
 	public SqlSessionFactory getSqlSessionFactory() {

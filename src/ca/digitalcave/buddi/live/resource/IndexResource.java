@@ -3,10 +3,12 @@ package ca.digitalcave.buddi.live.resource;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.restlet.Application;
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.TemplateRepresentation;
@@ -163,6 +165,11 @@ public class IndexResource extends CookieAuthInterceptResource {
 	@Override
 	protected boolean isAllowReset() {
 		return true;
+	}
+	
+	@Override
+	protected Properties getConfig() {
+		return ((BuddiApplication) Application.getCurrent()).getConfigProperties();
 	}
 	
 	private void cleanupUsers(SqlSession sqlSession, User user) throws DatabaseException {
