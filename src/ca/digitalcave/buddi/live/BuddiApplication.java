@@ -3,10 +3,12 @@ package ca.digitalcave.buddi.live;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.concurrent.Callable;
 
 import javax.crypto.SecretKey;
 
@@ -169,22 +171,32 @@ public class BuddiApplication extends Application{
 		getTunnelService().setExtensionsTunnel(true);
 
 		final Router privateRouter = new Router(getContext());
-		SecretKey key;
-		final SqlSession sql = sqlSessionFactory.openSession();
-		try {
-			String keyEncoded = sql.getMapper(BuddiSystem.class).selectCookieEncryptionKey();
-			if (keyEncoded == null){
-				key = new Crypto().setAlgorithm(Algorithm.AES_256).generateSecretKey();
-				keyEncoded = Crypto.encodeSecretKey(key);
-				sql.getMapper(BuddiSystem.class).updateCookieEncryptionKey(keyEncoded);
-				sql.commit();
+		final Callable<Key> key = new Callable<Key>() {
+			@Override
+			public Key call() throws Exception {
+				SecretKey key;
+				final SqlSession sql = sqlSessionFactory.openSession();
+				try {
+					String keyEncoded = sql.getMapper(BuddiSystem.class).selectCookieEncryptionKey();
+					if (keyEncoded == null){
+						key = new Crypto().setAlgorithm(Algorithm.AES_256).generateSecretKey();
+						keyEncoded = Crypto.encodeSecretKey(key);
+						sql.getMapper(BuddiSystem.class).deleteCookieEncryptionKey();
+						sql.getMapper(BuddiSystem.class).insertCookieEncryptionKey(keyEncoded);
+						sql.commit();
+					}
+					key = Crypto.recoverSecretKey(keyEncoded);
+				} catch (CryptoException e) {
+					key = new Crypto().setAlgorithm(Algorithm.AES_256).generateSecretKey();
+					String keyEncoded = Crypto.encodeSecretKey(key);
+					sql.getMapper(BuddiSystem.class).updateCookieEncryptionKey(keyEncoded);
+					sql.commit();
+				} finally {
+					sql.close();
+				}
+				return key;
 			}
-			key = Crypto.recoverSecretKey(keyEncoded);
-		} catch (CryptoException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		} finally {
-			sql.close();
-		}
+		};
 		
 		final CookieAuthenticator privateAuth = new CookieAuthenticator(getContext(), false, key);
 		privateAuth.setVerifier(verifier);

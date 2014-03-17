@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ca.digitalcave.buddi.live.db.BuddiSystem">
-	<cache readOnly="true"/>
+	<cache flushInterval="30000"/>	<!-- We invalidate cache after 30 seconds to allow for deleting cookie key externally -->
 	
 	<select id="selectCookieEncryptionKey" resultType="string">
 		SELECT 
@@ -10,6 +10,11 @@
 		WHERE id = 1
 	</select>
 	
+	<insert id="insertCookieEncryptionKey">
+		INSERT INTO buddi_system (id, cookie_encryption_key, created, modified)
+		VALUES (1, #{encryptionKey,jdbcType=VARCHAR}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	</insert>
+	
 	<update id="updateCookieEncryptionKey">
 		UPDATE buddi_system
 		SET
@@ -17,4 +22,9 @@
 			modified = CURRENT_TIMESTAMP
 		WHERE id = 1
 	</update>
+	
+	<delete id="deleteCookieEncryptionKey">
+		DELETE FROM buddi_system
+		WHERE id = 1
+	</delete>
 </mapper>
