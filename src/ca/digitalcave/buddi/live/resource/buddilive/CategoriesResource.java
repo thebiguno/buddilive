@@ -105,6 +105,7 @@ public class CategoriesResource extends ServerResource {
 		result.put("icon", "img/folder-open-table.png");
 		result.put("date", FormatUtil.formatDateInternal(categoryPeriod.getCurrentPeriodStartDate()));
 		result.put("type", categoryPeriod.getPeriodType());
+		result.put("categoryType", category.getType());
 		result.put("name", CryptoUtil.decryptWrapper(category.getName(), user));
 		final StringBuilder sb = new StringBuilder();
 		if (category.isDeleted()) sb.append(" text-decoration: line-through;");
