@@ -70,7 +70,7 @@ public class PieTotalsByCategoryResource extends ServerResource {
 			for (BigDecimal subtotal : totalsByCategory.values()) {
 				total = total.add(subtotal);
 			}
-			total = total.multiply(new BigDecimal(100));  //The total is only used for calculating percents; multiply by 100 now instead of after every calculation
+			total = total.divide(new BigDecimal(100));  //The total is only used for calculating percents; divide by 100 now instead of multiplying after every calculation
 			
 			//Sort categories by total
 			final List<Integer> categories = new ArrayList<Integer>(totalsByCategory.keySet());
