@@ -5,6 +5,9 @@ db.user=buddilive
 db.password=password
 db.query=select 1
 
+#Private servers are for bundled apps, and enable / disable various UI options.  Defaults to true.
+server.private=false
+
 #Mail configuration.  Change as needed
 #mail.smtp.from=user@localhost
 #mail.smtp.host=localhost

@@ -287,7 +287,7 @@ public class BuddiApplication extends Application{
 		loginConfig.applicationControllers = new String[]{"BuddiLive.controller.preferences.PreferencesEditor"};	//This will load the stores for currencies and locales combos; we could load them manually, but this works and is easier...
 		loginConfig.applicationViews = new String[]{"BuddiLive.view.component.SelfDocumentingField", "BuddiLive.view.component.CurrenciesCombobox", "BuddiLive.view.component.LocalesCombobox"};
 		loginConfig.identifierLabelKey = "EMAIL_LABEL";
-		loginConfig.showRegister = true;
+		loginConfig.showRegister = !Boolean.parseBoolean(configProperties.getProperty("server.private", "true"));
 		loginConfig.i18nBaseCustom = "i18n";
 		loginConfig.passwordChecker = passwordChecker;
 		loginConfig.formTitle = "";
