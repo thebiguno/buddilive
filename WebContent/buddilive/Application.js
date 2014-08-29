@@ -40,6 +40,13 @@ Ext.application({
 		BuddiLive.app = this;
 		BuddiLive.app.viewport = viewport;
 		
+		//Prevent backspace from going back in history
+		Ext.EventManager.addListener(Ext.getBody(), 'keydown', function(e){
+			if (e.getTarget().type != 'text' && e.getKey() == '8' ){
+				e.preventDefault();
+			}
+		});
+		
 		Ext.util.TaskManager.start({
 			"interval": 1000 * 60 * 60,  //1 hour
 			"run": function(){
