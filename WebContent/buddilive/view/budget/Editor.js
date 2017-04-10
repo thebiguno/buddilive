@@ -17,7 +17,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 		this.items = [
 			{
 				"xtype": "form",
-				"layout": "form",
+				"layout": "anchor",
 				"bodyPadding": 5,
 				"items": [
 					{
@@ -27,6 +27,7 @@ Ext.define('BuddiLive.view.budget.Editor', {
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"anchor": "100%",
 						"messageBody": "${translation("HELP_BUDGET_CATEGORY_NAME")?json_string}",
 						"type": "textfield",
 						"itemId": "name",
@@ -52,13 +53,13 @@ Ext.define('BuddiLive.view.budget.Editor', {
 						"url": "data/categories/parents.json" + (s ? "?exclude=" + s.id : ""),
 						"listeners": {
 							"change": function(){
-								var parent = editor.down("combobox[itemId='parent']");
+								var parent = editor.down("parentcombobox[itemId='parent']");
 								if (parent.getValue() != null && (parent.getValue() + "").length > 0){
-									editor.down("combobox[itemId='periodType']").setValue(parent.getStore().findRecord("value", parent.getValue()).raw.periodType);
-									editor.down("combobox[itemId='type']").setValue(parent.getStore().findRecord("value", parent.getValue()).raw.type);
+									editor.down("combobox[itemId='periodType']").setValue(parent.getStore().findRecord("value", parent.getValue()).data.periodType);
+									editor.down("combobox[itemId='type']").setValue(parent.getStore().findRecord("value", parent.getValue()).data.type);
 								}
-								editor.down("combobox[itemId='periodType']").setDisabled(parent.getValue() != null);
-								editor.down("combobox[itemId='type']").setDisabled(parent.getValue() != null);
+								editor.down("combobox[itemId='periodType']").setDisabled(parent.getValue() != null && parent.getValue() != "");
+								editor.down("combobox[itemId='type']").setDisabled(parent.getValue() != null && parent.getValue() != "");
 							}
 						}
 					},

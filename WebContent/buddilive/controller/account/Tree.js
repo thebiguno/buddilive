@@ -13,7 +13,7 @@ Ext.define("BuddiLive.controller.account.Tree", {
 		var selectedType = selected.length > 0 ? selectedItem.nodeType : null;
 		panel.down("button[itemId='editAccount']").setDisabled(selectedType != "account");
 		panel.down("button[itemId='deleteAccount']").setDisabled(selectedType != "account");
-		if (selectedType == "account" && selected[0].raw.deleted){
+		if (selectedType == "account" && selected[0].data.deleted){
 			panel.down("button[itemId='deleteAccount']").setText("${translation("UNDELETE_ACCOUNT")?json_string}");
 		}
 		else {

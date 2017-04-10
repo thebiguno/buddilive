@@ -36,7 +36,7 @@ Ext.define("BuddiLive.view.transaction.split.SourceCombobox", {
 					{"property": "text", "value": Ext.String.trim(this.getRawValue()), "anyMatch": true, "caseSensitive": false},
 					{
 						"filterFn": function(item){
-							return combo.getRawValue().length == 0 || item.raw.type != null;
+							return combo.getRawValue().length == 0 || item.data.type != null;
 						}
 					}
 				]);

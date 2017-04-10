@@ -7,9 +7,13 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 
 	"init": function() {
 		this.control({
-			"budgeteditor component": {
+			"budgeteditor combobox": {
 				"blur": this.updateButtons,
 				"select": this.updateButtons,
+				"afterrender": this.updateButtons
+			},
+			"budgeteditor textfield": {
+				"blur": this.updateButtons,
 				"afterrender": this.updateButtons,
 				"keyup": this.updateButtons
 			},
@@ -33,7 +37,7 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 		if (selected) request.id = selected.id;
 		request.name = window.down("textfield[itemId='name']").getValue();
 		request.periodType = window.down("textfield[itemId='periodType']").getValue();
-		request.parent = window.down("combobox[itemId='parent']").getValue();
+		request.parent = window.down("parentcombobox[itemId='parent']").getValue();
 		request.type = window.down("combobox[itemId='type']").getValue();
 
 		var conn = new Ext.data.Connection();
@@ -56,7 +60,7 @@ Ext.define("BuddiLive.controller.budget.Editor", {
 		});
 	},
 	
-	"updateButtons": function(component){
+	"updateButtons": function(component, foo, bar, baz){
 		var window = component.up("budgeteditor");
 		var ok = window.down("button[itemId='ok']");
 		var name = window.down("textfield[itemId='name']");

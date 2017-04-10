@@ -9,7 +9,7 @@ Ext.define("BuddiLive.store.report.AccountBalancesOverTimeStore", {
 			"url": "data/report/balancesovertime.json?" + config.query,
 			"reader": {
 				"type": "json",
-				"root": "data"
+				"rootProperty": "data"
 			}
 		}
 		

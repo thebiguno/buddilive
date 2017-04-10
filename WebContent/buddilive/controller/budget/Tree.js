@@ -59,7 +59,7 @@ Ext.define("BuddiLive.controller.budget.Tree", {
 		var viewport = selectionModel.view.panel.up("buddiviewport");
 		viewport.down("button[itemId='editCategory']").setDisabled(!enabled);
 		viewport.down("button[itemId='deleteCategory']").setDisabled(!enabled);
-		if (selected && selected.length > 0 && selected[0].raw.deleted){
+		if (selected && selected.length > 0 && selected[0].data.deleted){
 			viewport.down("button[itemId='deleteCategory']").setText("${translation("UNDELETE_BUDGET_CATEGORY")?json_string}");
 		}
 		else {

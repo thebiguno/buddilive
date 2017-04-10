@@ -21,7 +21,7 @@ Ext.define('BuddiLive.view.account.Tree', {
 				"flex": 3,
 				"xtype": "treecolumn",
 				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.style;
+					metaData.style = record.data.style;
 					return value;
 				}
 			},
@@ -31,7 +31,7 @@ Ext.define('BuddiLive.view.account.Tree', {
 				"flex": 1,
 				"align": "right",
 				"renderer": function(value, metaData, record){
-					metaData.style = record.raw.balanceStyle 
+					metaData.style = record.data.balanceStyle 
 					return value;
 				}
 			}

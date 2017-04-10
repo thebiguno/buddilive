@@ -20,7 +20,7 @@ Ext.define('BuddiLive.view.transaction.List', {
 				"ftype": "rowbody",
 				"getAdditionalData": function(data, rowIndex, record, orig){
 					var rowBody = "";
-					var s = record.raw.splits;
+					var s = record.data.splits;
 					var headerCt = this.view.headerCt, colspan = headerCt.getColumnCount();
 					for (var i = 0; i < s.length; i++){
 						rowBody += "<div style='padding: 2px; height: 20px; width: 100%;'>"
@@ -37,9 +37,6 @@ Ext.define('BuddiLive.view.transaction.List', {
 						"rowBodyColspan": colspan
 					};
 				}
-			},
-			{
-				"ftype": "rowwrap"	//Makes the extra rows look like normal rows
 			}
 		];
 		

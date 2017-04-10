@@ -11,7 +11,7 @@ Ext.define("BuddiLive.store.report.IncomeAndExpensesByCategoryStore", {
 			"url": "data/report/incomeandexpensesbycategory.json?" + config.query,
 			"reader": {
 				"type": "json",
-				"root": "data"
+				"rootProperty": "data"
 			}
 		}
 		

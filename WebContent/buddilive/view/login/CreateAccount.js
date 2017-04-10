@@ -20,7 +20,7 @@ Ext.define('BuddiLive.view.login.CreateAccount', {
 				"items": [
 					{
 						"xtype": "form",
-						"layout": "form",
+						"layout": "anchor",
 						"bodyPadding": 5,
 						"items": [
 							{

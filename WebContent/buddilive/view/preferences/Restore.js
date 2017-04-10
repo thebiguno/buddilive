@@ -15,7 +15,7 @@ Ext.define('BuddiLive.view.preferences.Restore', {
 		this.items = [
 			{
 				"xtype": "form",
-				"layout": "form",
+				"layout": "anchor",
 				"bodyPadding": 5,
 				"items": [
 					{

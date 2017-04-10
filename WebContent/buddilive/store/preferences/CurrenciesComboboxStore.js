@@ -11,7 +11,7 @@ Ext.define("BuddiLive.store.preferences.CurrenciesComboboxStore", {
 		"pageParam": null,
 		"reader": {
 			"type": "json",
-			"root": "data"
+			"rootProperty": "data"
 		}
 	}
 });

@@ -16,7 +16,7 @@ Ext.define('BuddiLive.view.preferences.PreferencesEditor', {
 		this.items = [
 			{
 				"xtype": "form",
-				"layout": "form",
+				"layout": "anchor",
 				"bodyPadding": 5,
 				"items": [
 					{

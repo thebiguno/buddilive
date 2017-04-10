@@ -10,7 +10,7 @@ Ext.define("BuddiLive.store.scheduled.ListStore", {
 		"url": "data/scheduledtransactions.json",
 		"reader": {
 			"type": "json",
-			"root": "data"
+			"rootProperty": "data"
 		}
 	}
 });

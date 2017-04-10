@@ -9,7 +9,7 @@ Ext.define("BuddiLive.store.account.TreeStore", {
 		"url": "data/accounts.json",
 		"reader": {
 			"type": "json",
-			"root": "children"
+			"rootProperty": "children"
 		}
 	}
 });

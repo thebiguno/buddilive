@@ -20,7 +20,7 @@ Ext.define("BuddiLive.view.transaction.DescriptionCombobox", {
 		
 		this.addListener("select", function(combo, record){
 			if (record.length > 0){
-				combo.up("transactioneditor").setTransaction(record[0].raw.transaction, true);
+				combo.up("transactioneditor").setTransaction(record[0].data.transaction, true);
 			}
 		});
 		

@@ -147,7 +147,7 @@ Ext.define("BuddiLive.controller.transaction.Editor", {
 				"buttons": Ext.MessageBox.YESNO,
 				"fn": function(buttonId){
 					if (buttonId == "yes"){
-						var id = selection[0].raw.id;
+						var id = selection[0].data.id;
 						
 						var conn = new Ext.data.Connection();
 						conn.request({

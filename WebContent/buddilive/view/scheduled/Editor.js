@@ -24,7 +24,7 @@ Ext.define('BuddiLive.view.scheduled.Editor', {
 		this.items = [
 			{
 				"xtype": "form",
-				"layout": "form",
+				"layout": "anchor",
 				"bodyPadding": 5,
 				"items": [
 					{

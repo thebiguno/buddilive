@@ -11,7 +11,7 @@ Ext.define("BuddiLive.store.transaction.ListStore", {
 		"url": "data/transactions.json",
 		"reader": {
 			"type": "json",
-			"root": "data",
+			"rootProperty": "data",
 			"totalProperty": "total"
 		}
 	}

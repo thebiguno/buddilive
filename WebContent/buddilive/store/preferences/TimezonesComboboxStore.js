@@ -11,7 +11,7 @@ Ext.define("BuddiLive.store.preferences.TimezonesComboboxStore", {
 		"pageParam": null,
 		"reader": {
 			"type": "json",
-			"root": "data"
+			"rootProperty": "data"
 		}
 	}
 });

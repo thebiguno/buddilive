@@ -10,7 +10,7 @@ Ext.define("BuddiLive.store.report.NetWorthOverTimeStore", {
 			"url": "data/report/balancesovertime.json?netWorthOnly=true&" + config.query,
 			"reader": {
 				"type": "json",
-				"root": "data"
+				"rootProperty": "data"
 			}
 		}
 		

@@ -12,7 +12,7 @@ Ext.define("BuddiLive.store.transaction.DescriptionComboboxStore", {
 		"pageParam": null,
 		"reader": {
 			"type": "json",
-			"root": "data"
+			"rootProperty": "data"
 		}
 	}
 });

@@ -11,7 +11,7 @@ Ext.define("BuddiLive.store.report.PieTotalsByCategoryStore", {
 			"url": "data/report/pietotalsbycategory.json?type=" + config.type + "&" + config.query,
 			"reader": {
 				"type": "json",
-				"root": "data"
+				"rootProperty": "data"
 			}
 		}
 		
