@@ -151,7 +151,7 @@ public class BackupResource extends ServerResource {
 		t.put("uuid", scheduledTransaction.getUuid());
 		t.put("description", CryptoUtil.decryptWrapper(scheduledTransaction.getDescription(), user));
 		t.put("number", CryptoUtil.decryptWrapper(scheduledTransaction.getNumber(), user));
-		t.put("scheduleName", scheduledTransaction.getScheduleName());
+		t.put("scheduleName", CryptoUtil.decryptWrapper(scheduledTransaction.getScheduleName(), user));
 		t.put("scheduleDay", scheduledTransaction.getScheduleDay());
 		t.put("scheduleWeek", scheduledTransaction.getScheduleWeek());
 		t.put("scheduleMonth", scheduledTransaction.getScheduleMonth());
