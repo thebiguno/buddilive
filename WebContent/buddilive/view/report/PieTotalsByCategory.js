@@ -2,9 +2,7 @@ Ext.define('BuddiLive.view.report.PieTotalsByCategory', {
 	"extend": "Ext.panel.Panel",
 	"alias": "widget.reportpietotalsbycategory",
 	
-	"requires": [
-		"BuddiLive.store.report.PieTotalsByCategoryStore"
-	],
+	"requires": [],
 	
 	"closable": true,
 	"layout": "fit",
@@ -14,36 +12,32 @@ Ext.define('BuddiLive.view.report.PieTotalsByCategory', {
 		this.title = "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string} - " + this.initialConfig.options.dateRange;
 		this.items = [
 			{
-				"xtype": "chart",
-				"store": Ext.create("BuddiLive.store.report.PieTotalsByCategoryStore", {"query": this.initialConfig.options.query, "type": this.initialConfig.type}),
+				"xtype": "polar",
+				"store": Ext.create("Ext.data.Store", {
+					"autoLoad": true,
+					"fields": ["label", "formattedAmount", "amount", "percent"],
+					"proxy": {
+						"type": "ajax",
+						"url": "data/report/pietotalsbycategory.json?type=" + this.initialConfig.type + "&" + this.initialConfig.options.query,
+						"reader": {
+							"type": "json",
+							"rootProperty": "data"
+						}
+					}
+				}),
+				"innerPadding": 40,
+				"interactions": ['rotate', 'itemhighlight'],
 				"legend": {
-					"position": "right"
+					"docked": "right"
 				},
 				"series": [{
 					"type": "pie",
 					"angleField": "amount",
 					"showInLegend": true,
-					"colorSet": ["#bf3030", "#bf8630", "#a3bf30", "#4dbf30", "#30bf69", "#30bfbf", "#3069bf", "#4c30bf", "#a330bf", "#bf3086"],
-					"tips": {
-						"trackMouse": true,
-						"width": 500,
-						"height": 28,
-						"renderer": function(item) {
-							this.setTitle(item.get("label") + ": " + item.get("formattedAmount") + " (" + item.get("percent") + "%)");
-						}
-					},
-					"highlight": {
-						"segment": {
-							"margin": 20
-						}
-					},
+					"highlight": true,
 					"label": {
 						"field": "label",
-						"display": "rotate",
-						"contrast": true,
-						"renderer": function(value, storeItem, item) {
-							return value + ": " + item.get("formattedAmount");
-						}
+						"display": "rotate"
 					}
 				}]
 			}

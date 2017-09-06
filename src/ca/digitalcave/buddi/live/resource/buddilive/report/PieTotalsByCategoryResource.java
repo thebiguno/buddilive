@@ -77,15 +77,15 @@ public class PieTotalsByCategoryResource extends ServerResource {
 			Collections.sort(categories, new Comparator<Integer>() {
 				@Override
 				public int compare(Integer o1, Integer o2) {
-					return totalsByCategory.get(o1).compareTo(totalsByCategory.get(o2));
+					return -1 * totalsByCategory.get(o1).compareTo(totalsByCategory.get(o2));
 				}
 			});
 			
 			final JSONObject result = new JSONObject();
 			for (Integer categoryId : categories){
 				final JSONObject object = new JSONObject();
-				object.put("label", CryptoUtil.decryptWrapper(labelsByCategory.get(categoryId), user));
 				final BigDecimal amount = totalsByCategory.get(categoryId);
+				object.put("label", CryptoUtil.decryptWrapper(labelsByCategory.get(categoryId), user) + " - " + FormatUtil.formatCurrency(amount, user));
 				object.put("amount", amount);
 				object.put("formattedAmount", FormatUtil.formatCurrency(amount, user));
 				object.put("percent", amount.divide(total, RoundingMode.HALF_UP));

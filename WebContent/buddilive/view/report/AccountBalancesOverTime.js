@@ -2,17 +2,13 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 	"extend": "Ext.panel.Panel",
 	"alias": "widget.reportaccountbalancesovertime",
 	
-	"requires": [
-		"BuddiLive.store.report.AccountBalancesOverTimeStore"
-	],
+	"requires": [],
 	
 	"closable": true,
 	"layout": "fit",
 	"initComponent": function(){
 		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
 		
-		var colors = ["#bf3030", "#bf8630", "#a3bf30", "#4dbf30", "#30bf69", "#30bfbf", "#3069bf", "#4c30bf", "#a330bf", "#bf3086"];
-		var colorCounter = 0;
 		var fields = ["date"];
 		var series = [];
 		BuddiLive.app.viewport.down("accounttree").getStore().getRootNode().cascadeBy(function(node){
@@ -23,15 +19,12 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 					"axis": "left",
 					"showMarkers": false,
 					"style": {
-						"stroke": colors[colorCounter],
 						"stroke-width": 2
 					},
 					"title": node.data.name,
 					"xField": "date",
 					"yField": "a" + node.data.id
 				});
-				colorCounter++;
-				if (colorCounter >= colors.length) colorCounter = 0;
 				return true;
 			}
 		});
@@ -40,20 +33,31 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 		this.items = [
 			{
 				"xtype": "chart",
-				"store": Ext.create("BuddiLive.store.report.AccountBalancesOverTimeStore", {"query": this.initialConfig.options.query, "fields": fields}),
+				"store": Ext.create("Ext.data.Store", {
+					"autoLoad": true,
+					"fields": fields,
+					"proxy": {
+						"type": "ajax",
+						"url": "data/report/balancesovertime.json?" + this.initialConfig.options.query,
+						"reader": {
+							"type": "json",
+							"rootProperty": "data"
+						}
+					}
+				}),
 				"legend": {
 					"position": "right"
 				},
 				axes: [
 					{
-						"type": "Numeric",
+						"type": "numeric",
 						"position": "left",
 						"fields": fields,
 						"title": "${translation("ACCOUNT_BALANCE")?json_string}",
 						"grid": true
 					},
 					{
-						"type": "Category",
+						"type": "category",
 						"position": "bottom",
 						"label": {
 							"rotate": {

@@ -2,9 +2,7 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 	"extend": "Ext.panel.Panel",
 	"alias": "widget.reportnetworthovertime",
 	
-	"requires": [
-		"BuddiLive.store.report.NetWorthOverTimeStore"
-	],
+	"requires": [],
 	
 	"closable": true,
 	"layout": "fit",
@@ -15,20 +13,30 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 		this.items = [
 			{
 				"xtype": "chart",
-				"store": Ext.create("BuddiLive.store.report.NetWorthOverTimeStore", {"query": this.initialConfig.options.query}),
+				"store": Ext.create("Ext.data.Store", {
+					"autoLoad": true,
+					"proxy": {
+						"type": "ajax",
+						"url": "data/report/balancesovertime.json?netWorthOnly=true&" + this.initialConfig.options.query,
+						"reader": {
+							"type": "json",
+							"rootProperty": "data"
+						}
+					}
+				}),
 				"legend": {
 					"position": "right"
 				},
 				axes: [
 					{
-						"type": "Numeric",
+						"type": "numeric",
 						"position": "left",
 						"fields": ["netWorth"],
 						"title": "${translation("NET_WORTH")?json_string}",
 						"grid": true
 					},
 					{
-						"type": "Category",
+						"type": "category",
 						"position": "bottom",
 						"label": {
 							"rotate": {
@@ -45,7 +53,6 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 						"axis": "left",
 						"showMarkers": false,
 						"style": {
-							"stroke": "#bf3030",
 							"stroke-width": 2
 						},
 						"title": "${translation("NET_WORTH")?json_string}",

@@ -3,7 +3,6 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 	"alias": "widget.reportincomeandexpensesbycategory",
 	
 	"requires": [
-		"BuddiLive.store.report.IncomeAndExpensesByCategoryStore"
 	],
 	
 	"closable": true,
@@ -13,14 +12,25 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 		
 		this.title = "${translation("REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY")?json_string} - " + this.initialConfig.options.dateRange;
 		var styledRenderer = function(value, metaData, record){
-			metaData.style = record.raw[metaData.column.dataIndex + "Style"];
+			metaData.style = record.data[metaData.column.dataIndex + "Style"];
 			return value;
 		};
 
 		this.items = [
 			{
 				"xtype": "grid",
-				"store": Ext.create("BuddiLive.store.report.IncomeAndExpensesByCategoryStore", {"query": this.initialConfig.options.query, "type": this.initialConfig.type}),
+				"store": Ext.create("Ext.data.Store", {
+					"autoLoad": true,
+					"fields": ["source", "actual", "budgeted", "difference", "transactions"],
+					"proxy": {
+						"type": "ajax",
+						"url": "data/report/incomeandexpensesbycategory.json?" + this.initialConfig.options.query,
+						"reader": {
+							"type": "json",
+							"rootProperty": "data"
+						}
+					}
+				}),
 				"plugins": [
 					{
 						"ptype": "rowexpander",
@@ -61,7 +71,7 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 						"dataIndex": "source",
 						"hideable": false,
 						"sortable": false,
-						"flex": 25,
+						"flex": 3,
 						"renderer": styledRenderer
 					},
 					{
@@ -69,7 +79,7 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 						"dataIndex": "actual",
 						"hideable": false,
 						"sortable": false,
-						"flex": 25,
+						"flex": 2,
 						"renderer": styledRenderer
 					},
 					{
@@ -77,7 +87,7 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 						"dataIndex": "budgeted",
 						"hideable": false,
 						"sortable": false,
-						"flex": 25,
+						"flex": 2,
 						"renderer": styledRenderer
 					},
 					{
@@ -85,7 +95,7 @@ Ext.define('BuddiLive.view.report.IncomeAndExpensesByCategory', {
 						"dataIndex": "difference",
 						"hideable": false,
 						"sortable": false,
-						"flex": 25,
+						"flex": 2,
 						"renderer": styledRenderer
 					}
 				]
