@@ -9,7 +9,7 @@ Ext.define("BuddiLive.controller.account.Tree", {
 	
 	"selectionChange": function(selectionModel, selected){
 		var panel = selectionModel.view.panel.up("buddiviewport");
-		var selectedItem = selected[0].raw;
+		var selectedItem = selected[0].data;
 		var selectedType = selected.length > 0 ? selectedItem.nodeType : null;
 		panel.down("button[itemId='editAccount']").setDisabled(selectedType != "account");
 		panel.down("button[itemId='deleteAccount']").setDisabled(selectedType != "account");

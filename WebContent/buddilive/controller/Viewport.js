@@ -43,7 +43,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	"editAccount": function(component){
 		var grid = component.up("buddiviewport").down("accounttree");
-		var selected = grid.getSelectionModel().getSelection()[0].raw;
+		var selected = grid.getSelectionModel().getSelection()[0].data;
 		Ext.widget("accounteditor", {
 			"grid": grid,
 			"selected": selected
@@ -53,7 +53,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 		var me = this;
 		var viewport = component.up("buddiviewport");
 		var grid = viewport.down("accounttree");
-		var selected = grid.getSelectionModel().getSelection()[0].raw;
+		var selected = grid.getSelectionModel().getSelection()[0].data;
 		
 		if (selected == null) return;
 		
@@ -126,7 +126,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	"editCategory": function(component){
 		var panel = component.up("buddiviewport").down("budgetpanel");
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].data;
 		Ext.widget("budgeteditor", {
 			"panel": panel,
 			"selected": selected
@@ -138,7 +138,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 		var panel = viewport.down("budgetpanel");
 		var budgetTrees = Ext.ComponentQuery.query("budgettree", panel);
 		
-		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].raw;
+		var selected = panel.getActiveTab().getSelectionModel().getSelection()[0].data;
 
 		if (selected == null) return;
 		
@@ -211,7 +211,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 	},
 	"editScheduled": function(component){
 		var panel = component.up("buddiviewport").down("scheduledlist").down("grid");
-		var selected = panel.getSelectionModel().getSelection()[0].raw;
+		var selected = panel.getSelectionModel().getSelection()[0].data;
 		Ext.widget("schedulededitor", {
 			"panel": panel,
 			"selected": selected
@@ -221,7 +221,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 		var viewport = component.up("buddiviewport");
 		var panel = viewport.down("scheduledlist").down("grid");
 		
-		var selected = panel.getSelectionModel().getSelection()[0].raw;
+		var selected = panel.getSelectionModel().getSelection()[0].data;
 
 		if (selected == null) return;
 		

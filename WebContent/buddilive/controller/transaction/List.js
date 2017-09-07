@@ -26,7 +26,7 @@ Ext.define("BuddiLive.controller.transaction.List", {
 	"selectionChange": function(selectionModel, selected){
 		var panel = selectionModel.view.panel;
 		if (selected.length > 0){
-			var transaction = selected[0].raw;
+			var transaction = selected[0].data;
 			panel.down("transactioneditor").setTransaction(transaction);
 			panel.down("button[itemId='deleteTransaction']").enable();
 		}
