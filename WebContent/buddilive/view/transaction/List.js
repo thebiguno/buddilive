@@ -110,8 +110,6 @@ Ext.define('BuddiLive.view.transaction.List', {
 	},
 	
 	"reload": function(){
-		this.getSelectionModel().deselectAll();		//Reloading with a selected record can cause problems as of EXT JS 4.2.0.  Deselect first to prevent this.
-		this.getStore().loadData([], false);		//This forces all records to be removed, which help works around bugs in buffered stores in EXT JS 4.2.0
 		this.getView().refresh();					//This forces the scroll bar to move back to the top
 		this.getStore().load();
 	}

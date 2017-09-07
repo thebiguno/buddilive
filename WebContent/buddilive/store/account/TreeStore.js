@@ -1,9 +1,16 @@
 Ext.define("BuddiLive.store.account.TreeStore", {
 	"extend": "Ext.data.TreeStore",
-	"requires": [
-		"BuddiLive.model.account.TreeModel"
+	"requires": [],
+	"fields": [
+		"id", 
+		"name", 
+		"type", 
+		"accountType",
+		"startBalance",
+		"deleted", 
+		"balance", 
+		"nodeType"
 	],
-	"model": "BuddiLive.model.account.TreeModel",
 	"proxy": {
 		"type": "ajax",
 		"url": "data/accounts.json",

@@ -1,6 +1,6 @@
 Ext.define("BuddiLive.store.preferences.LocalesComboboxStore", {
 	"extend": "Ext.data.Store",
-	"model": "BuddiLive.model.shared.Combobox",
+	"fields": ["value", "text", "style"],
 	"remoteFilter": false,
 	"proxy": {
 		"type": "ajax",

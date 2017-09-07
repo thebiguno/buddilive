@@ -1,9 +1,7 @@
 Ext.define("BuddiLive.store.transaction.ListStore", {
-	"extend": "Ext.data.Store",
-	"requires": [
-		"BuddiLive.model.transaction.ListModel"
-	],
-	"model": "BuddiLive.model.transaction.ListModel",
+	"extend": "Ext.data.BufferedStore",
+	"requires": [],
+	"fields": ["date", "description", "number", "deleted", "splits"],
 	"pageSize": 250,
 	"buffered": true,
 	"proxy": {

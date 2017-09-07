@@ -1,10 +1,8 @@
 Ext.define("BuddiLive.store.scheduled.ListStore", {
 	"extend": "Ext.data.Store",
-	"requires": [
-		"BuddiLive.model.scheduled.ListModel"
-	],
-	"model": "BuddiLive.model.scheduled.ListModel",
+	"requires": [],
 	"autoLoad": true,
+	"fields": ["name"],
 	"proxy": {
 		"type": "ajax",
 		"url": "data/scheduledtransactions.json",

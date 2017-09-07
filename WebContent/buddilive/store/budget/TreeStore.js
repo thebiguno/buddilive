@@ -1,9 +1,22 @@
 Ext.define("BuddiLive.store.budget.TreeStore", {
 	"extend": "Ext.data.TreeStore",
-	"requires": [
-		"BuddiLive.model.budget.TreeModel"
+	"requires": [],
+	"fields": [
+		"id",
+		"name",
+		"nameStyle",
+		"date",
+		"type",
+		"deleted",
+		"previous",
+		"previousStyle",
+		"current",
+		"currentStyle",
+		"actual",
+		"actualStyle",
+		"difference",
+		"differenceStyle"
 	],
-	"model": "BuddiLive.model.budget.TreeModel",
 	"proxy": {
 		"type": "ajax",
 		"url": "data/categories.json?periodType=MONTH",
