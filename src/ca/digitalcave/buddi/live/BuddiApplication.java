@@ -50,6 +50,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.CurrenciesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.AverageIncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.BalancesOverTimeResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.IncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
@@ -218,6 +219,7 @@ public class BuddiApplication extends Application{
 		
 		privateRouter.attach("/report/pietotalsbycategory", PieTotalsByCategoryResource.class);
 		privateRouter.attach("/report/incomeandexpensesbycategory", IncomeAndExpensesByCategoryResource.class);
+		privateRouter.attach("/report/averageincomeandexpensesbycategory", AverageIncomeAndExpensesByCategoryResource.class);
 		privateRouter.attach("/report/balancesovertime", BalancesOverTimeResource.class);
 		
 		privateRouter.attach("/backup", BackupResource.class);

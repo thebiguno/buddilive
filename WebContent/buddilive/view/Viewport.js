@@ -176,6 +176,11 @@ Ext.define("BuddiLive.view.Viewport", {
 						"itemId": "showIncomeAndExpensesByCategoryTable"
 					},
 					{
+						"text": "${translation("REPORT_TABLE_AVERAGE_INCOME_AND_EXPENSES_BY_CATEGORY")?json_string}",
+						"icon": "img/table-sum.png",
+						"itemId": "showAverageIncomeAndExpensesByCategoryTable"
+					},
+					{
 						"text": "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string}",
 						"icon": "img/chart-pie.png",
 						"itemId": "showIncomeByCategoryPie"
