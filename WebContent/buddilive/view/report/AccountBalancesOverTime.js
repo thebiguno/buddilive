@@ -46,7 +46,7 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 					}
 				}),
 				"legend": {
-					"position": "right"
+					"docked": "right"
 				},
 				axes: [
 					{

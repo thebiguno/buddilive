@@ -25,7 +25,7 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 					}
 				}),
 				"legend": {
-					"position": "right"
+					"docked": "right"
 				},
 				axes: [
 					{
