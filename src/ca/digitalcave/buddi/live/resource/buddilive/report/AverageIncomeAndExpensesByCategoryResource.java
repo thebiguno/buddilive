@@ -121,8 +121,18 @@ public class AverageIncomeAndExpensesByCategoryResource extends ServerResource {
 					final JSONObject object = new JSONObject();
 					object.put("source", CryptoUtil.decryptWrapper(category.getName(), user));
 
-					object.put("average", FormatUtil.formatCurrency(actualAmount.divide(new BigDecimal(totalDaysInRange), RoundingMode.HALF_UP).multiply(new BigDecimal(CategoryPeriods.valueOf(category.getPeriodType()).getDaysInPeriod(dates[0]))), user));
-					object.put("averageStyle", (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));
+					final BigDecimal daysInPeriod = new BigDecimal(CategoryPeriods.valueOf(category.getPeriodType()).getDaysInPeriod(dates[0]));
+					final BigDecimal averageAmount = actualAmount.divide(new BigDecimal(totalDaysInRange), RoundingMode.HALF_UP).multiply(daysInPeriod);
+					object.put("average", FormatUtil.formatCurrency(averageAmount, user));
+					object.put("averageStyle", (FormatUtil.isRed(category, averageAmount) ? FormatUtil.formatRed() : ""));
+					
+					final BigDecimal averageBudgeted = budgetedAmount.divide(new BigDecimal(totalDaysInRange), RoundingMode.HALF_UP).multiply(daysInPeriod);
+					object.put("averageBudgeted", FormatUtil.formatCurrency(averageBudgeted, user));
+					object.put("averageBudgetedStyle", (FormatUtil.isRed(category, averageBudgeted) ? FormatUtil.formatRed() : ""));
+					
+					final BigDecimal difference = (averageAmount.subtract(averageBudgeted));
+					object.put("difference", FormatUtil.formatCurrency(difference, user));
+					object.put("differenceStyle", (FormatUtil.isRed(category, difference) ? FormatUtil.formatRed() : ""));
 
 					object.put("period", LocaleUtil.getTranslation(getRequest()).getString("BUDGET_CATEGORY_TYPE_" + category.getPeriodType()));
 					object.put("periodStyle", (FormatUtil.isRed(category, actualAmount) ? FormatUtil.formatRed() : ""));

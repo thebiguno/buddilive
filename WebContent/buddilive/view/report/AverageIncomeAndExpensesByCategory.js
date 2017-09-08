@@ -40,8 +40,24 @@ Ext.define('BuddiLive.view.report.AverageIncomeAndExpensesByCategory', {
 						"renderer": styledRenderer
 					},
 					{
-						"text": "${translation("AVERAGE")?json_string}",
+						"text": "${translation("AVERAGE_ACTUAL")?json_string}",
 						"dataIndex": "average",
+						"hideable": false,
+						"sortable": false,
+						"flex": 2,
+						"renderer": styledRenderer
+					},
+					{
+						"text": "${translation("AVERAGE_BUDGETED")?json_string}",
+						"dataIndex": "averageBudgeted",
+						"hideable": false,
+						"sortable": false,
+						"flex": 2,
+						"renderer": styledRenderer
+					},
+					{
+						"text": "${translation("DIFFERENCE")?json_string}",
+						"dataIndex": "difference",
 						"hideable": false,
 						"sortable": false,
 						"flex": 2,
