@@ -32,7 +32,7 @@ Ext.define("BuddiLive.view.Viewport", {
 						window.setInterval(function(){
 							var iframe = document.getElementById('adsensetop');
 							if (iframe != null) iframe.src += "";
-						}, 1000 * 60 * 1);	//Reload every minute
+						}, 1000 * 60 * 20);	//Reload every 20 minutes
 					}
 				}
 			},

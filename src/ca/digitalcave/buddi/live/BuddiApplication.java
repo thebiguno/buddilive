@@ -200,6 +200,8 @@ public class BuddiApplication extends Application{
 		};
 		
 		final CookieAuthenticator privateAuth = new CookieAuthenticator(getContext(), false, key);
+		privateAuth.setMaxCookieAge(60 * 15);	//Invalidate credentials and auto logout after this period (value in seconds)
+		privateAuth.setAllowRemember(false);
 		privateAuth.setVerifier(verifier);
 		privateAuth.setNext(privateRouter);
 		
@@ -289,10 +291,11 @@ public class BuddiApplication extends Application{
 		loginConfig.applicationControllers = new String[]{"BuddiLive.controller.preferences.PreferencesEditor"};	//This will load the stores for currencies and locales combos; we could load them manually, but this works and is easier...
 		loginConfig.applicationViews = new String[]{"BuddiLive.view.component.SelfDocumentingField", "BuddiLive.view.component.CurrenciesCombobox", "BuddiLive.view.component.LocalesCombobox"};
 		loginConfig.identifierLabelKey = "EMAIL_LABEL";
-		loginConfig.showRegister = !Boolean.parseBoolean(configProperties.getProperty("server.private", "true"));
 		loginConfig.i18nBaseCustom = "i18n";
 		loginConfig.passwordChecker = passwordChecker;
 		loginConfig.formTitle = "";
+		loginConfig.showRegister = !Boolean.parseBoolean(configProperties.getProperty("server.private", "true"));
+		loginConfig.showRemember = false;
 		loginConfig.tabBarBackgroundInvisible = true;
 		loginConfig.tabPackAlignment = "end";
 		loginConfig.tabPosition = "top";
