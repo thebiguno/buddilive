@@ -2,17 +2,17 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 	"extend": "Ext.form.NumberField",
 	"alias": "widget.currencyfield",
 
-	"decimalSeparator": "${decimalSeparator!"."?json_string}",
-	"thousandSeparator": "${thousandSeparator!","?json_string}",
+	"decimalSeparator": "${user.decimalSeparator!?json_string}",
+	"thousandSeparator": "${user.thousandSeparator!?json_string}",
 	"forcePrecision" : false,
 	"hideTrigger": true,
 	"keyNavEnabled": false,
 	"mouseWheelEnabled": false,
-	"emptyText": "0${decimalSeparator!"."?json_string}00",
+	"emptyText": "0${user.decimalSeparator!?json_string}00",
 	
 	"initComponent": function(){
-		Ext.util.Format.decimalSeparator = "${decimalSeparator!"."?json_string}";
-		Ext.util.Format.thousandSeparator = "${thousandSeparator!","?json_string}";
+		Ext.util.Format.decimalSeparator = "${user.decimalSeparator!?json_string}";
+		Ext.util.Format.thousandSeparator = "${user.thousandSeparator!?json_string}";
 
 		this.callParent(arguments);
 	},
@@ -21,7 +21,7 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 	"parseValue": function(value){
 		var me = this;
 		if (!isNaN(value)) return value;	//If this is already a number, then just return it.
-		var parsedValue = parseFloat(String(value).split("${currencySymbol!?json_string}").join("").split(me.thousandSeparator).join("").split(me.decimalSeparator).join("."));
+		var parsedValue = parseFloat(String(value).split("${user.currencySymbol!?json_string}").join("").split("${user.thousandSeparator!?json_string}").join("").split("${user.decimalSeparator!?json_string}").join("."));
 		return isNaN(parsedValue) ? null : parsedValue;
 	},
 	
@@ -33,8 +33,13 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 			return "";
 		}
 		else {
-			return Ext.util.Format.number(value, "0,0.00");
+			return Ext.util.Format.number(value, "0${user.decimalSeparator!?json_string}00");
 		}
+	},
+	
+	"rawToValue": function(raw) {
+		var me = this;
+		return me.parseValue(raw);
 	},
 	
 	"validate": function(){

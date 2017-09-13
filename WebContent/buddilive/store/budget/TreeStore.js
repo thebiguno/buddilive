@@ -26,7 +26,6 @@ Ext.define("BuddiLive.store.budget.TreeStore", {
 				"type": "json",
 				"rootProperty": "children",
 				"transform": function(data){
-					debugger;
 					budgetTree = Ext.ComponentQuery.query('viewport')[0].down("budgettree[itemId='" + config.periodType + "']");
 					budgetTree.down("textfield[itemId='currentPeriod']").setValue(data.period);
 					var columns = budgetTree.getView().headerCt.items.items;
