@@ -55,13 +55,13 @@ Ext.define("BuddiLive.controller.account.Editor", {
 			"method": "POST",
 			"jsonData": request,
 			"success": function(response){
-				window.close();
 				mask.hide();
+				window.close();
 				location.reload();
 			},
 			"failure": function(response){
-				BuddiLive.app.error(response);
 				mask.hide();
+				BuddiLive.app.error(response);
 			}
 		});
 	},
