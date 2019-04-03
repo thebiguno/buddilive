@@ -243,6 +243,11 @@ Ext.define("BuddiLive.view.Viewport", {
 						"text": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
 						"icon": "img/question.png",
 						"itemId": "gettingStarted"
+					},
+					{
+						"text": "${translation("DONATE_TITLE")?json_string}",
+						"icon": "img/money-coin.png",
+						"itemId": "donate"
 					}
 				]
 			},

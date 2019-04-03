@@ -23,6 +23,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport menuitem[itemId='restore']": {"click": this.restore},
 			"buddiviewport menuitem[itemId='deleteUser']": {"click": this.deleteUser},
 			"buddiviewport menuitem[itemId='gettingStarted']": {"click": this.gettingStarted},
+			"buddiviewport menuitem[itemId='donate']": {"click": this.donate},
 			"buddiviewport button[itemId='logout']": {"click": function(component){
 				Ext.Ajax.request({
 					"url": "index",
@@ -309,6 +310,10 @@ Ext.define("BuddiLive.controller.Viewport", {
 
 	"restore": function(component){
 		Ext.widget("restoreform").show();
+	},
+	
+	"donate": function(){
+		window.open("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSF44FWNVSMSN&source=url");
 	},
 	
 	"deleteUser": function(component){

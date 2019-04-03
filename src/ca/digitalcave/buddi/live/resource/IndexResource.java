@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -130,6 +131,7 @@ public class IndexResource extends CookieAuthInterceptResource {
 			return identifier;
 		}
 		catch (DatabaseException e){
+			getLogger().log(Level.INFO, e.getMessage());
 		}
 		finally {
 			sqlSession.close();
