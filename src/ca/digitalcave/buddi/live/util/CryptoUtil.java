@@ -2,7 +2,7 @@ package ca.digitalcave.buddi.live.util;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.moss.crypto.Crypto;

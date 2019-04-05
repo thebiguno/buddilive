@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 
-import org.apache.commons.lang.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;

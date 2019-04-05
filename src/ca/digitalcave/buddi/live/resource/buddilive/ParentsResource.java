@@ -2,7 +2,7 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
 import org.json.JSONException;

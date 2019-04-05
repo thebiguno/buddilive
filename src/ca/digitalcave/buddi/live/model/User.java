@@ -10,7 +10,7 @@ import java.util.Locale;
 
 import javax.crypto.SecretKey;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;

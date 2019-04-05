@@ -11,7 +11,7 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.restlet.Application;
 

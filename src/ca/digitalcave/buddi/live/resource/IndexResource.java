@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.restlet.Application;
 import org.restlet.data.Form;

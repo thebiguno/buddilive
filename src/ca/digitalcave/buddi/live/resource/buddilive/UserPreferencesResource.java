@@ -3,8 +3,8 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 import java.io.IOException;
 import java.util.Currency;
 
-import org.apache.commons.lang.LocaleUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONException;
 import org.json.JSONObject;
