@@ -279,17 +279,6 @@ public class BuddiApplication extends Application{
 					generator.writeStringField("labelSeparator", "");
 					generator.writeEndObject();
 					generator.writeRaw(",");
-					generator.flush();
-				} catch (IOException e) {
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-				}
-			}
-		};
-		loginConfig.extraRegisterStep1Fields = new ExtraFieldsDirective(){
-			@Override
-			public void writeFields(Writer out, ResourceBundle translation, ResourceBundle customTranslation) {
-				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
 					generator.writeStartObject();
 					generator.writeStringField("xtype", "label");
 					generator.writeStringField("html", customTranslation.getString("HELP_REGISTER"));

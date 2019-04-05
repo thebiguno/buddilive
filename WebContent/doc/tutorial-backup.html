@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link href="../css/login.css" rel="stylesheet" />
+		<link href="../css/docs.css" rel="stylesheet" />
+		<title>Buddi Live Tutorial - Backup and Restore</title>
+	</head>
+	<body>
+		<div class="title"></div>
+		<div class="background-top"></div>
+		<div class="background-bottom"></div>
+		<div class="messages" style="top: 350px;">
+			<h1>
+			Buddi Live Tutorial - Backup and Restore
+			</h1>
+			<p>
+				Buddi Live allows you to export your entire data set as a backup.  This can be useful in case of server troubles, if you forget your password (and have turned encryption on), or in the event that you accidentally delete something that you did not want to delete.  To backup your data, use the 'Backup' option from the System menu:
+			</p>
+			
+			<p>
+				<img src='img/backup-step1.png' alt='Screenshot of Backup'></img>
+			</p>
+			
+			<p>
+				The system will download a file named 'Backup.json', with today's date.  This file is <b>not encrypted</b> - be sure to treat it as you would any other sensitive data!
+			</p>
+			
+			<p>
+				To restore a previous backup, select the 'Restore' option from the system menu.  You will be prompted for the file to restore, and can optionally select the 'Delete Existing Data' check box:
+			</p>
+			<p>
+				<img src='img/backup-step2.png' alt='Screenshot of Backup'></img>
+			</p>
+			<p>
+				(In general, when restoring a full backup it is a good idea to check the 'Delete Existing Data' option.  If you do not do this, then any existing transactions may not be properly updated.)
+			</p>
+			
+			<p>
+				A dialog box will indicate when the backup is complete.  Click OK and the web page will refresh, showing the restored data.
+			</p>
+
+			<p>
+				<a href='tutorial.html'>Back to Tutorials page</a>
+			</p>
+		</div>
+	</body>
+</html>

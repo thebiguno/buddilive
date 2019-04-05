@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Buddi Live" basedir="." default="war-buddilive">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Buddi Live" basedir="." default="war-all">
 	<exec outputproperty="git" executable="git">
 		<arg value="describe"/>
 		<arg value="--long"/>
@@ -22,6 +22,8 @@
 		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar"/>
 	</path>
 
+	<target name="war-all" depends="war-buddilive,war-buddilive-test" description="Build both test and prod server instances"/>
+		
 	<target name="war-buddilive" depends="jar" description="Build Buddi Live server instance">
 		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
 			<param name="conf" value="server"/>

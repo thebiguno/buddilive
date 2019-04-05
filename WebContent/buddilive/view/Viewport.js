@@ -234,12 +234,6 @@ Ext.define("BuddiLive.view.Viewport", {
 					},
 					"-",
 					{
-						"text": "${translation("DELETE_USER")?json_string}",
-						"icon": "img/minus-octagon.png",
-						"itemId": "deleteUser"
-					},
-					"-",
-					{
 						"text": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
 						"icon": "img/question.png",
 						"itemId": "gettingStarted"
@@ -248,6 +242,12 @@ Ext.define("BuddiLive.view.Viewport", {
 						"text": "${translation("DONATE_TITLE")?json_string}",
 						"icon": "img/money-coin.png",
 						"itemId": "donate"
+					},
+					"-",
+					{
+						"text": "${translation("DELETE_USER")?json_string}",
+						"icon": "img/minus-octagon.png",
+						"itemId": "deleteUser"
 					}
 				]
 			},

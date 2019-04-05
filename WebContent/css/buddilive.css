@@ -1,0 +1,5 @@
+/*** This override prevents button text from overflowing buttons on some browsers.  Safari and IE 11 both showed such issues. ***/ 
+.x-btn-icon-right > .x-btn-inner-default-small, .x-btn-icon-left > .x-btn-inner-default-small,
+.x-btn-icon-right > .x-btn-inner-default-toolbar-small, .x-btn-icon-left > .x-btn-inner-default-toolbar-small {
+	max-width: calc(100% - 0px);
+}
