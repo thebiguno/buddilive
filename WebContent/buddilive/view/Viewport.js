@@ -20,13 +20,13 @@ Ext.define("BuddiLive.view.Viewport", {
 		this.width = "100%";
 		
 		this.items = [
-			<#if !((user.premium)!false)>
 			{
 				"xtype": "panel",
 				"region": "north",
 				"height": 60,
 				"border": false,
-				"html": "<iframe id='adsensetop' src='buddilive/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe><img src='img/logo-title-small.png' style='position: absolute; top: 2px; right: 30px'/>",
+				"html": "<#if !((user.premium)!false)><iframe id='adsensetop' src='buddilive/view/ads/top.html' scrolling='no' width='468' height='60' marginheight='0' marginwidth='0' seamless='seamless' frameborder='0'></iframe></#if><img src='img/logo-title-small.png' style='position: absolute; top: 2px; right: 30px'/>"
+				<#if !((user.premium)!false)>,
 				"listeners": {
 					"afterrender": function(){
 						window.setInterval(function(){
@@ -35,8 +35,8 @@ Ext.define("BuddiLive.view.Viewport", {
 						}, 1000 * 60 * 20);	//Reload every 20 minutes
 					}
 				}
+				</#if>
 			},
-			</#if>
 			{
 				"xtype": "tabpanel",
 				"itemId": "budditabpanel",
@@ -166,6 +166,14 @@ Ext.define("BuddiLive.view.Viewport", {
 			},
 			" ",
 			</#if>
+			<#if ((user.premium)!false)>
+			{
+				"icon": "img/medal-premium.png",
+				"overCls": "",
+				"tooltip": "${translation("PREMIUM_THANKS")?json_string}"
+			},
+			" ",
+			</#if>
 			{
 				"text": "${translation("REPORTS")?json_string}",
 				"icon": "img/chart.png",
@@ -234,7 +242,7 @@ Ext.define("BuddiLive.view.Viewport", {
 					},
 					{
 						"text": "${translation("EXPORT_CSV")?json_string}",
-						"icon": "img/blue-document-excel-csv.png",
+						"icon": "img/blue-document-excel-csv<#if !((user.premium)!false)>-disabled</#if>.png",
 						"itemId": "exportCsv"
 					},
 					"-",
