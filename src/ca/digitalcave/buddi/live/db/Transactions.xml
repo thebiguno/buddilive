@@ -38,7 +38,7 @@
 		<result column="to_type" property="toType"/>
 	</resultMap>
 	
-	<select id="selectTransactions" resultMap="transaction">
+	<select id="selectTransactions" resultMap="transaction" resultOrdered="true">
 		SELECT 
 			t.id t_id, t.uuid, t.user_id t_user_id, t.description, t.number, t.transaction_date, t.deleted, t.created t_created, t.modified t_modified, 
 			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance,
@@ -66,7 +66,7 @@
 		WHERE user_id = #{user.id} AND uuid = #{uuid}
 	</select>
 
-	<select id="selectDescriptions" resultMap="transaction">
+	<select id="selectDescriptions" resultMap="transaction" resultOrdered="true">
 		SELECT 
 			t.id t_id, t.description, s.id s_id, s.amount, s.from_source, s.to_source, fs.type from_type, ts.type to_type
 		FROM transactions t
@@ -77,7 +77,7 @@
 		ORDER BY t.transaction_date DESC, s.id DESC
 	</select>
 
-	<select id="selectSplits" resultMap="split">
+	<select id="selectSplits" resultMap="split" resultOrdered="true">
 		<!-- This is used by DataUpdater.updateBalances, and should not be changed unless you ensure the updater works.  In particular, the ORDER BY is essential in its current form. -->
 		SELECT
 			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance, fs.type from_type, ts.type to_type
@@ -90,7 +90,7 @@
 		ORDER BY t.transaction_date, s.id
 	</select>
 	
-	<select id="selectSplitsByAccount" resultMap="split">
+	<select id="selectSplitsByAccount" resultMap="split" resultOrdered="true">
 		<!-- This is used by DataUpdater.updateBalances, and should not be changed unless you ensure the updater works.  In particular, the ORDER BY is essential in its current form. -->
 		SELECT
 			s.id s_id, s.transaction_id, s.amount, s.user_id s_user_id, s.from_source, s.to_source, s.memo, s.created s_created, s.modified s_modified, from_balance, to_balance

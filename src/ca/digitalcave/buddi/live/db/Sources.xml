@@ -61,7 +61,7 @@
 			AND type IN ('D', 'C')
 	</select>
 	
-	<select id="selectAccountBalances" resultMap="account">
+	<select id="selectAccountBalances" resultMap="account" resultOrdered="true">
 		SELECT
 			a.id s_id,
 			a.type s_type,
@@ -78,7 +78,7 @@
 		ORDER BY t.transaction_date, s.id
 	</select>
 	
-	<select id="selectAccounts" resultMap="account">
+	<select id="selectAccounts" resultMap="account" resultOrdered="true">
 		SELECT 
 			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
 			a.account_type a_account_type, a.start_balance a_start_balance, a.balance a_balance
@@ -92,7 +92,7 @@
 		ORDER BY a.type DESC, a.account_type, a.name
 	</select>
 	
-	<select id="selectAccountTypes" resultMap="accountsByType">
+	<select id="selectAccountTypes" resultMap="accountsByType" resultOrdered="true">
 		SELECT 
 			a.id s_id, a.user_id s_user_id, a.uuid s_uuid, a.name s_name, a.start_date a_start_date, a.deleted s_deleted, a.type s_type, a.created s_created, a.modified s_modified,
 			a.account_type a_account_type, coalesce(a.start_balance, '0') a_start_balance, coalesce(a.balance, '0') a_balance
@@ -137,10 +137,10 @@
 			</if>
 	</select>
 
-	<select id="selectCategoriesMap" resultMap="category">
+	<select id="selectCategoriesMap" resultMap="category" resultOrdered="true">
 		<include refid="selectCategoriesGeneric"/>
 	</select>
-	<select id="selectCategories" resultMap="category">
+	<select id="selectCategories" resultMap="category" resultOrdered="true">
 		<include refid="selectCategoriesGeneric"/>
 	</select>
 	<sql id="selectCategoriesGeneric">
