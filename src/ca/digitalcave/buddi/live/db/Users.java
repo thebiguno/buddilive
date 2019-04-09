@@ -18,6 +18,7 @@ public interface Users {
 	public int updateUserEncryptionKey(@Param("user") User user);
 	public int updateUserSecret(@Param("user") User user, @Param("hashedSecret") String hashedSecret);
 	public int updateUserEncryptionVersion(@Param("user") User user, @Param("encryptionVersion") int encryptionVersion);
+	public int updateUserPremium(@Param("user") User user, @Param("premium") String premium);
 	
 	public int deleteUser(@Param("user") User user);
 	public int deleteActivationKey();

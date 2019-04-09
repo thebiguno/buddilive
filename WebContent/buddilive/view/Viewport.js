@@ -232,6 +232,11 @@ Ext.define("BuddiLive.view.Viewport", {
 						"icon": "img/drive-upload.png",
 						"itemId": "restore"
 					},
+					{
+						"text": "${translation("EXPORT_CSV")?json_string}",
+						"icon": "img/blue-document-excel-csv.png",
+						"itemId": "exportCsv"
+					},
 					"-",
 					{
 						"text": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",

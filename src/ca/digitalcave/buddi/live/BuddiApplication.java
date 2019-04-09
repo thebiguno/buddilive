@@ -41,6 +41,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.AccountsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.CategoriesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ChangePasswordResource;
 import ca.digitalcave.buddi.live.resource.buddilive.DescriptionsResource;
+import ca.digitalcave.buddi.live.resource.buddilive.DonationResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ParentsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.PeriodsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.ScheduledTransactionsResource;
@@ -55,6 +56,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.report.BalancesOverTimeResou
 import ca.digitalcave.buddi.live.resource.buddilive.report.IncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
+import ca.digitalcave.buddi.live.resource.data.ExportResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.service.BuddiStatusService;
@@ -225,8 +227,8 @@ public class BuddiApplication extends Application{
 		privateRouter.attach("/report/balancesovertime", BalancesOverTimeResource.class);
 		
 		privateRouter.attach("/backup", BackupResource.class);
+		privateRouter.attach("/export", ExportResource.class);
 		privateRouter.attach("/restore", RestoreResource.class);
-		
 		
 		final Router comboStoreRouter = new Router(getContext());
 		comboStoreRouter.attach("/currencies", CurrenciesResource.class);
@@ -244,6 +246,9 @@ public class BuddiApplication extends Application{
 		publicRouter.attach("/index", IndexResource.class);
 		publicRouter.attach("/stores", comboStoreRouter);
 		publicRouter.attach("/data", privateAuth);
+		
+		publicRouter.attach("/donation-completed", DonationResource.class);
+		
 		final LoginRouterConfiguration loginConfig = new LoginRouterConfiguration();
 		final BuddiApplication application = this;
 		loginConfig.extraRegisterStep1Fields = new ExtraFieldsDirective(){

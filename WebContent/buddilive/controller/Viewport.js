@@ -1,5 +1,10 @@
 Ext.define("BuddiLive.controller.Viewport", {
 	"extend": "Ext.app.Controller",
+	
+	"requires": [
+		"BuddiLive.view.report.picker.Interval",
+	],
+	
 	"stores": [
 		"transaction.split.FromComboboxStore",
 		"transaction.split.ToComboboxStore"
@@ -21,6 +26,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport menuitem[itemId='showPreferences']": {"click": this.showPreferences},
 			"buddiviewport menuitem[itemId='backup']": {"click": this.backup},
 			"buddiviewport menuitem[itemId='restore']": {"click": this.restore},
+			"buddiviewport menuitem[itemId='exportCsv']": {"click": this.exportCsv},
 			"buddiviewport menuitem[itemId='deleteUser']": {"click": this.deleteUser},
 			"buddiviewport menuitem[itemId='gettingStarted']": {"click": this.gettingStarted},
 			"buddiviewport menuitem[itemId='donate']": {"click": this.donate},
@@ -310,6 +316,23 @@ Ext.define("BuddiLive.controller.Viewport", {
 
 	"restore": function(component){
 		Ext.widget("restoreform").show();
+	},
+	
+	"exportCsv": function(component){
+		<#if !((user.premium)!false)>
+		Ext.MessageBox.show({
+			"title": "${translation("PREMIUM_TITLE")?json_string}",
+			"msg": "${translation("PREMIUM_MESSAGE")?json_string}",
+			"buttons": Ext.Msg.OK
+		});
+		<#else>
+		Ext.widget({
+			"xtype": "reportpickerinterval",
+			"callback": function(options){
+				window.open("data/export.json?type=CSV&" + options.query);
+			}
+		}).show();
+		</#if>
 	},
 	
 	"donate": function(){

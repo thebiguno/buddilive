@@ -140,6 +140,14 @@
 		WHERE identifier = #{user.identifier}
 	</update>
 	
+	<update id="updateUserPremium">
+		UPDATE users
+		SET
+			premium = #{premium},
+			modified = CURRENT_TIMESTAMP
+		WHERE identifier = #{user.identifier}
+	</update>
+	
 	<delete id="deleteUser">
 		DELETE FROM users
 		WHERE identifier = #{user.identifier}
