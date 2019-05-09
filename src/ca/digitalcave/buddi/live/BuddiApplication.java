@@ -30,6 +30,8 @@ import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 import ca.digitalcave.buddi.live.db.BuddiSystem;
 import ca.digitalcave.buddi.live.db.handler.BooleanHandler;
 import ca.digitalcave.buddi.live.db.handler.CurrencyHandler;
@@ -54,6 +56,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.AverageIncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.BalancesOverTimeResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.IncomeAndExpensesByCategoryResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.InflowAndOutflowByAccountResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.ExportResource;
@@ -69,9 +72,6 @@ import ca.digitalcave.moss.restlet.login.ExtraFieldsDirective;
 import ca.digitalcave.moss.restlet.login.LoginRouter;
 import ca.digitalcave.moss.restlet.login.LoginRouterConfiguration;
 import ca.digitalcave.moss.restlet.util.PasswordChecker;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
@@ -224,6 +224,7 @@ public class BuddiApplication extends Application{
 		privateRouter.attach("/report/pietotalsbycategory", PieTotalsByCategoryResource.class);
 		privateRouter.attach("/report/incomeandexpensesbycategory", IncomeAndExpensesByCategoryResource.class);
 		privateRouter.attach("/report/averageincomeandexpensesbycategory", AverageIncomeAndExpensesByCategoryResource.class);
+		privateRouter.attach("/report/inflowandoutflowbyaccount", InflowAndOutflowByAccountResource.class);
 		privateRouter.attach("/report/balancesovertime", BalancesOverTimeResource.class);
 		
 		privateRouter.attach("/backup", BackupResource.class);

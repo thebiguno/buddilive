@@ -6,6 +6,7 @@ Ext.define("BuddiLive.controller.Reports", {
 		"BuddiLive.view.report.PieTotalsByCategory",
 		"BuddiLive.view.report.IncomeAndExpensesByCategory",
 		"BuddiLive.view.report.AverageIncomeAndExpensesByCategory",
+		"BuddiLive.view.report.InflowAndOutflowByAccount",
 		"BuddiLive.view.report.AccountBalancesOverTime",
 		"BuddiLive.view.report.NetWorthOverTime"
 	],
@@ -16,6 +17,7 @@ Ext.define("BuddiLive.controller.Reports", {
 			"buddiviewport menuitem[itemId='showExpensesByCategoryPie']": {"click": this.showExpensesByCategoryPie},
 			"buddiviewport menuitem[itemId='showIncomeAndExpensesByCategoryTable']": {"click": this.showIncomeAndExpensesByCategoryTable},
 			"buddiviewport menuitem[itemId='showAverageIncomeAndExpensesByCategoryTable']": {"click": this.showAverageIncomeAndExpensesByCategoryTable},
+			"buddiviewport menuitem[itemId='showInflowAndOutflowByAccountTable']": {"click": this.showInflowAndOutflowByAccountTable},
 			"buddiviewport menuitem[itemId='showAccountBalancesOverTimeLine']": {"click": this.showAccountBalancesOverTimeLine},
 			"buddiviewport menuitem[itemId='showNetWorthOverTimeLine']": {"click": this.showNetWorthOverTimeLine}
 		});
@@ -80,6 +82,29 @@ Ext.define("BuddiLive.controller.Reports", {
 				tabPanel.setActiveTab(report);
 			}
 		}).show();
+	},
+	
+	"showInflowAndOutflowByAccountTable": function(component){
+		<#if !((user.premium)!false)>
+		Ext.MessageBox.show({
+			"title": "${translation("PREMIUM_TITLE")?json_string}",
+			"msg": "${translation("PREMIUM_MESSAGE")?json_string}",
+			"buttons": Ext.Msg.OK
+		});
+		<#else>
+		Ext.widget({
+			"xtype": "reportpickerinterval",
+			"callback": function(options){
+				var tabPanel = component.up("tabpanel[itemId='budditabpanel']");
+				var report = Ext.widget({
+					"xtype": "reportinflowandoutflowbyaccount",
+					"options": options
+				});
+				tabPanel.add(report);
+				tabPanel.setActiveTab(report);
+			}
+		}).show();
+		</#if>
 	},
 	
 	"showAccountBalancesOverTimeLine": function(component){
