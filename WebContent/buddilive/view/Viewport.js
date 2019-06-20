@@ -194,6 +194,11 @@ Ext.define("BuddiLive.view.Viewport", {
 						"itemId": "showInflowAndOutflowByAccountTable"
 					},
 					{
+						"text": "${translation("REPORT_TABLE_INFLOW_AND_OUTFLOW_BY_PAYEE")?json_string}",
+						"icon": "img/table-sum<#if !((user.premium)!false)>-disabled</#if>.png",
+						"itemId": "showInflowAndOutflowByPayeeTable"
+					},
+					{
 						"text": "${translation("REPORT_PIE_INCOME_BY_CATEGORY")?json_string}",
 						"icon": "img/chart-pie.png",
 						"itemId": "showIncomeByCategoryPie"
