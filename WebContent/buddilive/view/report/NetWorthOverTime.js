@@ -7,7 +7,8 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 	"closable": true,
 	"layout": "fit",
 	"initComponent": function(){
-		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
+		var me = this;
+		this.dockedItems = BuddiLive.app.viewport.getDockedItems("report");
 		
 		this.title = "${translation("REPORT_NET_WORTH_OVER_TIME")?json_string} - " + this.initialConfig.options.dateRange;
 		this.items = [
@@ -21,6 +22,14 @@ Ext.define('BuddiLive.view.report.NetWorthOverTime', {
 						"reader": {
 							"type": "json",
 							"rootProperty": "data"
+						}
+					},
+					"listeners": {
+						"beforeload": function(store, operation, eOpts){
+							me.mask("${translation("LOADING")?json_string}");
+						},
+						"load": function(store, records, successful, operation, eOpts){
+							me.unmask();
 						}
 					}
 				}),

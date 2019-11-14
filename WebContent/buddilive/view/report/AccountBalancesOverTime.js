@@ -7,7 +7,8 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 	"closable": true,
 	"layout": "fit",
 	"initComponent": function(){
-		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
+		var me = this;
+		this.dockedItems = BuddiLive.app.viewport.getDockedItems("report");
 		
 		var fields = ["date"];
 		var series = [];
@@ -42,6 +43,14 @@ Ext.define('BuddiLive.view.report.AccountBalancesOverTime', {
 						"reader": {
 							"type": "json",
 							"rootProperty": "data"
+						}
+					},
+					"listeners": {
+						"beforeload": function(store, operation, eOpts){
+							me.mask("${translation("LOADING")?json_string}");
+						},
+						"load": function(store, records, successful, operation, eOpts){
+							me.unmask();
 						}
 					}
 				}),

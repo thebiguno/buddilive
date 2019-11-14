@@ -58,7 +58,10 @@ public class BalancesOverTimeResource extends ServerResource {
 			while (dates[0].before(dates[1])){
 				//While iterating over dates, loop through transaction balances up to the given day.  Record
 				// running balances in the balances map.
-				while (accountBalancesIndex < accountBalances.size() && accountBalances.get(accountBalancesIndex).getStartDate().before(dates[0])){
+				while (accountBalancesIndex < accountBalances.size() 
+						&& accountBalances.get(accountBalancesIndex) != null
+						&& accountBalances.get(accountBalancesIndex).getStartDate() != null
+						&& accountBalances.get(accountBalancesIndex).getStartDate().before(dates[0])){
 					//Accumulate new values until we are up to the next required date
 					final BigDecimal balance = CryptoUtil.decryptWrapperBigDecimal(accountBalances.get(accountBalancesIndex).getBalance(), user, true);
 					balances.put(accountBalances.get(accountBalancesIndex).getId(), balance);

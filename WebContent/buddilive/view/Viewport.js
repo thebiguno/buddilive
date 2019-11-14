@@ -155,6 +155,16 @@ Ext.define("BuddiLive.view.Viewport", {
 				}
 			);
 		}
+		else if (type == "report"){
+			items.push(
+				{
+					"text": "${translation("REFRESH")?json_string}",
+					"icon": "img/refresh.gif",
+					"itemId": "refreshReport"
+				}
+			);
+		}
+
 		
 		items.push(
 			"->",

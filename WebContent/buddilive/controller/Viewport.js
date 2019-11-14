@@ -21,6 +21,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport button[itemId='addScheduled']": {"click": this.addScheduled},
 			"buddiviewport button[itemId='editScheduled']": {"click": this.editScheduled},
 			"buddiviewport button[itemId='deleteScheduled']": {"click": this.deleteScheduled},
+			"buddiviewport button[itemId='refreshReport']": {"click": this.refreshReport},
 			"buddiviewport menuitem[itemId='showScheduled']": {"click": this.showScheduled},
 			"buddiviewport menuitem[itemId='changePassword']": {"click": this.changePassword},
 			"buddiviewport menuitem[itemId='showPreferences']": {"click": this.showPreferences},
@@ -262,6 +263,13 @@ Ext.define("BuddiLive.controller.Viewport", {
 				});
 			}
 		});
+	},
+	
+	"refreshReport": function(component){
+		var store = component.up("panel").down("chart, polar, grid").getStore();
+		if (store){
+			store.reload();
+		}
 	},
 	
 	"changePassword": function(component){

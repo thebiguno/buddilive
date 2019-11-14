@@ -8,7 +8,8 @@ Ext.define('BuddiLive.view.report.InflowAndOutflowByAccount', {
 	"closable": true,
 	"layout": "fit",
 	"initComponent": function(){
-		this.dockedItems = BuddiLive.app.viewport.getDockedItems();
+		var me = this;
+		this.dockedItems = BuddiLive.app.viewport.getDockedItems("report");
 		
 		this.title = "${translation("REPORT_TABLE_INFLOW_AND_OUTFLOW_BY_ACCOUNT")?json_string} - " + this.initialConfig.options.dateRange;
 		var styledRenderer = function(value, metaData, record){
