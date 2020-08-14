@@ -67,7 +67,10 @@ public class AccountsResource extends ServerResource {
 				type.put("name", CryptoUtil.decryptWrapper(t.getAccountType(), user));
 				type.put("expanded", true);
 				type.put("debit", t.isDebit());
-				if (!t.isDebit()) sb.append(" color: " + FormatUtil.HTML_RED + ";");
+				if (!t.isDebit()){
+					sb.append(" color: " + FormatUtil.HTML_RED + ";");
+				}
+				sb.append(FormatUtil.formatBold());
 				type.put("style", sb.toString());
 				sb.setLength(0);
 				type.put("nodeType", "type");
@@ -85,6 +88,7 @@ public class AccountsResource extends ServerResource {
 						}
 					}
 				});
+				BigDecimal total = BigDecimal.ZERO;
 				for (Account a : accounts) {
 					if (!a.isDeleted() || user.isShowDeleted()){
 						final JSONObject account = new JSONObject();
@@ -107,8 +111,11 @@ public class AccountsResource extends ServerResource {
 						account.put("nodeType", "account");
 						account.put("icon", "img/table-money.png");
 						type.append("children", account);
+						total = total.add(a.isDebit() ? balance : balance.negate());
 					}
 				}
+				type.put("balance", FormatUtil.formatCurrency(total, user));
+				type.put("balanceStyle", FormatUtil.formatBold() + (FormatUtil.isRed(t.isDebit() ? total : total.negate()) ? FormatUtil.formatRed() : ""));
 				if (type.has("children")){
 					data.put(type);
 				}

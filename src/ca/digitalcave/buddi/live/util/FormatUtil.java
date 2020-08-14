@@ -77,6 +77,10 @@ public class FormatUtil {
 		return "color: " + FormatUtil.HTML_GRAY + ";";
 	}
 	
+	public static String formatBold(){
+		return "font-weight: bold;";
+	}
+	
 	public static boolean isRed(Source selected, User user, Split split) throws CryptoException {
 		boolean toSelected = split.getToSource() == selected.getId();
 		boolean positive = CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).compareTo(BigDecimal.ZERO) >= 0;
