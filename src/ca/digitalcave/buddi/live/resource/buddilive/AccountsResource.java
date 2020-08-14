@@ -61,6 +61,7 @@ public class AccountsResource extends ServerResource {
 			
 			final JSONArray data = new JSONArray();
 			final StringBuilder sb = new StringBuilder();
+			BigDecimal netWorth = BigDecimal.ZERO;
 			for (String key : accountTypeMap.keySet()) {
 				final JSONObject type = new JSONObject();
 				AccountType t = accountTypeMap.get(key);
@@ -116,11 +117,22 @@ public class AccountsResource extends ServerResource {
 				}
 				type.put("balance", FormatUtil.formatCurrency(total, user));
 				type.put("balanceStyle", FormatUtil.formatBold() + (FormatUtil.isRed(t.isDebit() ? total : total.negate()) ? FormatUtil.formatRed() : ""));
+				netWorth = netWorth.add(t.isDebit() ? total : total.negate());
 				if (type.has("children")){
 					data.put(type);
 				}
 			}
 			
+			final JSONObject netWorthNode = new JSONObject();
+			netWorthNode.put("name", LocaleUtil.getTranslation(getRequest()).getString("NET_WORTH"));
+			netWorthNode.put("style", FormatUtil.formatBold());
+			netWorthNode.put("leaf", true);
+			sb.append(FormatUtil.formatBold());
+			netWorthNode.put("icon", "img/table-sum.png");
+			netWorthNode.put("balance", FormatUtil.formatCurrency(netWorth, user));
+			netWorthNode.put("balanceStyle", FormatUtil.formatBold() + (FormatUtil.isRed(netWorth) ? FormatUtil.formatRed() : ""));
+			data.put(netWorthNode);
+
 			final JSONObject result = new JSONObject();
 			result.put("children", data);
 			result.put("success", true);
