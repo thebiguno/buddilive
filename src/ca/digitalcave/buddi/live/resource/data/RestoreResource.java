@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -114,12 +115,15 @@ public class RestoreResource extends ServerResource {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (DatabaseException e){
+			getLogger().log(Level.WARNING, "Error encountered when restoring data", e);
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		catch (CryptoException e){
+			getLogger().log(Level.WARNING, "Error encountered when restoring data", e);
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		catch (JSONException e){
+			getLogger().log(Level.WARNING, "Error encountered when restoring data", e);
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
 		catch (Throwable e){
@@ -131,7 +135,7 @@ public class RestoreResource extends ServerResource {
 	}
 
 	private void restoreAccounts(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
-		final JSONArray accounts = jsonObject.getJSONArray("accounts");
+		final JSONArray accounts = jsonObject.optJSONArray("accounts");
 		if (accounts != null){
 			for (int i = 0; i < accounts.length(); i++){
 				final JSONObject a = accounts.getJSONObject(i);
@@ -160,7 +164,7 @@ public class RestoreResource extends ServerResource {
 	}
 
 	private void restoreCategories(JSONObject jsonObject, User user, SqlSession sqlSession, Map<String, Integer> sourceIDsByUUID) throws DatabaseException, JSONException, CryptoException {
-		final JSONArray categories = jsonObject.getJSONArray("categories");
+		final JSONArray categories = jsonObject.optJSONArray("categories");
 		if (categories != null){
 			for (int i = 0; i < categories.length(); i++){
 				final JSONObject c = categories.getJSONObject(i);
