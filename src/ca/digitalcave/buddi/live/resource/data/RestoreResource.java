@@ -1,5 +1,6 @@
 package ca.digitalcave.buddi.live.resource.data;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -248,26 +249,30 @@ public class RestoreResource extends ServerResource {
 					final JSONArray splits = t.getJSONArray("splits");
 					for (int j = 0; j < splits.length(); j++) {
 						final JSONObject s = splits.getJSONObject(j);
-						final Split split = new Split();
-						final Integer fromSource = sourceIDsByUUID.get(s.getString("from"));
-						final Integer toSource = sourceIDsByUUID.get(s.getString("to"));
-						if (fromSource == null){
-							throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find transaction from source UUID " + s.getString("from") + " for split #" + j + " in transaction " + t.getString("uuid"));
+						if (FormatUtil.parseCurrency(s.getString("amount")).compareTo(BigDecimal.ZERO) != 0){	//If the split is zero, don't add it.  This was possible in desktop Buddi.
+							final Split split = new Split();
+							final Integer fromSource = sourceIDsByUUID.get(s.getString("from"));
+							final Integer toSource = sourceIDsByUUID.get(s.getString("to"));
+							if (fromSource == null){
+								throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find transaction from source UUID " + s.getString("from") + " for split #" + j + " in transaction " + t.getString("uuid"));
+							}
+							split.setAmount(FormatUtil.parseCurrency(s.getString("amount")).toPlainString());
+							split.setFromSource(fromSource);
+							split.setToSource(toSource);
+							split.setMemo(s.optString("memo", ""));
+							transaction.getSplits().add(split);
 						}
-						split.setAmount(FormatUtil.parseCurrency(s.getString("amount")).toPlainString());
-						split.setFromSource(fromSource);
-						split.setToSource(toSource);
-						split.setMemo(s.optString("memo", ""));
-						transaction.getSplits().add(split);
 					}
 
-					ConstraintsChecker.checkInsertTransaction(transaction, user, sqlSession);
-					int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
-					if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
-					for (Split split : transaction.getSplits()) {
-						split.setTransactionId(transaction.getId());
-						count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
+					if (transaction.getSplits().size() > 0){	//If the transaction has no splits, ignore it.
+						ConstraintsChecker.checkInsertTransaction(transaction, user, sqlSession);
+						int count = sqlSession.getMapper(Transactions.class).insertTransaction(user, transaction);
 						if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+						for (Split split : transaction.getSplits()) {
+							split.setTransactionId(transaction.getId());
+							count = sqlSession.getMapper(Transactions.class).insertSplit(user, split);
+							if (count != 1) throw new DatabaseException(String.format("Insert failed; expected 1 row, returned %s", count));
+						}
 					}
 				}
 			}
