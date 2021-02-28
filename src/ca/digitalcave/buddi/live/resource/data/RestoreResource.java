@@ -254,7 +254,10 @@ public class RestoreResource extends ServerResource {
 							final Integer fromSource = sourceIDsByUUID.get(s.getString("from"));
 							final Integer toSource = sourceIDsByUUID.get(s.getString("to"));
 							if (fromSource == null){
-								throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find transaction from source UUID " + s.getString("from") + " for split #" + j + " in transaction " + t.getString("uuid"));
+								throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find 'from' source UUID " + s.getString("from") + " for split #" + j + " in transaction " + t.getString("uuid"));
+							}
+							if (toSource == null){
+								throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Could not find 'to' source UUID " + s.getString("to") + " for split #" + j + " in transaction " + t.getString("uuid"));
 							}
 							split.setAmount(FormatUtil.parseCurrency(s.getString("amount")).toPlainString());
 							split.setFromSource(fromSource);
