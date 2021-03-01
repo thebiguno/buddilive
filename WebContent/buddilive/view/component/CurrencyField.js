@@ -33,7 +33,7 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 			return "";
 		}
 		else {
-			return Ext.util.Format.number(value, "0.00");
+			return Ext.util.Format.number(value, "0,000.00");
 		}
 	},
 	
