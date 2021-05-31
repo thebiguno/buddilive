@@ -10,6 +10,8 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 	"mouseWheelEnabled": false,
 	"emptyText": "0${user.decimalSeparator!?json_string}00",
 	
+	"formatText": "0,000.00",
+	
 	"initComponent": function(){
 		Ext.util.Format.decimalSeparator = "${user.decimalSeparator!?json_string}";
 		Ext.util.Format.thousandSeparator = "${user.thousandSeparator!?json_string}";
@@ -33,7 +35,7 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 			return "";
 		}
 		else {
-			return Ext.util.Format.number(value, "0,000.00");
+			return Ext.util.Format.number(value, me.formatText);
 		}
 	},
 	
@@ -44,5 +46,10 @@ Ext.define('BuddiLive.view.component.CurrencyField', {
 	
 	"validate": function(){
 		return !isNaN(this.rawToValue(this.getRawValue()));	
+	},
+	
+	"getValue": function(){
+		var me = this;
+		return me.parseValue(me.rawValue);
 	}
 });
