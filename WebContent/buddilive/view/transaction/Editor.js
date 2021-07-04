@@ -128,14 +128,37 @@ Ext.define('BuddiLive.view.transaction.Editor', {
 			this.down("textfield[itemId='number']").setValue(transaction.number);
 		}
 	
+		//Remember whatever data has already been set in the splits
+		var existingSplits = [];
+	
 		//Remove all the split editors
-		while (this.items.length > 0) this.remove(this.items.get(0));
+		while (this.items.length > 0){
+			existingSplits.push(this.items.get(0).getSplit());
+			this.remove(this.items.get(0));
+		}
 
 		var splits = (transaction.splits ? transaction.splits : []);
 		if (splits && splits.length > 0){
 			//Add a new split editor for each split
 			for (var i = 0; i < splits.length; i++){
 				var split = Ext.apply(splits[i]);
+				if (loadFromDescription && existingSplits.length > i){
+					if (existingSplits[i].amount){
+						split.amount = existingSplits[i].amount;
+						split.amountNumber = existingSplits[i].amount;	//We can treat the string as a number; the currencyField will parse it.
+					}
+					if (existingSplits[i].fromId){
+						split.fromId = existingSplits[i].fromId;
+						split.fromType = existingSplits[i].fromType;
+					}
+					if (existingSplits[i].toId){
+						split.toId = existingSplits[i].toId;
+						split.toType = existingSplits[i].toType;
+					}
+					if (existingSplits[i].memo){
+						split.memo = existingSplits[i].memo;
+					}
+				}
 				if (loadFromDescription && !this.initialConfig.scheduledTransaction){
 					//If this is being set from a description selection, we need to ensure that
 					// a) one of the sources is set to the selected source
