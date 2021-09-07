@@ -104,6 +104,7 @@ public class IndexResource extends CookieAuthInterceptResource {
 			return user.getIdentifier();
 		}
 		catch (DatabaseException e){
+			getLogger().log(Level.INFO, e.getMessage());
 		}
 		finally {
 			sqlSession.close();
