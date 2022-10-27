@@ -22,7 +22,7 @@ import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
-import ca.digitalcave.moss.crypto.MossHash;
+import ca.digitalcave.moss.crypto.DefaultHash;
 
 public class ChangePasswordResource extends ServerResource {
 
@@ -44,9 +44,9 @@ public class ChangePasswordResource extends ServerResource {
 				final String currentPassword = json.getString("currentPassword");
 				final String newPassword = json.getString("newPassword");
 
-				if (MossHash.verify(user.getSecretString(), currentPassword)){
+				if (DefaultHash.verify(user.getSecretString(), currentPassword)){
 					if (application.getPasswordChecker().isValid("", newPassword)){	//We don't care about password history, so the identifier is not used.
-						user.setSecretString(new MossHash().generate(newPassword));
+						user.setSecretString(new DefaultHash().generate(newPassword));
 						int count = sqlSession.getMapper(Users.class).updateUser(user);
 						if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 						if (user.isEncrypted()){

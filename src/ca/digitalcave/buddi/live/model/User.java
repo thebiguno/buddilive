@@ -14,9 +14,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
+import ca.digitalcave.moss.restlet.model.AuthUser;
 
-public class User extends org.restlet.security.User {
-	private Integer id;
+public class User extends AuthUser {
+	private static final long serialVersionUID = 1L;
+	
 	private String plaintextIdentifier;	//Not persisted, injected by BuddiVerifier
 	private String plaintextSecret;	//Not persisted, injected by BuddiVerifier
 	private String encryptionKey;
@@ -33,12 +35,6 @@ public class User extends org.restlet.security.User {
 	private Date created;
 	private Date modified;
 
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
 	public String getUuid() {
 		return uuid;
 	}

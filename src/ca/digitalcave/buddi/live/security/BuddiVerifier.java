@@ -11,7 +11,7 @@ import org.restlet.security.Verifier;
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Users;
 import ca.digitalcave.buddi.live.model.User;
-import ca.digitalcave.moss.crypto.MossHash;
+import ca.digitalcave.moss.crypto.DefaultHash;
 
 public class BuddiVerifier implements Verifier {
 
@@ -25,7 +25,7 @@ public class BuddiVerifier implements Verifier {
 		final SqlSession sql = application.getSqlSessionFactory().openSession(true);
 		final String identifier = request.getChallengeResponse().getIdentifier();
 		try {
-			final String hashedIdentifier = new MossHash().setSaltLength(0).setIterations(1).generate(identifier);	//We don't salt the identifier, as the user supplies this and we have no way of looking up salt.
+			final String hashedIdentifier = new DefaultHash().setSaltLength(0).setIterations(1).generate(identifier);	//We don't salt the identifier, as the user supplies this and we have no way of looking up salt.
 			final User user = sql.getMapper(Users.class).selectUser(hashedIdentifier);
 			if (user == null) return RESULT_UNKNOWN;
 			
@@ -45,7 +45,7 @@ public class BuddiVerifier implements Verifier {
 		if (secret == null || user.getSecret() == null) return false;
 		
 		final String storedSecret = new String(user.getSecret());
-		if (MossHash.verify(storedSecret, secret)){
+		if (DefaultHash.verify(storedSecret, secret)){
 			return true;
 		}
 		

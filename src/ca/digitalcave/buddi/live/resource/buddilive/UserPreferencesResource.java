@@ -27,7 +27,7 @@ import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
-import ca.digitalcave.moss.crypto.MossHash;
+import ca.digitalcave.moss.crypto.DefaultHash;
 
 public class UserPreferencesResource extends ServerResource {
 
@@ -71,7 +71,7 @@ public class UserPreferencesResource extends ServerResource {
 				if (json.optBoolean("encrypt", false) != user.isEncrypted()){
 					//First check that the password is correct
 					final String encryptPassword = json.getString("encryptPassword");
-					if (!MossHash.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
+					if (!DefaultHash.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
 
 					if (user.isEncrypted()) DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, sqlSession);

@@ -3,17 +3,19 @@ package ca.digitalcave.buddi.live;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.security.Key;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.concurrent.Callable;
+import java.util.logging.Level;
 
-import javax.crypto.SecretKey;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
@@ -32,7 +34,6 @@ import org.restlet.routing.Template;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import ca.digitalcave.buddi.live.db.BuddiSystem;
 import ca.digitalcave.buddi.live.db.handler.BooleanHandler;
 import ca.digitalcave.buddi.live.db.handler.CurrencyHandler;
 import ca.digitalcave.buddi.live.db.handler.LocaleHandler;
@@ -62,20 +63,22 @@ import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryRe
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.ExportResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
+import ca.digitalcave.buddi.live.security.BuddiLiveAuthenticationHelper;
 import ca.digitalcave.buddi.live.security.BuddiVerifier;
 import ca.digitalcave.buddi.live.service.BuddiStatusService;
 import ca.digitalcave.moss.common.OperatingSystemUtil;
 import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.Algorithm;
-import ca.digitalcave.moss.crypto.Crypto.CryptoException;
+import ca.digitalcave.moss.crypto.ObfuscateUtil;
 import ca.digitalcave.moss.restlet.CookieAuthenticator;
-import ca.digitalcave.moss.restlet.login.ExtraFieldsDirective;
-import ca.digitalcave.moss.restlet.login.LoginRouter;
-import ca.digitalcave.moss.restlet.login.LoginRouterConfiguration;
+import ca.digitalcave.moss.restlet.plugin.AuthenticationHelper;
+import ca.digitalcave.moss.restlet.plugin.ExtraFieldsDirective;
+import ca.digitalcave.moss.restlet.router.AuthenticationRouter;
 import ca.digitalcave.moss.restlet.util.PasswordChecker;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
+import freemarker.template.Version;
 
 
 public class BuddiApplication extends Application{
@@ -147,14 +150,14 @@ public class BuddiApplication extends Application{
 		sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
 		
 		//***** Freemarker Configuration *****
-		freemarker.template.Configuration freemarkerConfiguration = new freemarker.template.Configuration();
+		freemarker.template.Configuration freemarkerConfiguration = new freemarker.template.Configuration(new Version(2, 3, 31));
 		final Object servletContext = getContext().getAttributes().get("org.restlet.ext.servlet.ServletContext");
 		freemarkerConfiguration.setServletContextForTemplateLoading(servletContext, "/");
 		freemarkerConfiguration.setDefaultEncoding("UTF-8");
 		freemarkerConfiguration.setLocalizedLookup(false);
 		freemarkerConfiguration.setLocale(Locale.ENGLISH);
-		freemarkerConfiguration.setTemplateUpdateDelay(0);
-		freemarkerConfiguration.setObjectWrapper(new BeansWrapper());
+		freemarkerConfiguration.setTemplateUpdateDelayMilliseconds(0);
+		freemarkerConfiguration.setObjectWrapper(new BeansWrapper(new Version(2, 3, 31)));
 		freemarkerConfiguration.setDateFormat("yyyy'-'MM'-'dd");
 		freemarkerConfiguration.setDateTimeFormat("yyyy'-'MM'-'dd' 'HH:mm");
 		freemarkerConfiguration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
@@ -168,43 +171,128 @@ public class BuddiApplication extends Application{
 	}
 	
 	@Override  
-	public synchronized Restlet createInboundRoot() {  
+	public synchronized Restlet createInboundRoot() {
+		final BuddiApplication application = this;
+		
 		getMetadataService().setDefaultLanguage(Language.ENGLISH);
 		getMetadataService().setEnabled(true);
 		getTunnelService().setEnabled(true);
 		getTunnelService().setExtensionsTunnel(true);
 
-		final Router privateRouter = new Router(getContext());
-		final Callable<Key> key = new Callable<Key>() {
+		final AuthenticationHelper authenticationHelper = new BuddiLiveAuthenticationHelper(this);
+		
+		authenticationHelper.getConfig().showCookieWarning = true;
+		authenticationHelper.getConfig().showForgotUsername = true;
+		authenticationHelper.getConfig().showForgotPassword = true;
+		authenticationHelper.getConfig().showRegister = true;
+		authenticationHelper.getConfig().showImpersonate = false;
+		authenticationHelper.getConfig().i18nBaseCustom = "i18n";
+		authenticationHelper.getConfig().totpIssuer = "Buddi Live";
+
+		authenticationHelper.getConfig().applicationLoaderPaths = new HashMap<String, String>();
+		authenticationHelper.getConfig().applicationLoaderPaths.put("BuddiLive", "buddilive");
+		
+		authenticationHelper.getConfig().applicationViews = new String[]{"BuddiLive.view.component.SelfDocumentingField","BuddiLive.view.component.CurrenciesCombobox","BuddiLive.view.component.LocalesCombobox"};
+		authenticationHelper.getConfig().applicationControllers = new String[]{"BuddiLive.controller.preferences.PreferencesEditor"};
+
+		authenticationHelper.getConfig().extraRegisterStep1Fields = new ExtraFieldsDirective(){
 			@Override
-			public Key call() throws Exception {
-				SecretKey key;
-				final SqlSession sql = sqlSessionFactory.openSession();
+			public void writeFields(Writer out, ResourceBundle translation) {
 				try {
-					String keyEncoded = sql.getMapper(BuddiSystem.class).selectCookieEncryptionKey();
-					if (keyEncoded == null){
-						key = new Crypto().setAlgorithm(Algorithm.AES_256).generateSecretKey();
-						keyEncoded = Crypto.encodeSecretKey(key);
-						sql.getMapper(BuddiSystem.class).deleteCookieEncryptionKey();
-						sql.getMapper(BuddiSystem.class).insertCookieEncryptionKey(keyEncoded);
-						sql.commit();
-					}
-					key = Crypto.recoverSecretKey(keyEncoded);
-				} catch (CryptoException e) {
-					key = new Crypto().setAlgorithm(Algorithm.AES_256).generateSecretKey();
-					String keyEncoded = Crypto.encodeSecretKey(key);
-					sql.getMapper(BuddiSystem.class).updateCookieEncryptionKey(keyEncoded);
-					sql.commit();
-				} finally {
-					sql.close();
+					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "selfdocumentingfield");
+					generator.writeStringField("messageBody", translation.getString("HELP_LOCALE"));
+					generator.writeStringField("type", "localescombobox");
+					generator.writeStringField("name", "locale");
+					generator.writeStringField("fieldLabel", translation.getString("LOCALE"));
+					generator.writeStringField("value", "en_US");
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "selfdocumentingfield");
+					generator.writeStringField("messageBody", translation.getString("HELP_CURRENCY"));
+					generator.writeStringField("type", "currenciescombobox");
+					generator.writeStringField("name", "currency");
+					generator.writeStringField("fieldLabel", translation.getString("CURRENCY"));
+					generator.writeStringField("value", "USD");
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "selfdocumentingfield");
+					generator.writeStringField("messageBody", translation.getString("CREATE_USER_AGREEMENT_REQUIRED"));
+					generator.writeStringField("type", "checkbox");
+					generator.writeStringField("boxLabel", translation.getString("AGREE_TERMS_AND_CONDITIONS"));
+					generator.writeStringField("name", "agree");
+					generator.writeStringField("fieldLabel", " ");
+					generator.writeStringField("labelSeparator", "");
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "label");
+					generator.writeStringField("html", translation.getString("HELP_REGISTER"));
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.flush();
+				} catch (IOException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
-				return key;
+			}
+		};
+		authenticationHelper.getConfig().extraRegisterStep2Fields = new ExtraFieldsDirective(){
+			@Override
+			public void writeFields(Writer out, ResourceBundle translation) {
+				try {
+					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "label");
+					generator.writeStringField("html", translation.getString("HELP_REGISTER_2"));
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.flush();
+				} catch (IOException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+			}
+		};
+		authenticationHelper.getConfig().extraforgotPasswordStep1PanelFields = new ExtraFieldsDirective(){
+			@Override
+			public void writeFields(Writer out, ResourceBundle translation) {
+				try {
+					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "label");
+					generator.writeStringField("html", translation.getString("HELP_RESET_PASSWORD"));
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.flush();
+				} catch (IOException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+			}
+		};
+		authenticationHelper.getConfig().extraforgotPasswordStep2PanelFields = new ExtraFieldsDirective(){
+			@Override
+			public void writeFields(Writer out, ResourceBundle translation) {
+				try {
+					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					generator.writeStartObject();
+					generator.writeStringField("xtype", "label");
+					generator.writeStringField("html", translation.getString("HELP_RESET_PASSWORD_2"));
+					generator.writeEndObject();
+					generator.writeRaw(",");
+					generator.flush();
+				} catch (IOException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
 			}
 		};
 		
-		final CookieAuthenticator privateAuth = new CookieAuthenticator(getContext(), false, key);
-		privateAuth.setMaxCookieAge(60 * 15);	//Invalidate credentials and auto logout after this period (value in seconds)
-		privateAuth.setAllowRemember(false);
+		final Router privateRouter = new Router(getContext());
+		
+		final CookieAuthenticator privateAuth = new CookieAuthenticator(getContext(), false, authenticationHelper, verifier);
+		final CookieAuthenticator optionalAuth = new CookieAuthenticator(getContext(), true, authenticationHelper, verifier);;
+		
 		privateAuth.setVerifier(verifier);
 		privateAuth.setNext(privateRouter);
 		
@@ -239,128 +327,19 @@ public class BuddiApplication extends Application{
 
 		
 		final Router publicRouter = new Router(getContext());
-		final CookieAuthenticator optionalAuth = new CookieAuthenticator(getContext(), true, key);
 		optionalAuth.setVerifier(verifier);
 		optionalAuth.setNext(publicRouter);
 		
 		//Public data and binary data which should not be filtered through freemarker
 		publicRouter.attach("", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
+		publicRouter.attach("/authentication", new AuthenticationRouter(this, authenticationHelper, verifier));
 		publicRouter.attach("/index", IndexResource.class);
 		publicRouter.attach("/stores", comboStoreRouter);
 		publicRouter.attach("/data", privateAuth);
 		
 		publicRouter.attach("/donation-completed", DonationResource.class);
 		
-		final LoginRouterConfiguration loginConfig = new LoginRouterConfiguration();
-		final BuddiApplication application = this;
-		loginConfig.extraRegisterStep1Fields = new ExtraFieldsDirective(){
-			@Override
-			public void writeFields(Writer out, ResourceBundle translation, ResourceBundle customTranslation) {
-				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
-					generator.writeStartObject();
-					generator.writeStringField("xtype", "selfdocumentingfield");
-					generator.writeStringField("messageBody", customTranslation.getString("HELP_LOCALE"));
-					generator.writeStringField("type", "localescombobox");
-					generator.writeStringField("name", "locale");
-					generator.writeStringField("fieldLabel", customTranslation.getString("LOCALE"));
-					generator.writeStringField("value", "en_US");
-					generator.writeEndObject();
-					generator.writeRaw(",");
-					generator.writeStartObject();
-					generator.writeStringField("xtype", "selfdocumentingfield");
-					generator.writeStringField("messageBody", customTranslation.getString("HELP_CURRENCY"));
-					generator.writeStringField("type", "currenciescombobox");
-					generator.writeStringField("name", "currency");
-					generator.writeStringField("fieldLabel", customTranslation.getString("CURRENCY"));
-					generator.writeStringField("value", "USD");
-					generator.writeEndObject();
-					generator.writeRaw(",");
-					generator.writeStartObject();
-					generator.writeStringField("xtype", "selfdocumentingfield");
-					generator.writeStringField("messageBody", customTranslation.getString("CREATE_USER_AGREEMENT_REQUIRED"));
-					generator.writeStringField("type", "checkbox");
-					generator.writeStringField("boxLabel", customTranslation.getString("AGREE_TERMS_AND_CONDITIONS"));
-					generator.writeStringField("name", "agree");
-					generator.writeStringField("fieldLabel", " ");
-					generator.writeStringField("labelSeparator", "");
-					generator.writeEndObject();
-					generator.writeRaw(",");
-					generator.writeStartObject();
-					generator.writeStringField("xtype", "label");
-					generator.writeStringField("html", customTranslation.getString("HELP_REGISTER"));
-					generator.writeEndObject();
-					generator.writeRaw(",");
-					generator.flush();
-				} catch (IOException e) {
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-				}
-			}
-		};
-		loginConfig.extraRegisterStep2Fields = new ExtraFieldsDirective(){
-			@Override
-			public void writeFields(Writer out, ResourceBundle translation, ResourceBundle customTranslation) {
-				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
-					generator.writeStartObject();
-					generator.writeStringField("xtype", "label");
-					generator.writeStringField("html", customTranslation.getString("HELP_REGISTER_2"));
-					generator.writeEndObject();
-					generator.writeRaw(",");
-					generator.flush();
-				} catch (IOException e) {
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-				}
-			}
-		};
-		loginConfig.extraResetStep1PanelFields = new ExtraFieldsDirective(){
-			@Override
-			public void writeFields(Writer out, ResourceBundle translation, ResourceBundle customTranslation) {
-				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
-					generator.writeStartObject();
-					generator.writeStringField("xtype", "label");
-					generator.writeStringField("html", customTranslation.getString("HELP_RESET_PASSWORD"));
-					generator.writeEndObject();
-					generator.writeRaw(",");
-					generator.flush();
-				} catch (IOException e) {
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-				}
-			}
-		};
-		loginConfig.extraResetStep2PanelFields = new ExtraFieldsDirective(){
-			@Override
-			public void writeFields(Writer out, ResourceBundle translation, ResourceBundle customTranslation) {
-				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
-					generator.writeStartObject();
-					generator.writeStringField("xtype", "label");
-					generator.writeStringField("html", customTranslation.getString("HELP_RESET_PASSWORD_2"));
-					generator.writeEndObject();
-					generator.writeRaw(",");
-					generator.flush();
-				} catch (IOException e) {
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-				}
-			}
-		};
-		final HashMap<String, String> applicationLoaderPaths = new HashMap<String, String>();
-		applicationLoaderPaths.put("BuddiLive", "buddilive");
-		loginConfig.applicationLoaderPaths = applicationLoaderPaths;
-		loginConfig.applicationControllers = new String[]{"BuddiLive.controller.preferences.PreferencesEditor"};	//This will load the stores for currencies and locales combos; we could load them manually, but this works and is easier...
-		loginConfig.applicationViews = new String[]{"BuddiLive.view.component.SelfDocumentingField", "BuddiLive.view.component.CurrenciesCombobox", "BuddiLive.view.component.LocalesCombobox"};
-		loginConfig.identifierLabelKey = "EMAIL_LABEL";
-		loginConfig.i18nBaseCustom = "i18n";
-		loginConfig.passwordChecker = passwordChecker;
-		loginConfig.formTitle = "";
-		loginConfig.showRegister = !Boolean.parseBoolean(configProperties.getProperty("server.private", "true"));
-		loginConfig.showRemember = false;
-		loginConfig.tabBarBackgroundInvisible = true;
-		loginConfig.tabPackAlignment = "end";
-		loginConfig.tabPosition = "top";
-		publicRouter.attach("/login", new LoginRouter(this, loginConfig));
 		publicRouter.attachDefault(DefaultResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
 		
 		final Encoder encoder = new Encoder(getContext(), false, true, getEncoderService());
@@ -399,5 +378,55 @@ public class BuddiApplication extends Application{
 	}
 	public Crypto getCrypto() {
 		return crypto;
+	}
+	
+	public HtmlEmail getEmail(String from, String replyTo, String to) throws EmailException, AddressException {
+		final Properties c = getConfigProperties();
+		final HtmlEmail htmlEmail = new HtmlEmail();
+		if (StringUtils.isBlank(c.getProperty("mail.smtp.host"))){
+			throw new EmailException("Parameter mail.smtp.host cannot be blank.");
+		}
+		htmlEmail.setHostName(c.getProperty("mail.smtp.host"));
+		htmlEmail.setSmtpPort(Integer.parseInt(c.getProperty("mail.smtp.port", "25")));
+		
+		final InternetAddress[] fromAddresses = InternetAddress.parse(from, false);
+		if (fromAddresses != null && fromAddresses.length > 0) {
+			htmlEmail.setFrom(fromAddresses[0].getAddress(), fromAddresses[0].getPersonal());
+		}
+		
+		final InternetAddress[] toAddresses = InternetAddress.parse(to, false);
+		for (InternetAddress toAddress : toAddresses) {
+			htmlEmail.addTo(toAddress.getAddress(), toAddress.getPersonal());
+		}
+		
+		if (StringUtils.isNotBlank(replyTo)){
+			final InternetAddress[] replyToAddresses = InternetAddress.parse(replyTo);
+			for (InternetAddress replyToAddress : replyToAddresses) {
+				try {
+					htmlEmail.addReplyTo(replyToAddress.getAddress(), replyToAddress.getPersonal());
+				}
+				catch (Throwable e){
+					getLogger().log(Level.WARNING, "Invalid replyToAddress " + replyToAddress, e);
+				}
+			}
+		}
+		
+		final String emailUser = c.getProperty("mail.smtp.username");
+		final String emailPassword = ObfuscateUtil.deobfuscate(c.getProperty("mail.smtp.password", ""));
+		if (StringUtils.isNotBlank(emailUser)){
+			htmlEmail.setAuthentication(emailUser, emailPassword);
+		}		
+		final boolean startTls = Boolean.parseBoolean(c.getProperty("mail.smtp.starttls.enable", "false"));
+		htmlEmail.setStartTLSEnabled(startTls);
+		htmlEmail.setStartTLSRequired(startTls);
+		
+		//final String ssl = getParameterProvider().get("config.smtp.ssl");
+		//htmlEmail.setSSLOnConnect("ENABLED".equalsIgnoreCase(ssl));
+
+		if (Boolean.parseBoolean(c.getProperty("mail.smtp.debug", "false"))){
+			htmlEmail.setDebug(true);
+		}
+		
+		return htmlEmail;
 	}
 }
