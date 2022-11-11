@@ -31,9 +31,9 @@ import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.Algorithm;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.crypto.DefaultHash;
+import ca.digitalcave.moss.crypto.Hash;
 import ca.digitalcave.moss.restlet.CookieAuthenticator;
 import ca.digitalcave.moss.restlet.model.AuthUser;
-import ca.digitalcave.moss.restlet.model.SsoProvider;
 import ca.digitalcave.moss.restlet.plugin.AuthenticationConfiguration;
 import ca.digitalcave.moss.restlet.plugin.AuthenticationHelper;
 
@@ -61,19 +61,9 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		cr.setIdentifier(identifier.toLowerCase());
 		final String authenticator = CookieAuthenticator.getAuthenticator(cr);
 		
-		User user = null;
 		final String secret = new String(cr.getSecret());
 		
-		final SqlSession sql = application.getSqlSessionFactory().openSession();
-		try {
-			user = sql.getMapper(Users.class).selectUser(authenticator);
-			
-			sql.commit(true);
-		}
-		finally {
-			sql.close();
-		}
-		
+		final User user = (User) selectUser(authenticator);
 		if (user == null){
 			//If the user was not found, we do not proceed.
 			return null;
@@ -81,7 +71,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 
 		boolean authenticated = false;
 
-		final String storedSecret = new String(user.getPasswordHash()); // secret to use for authentication regardless of sudo
+		final String storedSecret = new String(user.getSecret());
 
 		boolean legacy = false;
 
@@ -114,23 +104,10 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 					sql2.close();
 				}
 			}
-			
-//			//Max age of a password
-//			final int passwordMaxAge = NumberUtils.toInt(application.getEssProperty("config.security.password-max-age"), -1);
-//			//Check if a password change is needed
-//			boolean credentialChangeRequired = (
-//					user.isPasswordChangeRequired() 
-//					|| (passwordMaxAge != -1 && DateUtils.addDays(new Date(), passwordMaxAge * -1).after(user.getPasswordLastChanged())));
-//			if (credentialChangeRequired){
-//				CookieAuthenticator.setPasswordExpired(cr);
-//			}
-		}
-		
-		//Whether Two factor is enabled for this specific user
-		user.setTwoFactorRequiredForPassword(user.isTwoFactorRequiredForPassword());
-		user.setTwoFactorPromptForPassword(true);
 
-		if (authenticated){
+			user.setPlaintextSecret(secret);
+			user.setPlaintextIdentifier(identifier);
+
 			return user;
 		}
 		
@@ -139,20 +116,22 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 
 	@Override
 	public AuthUser selectUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		final SqlSession sql = application.getSqlSessionFactory().openSession();
+		try {
+			User user = sql.getMapper(Users.class).selectUser(new DefaultHash().setSaltLength(0).setIterations(1).generate(username));
+			
+			sql.commit(true);
+			
+			return user;
+		}
+		finally {
+			sql.close();
+		}
 	}
-
-	@Override
-	public AuthUser selectUserBySsoIdentifier(String ssoIdentifier) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public List<AuthUser> selectUsers(String email) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Forgot Username not implemented");
 	}
 
 	@Override
@@ -232,7 +211,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 			}
 			
 			final User newUser = new User();
-			newUser.setIdentifier(new DefaultHash().setSaltLength(0).setIterations(1).generate(email));
+			newUser.setIdentifier(new DefaultHash().setSaltLength(0).setIterations(1).generate(email));	//This is a simple SHA-256 hash of the username.  We store username hashed in the DB for extra privacy.
 			newUser.setUuid(UUID.randomUUID().toString());
 			newUser.setCurrency(Currency.getInstance(form.getFirstValue("currency", "USD")));
 			newUser.setLocale(LocaleUtils.toLocale(form.getFirstValue("locale", "en_US")));
@@ -247,10 +226,6 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 			
 			sqlSession.commit();
 		}
-		catch (DatabaseException e){
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO, e.getMessage());
-			throw e;
-		}
 		finally {
 			sqlSession.close();
 		}
@@ -260,24 +235,6 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 	public boolean updatePassword(String username, String hashedPassword) {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-	@Override
-	public SsoProvider selectSSOProvider(String ssoProviderId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<SsoProvider> selectSSOProviders() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getBaseUrl() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -352,5 +309,10 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		finally {
 			sql.close();
 		}
+	}
+	
+	@Override
+	public Hash getHash() {
+		return new DefaultHash().setAlgorithm("SHA-512").setIterations(20000).setSaltLength(96);
 	}
 }

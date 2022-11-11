@@ -37,6 +37,7 @@ Ext.define("BuddiLive.controller.preferences.PreferencesEditor", {
 		var request = {"action": "update"};
 		request.encrypt = window.down("checkbox[itemId='encrypt']").getValue();
 		request.encryptPassword = window.down("textfield[itemId='password']").getValue();
+		request.useTwoFactor = window.down("checkbox[itemId='useTwoFactor']").getValue();
 		request.storeEmail = window.down("checkbox[itemId='storeEmail']").getValue();
 		request.locale = window.down("combobox[itemId='locale']").getValue();
 		request.currency = window.down("combobox[itemId='currency']").getValue();

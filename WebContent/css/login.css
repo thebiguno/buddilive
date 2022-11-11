@@ -47,12 +47,8 @@ div.version-info, div.version-info a:link, div.version-info a:visited, div.versi
 }
 
 div#loginform {
-	background: url('../img/login-shadow.png') no-repeat top left;
 	float: right;
-	width: 500px;
-	height: 250px;
-	margin-top: -50px;
-	padding: 80px;
+	width: 600px;
 }
 
 div.messages {

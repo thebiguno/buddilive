@@ -87,7 +87,6 @@ public class BuddiApplication extends Application{
 	private SqlSessionFactory sqlSessionFactory;
 	private final JsonFactory jsonFactory = new JsonFactory();
 	private ComboPooledDataSource ds;
-	private BuddiVerifier verifier = new BuddiVerifier();
 	private Properties systemProperties = new Properties();
 	private PasswordChecker passwordChecker = new PasswordChecker().setHistoryEnforced(false);
 	private Crypto crypto = new Crypto().setAlgorithm(Algorithm.AES_256).setSaltLength(32).setKeyIterations(1);
@@ -182,7 +181,7 @@ public class BuddiApplication extends Application{
 		final AuthenticationHelper authenticationHelper = new BuddiLiveAuthenticationHelper(this);
 		
 		authenticationHelper.getConfig().showCookieWarning = true;
-		authenticationHelper.getConfig().showForgotUsername = true;
+		authenticationHelper.getConfig().showForgotUsername = false;
 		authenticationHelper.getConfig().showForgotPassword = true;
 		authenticationHelper.getConfig().showRegister = true;
 		authenticationHelper.getConfig().showImpersonate = false;
@@ -289,6 +288,8 @@ public class BuddiApplication extends Application{
 		};
 		
 		final Router privateRouter = new Router(getContext());
+		
+		final BuddiVerifier verifier = new BuddiVerifier(authenticationHelper);
 		
 		final CookieAuthenticator privateAuth = new CookieAuthenticator(getContext(), false, authenticationHelper, verifier);
 		final CookieAuthenticator optionalAuth = new CookieAuthenticator(getContext(), true, authenticationHelper, verifier);;

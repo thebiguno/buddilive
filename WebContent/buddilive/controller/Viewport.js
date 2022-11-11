@@ -32,13 +32,7 @@ Ext.define("BuddiLive.controller.Viewport", {
 			"buddiviewport menuitem[itemId='gettingStarted']": {"click": this.gettingStarted},
 			"buddiviewport menuitem[itemId='donate']": {"click": this.donate},
 			"buddiviewport button[itemId='logout']": {"click": function(component){
-				Ext.Ajax.request({
-					"url": "index",
-					"method": "DELETE",
-					"success": function() {
-						window.location.reload();
-					}
-				});
+				window.location.href = "authentication/logout";
 			}}
 		});
 	},

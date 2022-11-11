@@ -40,11 +40,7 @@ public class IndexResource extends ServerResource {
 				//Check user's encryption level, and upgrade as needed
 				final int encryptionVersion = sqlSession.getMapper(Users.class).selectEncryptionVersion(user);
 
-				if (encryptionVersion == 0){
-					//Upgrade from 0 to latest
-					DataUpdater.upgradeEncryptionFrom0(user, sqlSession);
-				}
-				else if (encryptionVersion == 1){
+				if (encryptionVersion == 1){
 					//Upgrade from 1 to latest
 					DataUpdater.upgradeEncryptionFrom1(user, sqlSession);
 				}

@@ -80,6 +80,7 @@ public class UserPreferencesResource extends ServerResource {
 				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
 				user.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
 				user.setOverrideDateFormat(json.optString("dateFormat", null));
+				user.setTwoFactorRequiredForPassword(json.optBoolean("useTwoFactor", false));
 				//user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
 				user.setShowDeleted(json.optBoolean("showDeleted", true));
 				//user.setShowCleared(json.optBoolean("showCleared", false));

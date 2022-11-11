@@ -3,6 +3,7 @@ package ca.digitalcave.buddi.live.db;
 import org.apache.ibatis.annotations.Param;
 
 import ca.digitalcave.buddi.live.model.User;
+import ca.digitalcave.moss.restlet.model.AuthUser;
 
 
 public interface Users {
@@ -16,7 +17,7 @@ public interface Users {
 	public int updateUserLoginTime(@Param("user") User user);
 	public int updateUser(@Param("user") User user);
 	public int updateUserEncryptionKey(@Param("user") User user);
-	public int updateUserSecret(@Param("user") User user, @Param("hashedSecret") String hashedSecret);
+	public int updateUserSecret(@Param("user") AuthUser user, @Param("hashedSecret") String hashedSecret);
 	public int updateUserEncryptionVersion(@Param("user") User user, @Param("encryptionVersion") int encryptionVersion);
 	public int updateUserPremium(@Param("user") User user, @Param("premium") String premium);
 	

@@ -11,6 +11,7 @@
 			encryption_key encryptionKey,
 			email,
 			premium,
+			use_two_factor twoFactorRequiredForPassword,
 			locale,
 			currency,
 			override_date_format overrideDateFormat,
@@ -29,6 +30,7 @@
 			encryption_key encryptionKey,
 			email,
 			premium,
+			use_two_factor twoFactorRequiredForPassword,
 			locale,
 			currency,
 			override_date_format overrideDateFormat,
@@ -58,6 +60,7 @@
 				credentials,
 				uuid,
 				premium,
+				use_two_factor,
 				locale,
 				currency,
 				show_deleted,
@@ -71,6 +74,7 @@
 				#{user.identifier},
 				'',
 				#{user.uuid}, 
+				'N',
 				'N',
 				#{user.locale,javaType=java.util.Locale},
 				#{user.currency,javaType=java.util.Currency},
@@ -105,6 +109,7 @@
 			currency = #{user.currency,javaType=java.util.Currency},
 			override_date_format = #{user.overrideDateFormat,jdbcType=VARCHAR},
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			use_two_factor = <choose><when test="user.twoFactorRequiredForPassword == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
 	</update>

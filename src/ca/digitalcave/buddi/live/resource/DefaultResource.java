@@ -15,10 +15,10 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
+import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.restlet.model.AuthUser;
 import ca.digitalcave.moss.restlet.util.LocalizationUtil;
-import ca.digitalcave.moss.restlet.util.RequestUtil;
 import freemarker.template.Configuration;
 
 public class DefaultResource extends ServerResource {
@@ -30,7 +30,7 @@ public class DefaultResource extends ServerResource {
 	}
 	
 	public Representation get(Variant variant) throws ResourceException {
-		final String path = RequestUtil.getPath(getRequest());
+		final String path = new Reference(getRootRef(), getOriginalRef()).getRemainingPart(true, false);
 		
 		if (path.contains("WEB-INF")){
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
@@ -40,7 +40,7 @@ public class DefaultResource extends ServerResource {
 		
 		if (!forceDoNotModify && (variant.getMediaType().equals(MediaType.TEXT_HTML) || variant.getMediaType().equals(MediaType.APPLICATION_JAVASCRIPT))) {
 			final HashMap<String, Object> dataModel = new HashMap<String, Object>();
-			final AuthUser user = (AuthUser) getClientInfo().getUser();
+			final User user = (User) getClientInfo().getUser();
 			dataModel.put("user", user);
 			dataModel.put("requestAttributes", getRequestAttributes());
 			dataModel.put("translation", LocaleUtil.getTranslation(getRequest()));

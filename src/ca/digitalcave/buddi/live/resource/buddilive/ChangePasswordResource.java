@@ -44,9 +44,9 @@ public class ChangePasswordResource extends ServerResource {
 				final String currentPassword = json.getString("currentPassword");
 				final String newPassword = json.getString("newPassword");
 
-				if (DefaultHash.verify(user.getSecretString(), currentPassword)){
+				if (DefaultHash.verify(new String(user.getSecret()), currentPassword)){
 					if (application.getPasswordChecker().isValid("", newPassword)){	//We don't care about password history, so the identifier is not used.
-						user.setSecretString(new DefaultHash().generate(newPassword));
+						user.setSecret(new DefaultHash().generate(newPassword).toCharArray());
 						int count = sqlSession.getMapper(Users.class).updateUser(user);
 						if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 						if (user.isEncrypted()){
