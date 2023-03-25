@@ -47,6 +47,26 @@ Ext.define('BuddiLive.view.preferences.PreferencesEditor', {
 					},
 					{
 						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_USE_TWO_FACTOR")?json_string}",
+						"type": "checkbox",
+						"itemId": "useTwoFactor",
+						"fieldLabel": " ",
+						"labelSeparator": "",
+						"checked": d.useTwoFactor,
+						"boxLabel": "${translation("USE_TWO_FACTOR")?json_string}"
+					},
+					d.useTwoFactor ? {
+						"xtype": "selfdocumentingfield",
+						"messageBody": "${translation("HELP_REGENERATE_TWO_FACTOR_BACKUP")?json_string}",
+						"type": "button",
+						"itemId": "regenerateTwoFactorBackup",
+						"fieldLabel": " ",
+						"labelSeparator": "",
+						"checked": d.useTwoFactor,
+						"text": "${translation("REGENERATE_TWO_FACTOR_BACKUP")?json_string}"
+					} : { "xtype": "hidden" },
+					{
+						"xtype": "selfdocumentingfield",
 						"messageBody": "${translation("HELP_STORE_EMAIL")?json_string}",
 						"type": "checkbox",
 						"itemId": "storeEmail",

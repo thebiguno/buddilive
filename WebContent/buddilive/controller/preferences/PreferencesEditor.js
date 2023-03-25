@@ -11,8 +11,28 @@ Ext.define("BuddiLive.controller.preferences.PreferencesEditor", {
 
 	"init": function() {
 		this.control({
+			"preferenceseditor button[itemId='regenerateTwoFactorBackup']": { "click": this.regenerateTwoFactorBackup },
 			"preferenceseditor button[itemId='ok']": {"click": this.ok},
 			"preferenceseditor button[itemId='cancel']": {"click": this.cancel}
+		});
+	},
+	
+	"regenerateTwoFactorBackup": function(component){
+		Ext.Ajax.request({
+			"url": "data/userpreferences",
+			"headers": {
+				"Accept": "application/json"
+			},
+			"method": "POST",
+			"jsonData": {
+				"action": "invalidatetotpbackups"
+			},
+			"success": function(response){
+				window.location.reload();
+			},
+			"failure": function(response){
+				BuddiLive.app.error(response);
+			}
 		});
 	},
 	
@@ -37,6 +57,7 @@ Ext.define("BuddiLive.controller.preferences.PreferencesEditor", {
 		var request = {"action": "update"};
 		request.encrypt = window.down("checkbox[itemId='encrypt']").getValue();
 		request.encryptPassword = window.down("textfield[itemId='password']").getValue();
+		request.useTwoFactor = window.down("checkbox[itemId='useTwoFactor']").getValue();
 		request.storeEmail = window.down("checkbox[itemId='storeEmail']").getValue();
 		request.locale = window.down("combobox[itemId='locale']").getValue();
 		request.currency = window.down("combobox[itemId='currency']").getValue();
@@ -47,8 +68,7 @@ Ext.define("BuddiLive.controller.preferences.PreferencesEditor", {
 		var mask = new Ext.LoadMask({"msg": "${translation("PROCESSING")?json_string}", "target": window});
 		mask.show();
 		
-		var conn = new Ext.data.Connection();
-		conn.request({
+		Ext.Ajax.request({
 			"url": "data/userpreferences",
 			"headers": {
 				"Accept": "application/json"

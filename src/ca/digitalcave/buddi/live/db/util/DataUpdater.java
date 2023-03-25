@@ -467,60 +467,61 @@ public class DataUpdater {
 		}
 	}
 	
-	public static void upgradeEncryptionFrom0(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
-		if (!user.isEncrypted()) {
-			//If the account is not encrypted, there is nothing to be done; just update the encryption version number.
-			sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 2);
-			return;
-		}
-		
-		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
-		final String password = user.getPlaintextSecret();
-		final String oldEncryptionKey = user.getDecryptedEncryptionKey();
-		final SecretKey key = application.getCrypto().generateSecretKey();
-		final Crypto crypto = application.getCrypto();
-
-		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
-			a.setName(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, a.getName())));
-			a.setAccountType(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, a.getAccountType())));
-			sqlSession.getMapper(Sources.class).updateAccount(user, a);
-		}
-		for (Category c : sqlSession.getMapper(Sources.class).selectCategories(user)) {
-			c.setName(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, c.getName())));
-			sqlSession.getMapper(Sources.class).updateCategory(user, c);
-		}
-		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
-			t.setDescription(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, t.getDescription())));
-			t.setNumber(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, t.getNumber())));
-			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
-		}
-		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
-			if (s.getMemo() != null){
-				s.setMemo(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, s.getMemo())));
-				sqlSession.getMapper(Transactions.class).updateSplit(user, s);
-			}
-		}
-		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
-			//Some scheduled transaction fields can be corrupted in DB; ignore decryption errors
-			try { st.setScheduleName(Crypto.decrypt(oldEncryptionKey, st.getScheduleName())); } catch (CryptoException e){}
-			st.setScheduleName(crypto.encrypt(key, st.getScheduleName()));
-			st.setDescription(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, st.getDescription())));
-			st.setNumber(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, st.getNumber())));
-			try { st.setMessage(Crypto.decrypt(oldEncryptionKey, st.getMessage())); } catch (CryptoException e){}
-			crypto.encrypt(key, st.getMessage());
-			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
-			for (Split s : st.getSplits()) {
-				s.setMemo(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, s.getMemo())));
-				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, s);
-			}
-		}
-		
-		user.setEncryptionKey(application.getCrypto().encrypt(password, Crypto.encodeSecretKey(key)));
-		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
-		sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 1);
-		
-		upgradeEncryptionFrom1(user, sqlSession);
-	}
+	//We added encryption level 0 -> 1 in 2013.  If someone has not logged in since then, they no longer can.
+//	public static void upgradeEncryptionFrom0(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
+//		if (!user.isEncrypted()) {
+//			//If the account is not encrypted, there is nothing to be done; just update the encryption version number.
+//			sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 2);
+//			return;
+//		}
+//		
+//		final BuddiApplication application = (BuddiApplication) Application.getCurrent();
+//		final String password = user.getPlaintextSecret();
+//		final String oldEncryptionKey = user.getDecryptedEncryptionKey();
+//		final SecretKey key = application.getCrypto().generateSecretKey();
+//		final Crypto crypto = application.getCrypto();
+//
+//		for (Account a : sqlSession.getMapper(Sources.class).selectAccounts(user)) {
+//			a.setName(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, a.getName())));
+//			a.setAccountType(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, a.getAccountType())));
+//			sqlSession.getMapper(Sources.class).updateAccount(user, a);
+//		}
+//		for (Category c : sqlSession.getMapper(Sources.class).selectCategories(user)) {
+//			c.setName(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, c.getName())));
+//			sqlSession.getMapper(Sources.class).updateCategory(user, c);
+//		}
+//		for (Transaction t : sqlSession.getMapper(Transactions.class).selectTransactions(user)){
+//			t.setDescription(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, t.getDescription())));
+//			t.setNumber(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, t.getNumber())));
+//			sqlSession.getMapper(Transactions.class).updateTransaction(user, t);
+//		}
+//		for (Split s : sqlSession.getMapper(Transactions.class).selectSplits(user)){
+//			if (s.getMemo() != null){
+//				s.setMemo(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, s.getMemo())));
+//				sqlSession.getMapper(Transactions.class).updateSplit(user, s);
+//			}
+//		}
+//		for (ScheduledTransaction st : sqlSession.getMapper(ScheduledTransactions.class).selectScheduledTransactions(user)){
+//			//Some scheduled transaction fields can be corrupted in DB; ignore decryption errors
+//			try { st.setScheduleName(Crypto.decrypt(oldEncryptionKey, st.getScheduleName())); } catch (CryptoException e){}
+//			st.setScheduleName(crypto.encrypt(key, st.getScheduleName()));
+//			st.setDescription(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, st.getDescription())));
+//			st.setNumber(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, st.getNumber())));
+//			try { st.setMessage(Crypto.decrypt(oldEncryptionKey, st.getMessage())); } catch (CryptoException e){}
+//			crypto.encrypt(key, st.getMessage());
+//			sqlSession.getMapper(ScheduledTransactions.class).updateScheduledTransaction(user, st);
+//			for (Split s : st.getSplits()) {
+//				s.setMemo(crypto.encrypt(key, Crypto.decrypt(oldEncryptionKey, s.getMemo())));
+//				sqlSession.getMapper(ScheduledTransactions.class).updateScheduledSplit(user, s);
+//			}
+//		}
+//		
+//		user.setEncryptionKey(application.getCrypto().encrypt(password, Crypto.encodeSecretKey(key)));
+//		sqlSession.getMapper(Users.class).updateUserEncryptionKey(user);
+//		sqlSession.getMapper(Users.class).updateUserEncryptionVersion(user, 1);
+//		
+//		upgradeEncryptionFrom1(user, sqlSession);
+//	}
 	
 	public static void upgradeEncryptionFrom1(User user, SqlSession sqlSession) throws DatabaseException, CryptoException {
 		if (!user.isEncrypted()) {

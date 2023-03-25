@@ -14,18 +14,24 @@
 		<script type="text/javascript" src="buddilive/Application.js"></script>
 	<#if newUser??>
 		<script type="text/javascript">
-			Ext.defer(function(){
-				Ext.MessageBox.show({
-					"title": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
-					"msg": "${translation("HELP_GETTING_STARTED")?json_string}",
-					"buttons": Ext.Msg.OK
-				});
-			}, 500);
+			var newUserMessage = function(){
+				if (Ext.MessageBox){
+					Ext.MessageBox.show({
+						"title": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
+						"msg": "${translation("HELP_GETTING_STARTED")?json_string}",
+						"buttons": Ext.Msg.OK
+					});
+				}
+				else {
+					Ext.defer(newUserMessage, 500);
+				}
+			};
+			Ext.defer(newUserMessage, 500);
 		</script>
 	</#if>
 <#else>
 		<link href="css/login.css" rel="stylesheet" />
-		<script type="text/javascript" src="login/app/Application.js"></script>
+		<script type="text/javascript" src="authentication/app/Application.js"></script>
 </#if>
 	</head>
 	<body>

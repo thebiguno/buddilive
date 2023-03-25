@@ -3,40 +3,69 @@
 <mapper namespace="ca.digitalcave.buddi.live.db.Users">
 	<cache readOnly="true"/>
 	
-	<select id="selectUser" resultType="ca.digitalcave.buddi.live.model.User">
+	<resultMap type="ca.digitalcave.buddi.live.model.User" id="User">
+		<id column="id" property="id"/>
+		<result column="identifier" property="identifier"/>
+		<result column="credentials" property="secretString"/>
+		<result column="encryption_key" property="encryptionKey"/>
+		<result column="email" property="email"/>
+		<result column="premium" property="premium"/>
+		<result column="use_two_factor" property="twoFactorRequired"/>
+		<result column="totp_secret" property="twoFactorSecret"/>
+		<result column="locale" property="locale"/>
+		<result column="currency" property="currency"/>
+		<result column="override_date_format" property="overrideDateFormat"/>
+		<result column="show_deleted" property="showDeleted"/>
+		<result column="created" property="created"/>
+		<result column="modified" property="modified"/>
+		
+		<collection property="twoFactorBackupCodes" javaType="list" ofType="string">
+			<id column="totp_backup"/>
+		</collection>
+	</resultMap>
+	
+	<select id="selectUser" resultMap="User">
 		SELECT 
 			id,
 			identifier,
-			credentials AS secretString,
-			encryption_key encryptionKey,
+			credentials,
+			encryption_key,
 			email,
 			premium,
+			use_two_factor,
+			totp_secret,
 			locale,
 			currency,
-			override_date_format overrideDateFormat,
-			show_deleted showDeleted,
-			created,
-			modified
+			override_date_format,
+			show_deleted,
+			users.created created,
+			modified,
+			totp_backup
 		FROM users 
+		LEFT JOIN user_totp_backups ON user_totp_backups.user_id = users.id AND user_totp_backups.used IS NULL
 		WHERE identifier = #{identifier}
 	</select>
 	
-	<select id="selectUserByActivationKey" resultType="ca.digitalcave.buddi.live.model.User">
+	<select id="selectUserByActivationKey" resultMap="User">
 		SELECT 
 			id,
 			identifier,
-			credentials AS secretString,
-			encryption_key encryptionKey,
+			credentials,
+			encryption_key,
 			email,
 			premium,
+			use_two_factor,
+			totp_secret,
 			locale,
 			currency,
-			override_date_format overrideDateFormat,
-			show_deleted showDeleted,
-			users.created,
-			modified
+			override_date_format,
+			show_deleted,
+			users.created created,
+			modified,
+			totp_backup
 		FROM users
 		LEFT JOIN user_activations ON user_activations.user_id = users.id
+		LEFT JOIN user_totp_backups ON user_totp_backups.user_id = users.id AND user_totp_backups.used IS NULL
 		WHERE user_activations.activation_key = #{activationKey}
 	</select>
 	
@@ -58,6 +87,7 @@
 				credentials,
 				uuid,
 				premium,
+				use_two_factor,
 				locale,
 				currency,
 				show_deleted,
@@ -71,6 +101,7 @@
 				#{user.identifier},
 				'',
 				#{user.uuid}, 
+				'N',
 				'N',
 				#{user.locale,javaType=java.util.Locale},
 				#{user.currency,javaType=java.util.Currency},
@@ -96,6 +127,19 @@
 			)
 	</insert>
 	
+	<insert id="insertTotpBackupCode">
+		INSERT INTO user_totp_backups (
+			user_id,
+			totp_backup,
+			created
+		)
+		VALUES (
+			#{user.id},
+			#{backupCode},
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+	
 	<update id="updateUser">
 		UPDATE users
 		SET
@@ -105,6 +149,7 @@
 			currency = #{user.currency,javaType=java.util.Currency},
 			override_date_format = #{user.overrideDateFormat,jdbcType=VARCHAR},
 			show_deleted = <choose><when test="user.showDeleted == true">'Y'</when><otherwise>'N'</otherwise></choose>,
+			use_two_factor = <choose><when test="user.twoFactorRequired == true">'Y'</when><otherwise>'N'</otherwise></choose>,
 			modified = CURRENT_TIMESTAMP
 		WHERE identifier = #{user.identifier}
 	</update>
@@ -113,6 +158,14 @@
 		UPDATE users
 		SET
 			credentials = #{hashedSecret},
+			modified = CURRENT_TIMESTAMP
+		WHERE id = #{user.id}
+	</update>
+	
+	<update id="updateUserTotpSecret">
+		UPDATE users
+		SET
+			totp_secret = #{totpSecret},
 			modified = CURRENT_TIMESTAMP
 		WHERE id = #{user.id}
 	</update>
@@ -148,6 +201,13 @@
 		WHERE identifier = #{user.identifier}
 	</update>
 	
+	<update id="updateUserTotpBackupCodeUsed">
+		UPDATE user_totp_backups
+		SET used = CURRENT_TIMESTAMP
+		WHERE user_id = #{user.id} 
+			AND totp_backup = #{backupCode} 
+	</update>
+	
 	<delete id="deleteUser">
 		DELETE FROM users
 		WHERE identifier = #{user.identifier}
@@ -168,5 +228,12 @@
 			last_login IS NULL
 			AND credentials = ''
 			AND id NOT IN (SELECT user_id from user_activations)
+	</delete>
+	
+	<delete id="deleteUnusedBackupCodes">
+		DELETE FROM user_totp_backups
+		WHERE
+			user_id = #{user.id}
+			AND used IS NULL
 	</delete>
 </mapper>

@@ -2,7 +2,7 @@ Ext.Loader.setConfig({
 	"enabled": true,
 	"disableCaching": true,
 	"paths": {
-		"Login": "login"
+		"Login": "authentication"
 	}
 });
 
@@ -28,7 +28,6 @@ Ext.application({
 		"scheduled.List",
 		"preferences.PreferencesEditor",
 		"preferences.ChangePasswordEditor",
-		"Login.controller.PasswordFieldController",
 		"restore.Form",
 		"transaction.List",
 		"transaction.Editor",

@@ -27,7 +27,8 @@ import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
-import ca.digitalcave.moss.crypto.MossHash;
+import ca.digitalcave.moss.crypto.DefaultHash;
+import ca.digitalcave.moss.restlet.CookieAuthenticator;
 
 public class UserPreferencesResource extends ServerResource {
 
@@ -46,6 +47,7 @@ public class UserPreferencesResource extends ServerResource {
 			result.put("locale", user.getLocale().toString());
 			result.put("currency", user.getCurrency().getCurrencyCode());
 			result.put("dateFormat", user.getOverrideDateFormat());
+			result.put("useTwoFactor", user.isTwoFactorRequired());
 			//result.put("currencyAfter", user.isCurrencyAfter());
 			result.put("showDeleted", user.isShowDeleted());
 //			result.put("showCleared", user.isShowCleared());
@@ -71,7 +73,7 @@ public class UserPreferencesResource extends ServerResource {
 				if (json.optBoolean("encrypt", false) != user.isEncrypted()){
 					//First check that the password is correct
 					final String encryptPassword = json.getString("encryptPassword");
-					if (!MossHash.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
+					if (!DefaultHash.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
 
 					if (user.isEncrypted()) DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, sqlSession);
@@ -80,6 +82,7 @@ public class UserPreferencesResource extends ServerResource {
 				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
 				user.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
 				user.setOverrideDateFormat(json.optString("dateFormat", null));
+				user.setTwoFactorRequired(json.optBoolean("useTwoFactor", false));
 				//user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
 				user.setShowDeleted(json.optBoolean("showDeleted", true));
 				//user.setShowCleared(json.optBoolean("showCleared", false));
@@ -90,7 +93,16 @@ public class UserPreferencesResource extends ServerResource {
 				int count = sqlSession.getMapper(Users.class).updateUser(user);
 				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 
+				//If the user does not have two factor enabled, delete the secret.
+				if (!user.isTwoFactorRequired()) {
+					CookieAuthenticator.setTwoFactorInvalid(getRequest(), getResponse());
+					sqlSession.getMapper(Users.class).updateUserTotpSecret(user, null);
+				}
+
 				DataUpdater.updateBalances(user, sqlSession);
+			}
+			else if ("invalidatetotpbackups".equals(action)){
+				sqlSession.getMapper(Users.class).deleteUnusedBackupCodes(user);
 			}
 			else if ("delete".equals(action)){
 				//Everything in the system will cascade from sources, transactions, and users

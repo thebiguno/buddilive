@@ -14,13 +14,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import ca.digitalcave.moss.crypto.Crypto;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
+import ca.digitalcave.moss.restlet.model.AuthUser;
 
-public class User extends org.restlet.security.User {
-	private Integer id;
+public class User extends AuthUser {
+	private static final long serialVersionUID = 1L;
+	
 	private String plaintextIdentifier;	//Not persisted, injected by BuddiVerifier
 	private String plaintextSecret;	//Not persisted, injected by BuddiVerifier
 	private String encryptionKey;
-	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier; deprecated.  Once all users are off of encryption version 1, we can delete this.
+//	private String decryptedEncryptionKey;	//Not persisted, injected by BuddiVerifier; deprecated.  Once all users are off of encryption version 1, we can delete this.
 	private SecretKey decryptedSecretKey;	//Not persisted, injected by BuddiVerifier
 	private String uuid;
 	private Boolean premium = false;
@@ -33,17 +35,17 @@ public class User extends org.restlet.security.User {
 	private Date created;
 	private Date modified;
 
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
 	public String getUuid() {
 		return uuid;
 	}
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+	public void setSecretString(String secret) {
+		setSecret(secret == null ? null : secret.toCharArray());
+	}
+	public String getSecretString() {
+		return getSecret() == null ? null : new String(getSecret());
 	}
 	public String getPlaintextIdentifier() {
 		return plaintextIdentifier;
@@ -57,26 +59,20 @@ public class User extends org.restlet.security.User {
 	public void setPlaintextSecret(String plaintextSecret) {
 		this.plaintextSecret = plaintextSecret;
 	}
-	public void setSecretString(String secret) {
-		setSecret(secret == null ? null : secret.toCharArray());
-	}
-	public String getSecretString() {
-		return getSecret() == null ? null : new String(getSecret());
-	}
 	public String getEncryptionKey() {
 		return encryptionKey;
 	}
 	public void setEncryptionKey(String encryptionKey) {
 		this.encryptionKey = encryptionKey;
-		decryptedEncryptionKey = null;
+//		decryptedEncryptionKey = null;
 		decryptedSecretKey = null;
 	}
-	public String getDecryptedEncryptionKey() throws CryptoException {
-		if (decryptedEncryptionKey == null && isEncrypted()) {
-			decryptedEncryptionKey = Crypto.decrypt(plaintextSecret, encryptionKey);
-		}
-		return decryptedEncryptionKey;
-	}
+//	public String getDecryptedEncryptionKey() throws CryptoException {
+//		if (decryptedEncryptionKey == null && isEncrypted()) {
+//			decryptedEncryptionKey = Crypto.decrypt(plaintextSecret, encryptionKey);
+//		}
+//		return decryptedEncryptionKey;
+//	}
 	public SecretKey getDecryptedSecretKey() throws CryptoException {
 		if (decryptedSecretKey == null && isEncrypted()){
 			decryptedSecretKey = Crypto.recoverSecretKey(Crypto.decrypt(plaintextSecret, encryptionKey));
