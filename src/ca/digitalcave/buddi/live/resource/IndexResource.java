@@ -21,7 +21,6 @@ import ca.digitalcave.buddi.live.model.Account;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
-import ca.digitalcave.moss.restlet.model.AuthUser;
 
 public class IndexResource extends ServerResource {
 
@@ -62,7 +61,8 @@ public class IndexResource extends ServerResource {
 			sqlSession.close();
 		}
 		
-		if (getClientInfo().getUser() != null && ((AuthUser) getClientInfo().getUser()).getTwoFactorBackupCodes().size() > 0) {
+		final User user = (User) getClientInfo().getUser();
+		if (getClientInfo().getUser() != null && (!user.isTwoFactorRequired() || user.getTwoFactorBackupCodes().size() > 0)) {
 			dataModel.put("user", getClientInfo().getUser());
 		}
 		dataModel.put("requestAttributes", getRequestAttributes());
