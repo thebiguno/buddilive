@@ -74,7 +74,6 @@ public class TransactionsResource extends ServerResource {
 											&& !number.toLowerCase(user.getLocale()).contains(search)){
 										boolean match = false;
 										for (Split s : t.getSplits()) {
-											System.out.println(search + ": '" + CryptoUtil.decryptWrapper(s.getMemo(), user).toLowerCase(user.getLocale()) + "': " + search.contains(CryptoUtil.decryptWrapper(s.getMemo(), user).toLowerCase(user.getLocale())));
 											if (CryptoUtil.decryptWrapper(s.getMemo(), user).toLowerCase(user.getLocale()).contains(search)){
 												match = true;
 												break;
