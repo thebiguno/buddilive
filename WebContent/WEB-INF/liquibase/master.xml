@@ -210,4 +210,20 @@
 		<sql>ALTER TABLE users ADD CONSTRAINT cc_users_usetwofactor CHECK (use_two_factor IN ('Y', 'N'))</sql>
 	</changeSet>
 
+	<changeSet id="add two factor secret to user" author="wyatt">
+		<addColumn tableName="users">
+			<column name="totp_secret" type="varchar(64)"/>
+		</addColumn>
+	</changeSet>
+	
+	<changeSet id="create user_totp_backups" author="wyatt">
+		<createTable tableName="user_totp_backups">
+			<column name="user_id" type="int"><constraints  nullable="false"/></column>
+			<column name="totp_backup" type="varchar(36)" remarks=""></column>
+			<column name="created" type="timestamp" remarks="Time at which the backup code was generated."><constraints nullable="false"/></column>
+			<column name="used" type="timestamp" remarks="Time at which the backup code was used.  Backup codes cn only be used once."></column>
+		</createTable>
+		
+		<addForeignKeyConstraint constraintName="fk_users_totp_backups" referencedTableName="users" referencedColumnNames="id" baseTableName="user_totp_backups" baseColumnNames="user_id" onDelete="CASCADE"/>
+	</changeSet>
 </databaseChangeLog>

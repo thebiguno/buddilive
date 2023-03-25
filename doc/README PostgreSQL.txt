@@ -10,4 +10,6 @@ To install Postgres for Buddi Live on a Debian system (as root):
 	CREATE USER buddilive WITH PASSWORD 'password';
 	CREATE DATABASE buddilive ENCODING 'UTF8';
 	GRANT ALL PRIVILEGES ON DATABASE buddilive to buddilive;
+	ALTER DATABASE buddilive OWNER TO buddilive;
+	GRANT USAGE, CREATE ON SCHEMA PUBLIC TO buddilive;
 	Ctrl-D

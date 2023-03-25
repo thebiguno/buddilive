@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 import javax.mail.internet.AddressException;
 
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.ibatis.session.SqlSession;
@@ -118,7 +119,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 	public AuthUser selectUser(String username) {
 		final SqlSession sql = application.getSqlSessionFactory().openSession();
 		try {
-			User user = sql.getMapper(Users.class).selectUser(new DefaultHash().setSaltLength(0).setIterations(1).generate(username));
+			User user = sql.getMapper(Users.class).selectUser(getHashedUsername(username));
 			
 			sql.commit(true);
 			
@@ -134,16 +135,92 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		throw new RuntimeException("Forgot Username not implemented");
 	}
 
+	public boolean insertTotpSecret(String username, String totpSharedSecret, ChallengeResponse cr){
+		final SqlSession sql = application.getSqlSessionFactory().openSession();
+		try {
+			final User user = sql.getMapper(Users.class).selectUser(getHashedUsername(username));
+			if (user != null) {
+				sql.getMapper(Users.class).deleteUnusedBackupCodes(user);
+				int count = sql.getMapper(Users.class).updateUserTotpSecret(user, totpSharedSecret);
+				if (count == 1) {
+					sql.commit(true);
+					return true;
+				}
+			}
+
+			sql.rollback(true);
+			return false;
+		}
+		finally {
+			sql.close();
+		}
+	}
+
 	@Override
 	public void insertTotpBackupCodes(String username, ChallengeResponse cr) {
-		// TODO Auto-generated method stub
-		
+		final SqlSession sql = application.getSqlSessionFactory().openSession();
+		try {
+			final User user = sql.getMapper(Users.class).selectUser(getHashedUsername(username));
+			if (user != null) {
+				sql.getMapper(Users.class).deleteUnusedBackupCodes(user);
+				for (int i = 0; i < 10; i++) {
+					final String backupCode = UUID.randomUUID().toString();
+					sql.getMapper(Users.class).insertTotpBackupCode(user, backupCode);
+				}
+				
+				sql.commit(true);
+				return;
+			}
+			
+			sql.rollback(true);
+		}
+		finally {
+			sql.close();
+		}
 	}
 
 	@Override
 	public void updateTotpBackupCodeMarkUsed(String username, String backupCode, ChallengeResponse cr) {
-		// TODO Auto-generated method stub
-		
+		final SqlSession sql = application.getSqlSessionFactory().openSession();
+		try {
+			final User user = sql.getMapper(Users.class).selectUser(getHashedUsername(username));
+			if (user != null) {
+				int count = sql.getMapper(Users.class).updateUserTotpBackupCodeUsed(user, backupCode);
+				if (count == 1) {
+					sql.commit(true);
+					return;
+				}
+			}
+			
+			sql.rollback(true);
+		}
+		finally {
+			sql.close();
+		}
+	}
+	
+	@Override
+	public void disableTotp(String username) {
+		final SqlSession sql = application.getSqlSessionFactory().openSession();
+		try {
+			final User user = sql.getMapper(Users.class).selectUser(getHashedUsername(username));
+			if (user != null && StringUtils.isBlank(user.getTwoFactorSecret())) {
+				user.setTwoFactorRequired(false);
+				int count = sql.getMapper(Users.class).updateUser(user);
+				if (count == 1) {
+					sql.getMapper(Users.class).updateUserTotpSecret(user, null);
+					sql.getMapper(Users.class).deleteUnusedBackupCodes(user);
+					
+					sql.commit(true);
+					return;
+				}
+			}
+			
+			sql.rollback(true);
+		}
+		finally {
+			sql.close();
+		}
 	}
 
 	@Override
@@ -151,7 +228,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		final BuddiApplication application = (BuddiApplication) getApplication();
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession();
 		try {
-			final String hashedIdentifier = new DefaultHash().setSaltLength(0).setIterations(1).generate(username);
+			final String hashedIdentifier = getHashedUsername(username);
 			final User user = sqlSession.getMapper(Users.class).selectUser(hashedIdentifier);
 			if (user == null) throw new DatabaseException("Could not find user with hashed identifier" + hashedIdentifier);
 			if (user.isEncrypted()) throw new DatabaseException("Users with encrypted data cannot reset passwords.");
@@ -211,7 +288,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 			}
 			
 			final User newUser = new User();
-			newUser.setIdentifier(new DefaultHash().setSaltLength(0).setIterations(1).generate(email));	//This is a simple SHA-256 hash of the username.  We store username hashed in the DB for extra privacy.
+			newUser.setIdentifier(getHashedUsername(email));	//This is a simple SHA-256 hash of the username.  We store username hashed in the DB for extra privacy.
 			newUser.setUuid(UUID.randomUUID().toString());
 			newUser.setCurrency(Currency.getInstance(form.getFirstValue("currency", "USD")));
 			newUser.setLocale(LocaleUtils.toLocale(form.getFirstValue("locale", "en_US")));
@@ -314,5 +391,9 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 	@Override
 	public Hash getHash() {
 		return new DefaultHash().setAlgorithm("SHA-512").setIterations(20000).setSaltLength(96);
+	}
+	
+	private String getHashedUsername(String username) {
+		return new DefaultHash().setSaltLength(0).setIterations(1).generate(username);
 	}
 }
