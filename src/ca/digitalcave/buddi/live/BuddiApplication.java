@@ -19,8 +19,6 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.Language;
@@ -32,6 +30,8 @@ import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import ca.digitalcave.buddi.live.db.handler.BooleanHandler;
@@ -198,7 +198,7 @@ public class BuddiApplication extends Application{
 			@Override
 			public void writeFields(Writer out, ResourceBundle translation) {
 				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					final JsonGenerator generator = application.getJsonFactory().createGenerator(out);
 					generator.writeStartObject();
 					generator.writeStringField("xtype", "selfdocumentingfield");
 					generator.writeStringField("messageBody", translation.getString("HELP_LOCALE"));
@@ -242,7 +242,7 @@ public class BuddiApplication extends Application{
 			@Override
 			public void writeFields(Writer out, ResourceBundle translation) {
 				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					final JsonGenerator generator = application.getJsonFactory().createGenerator(out);
 					generator.writeStartObject();
 					generator.writeStringField("xtype", "label");
 					generator.writeStringField("html", translation.getString("HELP_REGISTER_2"));
@@ -258,7 +258,7 @@ public class BuddiApplication extends Application{
 			@Override
 			public void writeFields(Writer out, ResourceBundle translation) {
 				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					final JsonGenerator generator = application.getJsonFactory().createGenerator(out);
 					generator.writeStartObject();
 					generator.writeStringField("xtype", "label");
 					generator.writeStringField("html", translation.getString("HELP_RESET_PASSWORD"));
@@ -274,7 +274,7 @@ public class BuddiApplication extends Application{
 			@Override
 			public void writeFields(Writer out, ResourceBundle translation) {
 				try {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(out);
+					final JsonGenerator generator = application.getJsonFactory().createGenerator(out);
 					generator.writeStartObject();
 					generator.writeStringField("xtype", "label");
 					generator.writeStringField("html", translation.getString("HELP_RESET_PASSWORD_2"));

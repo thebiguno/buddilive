@@ -2,12 +2,12 @@ package ca.digitalcave.buddi.live.db.liquibase;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +21,9 @@ import liquibase.LabelExpression;
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.ValidationFailedException;
-import liquibase.resource.ResourceAccessor;
+import liquibase.resource.AbstractResource;
+import liquibase.resource.AbstractResourceAccessor;
+import liquibase.resource.Resource;
 
 public class Migration {
 
@@ -32,40 +34,72 @@ public class Migration {
 			final Liquibase liquibase = new Liquibase("liquibase/master.xml", new ContextResourceAccessor(context), new JdbcConnection(conn));
 			try {
 				liquibase.update(new Contexts(), new LabelExpression());
-			} catch (ValidationFailedException e) {
+			}
+			catch (ValidationFailedException e) {
 				Logger.getLogger(Migration.class.getName()).log(Level.INFO, "Validation Failed", e);
 			}
-		} finally {
+			finally {
+				liquibase.close();
+			}
+		}
+		finally {
 			sqlSession.close();
 		}
 	}
 	
-	static class ContextResourceAccessor implements ResourceAccessor {
+	static class ContextResourceAccessor extends AbstractResourceAccessor {
 		private final Context context;
 		public ContextResourceAccessor(Context context) {
 			this.context = context;
 		}
-		
-		public ClassLoader toClassLoader() {
-			return Migration.class.getClassLoader();
+		@Override
+		public void close() throws Exception {
+			;
 		}
-		
-		public Enumeration<URL> getResources(String name) throws IOException {
-			return toClassLoader().getResources(name);
+		@Override
+		public List<String> describeLocations() {
+			return new ArrayList<String>();
 		}
-		
-		public InputStream getResourceAsStream(String name) throws IOException {
-			return new ClientResource(context, "war:///WEB-INF/" + name).get().getStream();
+		@Override
+		public List<Resource> getAll(String path) throws IOException {
+			try {
+				return Collections.singletonList(new ContextPathResource(path, new URI("war:///WEB-INF/"), context));
+			}
+			catch (URISyntaxException e) {
+				throw new IOException(e);
+			}
+		}
+		@Override
+		public List<Resource> search(String path, boolean recursive) throws IOException {
+			return null;
+		}
+	}
+	
+	static class ContextPathResource extends AbstractResource {
+		private final Context context;
+		public ContextPathResource(String path, URI uri, Context context) {
+			super(path, uri);
+			this.context = context;
 		}
 		
 		@Override
-		public Set<InputStream> getResourcesAsStream(String name) throws IOException {
-			return new HashSet<InputStream>(Collections.singletonList(new ClientResource(context, "war:///WEB-INF/" + name).get().getStream()));
+		public boolean exists() {
+			return new ClientResource(context, "war:///WEB-INF/" + getPath()).get() != null;
 		}
-		
+
 		@Override
-		public Set<String> list(String arg0, String arg1, boolean arg2, boolean arg3, boolean arg4) throws IOException {
-			throw new RuntimeException("Not implemented");
+		public InputStream openInputStream() throws IOException {
+			return new ClientResource(context, "war:///WEB-INF/" + getPath()).get().getStream();
 		}
-	};
+
+		@Override
+		public Resource resolve(String arg0) {
+			return null;
+		}
+
+		@Override
+		public Resource resolveSibling(String arg0) {
+			return null;
+		}
+	}
 }

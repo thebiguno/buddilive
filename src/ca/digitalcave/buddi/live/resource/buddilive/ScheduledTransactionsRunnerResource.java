@@ -3,8 +3,6 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 import java.util.Date;
 
 import org.apache.ibatis.session.SqlSession;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -20,6 +18,7 @@ import ca.digitalcave.buddi.live.db.util.DataUpdater;
 import ca.digitalcave.buddi.live.db.util.DatabaseException;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.moss.common.DateUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class ScheduledTransactionsRunnerResource extends ServerResource {
@@ -40,8 +39,13 @@ public class ScheduledTransactionsRunnerResource extends ServerResource {
 				//Grab the date passed in, to be used for running scheduled transactions.  If it is 
 				// not set or is invalid (more than 1 day off of server time), use server time.
 				Date userDate = null;
-				try { userDate = FormatUtil.parseDateInternal(entity.getText()); } catch (Throwable e){}
-				if (userDate == null || Days.daysBetween(new DateTime(), new DateTime(userDate)).size() > 1) {
+				try {
+					userDate = FormatUtil.parseDateInternal(entity.getText());
+				}
+				catch (Throwable e){
+					;
+				}
+				if (userDate == null || Math.abs(DateUtil.getDaysBetween(new Date(), userDate, true)) > 1) {
 					userDate = new Date();
 				}
 				

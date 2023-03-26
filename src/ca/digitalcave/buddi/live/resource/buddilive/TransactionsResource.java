@@ -8,8 +8,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -20,6 +18,9 @@ import org.restlet.representation.Variant;
 import org.restlet.representation.WriterRepresentation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
@@ -50,7 +51,7 @@ public class TransactionsResource extends ServerResource {
 
 		final WriterRepresentation result = new WriterRepresentation(MediaType.APPLICATION_JSON) {
 			public void write(Writer writer) throws IOException {
-				final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(writer);
+				final JsonGenerator generator = application.getJsonFactory().createGenerator(writer);
 				final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 				try {
 					final Source source = sqlSession.getMapper(Sources.class).selectSource(user, Integer.parseInt(getQuery().getFirstValue("source")));
@@ -62,8 +63,8 @@ public class TransactionsResource extends ServerResource {
 					final int limit = Integer.parseInt(getQuery().getFirstValue("limit"));
 					final MutableInt total = new MutableInt(0);
 					final MutableInt count = new MutableInt(0);
-					sqlSession.getMapper(Transactions.class).selectTransactions(user, source, new ResultHandler() {
-						public void handleResult(ResultContext context) {
+					sqlSession.getMapper(Transactions.class).selectTransactions(user, source, new ResultHandler<Transaction>() {
+						public void handleResult(ResultContext<? extends Transaction> context) {
 							Transaction t = (Transaction) context.getResultObject();
 							try {
 								final String description = CryptoUtil.decryptWrapper(t.getDescription(), user);

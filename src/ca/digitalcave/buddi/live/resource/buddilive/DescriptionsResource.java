@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
-import org.codehaus.jackson.JsonGenerator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -20,6 +19,8 @@ import org.restlet.representation.Variant;
 import org.restlet.representation.WriterRepresentation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
+
+import com.fasterxml.jackson.core.JsonGenerator;
 
 import ca.digitalcave.buddi.live.BuddiApplication;
 import ca.digitalcave.buddi.live.db.Sources;
@@ -59,7 +60,7 @@ public class DescriptionsResource extends ServerResource {
 			return new WriterRepresentation(MediaType.APPLICATION_JSON) {
 				@Override
 				public void write(Writer writer) throws IOException {
-					final JsonGenerator generator = application.getJsonFactory().createJsonGenerator(writer);
+					final JsonGenerator generator = application.getJsonFactory().createGenerator(writer);
 					try {
 						generator.writeStartObject();
 						generator.writeBooleanField("success", true);
