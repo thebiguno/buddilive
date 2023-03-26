@@ -6,36 +6,40 @@ Ext.define('BuddiLive.view.account.Tree', {
 		"BuddiLive.view.account.Editor"
 	],
 	
-	"initComponent": function(){
-		this.rootVisible = false;
-		this.border = false;
-		this.store = Ext.create("BuddiLive.store.account.TreeStore");
-		this.viewConfig = {
-			"stripeRows": true
-		};
-		
-		this.columns = [
-			{
-				"text": "Name",
-				"dataIndex": "name",
-				"flex": 3,
-				"xtype": "treecolumn",
-				"renderer": function(value, metaData, record){
-					metaData.style = record.data.style;
-					return value;
-				}
-			},
-			{
-				"text": "Balance",
-				"dataIndex": "balance",
-				"flex": 1,
-				"align": "right",
-				"renderer": function(value, metaData, record){
-					metaData.style = record.data.balanceStyle 
-					return value;
-				}
+	"rootVisible": false,
+	"border": false,
+	"viewConfig": {
+		"stripeRows": true
+	},
+	
+	"columns": [
+		{
+			"text": "Name",
+			"dataIndex": "name",
+			"flex": 3,
+			"sortable": false,
+			"xtype": "treecolumn",
+			"renderer": function(value, metaData, record){
+				metaData.style = record.data.style;
+				return value;
 			}
-		];
+		},
+		{
+			"text": "Balance",
+			"dataIndex": "balance",
+			"flex": 1,
+			"sortable": false,
+			"hideable": false,
+			"align": "right",
+			"renderer": function(value, metaData, record){
+				metaData.style = record.data.balanceStyle 
+				return value;
+			}
+		}
+	],
+	
+	"initComponent": function(){
+		this.store = Ext.create("BuddiLive.store.account.TreeStore");
 	
 		this.callParent(arguments);
 	}
