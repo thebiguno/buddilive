@@ -7,7 +7,6 @@ Ext.define('BuddiLive.view.budget.Tree', {
 	
 	"rootVisible": false,
 	"border": false,
-	"stateful": true,
 	"flex": 1,
 	"width": "100%",
 	"viewConfig": {
