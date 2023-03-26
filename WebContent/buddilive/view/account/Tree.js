@@ -7,6 +7,8 @@ Ext.define('BuddiLive.view.account.Tree', {
 	],
 	
 	"rootVisible": false,
+	"stateful": true,
+	"stateId": "accounttree",
 	"border": false,
 	"viewConfig": {
 		"stripeRows": true

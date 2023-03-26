@@ -13,11 +13,13 @@ Ext.define("BuddiLive.view.Viewport", {
 		"BuddiLive.view.scheduled.List",
 		"BuddiLive.view.transaction.List",
 		"BuddiLive.view.transaction.Editor"
-	],	
+	],
+		
+	"layout": "border",
+	"height": "100%",
+	"width": "100%",
+	
 	"initComponent": function() {
-		this.layout = "border";
-		this.height = "100%";
-		this.width = "100%";
 		
 		this.items = [
 			{

@@ -75,6 +75,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"dataIndex": "name",
 				"flex": 2,
 				"xtype": "treecolumn",
+				"sortable": false,
+				"hideable": false,
 				"renderer": function(value, metaData, record){
 					metaData.style = record.data.nameStyle;
 					return value;
@@ -85,12 +87,16 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"dataIndex": "previous",
 				"flex": 1,
 				"align": "right",
+				"sortable": false,
+				"hideable": false,
 				"renderer": styledRenderer
 			},
 			{
 				"text": "${translation("CURRENT")?json_string}",
 				"dataIndex": "current",
 				"flex": 1,
+				"sortable": false,
+				"hideable": false,
 				"align": "right",
 				"editor": {
 					"xtype": "currencyfield",
@@ -114,6 +120,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"text": "${translation("ACTUAL_INCOME_EXPENSES")?json_string}",
 				"dataIndex": "actual",
 				"flex": 1,
+				"sortable": false,
+				"hideable": false,
 				"align": "right",
 				"renderer": styledRenderer
 			},
@@ -121,6 +129,8 @@ Ext.define('BuddiLive.view.budget.Tree', {
 				"text": "${translation("AMOUNT_REMAINING")?json_string}",
 				"dataIndex": "difference",
 				"flex": 1,
+				"sortable": false,
+				"hideable": false,
 				"align": "right",
 				"renderer": styledRenderer
 			}
