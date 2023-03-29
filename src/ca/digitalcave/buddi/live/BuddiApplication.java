@@ -185,13 +185,14 @@ public class BuddiApplication extends Application{
 		authenticationHelper.getConfig().showForgotPassword = true;
 		authenticationHelper.getConfig().showRegister = true;
 		authenticationHelper.getConfig().showImpersonate = false;
+		authenticationHelper.getConfig().showDisableIpLock = true;
 		authenticationHelper.getConfig().i18nBaseCustom = "i18n";
 		authenticationHelper.getConfig().totpIssuer = "Buddi Live";
 
 		authenticationHelper.getConfig().applicationLoaderPaths = new HashMap<String, String>();
 		authenticationHelper.getConfig().applicationLoaderPaths.put("BuddiLive", "buddilive");
 		
-		authenticationHelper.getConfig().applicationViews = new String[]{"BuddiLive.view.component.SelfDocumentingField","BuddiLive.view.component.CurrenciesCombobox","BuddiLive.view.component.LocalesCombobox"};
+		authenticationHelper.getConfig().applicationViews = new String[]{"BuddiLive.view.component.CurrenciesCombobox","BuddiLive.view.component.LocalesCombobox"};
 		authenticationHelper.getConfig().applicationControllers = new String[]{"BuddiLive.controller.preferences.PreferencesEditor"};
 
 		authenticationHelper.getConfig().extraRegisterStep1Fields = new ExtraFieldsDirective(){
