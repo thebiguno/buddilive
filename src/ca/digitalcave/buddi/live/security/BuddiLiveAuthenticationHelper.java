@@ -59,7 +59,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		if (identifier == null){
 			return null;
 		}
-		cr.setIdentifier(identifier.toLowerCase());
+//		cr.setIdentifier(identifier.toLowerCase());
 		final String authenticator = CookieAuthenticator.getAuthenticator(cr);
 		
 		final String secret = new String(cr.getSecret());
