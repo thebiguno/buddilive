@@ -217,9 +217,21 @@ public class ConstraintsChecker {
 		}
 		
 		try {
+			//Check if the first split is a number between 0 - 3 inclusive
+			int algorithmId = Integer.parseInt(split[0]);
+			if (algorithmId < 0 || algorithmId > 3) {
+				return false;
+			}
+
+			if (Base64.decode(split[2]).length <= 4) {
+				return false;	
+			}
+
 			//Nothing is really special about 4 here... it is just a small value which is smaller than any valid value I have seen.  We could probably calculate what the actual value is, but this is fine for now.
 			//Try decoding the last segment; this is always going to be the message.
-			if (Base64.decode(split[split.length - 1]).length <= 4) return false;	
+			if (Base64.decode(split[split.length - 1]).length <= 4) {
+				return false;	
+			}
 		}
 		catch (Throwable e){
 			return false;
