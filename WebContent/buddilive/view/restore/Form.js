@@ -14,6 +14,7 @@ Ext.define('BuddiLive.view.restore.Form', {
 				"xtype": "form",
 				"layout": "anchor",
 				"bodyPadding": 5,
+				"timeout": 3600,	//1 hour, way higher than needed.
 				"items": [
 					{
 						"xtype": "selfdocumentingfield",
