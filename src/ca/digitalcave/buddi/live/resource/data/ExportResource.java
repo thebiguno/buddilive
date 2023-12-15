@@ -53,7 +53,7 @@ public class ExportResource extends ServerResource {
 					final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 					final CSVPrinter csvPrinter = new CSVPrinter(new OutputStreamWriter(os), CSVFormat.EXCEL);
 					try {
-						csvPrinter.printRecord(new Object[]{"Date", "Description", "Amount", "From", "To"});
+						csvPrinter.printRecord(new Object[]{"Date", "Description", "Number", "Amount", "From", "To", "Memo"});
 
 						final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectTransactions(user, dates[0], dates[1]);
 						for (Transaction transaction : transactions) {
@@ -62,9 +62,11 @@ public class ExportResource extends ServerResource {
 									csvPrinter.printRecord(
 											FormatUtil.formatDate(transaction.getDate(), user),
 											CryptoUtil.decryptWrapper(transaction.getDescription(), user),
+											CryptoUtil.decryptWrapper(transaction.getNumber(), user),
 											CryptoUtil.decryptWrapperBigDecimal(split.getAmount(), user, true).toPlainString(),
 											CryptoUtil.decryptWrapper(split.getFromSourceName(), user),
-											CryptoUtil.decryptWrapper(split.getToSourceName(), user)
+											CryptoUtil.decryptWrapper(split.getToSourceName(), user),
+											CryptoUtil.decryptWrapper(split.getMemo(), user)
 											);
 								}
 							}
