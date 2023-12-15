@@ -45,7 +45,7 @@ public class ScheduledTransactionsRunnerResource extends ServerResource {
 				catch (Throwable e){
 					;
 				}
-				if (userDate == null || Math.abs(DateUtil.getDaysBetween(new Date(), userDate, true)) > 1) {
+				if (userDate == null || Math.abs(DateUtil.getDaysBetween(new Date(), userDate, false)) > 2) {
 					userDate = new Date();
 				}
 				
