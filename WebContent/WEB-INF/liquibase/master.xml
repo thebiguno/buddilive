@@ -226,4 +226,18 @@
 		
 		<addForeignKeyConstraint constraintName="fk_users_totp_backups" referencedTableName="users" referencedColumnNames="id" baseTableName="user_totp_backups" baseColumnNames="user_id" onDelete="CASCADE"/>
 	</changeSet>
+
+	<changeSet id="add cascade delete indexes" author="wyatt">
+		<!-- Speeds up large account deletion operations by supporting FK cascade lookups. -->
+		<sql>CREATE INDEX IF NOT EXISTS ix_entries_user_id ON entries(user_id)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_splits_user_id ON splits(user_id)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_splits_transaction_id ON splits(transaction_id)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_splits_from_source ON splits(from_source)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_splits_to_source ON splits(to_source)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_scheduledsplits_user_id ON scheduledsplits(user_id)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_scheduledsplits_scheduledtransaction_id ON scheduledsplits(scheduledtransaction_id)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_scheduledsplits_from_source ON scheduledsplits(from_source)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_scheduledsplits_to_source ON scheduledsplits(to_source)</sql>
+		<sql>CREATE INDEX IF NOT EXISTS ix_user_totp_backups_user_id ON user_totp_backups(user_id)</sql>
+	</changeSet>
 </databaseChangeLog>

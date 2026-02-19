@@ -2,16 +2,16 @@ import { Dialog, DialogContent, DialogFooter } from './Dialog';
 import { Button } from './Button';
 import { useApp } from '../../context/AppContext';
 
-export function ConfirmDialog({ open, title, message, onConfirm, onCancel }) {
+export function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmDisabled = false, confirmLabel }) {
   const { t } = useApp();
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onCancel()}>
-      <DialogContent title={title} className="w-96" onOk={onConfirm} onCancel={onCancel}>
+      <DialogContent title={title} className="w-96" onOk={confirmDisabled ? undefined : onConfirm} onCancel={onCancel}>
         <div className="p-4 text-sm">{message}</div>
         <DialogFooter>
           <Button variant="default" onClick={onCancel}>{t('CANCEL', 'Cancel')}</Button>
-          <Button variant="primary" onClick={onConfirm}>{t('YES', 'Yes')}</Button>
+          <Button variant="primary" onClick={onConfirm} disabled={confirmDisabled}>{confirmLabel || t('YES', 'Yes')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

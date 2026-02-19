@@ -21,6 +21,7 @@ import { IncomeExpensesReport, AverageIncomeExpensesReport, InflowByAccountRepor
 import { BudgetVsActualReport, MonthlyCashFlowReport, SavingsRateReport, YearOverYearReport } from './components/reports/BarReport';
 import { TopPayeesBySpendReport, CategoryDrillDownReport, ProjectedBalanceReport, DebtPaydownReport, CategoryPickerDialog, ProjectedBalancePickerDialog } from './components/reports/AdvancedReports';
 import { ReportInfoButton } from './components/reports/ReportInfo';
+import { Input } from './components/ui/Input';
 import { api } from './lib/api';
 import {
   BarChart2, PlusCircle, Edit2, Trash2, RefreshCw,
@@ -173,6 +174,8 @@ function BuddiApp({ userConfig }) {
   const [projectedPickerOpen, setProjectedPickerOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState(null);
   const [alertDialog, setAlertDialog] = useState(null);
+  const [deleteAccountConfirmText, setDeleteAccountConfirmText] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const [budgetPeriodTabs, setBudgetPeriodTabs] = useState(BUDGET_PERIODS);
 
@@ -364,36 +367,62 @@ function BuddiApp({ userConfig }) {
 
   // ── Delete user ──────────────────────────────────────────────────────────
 
-  function renderDeleteAccountWarning() {
+  function renderDeleteAccountWarning({ requireTypedDelete = false } = {}) {
     return (
       <div className="border border-red-300 bg-red-50 rounded p-3 text-xs flex flex-col gap-2">
         <p className="text-red-800 font-semibold">⚠ {t('WARNING_DELETE_ACCOUNT_TITLE', 'Delete Account Permanently?')}</p>
         <p className="text-red-700">{t('WARNING_DELETE_ACCOUNT_BODY_1', 'This will permanently delete your Buddi Live account and all associated data, including accounts, transactions, budget categories, scheduled transactions, and preferences.')}</p>
         <p className="text-red-700 font-semibold">{t('WARNING_DELETE_ACCOUNT_BODY_2', 'This action cannot be undone. There is no recovery path after deletion.')}</p>
         <p className="text-red-700">{t('WARNING_DELETE_ACCOUNT_BODY_3', 'If you may need this data later, create a backup before continuing.')}</p>
+        {requireTypedDelete && (
+          <div className="mt-1 pt-2 border-t border-red-300 flex flex-col gap-1.5">
+            <p className="text-red-800 font-semibold">{t('WARNING_DELETE_ACCOUNT_TYPE_DELETE', 'Type "delete" to confirm permanent account deletion.')}</p>
+            <Input
+              className="w-full"
+              autoFocus
+              value={deleteAccountConfirmText}
+              onChange={e => setDeleteAccountConfirmText(e.target.value)}
+              placeholder={t('WARNING_DELETE_ACCOUNT_TYPE_DELETE_PLACEHOLDER', 'delete')}
+            />
+          </div>
+        )}
       </div>
     );
   }
 
   function handleDeleteUser() {
+    setDeleteAccountConfirmText('');
     setConfirmDialog({
       title: t('DELETE_ACCOUNT_TITLE', 'Delete Account'),
       message: renderDeleteAccountWarning(),
       onConfirm: () => {
+        setDeleteAccountConfirmText('');
         setConfirmDialog({
           title: t('DELETE_ACCOUNT_FINAL_TITLE', 'Delete Account - Final Confirmation'),
-          message: renderDeleteAccountWarning(),
+          messageType: 'deleteAccountFinalWarning',
+          confirmRequiresText: 'delete',
           onConfirm: async () => {
+            setConfirmDialog(null);
+            setDeletingAccount(true);
             try {
               await api.preferences.save({ action: 'delete' });
               window.location.reload();
-            } catch (e) { showError(e); }
-            setConfirmDialog(null);
+            } catch (e) {
+              showError(e);
+              setDeletingAccount(false);
+            }
+            setDeleteAccountConfirmText('');
           },
-          onCancel: () => setConfirmDialog(null),
+          onCancel: () => {
+            setConfirmDialog(null);
+            setDeleteAccountConfirmText('');
+          },
         });
       },
-      onCancel: () => setConfirmDialog(null),
+      onCancel: () => {
+        setConfirmDialog(null);
+        setDeleteAccountConfirmText('');
+      },
     });
   }
 
@@ -694,9 +723,18 @@ function BuddiApp({ userConfig }) {
         <ConfirmDialog
           open={true}
           title={confirmDialog.title}
-          message={confirmDialog.message}
+          message={
+            confirmDialog.messageType === 'deleteAccountFinalWarning'
+              ? renderDeleteAccountWarning({ requireTypedDelete: true })
+              : confirmDialog.message
+          }
           onConfirm={confirmDialog.onConfirm}
           onCancel={confirmDialog.onCancel || (() => setConfirmDialog(null))}
+          confirmDisabled={
+            confirmDialog.confirmRequiresText != null
+              ? deleteAccountConfirmText.trim() !== confirmDialog.confirmRequiresText
+              : !!confirmDialog.confirmDisabled
+          }
         />
       )}
       {alertDialog && (
@@ -715,6 +753,13 @@ function BuddiApp({ userConfig }) {
           onClose={clearError}
         />
       )}
+	      {deletingAccount && (
+	        <div className="fixed inset-0 z-[2000] bg-black/40 flex items-center justify-center">
+	          <div className="bg-white border border-gray-300 rounded px-6 py-4 shadow-xl text-gray-700 flex flex-col gap-1.5">
+	            <div className="text-sm font-semibold">{t('DELETING', 'Deleting...')}</div>
+	          </div>
+	        </div>
+	      )}
     </div>
   );
 }

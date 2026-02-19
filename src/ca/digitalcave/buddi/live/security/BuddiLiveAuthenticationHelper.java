@@ -68,12 +68,16 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		}
 //		cr.setIdentifier(identifier.toLowerCase());
 		final String authenticator = CookieAuthenticator.getAuthenticator(cr);
+		final boolean isInteractiveLoginAttempt = form != null && StringUtils.isNotBlank(form.getFirstValue(CookieAuthenticator.FIELD_PASSWORD));
 
 		// Incremental backoff: delay = min(2^(failures-1), 5) seconds
-		final AtomicInteger failures = failedAttempts.get(authenticator);
-		if (failures != null && failures.get() > 0) {
-			final long delayMs = Math.min((1L << (failures.get() - 1)) * 1000L, MAX_BACKOFF_MS);
-			try { Thread.sleep(delayMs); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+		// Apply this only to interactive login requests, not passive cookie verification done for regular/static requests.
+		if (isInteractiveLoginAttempt) {
+			final AtomicInteger failures = failedAttempts.get(authenticator);
+			if (failures != null && failures.get() > 0) {
+				final long delayMs = Math.min((1L << (failures.get() - 1)) * 1000L, MAX_BACKOFF_MS);
+				try { Thread.sleep(delayMs); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+			}
 		}
 
 		final String secret = new String(cr.getSecret());
@@ -81,7 +85,9 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		final User user = (User) selectUser(authenticator);
 		if (user == null){
 			//If the user was not found, we do not proceed.
-			failedAttempts.computeIfAbsent(authenticator, k -> new AtomicInteger(0)).incrementAndGet();
+			if (isInteractiveLoginAttempt){
+				failedAttempts.computeIfAbsent(authenticator, k -> new AtomicInteger(0)).incrementAndGet();
+			}
 			return null;
 		}
 
@@ -128,7 +134,9 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 			return user;
 		}
 		
-		failedAttempts.computeIfAbsent(authenticator, k -> new AtomicInteger(0)).incrementAndGet();
+		if (isInteractiveLoginAttempt){
+			failedAttempts.computeIfAbsent(authenticator, k -> new AtomicInteger(0)).incrementAndGet();
+		}
 		return null;
 	}
 
