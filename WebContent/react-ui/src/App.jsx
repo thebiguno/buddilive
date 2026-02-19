@@ -364,14 +364,25 @@ function BuddiApp({ userConfig }) {
 
   // ── Delete user ──────────────────────────────────────────────────────────
 
+  function renderDeleteAccountWarning() {
+    return (
+      <div className="border border-red-300 bg-red-50 rounded p-3 text-xs flex flex-col gap-2">
+        <p className="text-red-800 font-semibold">⚠ {t('WARNING_DELETE_ACCOUNT_TITLE', 'Delete Account Permanently?')}</p>
+        <p className="text-red-700">{t('WARNING_DELETE_ACCOUNT_BODY_1', 'This will permanently delete your Buddi Live account and all associated data, including accounts, transactions, budget categories, scheduled transactions, and preferences.')}</p>
+        <p className="text-red-700 font-semibold">{t('WARNING_DELETE_ACCOUNT_BODY_2', 'This action cannot be undone. There is no recovery path after deletion.')}</p>
+        <p className="text-red-700">{t('WARNING_DELETE_ACCOUNT_BODY_3', 'If you may need this data later, create a backup before continuing.')}</p>
+      </div>
+    );
+  }
+
   function handleDeleteUser() {
     setConfirmDialog({
       title: t('DELETE_ACCOUNT_TITLE', 'Delete Account'),
-      message: t('DELETE_ACCOUNT_WARNING', 'Are you sure you want to permanently delete your account and all data?'),
+      message: renderDeleteAccountWarning(),
       onConfirm: () => {
         setConfirmDialog({
           title: t('DELETE_ACCOUNT_FINAL_TITLE', 'Delete Account - Final Confirmation'),
-          message: t('DELETE_ACCOUNT_FINAL_WARNING', 'This is irreversible. All your data will be permanently deleted. Continue?'),
+          message: renderDeleteAccountWarning(),
           onConfirm: async () => {
             try {
               await api.preferences.save({ action: 'delete' });
