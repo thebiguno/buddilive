@@ -544,7 +544,20 @@ function BuddiApp({ userConfig }) {
     { label: t('RESTORE', 'Restore'), icon: <Upload size={12} />, onClick: () => setRestoreOpen(true) },
     { label: t('EXPORT_CSV', 'Export CSV'), icon: <FileText size={12} />, disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined, onClick: () => showIntervalPicker(o => api.exportCsv(o.query)) },
     '-',
-    { label: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), icon: <HelpCircle size={12} />, onClick: () => setAlertDialog({ title: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), messageHtml: `${t('HELP_GETTING_STARTED_SIMPLE', 'Welcome to Buddi Live! Start by adding accounts in the My Accounts tab, then set up budget categories in My Budget.')}<br/><br/>${t('HELP_GETTING_STARTED_DOCS_PREFIX', 'Need help getting started? You can view ')}<a href="./doc/" target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;">${t('HELP_GETTING_STARTED_DOCS_LINK', 'tutorials and additional documentation')}</a>${t('HELP_GETTING_STARTED_DOCS_SUFFIX', ' here.')}` }) },
+    {
+      label: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'),
+      icon: <HelpCircle size={12} />,
+      onClick: () => setConfirmDialog({
+        title: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'),
+        message: `${t('HELP_GETTING_STARTED_SIMPLE', 'Welcome to Buddi Live! Start by adding accounts in the My Accounts tab, then set up budget categories in My Budget.')} ${t('HELP_GETTING_STARTED_TUTORIAL_PROMPT', 'Need help getting started? Click Tutorial to view tutorials and additional documentation.')}`,
+        confirmLabel: t('HELP_GETTING_STARTED_TUTORIAL_BUTTON', 'Tutorial'),
+        onConfirm: () => {
+          window.open('./doc/', '_blank', 'noopener,noreferrer');
+          setConfirmDialog(null);
+        },
+        onCancel: () => setConfirmDialog(null),
+      }),
+    },
     {
       label: t('DONATE_TITLE', 'Donate'),
       icon: <DollarSign size={12} />,

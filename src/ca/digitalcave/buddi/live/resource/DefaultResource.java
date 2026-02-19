@@ -39,9 +39,9 @@ public class DefaultResource extends ServerResource {
 		
 		final String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
 
-		// Avoid exposing directory listing for docs root; send users directly to the tutorial.
+		// Avoid exposing directory listing for docs root; send users to the docs index.
 		if ("doc".equals(normalizedPath) || "doc/".equals(normalizedPath)){
-			redirectSeeOther(new Reference(getRootRef().toString() + "/doc/tutorial.html"));
+			redirectSeeOther(new Reference(getRootRef().toString() + "/doc/index.html"));
 			return new EmptyRepresentation();
 		}
 
