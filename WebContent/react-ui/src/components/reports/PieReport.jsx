@@ -6,7 +6,7 @@ import { useApp } from '../../context/AppContext';
 const COLORS = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac'];
 
 export function PieReport({ type, options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -20,9 +20,9 @@ export function PieReport({ type, options }) {
       .finally(() => setLoading(false));
   }, [type, options.query, showError]);
 
-  if (loading) return <div className="flex items-center justify-center h-full text-sm text-gray-400">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
   if (error) return <div className="flex items-center justify-center h-full text-sm text-red-500">{error}</div>;
-  if (!data.length) return <div className="flex items-center justify-center h-full text-sm text-gray-400">No data for this period.</div>;
+  if (!data.length) return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('NO_DATA_FOR_PERIOD', 'No data for this period.')}</div>;
 
   return (
     <div className="flex flex-col h-full w-full p-4">

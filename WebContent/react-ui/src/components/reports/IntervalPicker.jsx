@@ -3,24 +3,26 @@ import { Dialog, DialogContent, DialogFooter } from '../ui/Dialog';
 import { Button } from '../ui/Button';
 import { Select } from '../ui/Select';
 import { Input } from '../ui/Input';
+import { useApp } from '../../context/AppContext';
 
 const INTERVALS = [
-  { value: 'PLUGIN_FILTER_THIS_WEEK', text: 'This Week' },
-  { value: 'PLUGIN_FILTER_LAST_WEEK', text: 'Last Week' },
-  { value: 'PLUGIN_FILTER_THIS_SEMI_MONTH', text: 'This Semi-Month' },
-  { value: 'PLUGIN_FILTER_LAST_SEMI_MONTH', text: 'Last Semi-Month' },
-  { value: 'PLUGIN_FILTER_THIS_MONTH', text: 'This Month' },
-  { value: 'PLUGIN_FILTER_LAST_MONTH', text: 'Last Month' },
-  { value: 'PLUGIN_FILTER_THIS_QUARTER', text: 'This Quarter' },
-  { value: 'PLUGIN_FILTER_LAST_QUARTER', text: 'Last Quarter' },
-  { value: 'PLUGIN_FILTER_THIS_YEAR', text: 'This Year' },
-  { value: 'PLUGIN_FILTER_THIS_YEAR_TO_DATE', text: 'This Year to Date' },
-  { value: 'PLUGIN_FILTER_LAST_YEAR', text: 'Last Year' },
-  { value: 'PLUGIN_FILTER_ALL_TIME', text: 'All Time' },
-  { value: 'PLUGIN_FILTER_OTHER', text: 'Custom Range...' },
+  { value: 'PLUGIN_FILTER_THIS_WEEK', key: 'INTERVAL_THIS_WEEK', text: 'This Week' },
+  { value: 'PLUGIN_FILTER_LAST_WEEK', key: 'INTERVAL_LAST_WEEK', text: 'Last Week' },
+  { value: 'PLUGIN_FILTER_THIS_SEMI_MONTH', key: 'INTERVAL_THIS_SEMI_MONTH', text: 'This Semi-Month' },
+  { value: 'PLUGIN_FILTER_LAST_SEMI_MONTH', key: 'INTERVAL_LAST_SEMI_MONTH', text: 'Last Semi-Month' },
+  { value: 'PLUGIN_FILTER_THIS_MONTH', key: 'INTERVAL_THIS_MONTH', text: 'This Month' },
+  { value: 'PLUGIN_FILTER_LAST_MONTH', key: 'INTERVAL_LAST_MONTH', text: 'Last Month' },
+  { value: 'PLUGIN_FILTER_THIS_QUARTER', key: 'INTERVAL_THIS_QUARTER', text: 'This Quarter' },
+  { value: 'PLUGIN_FILTER_LAST_QUARTER', key: 'INTERVAL_LAST_QUARTER', text: 'Last Quarter' },
+  { value: 'PLUGIN_FILTER_THIS_YEAR', key: 'INTERVAL_THIS_YEAR', text: 'This Year' },
+  { value: 'PLUGIN_FILTER_THIS_YEAR_TO_DATE', key: 'INTERVAL_THIS_YEAR_TO_DATE', text: 'This Year to Date' },
+  { value: 'PLUGIN_FILTER_LAST_YEAR', key: 'INTERVAL_LAST_YEAR', text: 'Last Year' },
+  { value: 'PLUGIN_FILTER_ALL_TIME', key: 'INTERVAL_ALL_TIME', text: 'All Time' },
+  { value: 'PLUGIN_FILTER_OTHER', key: 'INTERVAL_CUSTOM', text: 'Custom Range...' },
 ];
 
 export function IntervalPicker({ open, onClose, onConfirm }) {
+  const { t } = useApp();
   const [interval, setInterval] = useState('PLUGIN_FILTER_THIS_MONTH');
   const [startDate, setStartDate] = useState(today());
   const [endDate, setEndDate] = useState(today());
@@ -30,7 +32,8 @@ export function IntervalPicker({ open, onClose, onConfirm }) {
 
   function handleOk() {
     let query = `interval=${interval}`;
-    let dateRange = INTERVALS.find(i => i.value === interval)?.text || interval;
+    const intervalItem = INTERVALS.find(i => i.value === interval);
+    let dateRange = intervalItem ? t(intervalItem.key, intervalItem.text) : interval;
     if (isCustom) {
       query += `&startDate=${startDate}&endDate=${endDate}`;
       dateRange = `${startDate} - ${endDate}`;
@@ -41,18 +44,18 @@ export function IntervalPicker({ open, onClose, onConfirm }) {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent title="Select Interval" className="w-80" onOk={handleOk} onCancel={onClose}>
+      <DialogContent title={t('SELECT_INTERVAL', 'Select Interval')} className="w-80" onOk={handleOk} onCancel={onClose}>
         <div className="p-3 flex flex-col gap-2">
-          <FormRow label="Interval">
+          <FormRow label={t('INTERVAL', 'Interval')}>
             <Select className="flex-1" value={interval} onChange={e => setInterval(e.target.value)}>
               {INTERVALS.map(i => (
-                <option key={i.value} value={i.value}>{i.text}</option>
+                <option key={i.value} value={i.value}>{t(i.key, i.text)}</option>
               ))}
             </Select>
           </FormRow>
           {isCustom && (
             <>
-              <FormRow label="Start Date">
+              <FormRow label={t('START_DATE', 'Start Date')}>
                 <Input
                   type="date"
                   className="flex-1"
@@ -61,7 +64,7 @@ export function IntervalPicker({ open, onClose, onConfirm }) {
                   max={endDate}
                 />
               </FormRow>
-              <FormRow label="End Date">
+              <FormRow label={t('END_DATE', 'End Date')}>
                 <Input
                   type="date"
                   className="flex-1"
@@ -74,8 +77,8 @@ export function IntervalPicker({ open, onClose, onConfirm }) {
           )}
         </div>
         <DialogFooter>
-          <Button variant="default" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" disabled={!isValid} onClick={handleOk}>OK</Button>
+          <Button variant="default" onClick={onClose}>{t('CANCEL', 'Cancel')}</Button>
+          <Button variant="primary" disabled={!isValid} onClick={handleOk}>{t('OK', 'OK')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

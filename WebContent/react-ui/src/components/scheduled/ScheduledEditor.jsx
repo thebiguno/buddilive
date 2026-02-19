@@ -9,15 +9,15 @@ import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 
 const FREQUENCIES = [
-  { value: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE', text: 'Monthly by Date' },
-  { value: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK', text: 'Monthly by Day of Week' },
-  { value: 'SCHEDULE_FREQUENCY_WEEKLY', text: 'Weekly' },
-  { value: 'SCHEDULE_FREQUENCY_BIWEEKLY', text: 'Bi-Weekly' },
-  { value: 'SCHEDULE_FREQUENCY_EVERY_DAY', text: 'Every Day' },
-  { value: 'SCHEDULE_FREQUENCY_EVERY_X_DAYS', text: 'Every X Days' },
-  { value: 'SCHEDULE_FREQUENCY_EVERY_WEEKDAY', text: 'Every Weekday' },
-  { value: 'SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH', text: 'Multiple Weeks Every Month' },
-  { value: 'SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR', text: 'Multiple Months Every Year' },
+  { value: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE', key: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE_LABEL', text: 'Monthly by Date' },
+  { value: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK', key: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK_LABEL', text: 'Monthly by Day of Week' },
+  { value: 'SCHEDULE_FREQUENCY_WEEKLY', key: 'SCHEDULE_FREQUENCY_WEEKLY_LABEL', text: 'Weekly' },
+  { value: 'SCHEDULE_FREQUENCY_BIWEEKLY', key: 'SCHEDULE_FREQUENCY_BIWEEKLY_LABEL', text: 'Bi-Weekly' },
+  { value: 'SCHEDULE_FREQUENCY_EVERY_DAY', key: 'SCHEDULE_FREQUENCY_EVERY_DAY_LABEL', text: 'Every Day' },
+  { value: 'SCHEDULE_FREQUENCY_EVERY_X_DAYS', key: 'SCHEDULE_FREQUENCY_EVERY_X_DAYS_LABEL', text: 'Every X Days' },
+  { value: 'SCHEDULE_FREQUENCY_EVERY_WEEKDAY', key: 'SCHEDULE_FREQUENCY_EVERY_WEEKDAY_LABEL', text: 'Every Weekday' },
+  { value: 'SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH', key: 'SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH_LABEL', text: 'Multiple Weeks Every Month' },
+  { value: 'SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR', key: 'SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR_LABEL', text: 'Multiple Months Every Year' },
 ];
 
 const DAYS_OF_WEEK = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -26,7 +26,7 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 function today() { return new Date().toISOString().split('T')[0]; }
 
 export function ScheduledEditor({ open, selected, onClose, onSaved }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [name, setName] = useState(selected?.name || '');
   const [repeat, setRepeat] = useState(selected?.repeat || 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE');
   const [startDate, setStartDate] = useState(selected?.start || today());
@@ -38,6 +38,21 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
   const [message, setMessage] = useState(selected?.message || '');
   const [splits, setSplits] = useState(selected?.splits || []);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setName(selected?.name || '');
+    setRepeat(selected?.repeat || 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE');
+    setStartDate(selected?.start || today());
+    setEndDate(selected?.end || '');
+    setScheduleDay(selected?.scheduleDay ?? 1);
+    setScheduleWeek(selected?.scheduleWeek ?? 0);
+    setScheduleMonth(selected?.scheduleMonth ?? 0);
+    setDescription(selected?.description || '');
+    setMessage(selected?.message || '');
+    setSplits(selected?.splits || []);
+    setSaving(false);
+  }, [open, selected]);
 
   const isEditing = !!selected;
   const isValid = name.trim().length > 0;
@@ -78,53 +93,53 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent title={isEditing ? 'Edit Scheduled Transaction' : 'Add Scheduled Transaction'} className="w-[700px]" onOk={handleSave} onCancel={onClose}>
+      <DialogContent title={isEditing ? t('MODIFY_SCHEDULED_TRANSACTION', 'Edit Scheduled Transaction') : t('NEW_SCHEDULED_TRANSACTION', 'Add Scheduled Transaction')} className="w-[700px]" onOk={handleSave} onCancel={onClose}>
         <div className="p-3 flex flex-col gap-2">
-          <FormRow label="Name">
+          <FormRow label={t('NAME', 'Name')}>
             <Input className="flex-1" value={name} onChange={e => setName(e.target.value)} autoFocus />
           </FormRow>
-          <FormRow label="Frequency">
+          <FormRow label={t('FREQUENCY', 'Frequency')}>
             <Select className="flex-1" value={repeat} onChange={e => setRepeat(e.target.value)} disabled={isEditing}>
-              {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.text}</option>)}
+              {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{t(f.key, f.text)}</option>)}
             </Select>
           </FormRow>
-          <FormRow label="Start Date">
+          <FormRow label={t('START_DATE', 'Start Date')}>
             <Input type="date" className="flex-1" value={startDate} onChange={e => setStartDate(e.target.value)} disabled={isEditing} />
           </FormRow>
-          <FormRow label="End Date">
+          <FormRow label={t('END_DATE', 'End Date')}>
             <Input type="date" className="flex-1" value={endDate} onChange={e => setEndDate(e.target.value)} />
           </FormRow>
 
           {/* Frequency-specific config */}
           {(repeat === 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE') && (
-            <FormRow label="Day of Month">
+            <FormRow label={t('DAY_OF_MONTH', 'Day of Month')}>
               <Select className="flex-1" value={scheduleDay} onChange={e => setScheduleDay(e.target.value)}>
                 {Array.from({length: 31}, (_, i) => i + 1).map(d => <option key={d} value={d}>{d}</option>)}
-                <option value={32}>Last Day</option>
+                <option value={32}>{t('LAST_DAY', 'Last Day')}</option>
               </Select>
             </FormRow>
           )}
           {(repeat === 'SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK' || repeat === 'SCHEDULE_FREQUENCY_WEEKLY' || repeat === 'SCHEDULE_FREQUENCY_BIWEEKLY') && (
-            <FormRow label="Day of Week">
+            <FormRow label={t('DAY_OF_WEEK', 'Day of Week')}>
               <Select className="flex-1" value={scheduleDay} onChange={e => setScheduleDay(e.target.value)}>
-                {DAYS_OF_WEEK.map((d, i) => <option key={i} value={i}>{d}</option>)}
+                {DAYS_OF_WEEK.map((d, i) => <option key={i} value={i}>{t(`DAY_NAME_${i}`, d)}</option>)}
               </Select>
             </FormRow>
           )}
           {repeat === 'SCHEDULE_FREQUENCY_EVERY_X_DAYS' && (
-            <FormRow label="Every X Days">
+            <FormRow label={t('EVERY_X_DAYS', 'Every X Days')}>
               <Input type="number" min={1} className="w-24" value={scheduleDay} onChange={e => setScheduleDay(e.target.value)} />
             </FormRow>
           )}
           {repeat === 'SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR' && (
             <>
-              <FormRow label="Day of Month">
+              <FormRow label={t('DAY_OF_MONTH', 'Day of Month')}>
                 <Select className="flex-1" value={scheduleDay} onChange={e => setScheduleDay(e.target.value)}>
                   {Array.from({length: 31}, (_, i) => i + 1).map(d => <option key={d} value={d}>{d}</option>)}
-                  <option value={32}>Last Day</option>
+                  <option value={32}>{t('LAST_DAY', 'Last Day')}</option>
                 </Select>
               </FormRow>
-              <FormRow label="Months">
+              <FormRow label={t('MONTHS', 'Months')}>
                 <div className="flex flex-wrap gap-2">
                   {MONTHS.map((m, i) => (
                     <label key={i} className="flex items-center gap-1 text-xs cursor-pointer">
@@ -133,7 +148,7 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
                         checked={!!(scheduleMonth & (1 << i))}
                         onChange={() => toggleMonth(1 << i)}
                       />
-                      {m.slice(0, 3)}
+                      {t(`MONTH_NAME_SHORT_${i}`, m.slice(0, 3))}
                     </label>
                   ))}
                 </div>
@@ -141,18 +156,18 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
             </>
           )}
 
-          <FormRow label="Message">
+          <FormRow label={t('MESSAGE', 'Message')}>
             <Textarea className="flex-1" value={message} onChange={e => setMessage(e.target.value)} rows={2} />
           </FormRow>
 
           <div className="border-t border-gray-200 pt-2">
-            <div className="text-xs font-semibold text-gray-600 mb-1">Transaction</div>
+            <div className="text-xs font-semibold text-gray-600 mb-1">{t('TRANSACTION', 'Transaction')}</div>
             <ScheduledTransactionMini splits={splits} onChange={setSplits} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="default" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" disabled={!isValid || saving} onClick={handleSave}>OK</Button>
+          <Button variant="default" onClick={onClose}>{t('CANCEL', 'Cancel')}</Button>
+          <Button variant="primary" disabled={!isValid || saving} onClick={handleSave}>{t('OK', 'OK')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -160,7 +175,7 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
 }
 
 function ScheduledTransactionMini({ splits, onChange }) {
-  const { splitSources, setSplitSources, showError } = useApp();
+  const { splitSources, setSplitSources, showError, t } = useApp();
 
   useEffect(() => {
     if (splitSources.from.length === 0) {
@@ -188,7 +203,7 @@ function ScheduledTransactionMini({ splits, onChange }) {
         className="text-xs text-blue-600 hover:underline cursor-pointer"
         onClick={() => onChange([{ amount: '', fromId: null, toId: null, memo: '' }])}
       >
-        + Add split
+        + {t('ADD_SPLIT', 'Add split')}
       </button>
     );
   }

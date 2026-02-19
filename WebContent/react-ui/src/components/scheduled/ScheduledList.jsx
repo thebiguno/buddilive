@@ -4,42 +4,42 @@ import { useApp } from '../../context/AppContext';
 import { cn } from '../../lib/utils';
 import { ContextMenu } from '../ui/ContextMenu';
 
-const FREQUENCY_LABELS = {
-  SCHEDULE_FREQUENCY_MONTHLY_BY_DATE: 'Monthly by Date',
-  SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK: 'Monthly by Day of Week',
-  SCHEDULE_FREQUENCY_WEEKLY: 'Weekly',
-  SCHEDULE_FREQUENCY_BIWEEKLY: 'Bi-Weekly',
-  SCHEDULE_FREQUENCY_EVERY_DAY: 'Every Day',
-  SCHEDULE_FREQUENCY_EVERY_X_DAYS: 'Every X Days',
-  SCHEDULE_FREQUENCY_EVERY_WEEKDAY: 'Every Weekday',
-  SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH: 'Multiple Weeks Every Month',
-  SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR: 'Multiple Months Every Year',
+const FREQUENCY_LABEL_KEYS = {
+  SCHEDULE_FREQUENCY_MONTHLY_BY_DATE: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE_LABEL',
+  SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK_LABEL',
+  SCHEDULE_FREQUENCY_WEEKLY: 'SCHEDULE_FREQUENCY_WEEKLY_LABEL',
+  SCHEDULE_FREQUENCY_BIWEEKLY: 'SCHEDULE_FREQUENCY_BIWEEKLY_LABEL',
+  SCHEDULE_FREQUENCY_EVERY_DAY: 'SCHEDULE_FREQUENCY_EVERY_DAY_LABEL',
+  SCHEDULE_FREQUENCY_EVERY_X_DAYS: 'SCHEDULE_FREQUENCY_EVERY_X_DAYS_LABEL',
+  SCHEDULE_FREQUENCY_EVERY_WEEKDAY: 'SCHEDULE_FREQUENCY_EVERY_WEEKDAY_LABEL',
+  SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH: 'SCHEDULE_FREQUENCY_MULTIPLE_WEEKS_EVERY_MONTH_LABEL',
+  SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR: 'SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR_LABEL',
 };
 
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-function formatRepeat(row) {
-  const base = FREQUENCY_LABELS[row.repeat] || row.repeat;
+function formatRepeat(row, t) {
+  const base = t(FREQUENCY_LABEL_KEYS[row.repeat], row.repeat);
   const day = row.scheduleDay;
   switch (row.repeat) {
-    case 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE': return `${base} (day ${day})`;
-    case 'SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK': return `${base} (${DAY_NAMES[day] || day})`;
-    case 'SCHEDULE_FREQUENCY_WEEKLY': return `${base} (${DAY_NAMES[day] || day})`;
-    case 'SCHEDULE_FREQUENCY_BIWEEKLY': return `${base} (every other ${DAY_NAMES[day] || day})`;
-    case 'SCHEDULE_FREQUENCY_EVERY_X_DAYS': return `Every ${day} days`;
+    case 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE': return `${base} (${t('DAY_LOWER', 'day')} ${day})`;
+    case 'SCHEDULE_FREQUENCY_MONTHLY_BY_DAY_OF_WEEK': return `${base} (${t(`DAY_NAME_${day}`, DAY_NAMES[day] || day)})`;
+    case 'SCHEDULE_FREQUENCY_WEEKLY': return `${base} (${t(`DAY_NAME_${day}`, DAY_NAMES[day] || day)})`;
+    case 'SCHEDULE_FREQUENCY_BIWEEKLY': return `${base} (${t('EVERY_OTHER', 'every other')} ${t(`DAY_NAME_${day}`, DAY_NAMES[day] || day)})`;
+    case 'SCHEDULE_FREQUENCY_EVERY_X_DAYS': return `${t('EVERY', 'Every')} ${day} ${t('DAYS_LOWER', 'days')}`;
     case 'SCHEDULE_FREQUENCY_MULTIPLE_MONTHS_EVERY_YEAR': {
       const months = [];
       const m = row.scheduleMonth || 0;
-      MONTH_NAMES.forEach((name, i) => { if (m & (1 << i)) months.push(name); });
-      return `${base} (day ${day}, ${months.join(', ')})`;
+      MONTH_NAMES.forEach((name, i) => { if (m & (1 << i)) months.push(t(`MONTH_NAME_${i}`, name)); });
+      return `${base} (${t('DAY_LOWER', 'day')} ${day}, ${months.join(', ')})`;
     }
     default: return base;
   }
 }
 
 export function ScheduledList({ selectedId, onSelect, onAdd, onEdit, onDelete }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [version, setVersion] = useState(0);
@@ -71,17 +71,17 @@ export function ScheduledList({ selectedId, onSelect, onAdd, onEdit, onDelete })
         <table className="w-full border-collapse text-xs">
           <thead className="sticky top-0 bg-gradient-to-b from-[#d8d8d8] to-[#c8c8c8]">
             <tr>
-              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">Name</th>
-              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">Repeat</th>
-              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">Last Triggered</th>
-              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">End Date</th>
-              <th className="text-right px-2 py-1 border-b border-gray-300 font-semibold">Amount</th>
-              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">Message</th>
+              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">{t('NAME', 'Name')}</th>
+              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">{t('REPEAT', 'Repeat')}</th>
+              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">{t('LAST_TRIGGERED', 'Last Triggered')}</th>
+              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">{t('END_DATE', 'End Date')}</th>
+              <th className="text-right px-2 py-1 border-b border-gray-300 font-semibold">{t('AMOUNT', 'Amount')}</th>
+              <th className="text-left px-2 py-1 border-b border-gray-300 font-semibold">{t('MESSAGE', 'Message')}</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
-              <tr><td colSpan={6} className="text-center py-4 text-gray-400">Loading...</td></tr>
+              <tr><td colSpan={6} className="text-center py-4 text-gray-400">{t('LOADING', 'Loading...')}</td></tr>
             )}
             {rows.map((row, i) => (
               <tr
@@ -95,7 +95,7 @@ export function ScheduledList({ selectedId, onSelect, onAdd, onEdit, onDelete })
                 onContextMenu={e => { e.preventDefault(); onSelect && onSelect(row); setCtxMenu({ x: e.clientX, y: e.clientY, row }); }}
               >
                 <td className="px-2 py-1">{row.name}</td>
-                <td className="px-2 py-1">{formatRepeat(row)}</td>
+                <td className="px-2 py-1">{formatRepeat(row, t)}</td>
                 <td className="px-2 py-1">{row.lastCreatedDate}</td>
                 <td className="px-2 py-1">{row.end}</td>
                 <td className="px-2 py-1 text-right">
@@ -115,10 +115,10 @@ export function ScheduledList({ selectedId, onSelect, onAdd, onEdit, onDelete })
           y={ctxMenu.y}
           onClose={() => setCtxMenu(null)}
           items={[
-            { label: 'New Scheduled Transaction', onClick: () => onAdd?.() },
+            { label: t('NEW_SCHEDULED_TRANSACTION', 'New Scheduled Transaction'), onClick: () => onAdd?.() },
             '-',
-            { label: 'Edit Scheduled Transaction', disabled: !ctxMenu.row, onClick: () => onEdit?.() },
-            { label: 'Delete Scheduled Transaction', disabled: !ctxMenu.row, onClick: () => onDelete?.() },
+            { label: t('MODIFY_SCHEDULED_TRANSACTION', 'Edit Scheduled Transaction'), disabled: !ctxMenu.row, onClick: () => onEdit?.(ctxMenu.row) },
+            { label: t('DELETE_SCHEDULED_TRANSACTION', 'Delete Scheduled Transaction'), disabled: !ctxMenu.row, onClick: () => onDelete?.(ctxMenu.row) },
           ]}
         />
       )}

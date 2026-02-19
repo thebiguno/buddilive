@@ -2,8 +2,10 @@ import { Plus, Minus, ArrowRight } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { Combobox } from '../ui/Combobox';
 import { cn } from '../../lib/utils';
+import { useApp } from '../../context/AppContext';
 
 export function SplitEditor({ split, index, isOnly, splitSources, onUpdate, onAdd, onRemove }) {
+  const { t } = useApp();
   const { from: fromOptions, to: toOptions } = splitSources;
 
   function update(field, value) {
@@ -41,14 +43,14 @@ export function SplitEditor({ split, index, isOnly, splitSources, onUpdate, onAd
           const n = parseFloat(e.target.value);
           if (!isNaN(n)) update('amount', n.toFixed(2));
         }}
-        placeholder="0.00"
+        placeholder={t('AMOUNT_PLACEHOLDER', '0.00')}
       />
       <Combobox
         className="flex-1 min-w-0"
         options={fromOptions}
         value={split.fromId}
         onSelect={handleFromSelect}
-        placeholder="From"
+        placeholder={t('FROM', 'From')}
       />
       <ArrowRight size={12} className="text-gray-400 flex-shrink-0" />
       <Combobox
@@ -56,13 +58,13 @@ export function SplitEditor({ split, index, isOnly, splitSources, onUpdate, onAd
         options={toOptions}
         value={split.toId}
         onSelect={handleToSelect}
-        placeholder="To"
+        placeholder={t('TO', 'To')}
       />
       <Input
         className="flex-1 min-w-0"
         value={split.memo || ''}
         onChange={e => update('memo', e.target.value)}
-        placeholder="Memo"
+        placeholder={t('MEMO', 'Memo')}
       />
       <button
         className={cn(
@@ -71,14 +73,14 @@ export function SplitEditor({ split, index, isOnly, splitSources, onUpdate, onAd
         )}
         onClick={() => !isOnly && onRemove(index)}
         disabled={isOnly}
-        title="Remove split"
+        title={t('REMOVE_SPLIT', 'Remove split')}
       >
         <Minus size={10} />
       </button>
       <button
         className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center text-white cursor-pointer"
         onClick={() => onAdd(index)}
-        title="Add split"
+        title={t('ADD_SPLIT', 'Add split')}
       >
         <Plus size={10} />
       </button>

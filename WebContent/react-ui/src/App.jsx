@@ -35,15 +35,16 @@ const TAB_BUDGET = 'budget';
 
 // Budget period types
 const BUDGET_PERIODS = [
-  { value: 'WEEK', text: 'Weekly' },
-  { value: 'SEMI_MONTH', text: 'Semi-Monthly' },
-  { value: 'MONTH', text: 'Monthly' },
-  { value: 'QUARTER', text: 'Quarterly' },
-  { value: 'SEMI_YEAR', text: 'Semi-Yearly' },
-  { value: 'YEAR', text: 'Yearly' },
+  { value: 'WEEK', key: 'PERIOD_WEEKLY', text: 'Weekly' },
+  { value: 'SEMI_MONTH', key: 'PERIOD_SEMI_MONTHLY', text: 'Semi-Monthly' },
+  { value: 'MONTH', key: 'PERIOD_MONTHLY', text: 'Monthly' },
+  { value: 'QUARTER', key: 'PERIOD_QUARTERLY', text: 'Quarterly' },
+  { value: 'SEMI_YEAR', key: 'PERIOD_SEMI_YEARLY', text: 'Semi-Yearly' },
+  { value: 'YEAR', key: 'PERIOD_YEARLY', text: 'Yearly' },
 ];
 
 function AccountsTabLayout({ selectedAccount, setSelectedAccount, setSelectedTransaction, selectedTransaction, refreshTransactions, refreshAccounts, refreshDescriptions, setConfirmDialog, showError, onAdd, onEdit, onDelete }) {
+  const { t } = useApp();
   const [sidebarWidth, setSidebarWidth] = useState(288);
   const dragging = useRef(false);
   const startX = useRef(0);
@@ -93,7 +94,7 @@ function AccountsTabLayout({ selectedAccount, setSelectedAccount, setSelectedTra
       <div className="flex-1 flex flex-col h-full min-w-0 relative">
         {!selectedAccount && (
           <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center pointer-events-all select-none">
-            <span className="text-sm text-gray-400">Select an account to view transactions</span>
+            <span className="text-sm text-gray-400">{t('SELECT_ACCOUNT_TO_VIEW_TRANSACTIONS', 'Select an account to view transactions')}</span>
           </div>
         )}
         <TransactionEditor
@@ -103,8 +104,8 @@ function AccountsTabLayout({ selectedAccount, setSelectedAccount, setSelectedTra
           onClear={() => setSelectedTransaction(null)}
           onDelete={id => {
             setConfirmDialog({
-              title: 'Delete Transaction',
-              message: 'Delete this transaction?',
+              title: t('DELETE_TRANSACTION_TITLE', 'Delete Transaction'),
+              message: t('CONFIRM_DELETE_TRANSACTION_SIMPLE', 'Delete this transaction?'),
               onConfirm: async () => {
                 try {
                   await api.transactions.save({ action: 'delete', id });
@@ -131,6 +132,7 @@ function AccountsTabLayout({ selectedAccount, setSelectedAccount, setSelectedTra
 
 function BuddiApp({ userConfig }) {
   const {
+    t,
     showError, error, clearError,
     refreshAccounts, refreshTransactions, refreshDescriptions,
     accountTreeVersion,
@@ -138,8 +140,8 @@ function BuddiApp({ userConfig }) {
 
   // Tab state
   const [tabs, setTabs] = useState([
-    { id: TAB_ACCOUNTS, label: 'My Accounts', closable: false },
-    { id: TAB_BUDGET, label: 'My Budget', closable: false },
+    { id: TAB_ACCOUNTS, label: t('MY_ACCOUNTS', 'My Accounts'), closable: false },
+    { id: TAB_BUDGET, label: t('MY_BUDGET', 'My Budget'), closable: false },
   ]);
   const [activeTab, setActiveTab] = useState(TAB_ACCOUNTS);
 
@@ -260,8 +262,8 @@ function BuddiApp({ userConfig }) {
     if (!selectedAccount) return;
     if (selectedAccount.deleted) {
       setConfirmDialog({
-        title: 'Restore Account',
-        message: `Restore account "${selectedAccount.name}"?`,
+        title: t('RESTORE_ACCOUNT_TITLE', 'Restore Account'),
+        message: `${t('RESTORE_ACCOUNT_MESSAGE_PREFIX', 'Restore account')} "${selectedAccount.name}"?`,
         onConfirm: async () => {
           try {
             await api.accounts.save({ action: 'undelete', id: selectedAccount.id });
@@ -273,8 +275,8 @@ function BuddiApp({ userConfig }) {
       });
     } else {
       setConfirmDialog({
-        title: 'Delete Account',
-        message: `Delete account "${selectedAccount.name}"? This cannot be undone.`,
+        title: t('DELETE_ACCOUNT_TITLE', 'Delete Account'),
+        message: `${t('DELETE_ACCOUNT_MESSAGE_PREFIX', 'Delete account')} "${selectedAccount.name}"? ${t('THIS_CANNOT_BE_UNDONE', 'This cannot be undone.')}`,
         onConfirm: async () => {
           try {
             await api.accounts.save({ action: 'delete', id: selectedAccount.id });
@@ -304,8 +306,8 @@ function BuddiApp({ userConfig }) {
     if (!selectedBudgetNode) return;
     if (selectedBudgetNode.deleted) {
       setConfirmDialog({
-        title: 'Restore Category',
-        message: `Restore category "${selectedBudgetNode.name}"?`,
+        title: t('RESTORE_CATEGORY_TITLE', 'Restore Category'),
+        message: `${t('RESTORE_CATEGORY_MESSAGE_PREFIX', 'Restore category')} "${selectedBudgetNode.name}"?`,
         onConfirm: async () => {
           try {
             await api.categories.save({ action: 'undelete', id: selectedBudgetNode.id });
@@ -316,8 +318,8 @@ function BuddiApp({ userConfig }) {
       });
     } else {
       setConfirmDialog({
-        title: 'Delete Category',
-        message: `Delete category "${selectedBudgetNode.name}"?`,
+        title: t('DELETE_CATEGORY_TITLE', 'Delete Category'),
+        message: `${t('DELETE_CATEGORY_MESSAGE_PREFIX', 'Delete category')} "${selectedBudgetNode.name}"?`,
         onConfirm: async () => {
           try {
             await api.categories.save({ action: 'delete', id: selectedBudgetNode.id });
@@ -336,20 +338,22 @@ function BuddiApp({ userConfig }) {
     setScheduledEditorOpen(true);
   }
 
-  function handleEditScheduled() {
-    if (!selectedScheduled) return;
-    setScheduledEditorSelected(selectedScheduled);
+  function handleEditScheduled(row) {
+    const target = row || selectedScheduled;
+    if (!target) return;
+    setScheduledEditorSelected(target);
     setScheduledEditorOpen(true);
   }
 
-  function handleDeleteScheduled() {
-    if (!selectedScheduled) return;
+  function handleDeleteScheduled(row) {
+    const target = row || selectedScheduled;
+    if (!target) return;
     setConfirmDialog({
-      title: 'Delete Scheduled Transaction',
-      message: `Delete scheduled transaction "${selectedScheduled.name}"?`,
+      title: t('DELETE_SCHEDULED_TRANSACTION_TITLE', 'Delete Scheduled Transaction'),
+      message: `${t('DELETE_SCHEDULED_MESSAGE_PREFIX', 'Delete scheduled transaction')} "${target.name}"?`,
       onConfirm: async () => {
         try {
-          await api.scheduled.save({ action: 'delete', id: selectedScheduled.id });
+          await api.scheduled.save({ action: 'delete', id: target.id });
           setSelectedScheduled(null);
           ScheduledList.reload?.();
         } catch (e) { showError(e); }
@@ -362,12 +366,12 @@ function BuddiApp({ userConfig }) {
 
   function handleDeleteUser() {
     setConfirmDialog({
-      title: 'Delete Account',
-      message: 'Are you sure you want to permanently delete your account and all data?',
+      title: t('DELETE_ACCOUNT_TITLE', 'Delete Account'),
+      message: t('DELETE_ACCOUNT_WARNING', 'Are you sure you want to permanently delete your account and all data?'),
       onConfirm: () => {
         setConfirmDialog({
-          title: 'Delete Account — Final Confirmation',
-          message: 'This is irreversible. All your data will be permanently deleted. Continue?',
+          title: t('DELETE_ACCOUNT_FINAL_TITLE', 'Delete Account - Final Confirmation'),
+          message: t('DELETE_ACCOUNT_FINAL_WARNING', 'This is irreversible. All your data will be permanently deleted. Continue?'),
           onConfirm: async () => {
             try {
               await api.preferences.save({ action: 'delete' });
@@ -387,22 +391,22 @@ function BuddiApp({ userConfig }) {
   function launchReport(type, options) {
     const id = `report-${type}-${Date.now()}`;
     const labels = {
-      'pie-income': `Income by Category - ${options.dateRange}`,
-      'pie-expenses': `Expenses by Category - ${options.dateRange}`,
-      'income-expenses': `Income & Expenses - ${options.dateRange}`,
-      'avg-income-expenses': `Avg Income & Expenses - ${options.dateRange}`,
-      'inflow-account': `Inflow by Account - ${options.dateRange}`,
-      'inflow-payee': `Inflow by Payee - ${options.dateRange}`,
-      'balances-over-time': `Account Balances - ${options.dateRange}`,
-      'net-worth': `Net Worth - ${options.dateRange}`,
-      'budget-vs-actual': `Budget vs Actual - ${options.dateRange}`,
-      'monthly-cash-flow': `Monthly Cash Flow - ${options.dateRange}`,
-      'savings-rate': `Savings Rate - ${options.dateRange}`,
-      'year-over-year': `Side by Side Period Comparison - ${options.dateRange}`,
-      'top-payees': `Top Payees by Spend - ${options.dateRange}`,
-      'debt-paydown': `Debt Paydown - ${options.dateRange}`,
-      'category-drilldown': `Category Drill-Down - ${options.categoryName || options.categoryId}`,
-      'projected-balance': `Projected Balance - ${options.days} days`,
+      'pie-income': `${t('REPORT_PIE_INCOME_BY_CATEGORY', 'Income by Category')} - ${options.dateRange}`,
+      'pie-expenses': `${t('REPORT_PIE_EXPENSES_BY_CATEGORY', 'Expenses by Category')} - ${options.dateRange}`,
+      'income-expenses': `${t('REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY', 'Income and Expenses by Category')} - ${options.dateRange}`,
+      'avg-income-expenses': `${t('REPORT_TABLE_AVERAGE_INCOME_AND_EXPENSES_BY_CATEGORY', 'Average Income and Expenses by Category')} - ${options.dateRange}`,
+      'inflow-account': `${t('REPORT_TABLE_INFLOW_AND_OUTFLOW_BY_ACCOUNT', 'Inflow and Outflow by Account')} - ${options.dateRange}`,
+      'inflow-payee': `${t('REPORT_TABLE_INFLOW_AND_OUTFLOW_BY_PAYEE', 'Inflow and Outflow by Payee')} - ${options.dateRange}`,
+      'balances-over-time': `${t('REPORT_ACCOUNT_BALANCES_OVER_TIME', 'Account Balances Over Time')} - ${options.dateRange}`,
+      'net-worth': `${t('REPORT_NET_WORTH_OVER_TIME', 'Net Worth Over Time')} - ${options.dateRange}`,
+      'budget-vs-actual': `${t('REPORT_BUDGET_VS_ACTUAL', 'Budget vs Actual')} - ${options.dateRange}`,
+      'monthly-cash-flow': `${t('REPORT_MONTHLY_CASH_FLOW', 'Monthly Cash Flow')} - ${options.dateRange}`,
+      'savings-rate': `${t('REPORT_SAVINGS_RATE', 'Savings Rate')} - ${options.dateRange}`,
+      'year-over-year': `${t('REPORT_YEAR_OVER_YEAR', 'Side by Side Period Comparison')} - ${options.dateRange}`,
+      'top-payees': `${t('REPORT_TOP_PAYEES_BY_SPEND', 'Top Payees by Spend')} - ${options.dateRange}`,
+      'debt-paydown': `${t('REPORT_DEBT_PAYDOWN', 'Debt Paydown')} - ${options.dateRange}`,
+      'category-drilldown': `${t('REPORT_CATEGORY_DRILLDOWN', 'Category Drill-Down')} - ${options.categoryName || options.categoryId}`,
+      'projected-balance': `${t('REPORT_PROJECTED_BALANCE', 'Projected Balance')} - ${options.days} ${t('DAYS', 'days')}`,
     };
     const label = labels[type];
     if (!label) return;
@@ -420,28 +424,28 @@ function BuddiApp({ userConfig }) {
     const left = [];
     if (isAccounts) {
       left.push(
-        <ToolbarButton key="add" icon={<PlusCircle size={13} />} label="New Account" onClick={handleAddAccount} />,
-        <ToolbarButton key="edit" icon={<Edit2 size={13} />} label="Edit Account" disabled={!selectedAccount} onClick={handleEditAccount} />,
-        <ToolbarButton key="del" icon={<Trash2 size={13} />} label={selectedAccount?.deleted ? 'Restore Account' : 'Delete Account'} disabled={!selectedAccount} onClick={handleDeleteAccount} />,
+        <ToolbarButton key="add" icon={<PlusCircle size={13} />} label={t('NEW_ACCOUNT', 'New Account')} onClick={handleAddAccount} />,
+        <ToolbarButton key="edit" icon={<Edit2 size={13} />} label={t('MODIFY_ACCOUNT', 'Edit Account')} disabled={!selectedAccount} onClick={handleEditAccount} />,
+        <ToolbarButton key="del" icon={<Trash2 size={13} />} label={selectedAccount?.deleted ? t('UNDELETE_ACCOUNT', 'Restore Account') : t('DELETE_ACCOUNT', 'Delete Account')} disabled={!selectedAccount} onClick={handleDeleteAccount} />,
       );
     } else if (isBudget) {
       left.push(
-        <ToolbarButton key="add" icon={<PlusCircle size={13} />} label="New Category" onClick={handleAddCategory} />,
-        <ToolbarButton key="edit" icon={<Edit2 size={13} />} label="Edit Category" disabled={!selectedBudgetNode} onClick={handleEditCategory} />,
-        <ToolbarButton key="del" icon={<Trash2 size={13} />} label={selectedBudgetNode?.deleted ? 'Restore Category' : 'Delete Category'} disabled={!selectedBudgetNode} onClick={handleDeleteCategory} />,
+        <ToolbarButton key="add" icon={<PlusCircle size={13} />} label={t('NEW_BUDGET_CATEGORY', 'New Category')} onClick={handleAddCategory} />,
+        <ToolbarButton key="edit" icon={<Edit2 size={13} />} label={t('MODIFY_BUDGET_CATEGORY', 'Edit Category')} disabled={!selectedBudgetNode} onClick={handleEditCategory} />,
+        <ToolbarButton key="del" icon={<Trash2 size={13} />} label={selectedBudgetNode?.deleted ? t('UNDELETE_BUDGET_CATEGORY', 'Restore Category') : t('DELETE_BUDGET_CATEGORY', 'Delete Category')} disabled={!selectedBudgetNode} onClick={handleDeleteCategory} />,
       );
     } else if (isScheduled) {
       left.push(
-        <ToolbarButton key="add" icon={<PlusCircle size={13} />} label="New Scheduled" onClick={handleAddScheduled} />,
-        <ToolbarButton key="edit" icon={<Edit2 size={13} />} label="Edit Scheduled" disabled={!selectedScheduled} onClick={handleEditScheduled} />,
-        <ToolbarButton key="del" icon={<Trash2 size={13} />} label="Delete Scheduled" disabled={!selectedScheduled} onClick={handleDeleteScheduled} />,
+        <ToolbarButton key="add" icon={<PlusCircle size={13} />} label={t('NEW_SCHEDULED_TRANSACTION', 'New Scheduled')} onClick={handleAddScheduled} />,
+        <ToolbarButton key="edit" icon={<Edit2 size={13} />} label={t('MODIFY_SCHEDULED_TRANSACTION', 'Edit Scheduled')} disabled={!selectedScheduled} onClick={handleEditScheduled} />,
+        <ToolbarButton key="del" icon={<Trash2 size={13} />} label={t('DELETE_SCHEDULED_TRANSACTION', 'Delete Scheduled')} disabled={!selectedScheduled} onClick={handleDeleteScheduled} />,
       );
     } else if (isReport) {
       const activeTabObj = tabs.find(t => t.id === activeTab);
       const reportType = activeTabObj?.content?.reportType;
       left.push(
         <ReportInfoButton key="info" reportType={reportType} />,
-        <ToolbarButton key="refresh" icon={<RefreshCw size={13} />} label="Refresh" onClick={() => {
+        <ToolbarButton key="refresh" icon={<RefreshCw size={13} />} label={t('REFRESH', 'Refresh')} onClick={() => {
           // Force re-render of active report tab by bumping its key
           setTabs(prev => prev.map(t => t.id === activeTab ? { ...t, key: (t.key || 0) + 1 } : t));
         }} />,
@@ -452,47 +456,47 @@ function BuddiApp({ userConfig }) {
   }
 
   const reportsMenuItems = [
-    { label: 'BUDGET & SPENDING', header: true },
-    { label: 'Income & Expenses by Category', icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('income-expenses', o)) },
-    { label: 'Avg Income & Expenses by Category', icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('avg-income-expenses', o)) },
-    { label: 'Budget vs Actual', icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('budget-vs-actual', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Savings Rate', icon: <LineChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('savings-rate', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Category Drill-Down', icon: <LineChart size={12} />, onClick: () => setCategoryPickerCallback(() => (cat) => launchReport('category-drilldown', cat)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Top Payees by Spend', icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('top-payees', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Income by Category (Pie)', icon: <PieChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('pie-income', o)) },
-    { label: 'Expenses by Category (Pie)', icon: <PieChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('pie-expenses', o)) },
+    { label: t('REPORT_GROUP_BUDGET_SPENDING', 'BUDGET & SPENDING'), header: true },
+    { label: t('REPORT_TABLE_INCOME_AND_EXPENSES_BY_CATEGORY', 'Income & Expenses by Category'), icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('income-expenses', o)) },
+    { label: t('REPORT_TABLE_AVERAGE_INCOME_AND_EXPENSES_BY_CATEGORY', 'Avg Income & Expenses by Category'), icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('avg-income-expenses', o)) },
+    { label: t('REPORT_BUDGET_VS_ACTUAL', 'Budget vs Actual'), icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('budget-vs-actual', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_SAVINGS_RATE', 'Savings Rate'), icon: <LineChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('savings-rate', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_CATEGORY_DRILLDOWN', 'Category Drill-Down'), icon: <LineChart size={12} />, onClick: () => setCategoryPickerCallback(() => (cat) => launchReport('category-drilldown', cat)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_TOP_PAYEES_BY_SPEND', 'Top Payees by Spend'), icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('top-payees', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_PIE_INCOME_BY_CATEGORY', 'Income by Category (Pie)'), icon: <PieChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('pie-income', o)) },
+    { label: t('REPORT_PIE_EXPENSES_BY_CATEGORY', 'Expenses by Category (Pie)'), icon: <PieChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('pie-expenses', o)) },
     '-',
-    { label: 'ACCOUNTS & CASH FLOW', header: true },
-    { label: 'Inflow & Outflow by Account', icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('inflow-account', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Inflow & Outflow by Payee', icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('inflow-payee', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Monthly Cash Flow', icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('monthly-cash-flow', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Account Balances Over Time', icon: <LineChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('balances-over-time', o)) },
-    { label: 'Net Worth Over Time', icon: <TrendingUp size={12} />, onClick: () => showIntervalPicker(o => launchReport('net-worth', o)) },
-    { label: 'Projected Balance', icon: <TrendingUp size={12} />, onClick: () => setProjectedPickerOpen(true), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
-    { label: 'Debt Paydown Tracker', icon: <LineChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('debt-paydown', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
+    { label: t('REPORT_GROUP_ACCOUNTS_CASH_FLOW', 'ACCOUNTS & CASH FLOW'), header: true },
+    { label: t('REPORT_TABLE_INFLOW_AND_OUTFLOW_BY_ACCOUNT', 'Inflow & Outflow by Account'), icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('inflow-account', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_TABLE_INFLOW_AND_OUTFLOW_BY_PAYEE', 'Inflow & Outflow by Payee'), icon: <Table2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('inflow-payee', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_MONTHLY_CASH_FLOW', 'Monthly Cash Flow'), icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('monthly-cash-flow', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_ACCOUNT_BALANCES_OVER_TIME', 'Account Balances Over Time'), icon: <LineChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('balances-over-time', o)) },
+    { label: t('REPORT_NET_WORTH_OVER_TIME', 'Net Worth Over Time'), icon: <TrendingUp size={12} />, onClick: () => showIntervalPicker(o => launchReport('net-worth', o)) },
+    { label: t('REPORT_PROJECTED_BALANCE', 'Projected Balance'), icon: <TrendingUp size={12} />, onClick: () => setProjectedPickerOpen(true), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
+    { label: t('REPORT_DEBT_PAYDOWN', 'Debt Paydown Tracker'), icon: <LineChart size={12} />, onClick: () => showIntervalPicker(o => launchReport('debt-paydown', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
     '-',
-    { label: 'COMPARISON', header: true },
-    { label: 'Side by Side Period Comparison', icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('year-over-year', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined },
+    { label: t('REPORT_GROUP_COMPARISON', 'COMPARISON'), header: true },
+    { label: t('REPORT_YEAR_OVER_YEAR', 'Side by Side Period Comparison'), icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('year-over-year', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
   ];
 
   const systemMenuItems = [
-    { label: 'Change Password', icon: <Key size={12} />, onClick: () => setChangePasswordOpen(true) },
-    { label: 'Preferences', icon: <Settings size={12} />, onClick: () => setPreferencesOpen(true) },
-    { label: 'Scheduled Transactions', icon: <Clock size={12} />, onClick: () => {
+    { label: t('CHANGE_PASSWORD', 'Change Password'), icon: <Key size={12} />, onClick: () => setChangePasswordOpen(true) },
+    { label: t('PREFERENCES', 'Preferences'), icon: <Settings size={12} />, onClick: () => setPreferencesOpen(true) },
+    { label: t('SCHEDULED_TRANSACTIONS', 'Scheduled Transactions'), icon: <Clock size={12} />, onClick: () => {
       if (!tabs.find(t => t.id === 'scheduled')) {
-        setTabs(prev => [...prev, { id: 'scheduled', label: 'Scheduled Transactions', closable: true }]);
+        setTabs(prev => [...prev, { id: 'scheduled', label: t('SCHEDULED_TRANSACTIONS', 'Scheduled Transactions'), closable: true }]);
       }
       setActiveTab('scheduled');
     }},
     '-',
-    { label: 'Backup', icon: <Download size={12} />, onClick: () => api.backup() },
-    { label: 'Restore', icon: <Upload size={12} />, onClick: () => setRestoreOpen(true) },
-    { label: 'Export CSV', icon: <FileText size={12} />, disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? 'Enabled by a donation — thank you!' : undefined, onClick: () => showIntervalPicker(o => api.exportCsv(o.query)) },
+    { label: t('BACKUP', 'Backup'), icon: <Download size={12} />, onClick: () => api.backup() },
+    { label: t('RESTORE', 'Restore'), icon: <Upload size={12} />, onClick: () => setRestoreOpen(true) },
+    { label: t('EXPORT_CSV', 'Export CSV'), icon: <FileText size={12} />, disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined, onClick: () => showIntervalPicker(o => api.exportCsv(o.query)) },
     '-',
-    { label: 'Getting Started', icon: <HelpCircle size={12} />, onClick: () => setAlertDialog({ title: 'Getting Started', message: 'Welcome to Buddi Live! Start by adding accounts in the My Accounts tab, then set up budget categories in My Budget.' }) },
-    { label: 'Donate', icon: <DollarSign size={12} />, onClick: () => window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSF44FWNVSMSN&source=url') },
+    { label: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), icon: <HelpCircle size={12} />, onClick: () => setAlertDialog({ title: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), message: t('HELP_GETTING_STARTED_SIMPLE', 'Welcome to Buddi Live! Start by adding accounts in the My Accounts tab, then set up budget categories in My Budget.') }) },
+    { label: t('DONATE_TITLE', 'Donate'), icon: <DollarSign size={12} />, onClick: () => window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSF44FWNVSMSN&source=url') },
     '-',
-    { label: 'Delete Account', icon: <UserX size={12} />, onClick: handleDeleteUser },
+    { label: t('DELETE_USER', 'Delete Account'), icon: <UserX size={12} />, onClick: handleDeleteUser },
   ];
 
   // ── Render active tab content ─────────────────────────────────────────────
@@ -513,7 +517,7 @@ function BuddiApp({ userConfig }) {
                 className={`px-3 py-1.5 text-xs cursor-pointer border-r border-gray-400 select-none hover:bg-[#e8e8e8] ${activeBudgetPeriod === p.value ? 'bg-white font-medium border-t-2 border-t-blue-500 -mb-px pb-2' : 'bg-[#d0d0d0] mt-0.5'}`}
                 onClick={() => setActiveBudgetPeriod(p.value)}
               >
-                {p.text}
+                {t(p.key, p.text)}
               </div>
             ))}
           </div>
@@ -585,13 +589,13 @@ function BuddiApp({ userConfig }) {
       <div className="flex items-center justify-between bg-gradient-to-b from-[#e0e0e0] to-[#c8c8c8] border-b border-gray-400 px-3 py-1 flex-shrink-0 h-10">
         <div className="flex items-center gap-1">
           {userConfig?.encrypted && (
-            <span className="text-gray-500" title="Data Encrypted"><Lock size={14} /></span>
+            <span className="text-gray-500" title={t('DATA_ENCRYPTED', 'Data Encrypted')}><Lock size={14} /></span>
           )}
           {userConfig?.premium && (
-            <span className="text-yellow-600" title={userConfig?.premiumTooltip || 'Thanks for donating! Premium features unlocked.'}><Award size={14} /></span>
+            <span className="text-yellow-600" title={userConfig?.premiumTooltip || t('PREMIUM_TOOLTIP_HEADER', 'Thanks for donating! Premium features unlocked.')}><Award size={14} /></span>
           )}
         </div>
-        <img src="img/logo-title.png" alt="Buddi Live" className="h-8" />
+        <img src="img/logo-title.png" alt={t('BUDDI_LIVE', 'Buddi Live')} className="h-8" />
       </div>
 
       {/* Tab bar */}
@@ -608,18 +612,18 @@ function BuddiApp({ userConfig }) {
         <ToolbarSpacer />
         <ToolbarMenu
           icon={<BarChart2 size={13} />}
-          label="Reports"
+          label={t('REPORTS', 'Reports')}
           items={reportsMenuItems}
         />
         <ToolbarMenu
           icon={<Settings size={13} />}
-          label="System"
+          label={t('SYSTEM', 'System')}
           items={systemMenuItems}
         />
         <ToolbarSeparator />
         <ToolbarButton
           icon={<LogOut size={13} />}
-          label="Logout"
+          label={t('LOGOUT', 'Logout')}
           onClick={() => { window.location.href = 'authentication/logout'; }}
         />
       </Toolbar>
@@ -695,7 +699,7 @@ function BuddiApp({ userConfig }) {
       {error && (
         <AlertDialog
           open={true}
-          title="Error"
+          title={t('ERROR', 'Error')}
           message={error}
           onClose={clearError}
         />

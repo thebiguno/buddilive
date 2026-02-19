@@ -5,19 +5,19 @@ import { Input } from '../ui/Input';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 
-const PROBLEM_LABELS = {
-  length:     'Password is too short',
-  strength:   'Password is too weak',
-  variance:   'Password needs to contain more unique characters',
-  classes:    'Password needs to contain more character types (uppercase, lowercase, numbers, etc)',
-  history:    'Password was used recently',
-  dictionary: 'Password is too common',
-  pattern:    'Password contains a recognizable pattern',
-  custom:     'Password does not meet requirements',
+const PROBLEM_LABEL_KEYS = {
+  length:     'PASSWORD_LENGTH',
+  strength:   'PASSWORD_STRENGTH',
+  variance:   'PASSWORD_VARIANCE',
+  classes:    'PASSWORD_CLASSES',
+  history:    'PASSWORD_HISTORY',
+  dictionary: 'PASSWORD_DICTIONARY',
+  pattern:    'PASSWORD_PATTERN',
+  custom:     'PASSWORD_CUSTOM',
 };
 
 export function ChangePasswordEditor({ open, onClose }) {
-  const { showError, userConfig } = useApp();
+  const { showError, userConfig, t } = useApp();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -57,11 +57,11 @@ export function ChangePasswordEditor({ open, onClose }) {
 
   const problems = [];
   if (checkResult && !checkResult.passed) {
-    Object.entries(PROBLEM_LABELS).forEach(([key, label]) => {
-      if (checkResult[key] === false) problems.push(label);
+    Object.entries(PROBLEM_LABEL_KEYS).forEach(([key, i18nKey]) => {
+      if (checkResult[key] === false) problems.push(t(i18nKey, i18nKey));
     });
   }
-  if (confirmPassword.length > 0 && !passwordsMatch) problems.push('Passwords must match');
+  if (confirmPassword.length > 0 && !passwordsMatch) problems.push(t('PASSWORD_CONFIRMATION_MATCH', 'Passwords must match'));
 
   async function handleSave() {
     setSaving(true);
@@ -91,9 +91,9 @@ export function ChangePasswordEditor({ open, onClose }) {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent title="Change Password" className="w-[480px]" onOk={handleSave} onCancel={onClose}>
+      <DialogContent title={t('CHANGE_PASSWORD', 'Change Password')} className="w-[480px]" onOk={handleSave} onCancel={onClose}>
         <div className="p-3 flex flex-col gap-2">
-          <FormRow label="Current Password">
+          <FormRow label={t('CURRENT_PASSWORD', 'Current Password')}>
             <Input
               type="password"
               className="flex-1"
@@ -103,21 +103,21 @@ export function ChangePasswordEditor({ open, onClose }) {
             />
           </FormRow>
           {/* Two side-by-side inputs matching the register widget */}
-          <FormRow label="New Password">
+          <FormRow label={t('NEW_PASSWORD', 'New Password')}>
             <div className="flex gap-1.5 flex-1">
               <Input
                 type="password"
                 className="flex-1"
                 value={newPassword}
                 onChange={handleNewPasswordChange}
-                placeholder="Password"
+                placeholder={t('PASSWORD_LABEL', 'Password')}
               />
               <Input
                 type="password"
                 className="flex-1"
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
-                placeholder="Confirm ✓"
+                placeholder={`${t('CONFIRM', 'Confirm')} ✓`}
               />
             </div>
           </FormRow>
@@ -133,7 +133,7 @@ export function ChangePasswordEditor({ open, onClose }) {
           {/* Problems list */}
           {newPassword.length > 0 && problems.length > 0 && (
             <div className="ml-[8.5rem] text-xs text-red-600">
-              <span className="font-bold">Problems:</span>
+              <span className="font-bold">{t('PASSWORD_PROBLEMS', 'Problems')}:</span>
               {problems.map(p => (
                 <div key={p}>{p}</div>
               ))}
@@ -141,8 +141,8 @@ export function ChangePasswordEditor({ open, onClose }) {
           )}
         </div>
         <DialogFooter>
-          <Button variant="default" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" disabled={!isValid || saving} onClick={handleSave}>OK</Button>
+          <Button variant="default" onClick={onClose}>{t('CANCEL', 'Cancel')}</Button>
+          <Button variant="primary" disabled={!isValid || saving} onClick={handleSave}>{t('OK', 'OK')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -16,8 +16,8 @@ const CURRENT_COLOR = '#4e79a7';
 const PREVIOUS_COLOR = '#f28e2b';
 const SAVINGS_COLOR = '#76b7b2';
 
-function Loading() {
-  return <div className="flex items-center justify-center h-full text-sm text-gray-400">Loading...</div>;
+function Loading({ t }) {
+  return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
 }
 
 function currencyFormatter(value) {
@@ -28,7 +28,7 @@ function currencyFormatter(value) {
 // ── Budget vs Actual ──────────────────────────────────────────────────────────
 
 export function BudgetVsActualReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -40,12 +40,15 @@ export function BudgetVsActualReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading t={t} />;
+
+  const budgetedKey = t('BUDGETED', 'Budgeted');
+  const actualKey = t('ACTUAL', 'Actual');
 
   const chartData = data.map(d => ({
     category: d.category,
-    Budgeted: d.budgeted,
-    Actual: d.actual,
+    [budgetedKey]: d.budgeted,
+    [actualKey]: d.actual,
   }));
 
   return (
@@ -57,8 +60,8 @@ export function BudgetVsActualReport({ options }) {
           <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
           <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
           <Legend />
-          <Bar dataKey="Budgeted" fill={BUDGET_COLOR} />
-          <Bar dataKey="Actual" fill={ACTUAL_COLOR} />
+          <Bar dataKey={budgetedKey} fill={BUDGET_COLOR} />
+          <Bar dataKey={actualKey} fill={ACTUAL_COLOR} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -67,16 +70,14 @@ export function BudgetVsActualReport({ options }) {
 
 // ── Monthly Cash Flow ─────────────────────────────────────────────────────────
 
-const CASH_FLOW_COLORS = { Expenses: EXPENSE_COLOR, Income: INCOME_COLOR, Net: NET_POS_COLOR };
-
 function CashFlowTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white border border-gray-200 shadow rounded px-3 py-2 text-xs">
       <div className="font-semibold mb-1">{label}</div>
       {payload.map(p => (
-        <div key={p.dataKey} style={{ color: CASH_FLOW_COLORS[p.dataKey] ?? p.fill }}>
-          {p.dataKey} : ${Number(p.value).toFixed(2)}
+        <div key={p.dataKey} style={{ color: p.fill }}>
+          {p.dataKey}: ${Number(p.value).toFixed(2)}
         </div>
       ))}
     </div>
@@ -84,7 +85,7 @@ function CashFlowTooltip({ active, payload, label }) {
 }
 
 export function MonthlyCashFlowReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -96,13 +97,17 @@ export function MonthlyCashFlowReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading t={t} />;
+
+  const incomeKey = t('INCOME', 'Income');
+  const expensesKey = t('EXPENSES', 'Expenses');
+  const netKey = t('NET', 'Net');
 
   const chartData = data.map(d => ({
     month: d.month,
-    Income: d.income,
-    Expenses: d.expenses,
-    Net: d.net,
+    [incomeKey]: d.income,
+    [expensesKey]: d.expenses,
+    [netKey]: d.net,
   }));
 
   return (
@@ -115,11 +120,11 @@ export function MonthlyCashFlowReport({ options }) {
           <Tooltip content={<CashFlowTooltip />} />
           <Legend />
           <ReferenceLine y={0} stroke="#666" />
-          <Bar dataKey="Income" fill={INCOME_COLOR} />
-          <Bar dataKey="Expenses" fill={EXPENSE_COLOR} />
-          <Bar dataKey="Net">
+          <Bar dataKey={incomeKey} fill={INCOME_COLOR} />
+          <Bar dataKey={expensesKey} fill={EXPENSE_COLOR} />
+          <Bar dataKey={netKey}>
             {chartData.map((entry, i) => (
-              <Cell key={i} fill={entry.Net >= 0 ? NET_POS_COLOR : NET_NEG_COLOR} fillOpacity={0.7} />
+              <Cell key={i} fill={entry[netKey] >= 0 ? NET_POS_COLOR : NET_NEG_COLOR} fillOpacity={0.7} />
             ))}
           </Bar>
         </BarChart>
@@ -131,7 +136,7 @@ export function MonthlyCashFlowReport({ options }) {
 // ── Savings Rate ──────────────────────────────────────────────────────────────
 
 export function SavingsRateReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -143,11 +148,13 @@ export function SavingsRateReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading t={t} />;
+
+  const savingsRateKey = t('SAVINGS_RATE_PERCENT', 'Savings Rate %');
 
   const chartData = data.map(d => ({
     month: d.month,
-    'Savings Rate %': d.savingsRate,
+    [savingsRateKey]: d.savingsRate,
   }));
 
   return (
@@ -160,7 +167,7 @@ export function SavingsRateReport({ options }) {
           <Tooltip formatter={(v) => `${v.toFixed(1)}%`} />
           <Legend />
           <ReferenceLine y={0} stroke="#666" />
-          <Line type="monotone" dataKey="Savings Rate %" stroke={SAVINGS_COLOR} strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey={savingsRateKey} stroke={SAVINGS_COLOR} strokeWidth={2} dot={{ r: 3 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -170,7 +177,7 @@ export function SavingsRateReport({ options }) {
 // ── Year-over-Year ────────────────────────────────────────────────────────────
 
 export function YearOverYearReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState({});
   const [loading, setLoading] = useState(false);
@@ -186,7 +193,7 @@ export function YearOverYearReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading t={t} />;
 
   const chartData = data.map(d => ({
     category: d.category,
@@ -201,7 +208,7 @@ export function YearOverYearReport({ options }) {
     <div className="h-full w-full p-2 flex flex-col gap-1">
       {meta.currentPeriod && (
         <div className="text-xs text-gray-500 text-center">
-          Comparing <span className="font-semibold text-[#4e79a7]">{meta.currentPeriod}</span> vs <span className="font-semibold text-[#f28e2b]">{meta.previousPeriod}</span>
+          {t('COMPARING', 'Comparing')} <span className="font-semibold text-[#4e79a7]">{meta.currentPeriod}</span> {t('VS', 'vs')} <span className="font-semibold text-[#f28e2b]">{meta.previousPeriod}</span>
         </div>
       )}
       <div className="flex-1 min-h-0">

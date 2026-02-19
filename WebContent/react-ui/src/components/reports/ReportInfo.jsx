@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { HelpCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useApp } from '../../context/AppContext';
 
 export const REPORT_DESCRIPTIONS = {
   'pie-income': {
@@ -134,9 +135,12 @@ Assumptions: Only Credit-type accounts (credit cards, lines of credit, loans) ar
 };
 
 export function ReportInfoButton({ reportType }) {
+  const { t } = useApp();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const info = REPORT_DESCRIPTIONS[reportType];
+  const title = info ? t(`REPORT_INFO_${reportType.toUpperCase().replace(/-/g, '_')}_TITLE`, info.title) : '';
+  const body = info ? t(`REPORT_INFO_${reportType.toUpperCase().replace(/-/g, '_')}_BODY`, info.body) : '';
 
   useEffect(() => {
     function handler(e) {
@@ -152,7 +156,7 @@ export function ReportInfoButton({ reportType }) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        title="About this report"
+        title={t('ABOUT_THIS_REPORT', 'About this report')}
         className={cn(
           'inline-flex items-center gap-1 px-2 py-1 rounded border border-transparent text-xs',
           'hover:bg-white/60 hover:border-gray-400 active:bg-gray-200 transition-colors cursor-pointer',
@@ -163,8 +167,8 @@ export function ReportInfoButton({ reportType }) {
       </button>
       {open && (
         <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-300 shadow-xl rounded w-80 p-3">
-          <div className="text-xs font-semibold text-gray-800 mb-2">{info.title}</div>
-          <div className="text-xs text-gray-600 whitespace-pre-wrap leading-relaxed">{info.body}</div>
+          <div className="text-xs font-semibold text-gray-800 mb-2">{title}</div>
+          <div className="text-xs text-gray-600 whitespace-pre-wrap leading-relaxed">{body}</div>
         </div>
       )}
     </div>

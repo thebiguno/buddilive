@@ -88,7 +88,7 @@ function TreeNode({ node, depth, selectedId, focusedId, onSelect, expandedSet, o
 }
 
 export function AccountTree({ selectedAccount, onAccountSelect, onAdd, onEdit, onDelete }) {
-  const { accountTreeVersion, showError } = useApp();
+  const { accountTreeVersion, showError, t } = useApp();
   const [nodes, setNodes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedSet, setExpandedSet] = useState(new Set());
@@ -165,14 +165,14 @@ export function AccountTree({ selectedAccount, onAccountSelect, onAdd, onEdit, o
       onKeyDown={handleKeyDown}
     >
       <div className="flex items-center bg-gradient-to-b from-[#d8d8d8] to-[#c8c8c8] border-b border-gray-300 px-2 py-1">
-        <span className="text-xs font-semibold text-gray-700 flex-1">Name</span>
-        <span className="text-xs font-semibold text-gray-700">Balance</span>
+        <span className="text-xs font-semibold text-gray-700 flex-1">{t('NAME', 'Name')}</span>
+        <span className="text-xs font-semibold text-gray-700">{t('BALANCE', 'Balance')}</span>
       </div>
       <div
         className="flex-1 overflow-y-auto"
         onContextMenu={e => { if (e.target === e.currentTarget) { e.preventDefault(); setCtxMenu({ x: e.clientX, y: e.clientY, node: null }); } }}
       >
-        {loading && <div className="p-2 text-xs text-gray-400">Loading...</div>}
+        {loading && <div className="p-2 text-xs text-gray-400">{t('LOADING', 'Loading...')}</div>}
         {nodes.map(node => (
           <TreeNode
             key={node.id}
@@ -193,10 +193,10 @@ export function AccountTree({ selectedAccount, onAccountSelect, onAdd, onEdit, o
           y={ctxMenu.y}
           onClose={() => setCtxMenu(null)}
           items={[
-            { label: 'New Account', onClick: () => onAdd?.() },
+            { label: t('NEW_ACCOUNT', 'New Account'), onClick: () => onAdd?.() },
             '-',
-            { label: 'Edit Account', disabled: !ctxMenu.node, onClick: () => onEdit?.() },
-            { label: 'Delete Account', disabled: !ctxMenu.node, onClick: () => onDelete?.() },
+            { label: t('MODIFY_ACCOUNT', 'Edit Account'), disabled: !ctxMenu.node, onClick: () => onEdit?.() },
+            { label: t('DELETE_ACCOUNT', 'Delete Account'), disabled: !ctxMenu.node, onClick: () => onDelete?.() },
           ]}
         />
       )}

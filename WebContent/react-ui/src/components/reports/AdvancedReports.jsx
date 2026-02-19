@@ -12,8 +12,8 @@ import { Input } from '../ui/Input';
 
 const COLORS = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac'];
 
-function Loading() {
-  return <div className="flex items-center justify-center h-full text-sm text-gray-400">Loading...</div>;
+function Loading({ t }) {
+  return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
 }
 
 function currencyFormatter(value) {
@@ -24,7 +24,7 @@ function currencyFormatter(value) {
 // ── Top Payees by Spend ───────────────────────────────────────────────────────
 
 export function TopPayeesBySpendReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,11 +40,13 @@ export function TopPayeesBySpendReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading t={t} />;
+
+  const spendKey = t('SPEND', 'Spend');
 
   const chartData = (data || []).map(d => ({
     payee: d.payee,
-    Spend: d.spend,
+    [spendKey]: d.spend,
     pct: d.percentFormatted,
     formatted: d.spendFormatted,
   }));
@@ -52,7 +54,7 @@ export function TopPayeesBySpendReport({ options }) {
   return (
     <div className="h-full w-full p-2 flex flex-col gap-1">
       {total && (
-        <div className="text-xs text-gray-500 text-center">Total spend: <span className="font-semibold">{total}</span></div>
+        <div className="text-xs text-gray-500 text-center">{t('TOTAL_SPEND', 'Total spend')}: <span className="font-semibold">{total}</span></div>
       )}
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
@@ -60,8 +62,8 @@ export function TopPayeesBySpendReport({ options }) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
             <YAxis type="category" dataKey="payee" tick={{ fontSize: 10 }} width={115} />
-            <Tooltip formatter={(v, _n, props) => [`${props.payload.formatted} (${props.payload.pct})`, 'Spend']} />
-            <Bar dataKey="Spend" radius={[0, 3, 3, 0]}>
+            <Tooltip formatter={(v, _n, props) => [`${props.payload.formatted} (${props.payload.pct})`, spendKey]} />
+            <Bar dataKey={spendKey} radius={[0, 3, 3, 0]}>
               {chartData.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
@@ -76,7 +78,7 @@ export function TopPayeesBySpendReport({ options }) {
 // ── Category Drill-Down ───────────────────────────────────────────────────────
 
 export function CategoryDrillDownReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [categoryName, setCategoryName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -93,11 +95,13 @@ export function CategoryDrillDownReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.categoryId, options.query, showError]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading t={t} />;
+
+  const amountKey = t('AMOUNT', 'Amount');
 
   const chartData = (data || []).map(d => ({
     month: d.month,
-    Amount: d.amount,
+    [amountKey]: d.amount,
     formatted: d.amountFormatted,
   }));
 
@@ -112,9 +116,9 @@ export function CategoryDrillDownReport({ options }) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
             <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-            <Tooltip formatter={(v, _n, props) => [props.payload.formatted, 'Amount']} />
+            <Tooltip formatter={(v, _n, props) => [props.payload.formatted, amountKey]} />
             <Legend />
-            <Line type="monotone" dataKey="Amount" stroke={COLORS[0]} strokeWidth={2} dot={{ r: 3 }} />
+            <Line type="monotone" dataKey={amountKey} stroke={COLORS[0]} strokeWidth={2} dot={{ r: 3 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -125,7 +129,7 @@ export function CategoryDrillDownReport({ options }) {
 // ── Projected Balance ─────────────────────────────────────────────────────────
 
 export function ProjectedBalanceReport({ options, accountTree }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -150,11 +154,11 @@ export function ProjectedBalanceReport({ options, accountTree }) {
       .finally(() => setLoading(false));
   }, [options.days, showError]);
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading t={t} />;
 
   return (
     <div className="h-full w-full p-2 flex flex-col gap-1">
-      <div className="text-xs text-gray-500 text-center">Projected {options.days || 90} days forward using 12-month historical average</div>
+      <div className="text-xs text-gray-500 text-center">{t('PROJECTED_DAYS_FORWARD', 'Projected {{days}} days forward using 12-month historical average').replace('{{days}}', String(options.days || 90))}</div>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
@@ -163,7 +167,7 @@ export function ProjectedBalanceReport({ options, accountTree }) {
             <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
             <Tooltip formatter={(v) => `$${Number(v).toFixed(2)}`} />
             <Legend />
-            <Line type="monotone" dataKey="netWorth" name="Net Worth" stroke="#4e79a7" strokeWidth={2} dot={false} strokeDasharray="5 5" />
+            <Line type="monotone" dataKey="netWorth" name={t('NET_WORTH', 'Net Worth')} stroke="#4e79a7" strokeWidth={2} dot={false} strokeDasharray="5 5" />
             {series.map((s, i) => (
               <Line key={s.key} type="monotone" dataKey={s.key} name={s.name}
                 stroke={COLORS[(i + 1) % COLORS.length]} dot={false} strokeWidth={1.5} />
@@ -178,7 +182,7 @@ export function ProjectedBalanceReport({ options, accountTree }) {
 // ── Debt Paydown Tracker ──────────────────────────────────────────────────────
 
 export function DebtPaydownReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [series, setSeries] = useState([]);
   const [noData, setNoData] = useState(false);
@@ -196,8 +200,8 @@ export function DebtPaydownReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <Loading />;
-  if (noData) return <div className="flex items-center justify-center h-full text-sm text-gray-400">No credit accounts found.</div>;
+  if (loading) return <Loading t={t} />;
+  if (noData) return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('NO_CREDIT_ACCOUNTS_FOUND', 'No credit accounts found.')}</div>;
 
   return (
     <div className="h-full w-full p-2">
@@ -221,18 +225,18 @@ export function DebtPaydownReport({ options }) {
 // ── Category Picker Dialog ────────────────────────────────────────────────────
 
 const DRILL_INTERVALS = [
-  { value: 'PLUGIN_FILTER_THIS_MONTH', text: 'This Month' },
-  { value: 'PLUGIN_FILTER_LAST_MONTH', text: 'Last Month' },
-  { value: 'PLUGIN_FILTER_THIS_QUARTER', text: 'This Quarter' },
-  { value: 'PLUGIN_FILTER_LAST_QUARTER', text: 'Last Quarter' },
-  { value: 'PLUGIN_FILTER_THIS_YEAR', text: 'This Year' },
-  { value: 'PLUGIN_FILTER_THIS_YEAR_TO_DATE', text: 'This Year to Date' },
-  { value: 'PLUGIN_FILTER_LAST_YEAR', text: 'Last Year' },
-  { value: 'PLUGIN_FILTER_ALL_TIME', text: 'All Time' },
+  { value: 'PLUGIN_FILTER_THIS_MONTH', key: 'INTERVAL_THIS_MONTH', text: 'This Month' },
+  { value: 'PLUGIN_FILTER_LAST_MONTH', key: 'INTERVAL_LAST_MONTH', text: 'Last Month' },
+  { value: 'PLUGIN_FILTER_THIS_QUARTER', key: 'INTERVAL_THIS_QUARTER', text: 'This Quarter' },
+  { value: 'PLUGIN_FILTER_LAST_QUARTER', key: 'INTERVAL_LAST_QUARTER', text: 'Last Quarter' },
+  { value: 'PLUGIN_FILTER_THIS_YEAR', key: 'INTERVAL_THIS_YEAR', text: 'This Year' },
+  { value: 'PLUGIN_FILTER_THIS_YEAR_TO_DATE', key: 'INTERVAL_THIS_YEAR_TO_DATE', text: 'This Year to Date' },
+  { value: 'PLUGIN_FILTER_LAST_YEAR', key: 'INTERVAL_LAST_YEAR', text: 'Last Year' },
+  { value: 'PLUGIN_FILTER_ALL_TIME', key: 'INTERVAL_ALL_TIME', text: 'All Time' },
 ];
 
 export function CategoryPickerDialog({ open, onClose, onConfirm }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState('');
   const [interval, setInterval] = useState('PLUGIN_FILTER_THIS_YEAR');
@@ -251,7 +255,8 @@ export function CategoryPickerDialog({ open, onClose, onConfirm }) {
   function handleOk() {
     if (!categoryId) return;
     const selectedCat = categories.find(c => String(c.value) === categoryId);
-    const dateRange = DRILL_INTERVALS.find(i => i.value === interval)?.text || interval;
+    const selectedInterval = DRILL_INTERVALS.find(i => i.value === interval);
+    const dateRange = selectedInterval ? t(selectedInterval.key, selectedInterval.text) : interval;
     onConfirm({
       categoryId,
       categoryName: selectedCat?.text?.replace(/^[\s\u00a0]+/, '').trim() || categoryId,
@@ -263,10 +268,10 @@ export function CategoryPickerDialog({ open, onClose, onConfirm }) {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent title="Category Drill-Down" className="w-[480px]" onOk={handleOk} onCancel={onClose}>
+      <DialogContent title={t('REPORT_CATEGORY_DRILLDOWN', 'Category Drill-Down')} className="w-[480px]" onOk={handleOk} onCancel={onClose}>
         <div className="p-3 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-700 w-24 flex-shrink-0">Category</label>
+            <label className="text-xs text-gray-700 w-24 flex-shrink-0">{t('CATEGORY', 'Category')}</label>
             <Select className="flex-1" value={categoryId} onChange={e => setCategoryId(e.target.value)}>
               {categories.map(c => (
                 <option key={c.value} value={String(c.value)}>{c.text}</option>
@@ -274,17 +279,17 @@ export function CategoryPickerDialog({ open, onClose, onConfirm }) {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-700 w-24 flex-shrink-0">Interval</label>
+            <label className="text-xs text-gray-700 w-24 flex-shrink-0">{t('INTERVAL', 'Interval')}</label>
             <Select className="flex-1" value={interval} onChange={e => setInterval(e.target.value)}>
               {DRILL_INTERVALS.map(i => (
-                <option key={i.value} value={i.value}>{i.text}</option>
+                <option key={i.value} value={i.value}>{t(i.key, i.text)}</option>
               ))}
             </Select>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="default" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" disabled={!categoryId} onClick={handleOk}>OK</Button>
+          <Button variant="default" onClick={onClose}>{t('CANCEL', 'Cancel')}</Button>
+          <Button variant="primary" disabled={!categoryId} onClick={handleOk}>{t('OK', 'OK')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -294,14 +299,15 @@ export function CategoryPickerDialog({ open, onClose, onConfirm }) {
 // ── Projected Balance Options Dialog ─────────────────────────────────────────
 
 const PROJECTION_OPTIONS = [
-  { value: '30', label: '30 days' },
-  { value: '60', label: '60 days' },
-  { value: '90', label: '90 days' },
-  { value: '180', label: '6 months' },
-  { value: '365', label: '1 year' },
+  { value: '30', key: 'PROJECTION_30_DAYS', label: '30 days' },
+  { value: '60', key: 'PROJECTION_60_DAYS', label: '60 days' },
+  { value: '90', key: 'PROJECTION_90_DAYS', label: '90 days' },
+  { value: '180', key: 'PROJECTION_6_MONTHS', label: '6 months' },
+  { value: '365', key: 'PROJECTION_1_YEAR', label: '1 year' },
 ];
 
 export function ProjectedBalancePickerDialog({ open, onClose, onConfirm }) {
+  const { t } = useApp();
   const [days, setDays] = useState('90');
 
   function handleOk() {
@@ -311,20 +317,20 @@ export function ProjectedBalancePickerDialog({ open, onClose, onConfirm }) {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent title="Projected Balance" className="w-80" onOk={handleOk} onCancel={onClose}>
+      <DialogContent title={t('REPORT_PROJECTED_BALANCE', 'Projected Balance')} className="w-80" onOk={handleOk} onCancel={onClose}>
         <div className="p-3 flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-700 w-24 flex-shrink-0">Project forward</label>
+            <label className="text-xs text-gray-700 w-24 flex-shrink-0">{t('PROJECT_FORWARD', 'Project forward')}</label>
             <Select className="flex-1" value={days} onChange={e => setDays(e.target.value)}>
               {PROJECTION_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>{t(o.key, o.label)}</option>
               ))}
             </Select>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="default" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={handleOk}>OK</Button>
+          <Button variant="default" onClick={onClose}>{t('CANCEL', 'Cancel')}</Button>
+          <Button variant="primary" onClick={handleOk}>{t('OK', 'OK')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

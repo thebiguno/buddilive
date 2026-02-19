@@ -8,7 +8,7 @@ import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 
 export function BudgetEditor({ open, selected, onClose, onSaved }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [name, setName] = useState('');
   const [parentId, setParentId] = useState(null);
   const [periodType, setPeriodType] = useState('MONTH');
@@ -31,10 +31,10 @@ export function BudgetEditor({ open, selected, onClose, onSaved }) {
     api.categories.parents(selected?.id)
       .then(data => {
         const opts = (data?.data || []).map(d => ({ value: d.value, text: d.text, periodType: d.periodType, type: d.type }));
-        setParentOptions([{ value: '', text: '(None)' }, ...opts]);
+        setParentOptions([{ value: '', text: t('NONE', '(None)') }, ...opts]);
       })
       .catch(() => {});
-  }, [selected?.id]);
+  }, [selected?.id, t]);
 
   function handleParentSelect(opt) {
     setParentId(opt.value || null);
@@ -72,50 +72,50 @@ export function BudgetEditor({ open, selected, onClose, onSaved }) {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent title={selected ? 'Edit Budget Category' : 'Add Budget Category'} className="w-96" onOk={handleSave} onCancel={onClose}>
+      <DialogContent title={selected ? t('MODIFY_BUDGET_CATEGORY', 'Edit Budget Category') : t('NEW_BUDGET_CATEGORY', 'Add Budget Category')} className="w-96" onOk={handleSave} onCancel={onClose}>
         <div className="p-3 flex flex-col gap-2">
-          <FormRow label="Name">
+          <FormRow label={t('NAME', 'Name')}>
             <Input
               className="flex-1"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="e.g. Groceries, Rent"
+              placeholder={t('BUDGET_CATEGORY_NAME_EXAMPLES', 'e.g. Groceries, Rent')}
               autoFocus
             />
           </FormRow>
-          <FormRow label="Parent">
+          <FormRow label={t('PARENT', 'Parent')}>
             <Combobox
               className="flex-1"
               options={parentOptions}
               value={parentId || ''}
               onSelect={handleParentSelect}
-              placeholder="(None)"
+              placeholder={t('NONE', '(None)')}
             />
           </FormRow>
           {!selected && (
             <>
-              <FormRow label="Period Type">
+              <FormRow label={t('PERIOD_TYPE', 'Period Type')}>
                 <Select className="flex-1" value={periodType} onChange={e => setPeriodType(e.target.value)} disabled={parentDisabled}>
-                  <option value="WEEK">Weekly</option>
-                  <option value="SEMI_MONTH">Semi-Monthly</option>
-                  <option value="MONTH">Monthly</option>
-                  <option value="QUARTER">Quarterly</option>
-                  <option value="SEMI_YEAR">Semi-Yearly</option>
-                  <option value="YEAR">Yearly</option>
+                  <option value="WEEK">{t('PERIOD_WEEKLY', 'Weekly')}</option>
+                  <option value="SEMI_MONTH">{t('PERIOD_SEMI_MONTHLY', 'Semi-Monthly')}</option>
+                  <option value="MONTH">{t('PERIOD_MONTHLY', 'Monthly')}</option>
+                  <option value="QUARTER">{t('PERIOD_QUARTERLY', 'Quarterly')}</option>
+                  <option value="SEMI_YEAR">{t('PERIOD_SEMI_YEARLY', 'Semi-Yearly')}</option>
+                  <option value="YEAR">{t('PERIOD_YEARLY', 'Yearly')}</option>
                 </Select>
               </FormRow>
-              <FormRow label="Type">
+              <FormRow label={t('TYPE', 'Type')}>
                 <Select className="flex-1" value={type} onChange={e => setType(e.target.value)} disabled={parentDisabled}>
-                  <option value="I">Income</option>
-                  <option value="E">Expense</option>
+                  <option value="I">{t('INCOME', 'Income')}</option>
+                  <option value="E">{t('EXPENSE', 'Expense')}</option>
                 </Select>
               </FormRow>
             </>
           )}
         </div>
         <DialogFooter>
-          <Button variant="default" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" disabled={!isValid || saving} onClick={handleSave}>OK</Button>
+          <Button variant="default" onClick={onClose}>{t('CANCEL', 'Cancel')}</Button>
+          <Button variant="primary" disabled={!isValid || saving} onClick={handleSave}>{t('OK', 'OK')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

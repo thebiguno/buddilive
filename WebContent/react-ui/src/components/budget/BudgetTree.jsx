@@ -19,7 +19,7 @@ function parseStyle(styleStr) {
   return result;
 }
 
-function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, onContextMenu }) {
+function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, onContextMenu, t }) {
   const [expanded, setExpanded] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
@@ -91,7 +91,7 @@ function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, on
             />
           ) : (
             <span style={parseStyle(node.currentStyle)} className={cn(!node.current && 'text-gray-400 italic')}>
-              {node.current || 'Click to enter'}
+              {node.current || t('CLICK_TO_ENTER', 'Click to enter')}
             </span>
           )}
         </div>
@@ -114,6 +114,7 @@ function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, on
           onEditAmount={onEditAmount}
           stripe={i % 2 !== 0}
           onContextMenu={onContextMenu}
+          t={t}
         />
       ))}
     </>
@@ -121,7 +122,7 @@ function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, on
 }
 
 export function BudgetTree({ periodType, onSelectionChange, externalVersion = 0, onAdd, onEdit, onDelete }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [nodes, setNodes] = useState([]);
   const [period, setPeriod] = useState('');
   const [previousPeriod, setPreviousPeriod] = useState('');
@@ -205,14 +206,14 @@ export function BudgetTree({ periodType, onSelectionChange, externalVersion = 0,
           className="text-xs px-2 py-0.5 rounded border border-gray-400 bg-white hover:bg-gray-100 cursor-pointer"
           onClick={copyFromPrevious}
         >
-          Copy from Previous Period
+          {t('COPY_FROM_PREVIOUS_PERIOD', 'Copy from Previous Period')}
         </button>
         <div className="flex-1" />
-        <span className="text-xs text-gray-600">Current Period</span>
+        <span className="text-xs text-gray-600">{t('CURRENT_PERIOD', 'Current Period')}</span>
         <button
           className="w-5 h-5 flex items-center justify-center rounded border border-gray-400 bg-white hover:bg-gray-100 cursor-pointer"
           onClick={goToPrevious}
-          title="Previous period"
+          title={t('PREVIOUS_PERIOD', 'Previous period')}
         >
           ‹
         </button>
@@ -220,29 +221,29 @@ export function BudgetTree({ periodType, onSelectionChange, externalVersion = 0,
         <button
           className="w-5 h-5 flex items-center justify-center rounded border border-gray-400 bg-white hover:bg-gray-100 cursor-pointer"
           onClick={goToNext}
-          title="Next period"
+          title={t('NEXT_PERIOD', 'Next period')}
         >
           ›
         </button>
       </div>
       {/* Header row */}
       <div className="flex items-center text-xs font-semibold bg-gradient-to-b from-[#d8d8d8] to-[#c8c8c8] border-b border-gray-300 flex-shrink-0">
-        <div className="w-[28%] px-2 py-1 border-r border-gray-300">Name</div>
+        <div className="w-[28%] px-2 py-1 border-r border-gray-300">{t('NAME', 'Name')}</div>
         <div className="w-[18%] text-right px-2 py-1 border-r border-gray-300">
-          Previous{previousPeriod ? ` (${previousPeriod})` : ''}
+          {t('PREVIOUS', 'Previous')}{previousPeriod ? ` (${previousPeriod})` : ''}
         </div>
         <div className="w-[18%] text-right px-2 py-1 border-r border-gray-300">
-          Current{period ? ` (${period})` : ''}
+          {t('CURRENT', 'Current')}{period ? ` (${period})` : ''}
         </div>
-        <div className="w-[18%] text-right px-2 py-1 border-r border-gray-300">Actual</div>
-        <div className="w-[18%] text-right px-2 py-1">Remaining</div>
+        <div className="w-[18%] text-right px-2 py-1 border-r border-gray-300">{t('ACTUAL', 'Actual')}</div>
+        <div className="w-[18%] text-right px-2 py-1">{t('REMAINING', 'Remaining')}</div>
       </div>
       {/* Rows */}
       <div
         className="flex-1 overflow-y-auto"
         onContextMenu={e => { if (e.target === e.currentTarget) { e.preventDefault(); setCtxMenu({ x: e.clientX, y: e.clientY, node: null }); } }}
       >
-        {loading && <div className="p-2 text-xs text-gray-400">Loading...</div>}
+        {loading && <div className="p-2 text-xs text-gray-400">{t('LOADING', 'Loading...')}</div>}
         {nodes.map((node, i) => (
           <BudgetRow
             key={node.id}
@@ -253,6 +254,7 @@ export function BudgetTree({ periodType, onSelectionChange, externalVersion = 0,
             onEditAmount={handleEditAmount}
             stripe={i % 2 !== 0}
             onContextMenu={handleContextMenu}
+            t={t}
           />
         ))}
       </div>
@@ -262,10 +264,10 @@ export function BudgetTree({ periodType, onSelectionChange, externalVersion = 0,
           y={ctxMenu.y}
           onClose={() => setCtxMenu(null)}
           items={[
-            { label: 'New Category', onClick: () => onAdd?.() },
+            { label: t('NEW_BUDGET_CATEGORY', 'New Category'), onClick: () => onAdd?.() },
             '-',
-            { label: 'Edit Category', disabled: !ctxMenu.node, onClick: () => onEdit?.() },
-            { label: 'Delete Category', disabled: !ctxMenu.node, onClick: () => onDelete?.() },
+            { label: t('MODIFY_BUDGET_CATEGORY', 'Edit Category'), disabled: !ctxMenu.node, onClick: () => onEdit?.() },
+            { label: t('DELETE_BUDGET_CATEGORY', 'Delete Category'), disabled: !ctxMenu.node, onClick: () => onDelete?.() },
           ]}
         />
       )}

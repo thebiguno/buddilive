@@ -5,7 +5,6 @@ body {
 	font-size: 0.75em;
 	margin: 0px;
 	padding: 0px;
-	min-width: 1024px;
 }
 
 div.background-top {
@@ -82,4 +81,41 @@ ul {
 }
 li {
 	margin: 1em;
+}
+
+@media (max-width: 700px) {
+	body {
+		background-color: #fff;
+		overflow-x: hidden;
+	}
+	div.background-top,
+	div.background-bottom,
+	div.version-info,
+	div.messages > p,
+	div.messages > ul {
+		display: none;
+	}
+	div.title {
+		position: static;
+		width: 100%;
+		height: 0;
+		padding-bottom: 17.2%;
+		background: url('../img/logo-title-small.png') no-repeat center center #d0d8e8;
+		background-size: 100% 100%;
+		border-bottom: 1px solid #b0b8c8;
+		top: auto;
+	}
+	div.messages {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	div#loginform {
+		float: none;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+		min-height: 100vh;
+	}
 }

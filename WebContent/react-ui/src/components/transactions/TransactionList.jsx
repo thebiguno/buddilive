@@ -62,7 +62,7 @@ function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
 }
 
 export function TransactionList({ selectedAccount, onTransactionSelect, selectedTransactionId }) {
-  const { transactionListVersion, showError } = useApp();
+  const { transactionListVersion, showError, t } = useApp();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
@@ -100,13 +100,13 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
         className="flex items-center text-xs font-semibold bg-gradient-to-b from-[#d8d8d8] to-[#c8c8c8] border-b border-gray-300 flex-shrink-0 px-1 py-1 select-none"
         onContextMenu={e => { e.preventDefault(); setHeaderCtxMenu({ x: e.clientX, y: e.clientY }); }}
       >
-        <span className="w-[13%]">Date</span>
-        <span className="flex-1">Payee / Description</span>
-        <span className="w-[12%] text-right pr-1">Amount From</span>
-        <span className="w-[12%] text-right pr-1">Amount To</span>
-        <span className="w-[12%] text-right pr-1">Balance</span>
+        <span className="w-[13%]">{t('DATE', 'Date')}</span>
+        <span className="flex-1">{t('PAYEE_DESCRIPTION', 'Payee / Description')}</span>
+        <span className="w-[12%] text-right pr-1">{t('AMOUNT_FROM', 'Amount From')}</span>
+        <span className="w-[12%] text-right pr-1">{t('AMOUNT_TO', 'Amount To')}</span>
+        <span className="w-[12%] text-right pr-1">{t('BALANCE', 'Balance')}</span>
         {showTimestamps && (
-          <span className="w-[14%] text-right pr-1">Modified</span>
+          <span className="w-[14%] text-right pr-1">{t('MODIFIED', 'Modified')}</span>
         )}
       </div>
       {headerCtxMenu && (
@@ -116,7 +116,7 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
           onClose={() => setHeaderCtxMenu(null)}
           items={[
             {
-              label: showTimestamps ? 'Hide Audit Timestamps' : 'Show Audit Timestamps',
+              label: showTimestamps ? t('HIDE_AUDIT_TIMESTAMPS', 'Hide Audit Timestamps') : t('SHOW_AUDIT_TIMESTAMPS', 'Show Audit Timestamps'),
               onClick: () => {
                 setShowTimestamps(v => {
                   if (v) setSortByModified(false);
@@ -125,7 +125,7 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
               },
             },
             ...(showTimestamps ? [{
-              label: sortByModified ? 'Sort by Transaction Date' : 'Sort by Modified Date',
+              label: sortByModified ? t('SORT_BY_TRANSACTION_DATE', 'Sort by Transaction Date') : t('SORT_BY_MODIFIED_DATE', 'Sort by Modified Date'),
               onClick: () => setSortByModified(v => !v),
             }] : []),
           ]}
@@ -133,9 +133,9 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
       )}
       {/* Rows */}
       <div className="flex-1 overflow-y-auto">
-        {loading && <div className="p-2 text-xs text-gray-400">Loading...</div>}
+        {loading && <div className="p-2 text-xs text-gray-400">{t('LOADING', 'Loading...')}</div>}
         {!loading && !selectedAccount && (
-          <div className="p-4 text-xs text-gray-400 text-center">Select an account to view transactions.</div>
+          <div className="p-4 text-xs text-gray-400 text-center">{t('SELECT_ACCOUNT_TO_VIEW_TRANSACTIONS', 'Select an account to view transactions.')}</div>
         )}
         {rows.map((row, i) => (
           <TransactionRow
@@ -154,7 +154,7 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
           className="w-48"
           defaultValue=""
           onChange={handleSearchChange}
-          placeholder="Search..."
+          placeholder={t('SEARCH', 'Search...')}
         />
       </div>
     </div>

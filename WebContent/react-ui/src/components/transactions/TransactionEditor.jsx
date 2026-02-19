@@ -10,7 +10,7 @@ import { useApp } from '../../context/AppContext';
 const EMPTY_SPLIT = () => ({ amount: '', fromId: null, toId: null, memo: '' });
 
 export function TransactionEditor({ selectedAccount, selectedTransaction, onSaved, onClear, onDelete }) {
-  const { splitSources, setSplitSources, showError, descriptionStoreVersion } = useApp();
+  const { splitSources, setSplitSources, showError, descriptionStoreVersion, t } = useApp();
   const [date, setDate] = useState(today());
   const [description, setDescription] = useState('');
   const [number, setNumber] = useState('');
@@ -76,18 +76,36 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     setSplits([{ ...EMPTY_SPLIT(), source: selectedAccount?.id }]);
   }
 
+  function remapSplitToCurrentAccount(sp, currentAccountId) {
+    const isAccountType = t => t === 'C' || t === 'D';
+    const fromIsAccount = isAccountType(sp.fromType);
+    const toIsAccount = isAccountType(sp.toType);
+    let fromId = sp.fromId || null;
+    let toId = sp.toId || null;
+    if (fromIsAccount && toIsAccount) {
+      fromId = currentAccountId;
+    } else if (fromIsAccount) {
+      fromId = currentAccountId;
+    } else if (toIsAccount) {
+      toId = currentAccountId;
+    }
+    return { fromId, toId };
+  }
+
   function handleDescriptionSelect(opt) {
     setDescription(opt.value);
     if (opt.transaction) {
       const t = opt.transaction;
+      const currentAccountId = selectedAccount?.id || null;
       const s = (t.splits || []).map((sp, i) => {
         const existing = splits[i] || {};
+        const { fromId, toId } = remapSplitToCurrentAccount(sp, currentAccountId);
         return {
           amount: existing.amount || sp.amountNumber || sp.amount || '',
-          fromId: existing.fromId || sp.fromId || null,
-          toId: existing.toId || sp.toId || null,
+          fromId,
+          toId,
           memo: existing.memo || sp.memo || '',
-          source: selectedAccount?.id,
+          source: currentAccountId,
         };
       });
       if (s.length > 0) setSplits(s);
@@ -165,17 +183,17 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
 
     if (dateOutOfRange) {
       const msg = d > future
-        ? 'The date is more than 7 days in the future. Are you sure you want to save this transaction?'
-        : 'The date is more than 3 months in the past. Are you sure you want to save this transaction?';
+        ? t('TRANSACTION_DATE_TOO_FAR_FUTURE', 'The date is more than 7 days in the future. Are you sure you want to save this transaction?')
+        : t('TRANSACTION_DATE_TOO_FAR_PAST', 'The date is more than 3 months in the past. Are you sure you want to save this transaction?');
       setConfirmPending({
-        title: 'Date Out of Range',
+        title: t('DATE_OUT_OF_RANGE', 'Date Out of Range'),
         message: msg,
         onConfirm: () => {
           setConfirmPending(null);
           if (fieldsChanged) {
             setConfirmPending({
-              title: 'Modify Existing Transaction',
-              message: 'You have changed fields on an existing transaction. Are you sure you want to save these changes?',
+              title: t('MODIFY_EXISTING_TRANSACTION', 'Modify Existing Transaction'),
+              message: t('MODIFY_EXISTING_TRANSACTION_CONFIRM', 'You have changed fields on an existing transaction. Are you sure you want to save these changes?'),
               onConfirm: () => { setConfirmPending(null); doSave(); },
               onCancel: () => setConfirmPending(null),
             });
@@ -187,8 +205,8 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       });
     } else if (fieldsChanged) {
       setConfirmPending({
-        title: 'Modify Existing Transaction',
-        message: 'You have changed fields on an existing transaction. Are you sure you want to save these changes?',
+        title: t('MODIFY_EXISTING_TRANSACTION', 'Modify Existing Transaction'),
+        message: t('MODIFY_EXISTING_TRANSACTION_CONFIRM', 'You have changed fields on an existing transaction. Are you sure you want to save these changes?'),
         onConfirm: () => { setConfirmPending(null); doSave(); },
         onCancel: () => setConfirmPending(null),
       });
@@ -244,13 +262,13 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
           value={description}
           onChange={setDescription}
           onSelect={handleDescriptionSelect}
-          placeholder="Description"
+          placeholder={t('DESCRIPTION', 'Description')}
         />
         <Input
           className="w-24"
           value={number}
           onChange={e => setNumber(e.target.value)}
-          placeholder="Number"
+          placeholder={t('NUMBER', 'Number')}
         />
       </div>
       {/* Split rows */}
@@ -275,16 +293,16 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
           disabled={!transactionId}
           onClick={handleDelete}
         >
-          Delete Transaction
+          {t('DELETE_TRANSACTION', 'Delete Transaction')}
         </Button>
         <div className="flex-1" />
-        <Button variant="default" onClick={handleClear}>Clear</Button>
+        <Button variant="default" onClick={handleClear}>{t('CLEAR', 'Clear')}</Button>
         <Button
           variant="primary"
           disabled={!isValid() || saving}
           onClick={handleSave}
         >
-          {transactionId ? 'Update' : 'Record'} Transaction
+          {transactionId ? t('UPDATE', 'Update') : t('RECORD', 'Record')} {t('TRANSACTION', 'Transaction')}
         </Button>
       </div>
     </div>

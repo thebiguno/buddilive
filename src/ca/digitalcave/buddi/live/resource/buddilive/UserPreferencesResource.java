@@ -71,19 +71,32 @@ public class UserPreferencesResource extends ServerResource {
 			final String action = json.optString("action");
 			
 			if ("update".equals(action)){
-				if (json.optBoolean("encrypt", false) != user.isEncrypted()){
+				final boolean encrypt = json.optBoolean("encrypt", false);
+				final boolean useTwoFactor = json.optBoolean("useTwoFactor", false);
+
+				if (encrypt != user.isEncrypted()){
 					//First check that the password is correct
 					final String encryptPassword = json.getString("encryptPassword");
-					if (!DefaultHash.verify(new String(user.getSecret()), encryptPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
+					if (!DefaultHash.verify(new String(user.getSecret()), encryptPassword)) {
+						final String translationKey = user.isEncrypted() ? "INCORRECT_PASSWORD_DISABLE_ENCRYPTION" : "INCORRECT_PASSWORD_ENABLE_ENCRYPTION";
+						throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString(translationKey));
+					}
 
 					if (user.isEncrypted()) DataUpdater.turnOffEncryption(user, sqlSession);
 					else DataUpdater.turnOnEncryption(user, sqlSession);
 				}
+
+				//Disabling two factor requires password confirmation.
+				if (user.isTwoFactorRequired() && !useTwoFactor){
+					final String disableTwoFactorPassword = json.optString("disableTwoFactorPassword", null);
+					if (StringUtils.isBlank(disableTwoFactorPassword) || !DefaultHash.verify(new String(user.getSecret()), disableTwoFactorPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD_DISABLE_TWO_FACTOR"));
+				}
+
 				user.setEmail(json.optBoolean("storeEmail", false) ? user.getPlaintextIdentifier() : null);
 				user.setLocale(LocaleUtils.toLocale(json.optString("locale", "en_US")));
 				user.setCurrency(Currency.getInstance(json.optString("currency", "USD")));
 				user.setOverrideDateFormat(json.optString("dateFormat", null));
-				user.setTwoFactorRequired(json.optBoolean("useTwoFactor", false));
+				user.setTwoFactorRequired(useTwoFactor);
 				//user.setCurrencyAfter(json.optBoolean("currencyAfter", false));
 				user.setShowDeleted(json.optBoolean("showDeleted", true));
 				//user.setShowCleared(json.optBoolean("showCleared", false));

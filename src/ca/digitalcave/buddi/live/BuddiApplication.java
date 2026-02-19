@@ -57,6 +57,7 @@ import ca.digitalcave.buddi.live.resource.buddilive.TransactionsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.UserPreferencesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.CurrenciesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
+import ca.digitalcave.buddi.live.resource.buddilive.preferences.TranslationsResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.AverageIncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.BalancesOverTimeResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.BudgetVsActualResource;
@@ -351,6 +352,7 @@ public class BuddiApplication extends Application{
 		final Router comboStoreRouter = new Router(getContext());
 		comboStoreRouter.attach("/currencies", CurrenciesResource.class);
 		comboStoreRouter.attach("/locales", LocalesResource.class);
+		comboStoreRouter.attach("/translations", TranslationsResource.class);
 
 
 		final Router publicRouter = new Router(getContext());
@@ -378,6 +380,20 @@ public class BuddiApplication extends Application{
 	@Override
 	public synchronized void stop() throws Exception {
 		ds.close();
+
+		// Give c3p0's Resource Destroyer thread time to finish closing connections
+		// before Tomcat tears down the classloader, avoiding the memory leak warning.
+		try { Thread.sleep(2500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+
+		// Deregister JDBC drivers loaded by this webapp's classloader to prevent
+		// Tomcat's "failed to unregister" memory leak warning.
+		java.sql.DriverManager.getDrivers().asIterator().forEachRemaining(driver -> {
+			if (driver.getClass().getClassLoader() == getClass().getClassLoader()) {
+				try { java.sql.DriverManager.deregisterDriver(driver); } catch (java.sql.SQLException e) {
+					getLogger().log(Level.WARNING, "Failed to deregister JDBC driver: " + driver, e);
+				}
+			}
+		});
 
 		emailExecutor.shutdown();
 		try {

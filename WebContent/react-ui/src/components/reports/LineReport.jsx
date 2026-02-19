@@ -6,7 +6,7 @@ import { useApp } from '../../context/AppContext';
 const COLORS = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac'];
 
 export function BalancesOverTimeReport({ options, accountTree }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,7 @@ export function BalancesOverTimeReport({ options, accountTree }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <div className="flex items-center justify-center h-full text-sm text-gray-400">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
 
   return (
     <div className="h-full w-full p-2">
@@ -63,7 +63,7 @@ export function BalancesOverTimeReport({ options, accountTree }) {
 }
 
 export function NetWorthOverTimeReport({ options }) {
-  const { showError } = useApp();
+  const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -75,7 +75,7 @@ export function NetWorthOverTimeReport({ options }) {
       .finally(() => setLoading(false));
   }, [options.query, showError]);
 
-  if (loading) return <div className="flex items-center justify-center h-full text-sm text-gray-400">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
 
   return (
     <div className="h-full w-full p-2">
@@ -86,7 +86,7 @@ export function NetWorthOverTimeReport({ options }) {
           <YAxis tick={{ fontSize: 10 }} />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="netWorth" name="Net Worth" stroke={COLORS[0]} dot={false} strokeWidth={2} />
+          <Line type="monotone" dataKey="netWorth" name={t('NET_WORTH', 'Net Worth')} stroke={COLORS[0]} dot={false} strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
     </div>
