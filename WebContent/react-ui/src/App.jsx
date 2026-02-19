@@ -146,6 +146,15 @@ function BuddiApp({ userConfig }) {
   ]);
   const [activeTab, setActiveTab] = useState(TAB_ACCOUNTS);
 
+  // Keep non-closable root tab labels in sync once i18n translations load.
+  useEffect(() => {
+    setTabs(prev => prev.map(tab => {
+      if (tab.id === TAB_ACCOUNTS) return { ...tab, label: t('MY_ACCOUNTS', 'My Accounts') };
+      if (tab.id === TAB_BUDGET) return { ...tab, label: t('MY_BUDGET', 'My Budget') };
+      return tab;
+    }));
+  }, [t]);
+
   // Accounts panel state
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [selectedTransaction, setSelectedTransaction] = useState(null);

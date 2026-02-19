@@ -229,6 +229,42 @@
 
 	<changeSet id="add cascade delete indexes" author="wyatt">
 		<!-- Speeds up large account deletion operations by supporting FK cascade lookups. -->
+		<!-- Optional performance indexes: skip on restricted DB users instead of blocking startup. -->
+		<validCheckSum>ANY</validCheckSum>
+		<preConditions onFail="MARK_RAN" onError="MARK_RAN">
+			<dbms type="postgresql"/>
+			<sqlCheck expectedResult="1"><![CDATA[
+				SELECT CASE
+					WHEN EXISTS (
+						WITH target(name) AS (
+							VALUES ('entries'), ('splits'), ('scheduledsplits'), ('user_totp_backups')
+						),
+						resolved AS (
+							SELECT
+								target.name,
+								to_regclass(target.name) AS reg
+							FROM target
+						),
+						meta AS (
+							SELECT
+								resolved.name,
+								resolved.reg,
+								n.nspname AS schema_name,
+								pg_get_userbyid(c.relowner) AS owner_name
+							FROM resolved
+							LEFT JOIN pg_class c ON c.oid = resolved.reg
+							LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
+						)
+						SELECT 1
+						FROM meta
+						WHERE meta.reg IS NULL
+							OR meta.owner_name <> current_user
+							OR NOT has_schema_privilege(current_user, meta.schema_name, 'CREATE')
+					) THEN 0
+					ELSE 1
+				END
+			]]></sqlCheck>
+		</preConditions>
 		<sql>CREATE INDEX IF NOT EXISTS ix_entries_user_id ON entries(user_id)</sql>
 		<sql>CREATE INDEX IF NOT EXISTS ix_splits_user_id ON splits(user_id)</sql>
 		<sql>CREATE INDEX IF NOT EXISTS ix_splits_transaction_id ON splits(transaction_id)</sql>

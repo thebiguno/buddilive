@@ -277,7 +277,7 @@ function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
               <input type="date" className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={date} onChange={e => setDate(e.target.value)} />
             </div>
             <div className="w-28">
-              <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">{t('NUMBER', 'Number')}</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">{t('NUMBER_SHORT', 'Transaction #')}</label>
               <input type="text" className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={number} onChange={e => setNumber(e.target.value)} placeholder={t('OPTIONAL', 'Optional')} />
             </div>
           </div>

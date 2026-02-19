@@ -265,7 +265,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
           placeholder={t('DESCRIPTION', 'Description')}
         />
         <Input
-          className="w-24"
+          className="w-56"
           value={number}
           onChange={e => setNumber(e.target.value)}
           placeholder={t('NUMBER', 'Number')}
