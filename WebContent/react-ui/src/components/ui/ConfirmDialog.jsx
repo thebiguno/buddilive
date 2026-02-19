@@ -18,13 +18,17 @@ export function ConfirmDialog({ open, title, message, onConfirm, onCancel, confi
   );
 }
 
-export function AlertDialog({ open, title, message, onClose }) {
+export function AlertDialog({ open, title, message, messageHtml, onClose }) {
   const { t } = useApp();
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent title={title || t('MESSAGE', 'Message')} className="w-96" zIndex={200} onOk={onClose}>
-        <div className="p-4 text-sm">{message}</div>
+        {messageHtml ? (
+          <div className="p-4 text-sm" dangerouslySetInnerHTML={{ __html: messageHtml }} />
+        ) : (
+          <div className="p-4 text-sm">{message}</div>
+        )}
         <DialogFooter>
           <Button variant="primary" onClick={onClose}>{t('OK', 'OK')}</Button>
         </DialogFooter>

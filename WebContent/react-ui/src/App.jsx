@@ -528,6 +528,8 @@ function BuddiApp({ userConfig }) {
     { label: t('REPORT_YEAR_OVER_YEAR', 'Side by Side Period Comparison'), icon: <BarChart2 size={12} />, onClick: () => showIntervalPicker(o => launchReport('year-over-year', o)), disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined },
   ];
 
+  const donateUrl = 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSF44FWNVSMSN&source=url';
+
   const systemMenuItems = [
     { label: t('CHANGE_PASSWORD', 'Change Password'), icon: <Key size={12} />, onClick: () => setChangePasswordOpen(true) },
     { label: t('PREFERENCES', 'Preferences'), icon: <Settings size={12} />, onClick: () => setPreferencesOpen(true) },
@@ -542,8 +544,21 @@ function BuddiApp({ userConfig }) {
     { label: t('RESTORE', 'Restore'), icon: <Upload size={12} />, onClick: () => setRestoreOpen(true) },
     { label: t('EXPORT_CSV', 'Export CSV'), icon: <FileText size={12} />, disabled: !userConfig?.premium, tooltip: !userConfig?.premium ? t('PREMIUM_TOOLTIP', 'Enabled by a donation - thank you!') : undefined, onClick: () => showIntervalPicker(o => api.exportCsv(o.query)) },
     '-',
-    { label: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), icon: <HelpCircle size={12} />, onClick: () => setAlertDialog({ title: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), message: t('HELP_GETTING_STARTED_SIMPLE', 'Welcome to Buddi Live! Start by adding accounts in the My Accounts tab, then set up budget categories in My Budget.') }) },
-    { label: t('DONATE_TITLE', 'Donate'), icon: <DollarSign size={12} />, onClick: () => window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSF44FWNVSMSN&source=url') },
+    { label: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), icon: <HelpCircle size={12} />, onClick: () => setAlertDialog({ title: t('HELP_GETTING_STARTED_TITLE', 'Getting Started'), messageHtml: `${t('HELP_GETTING_STARTED_SIMPLE', 'Welcome to Buddi Live! Start by adding accounts in the My Accounts tab, then set up budget categories in My Budget.')}<br/><br/>${t('HELP_GETTING_STARTED_DOCS_PREFIX', 'Need help getting started? You can view ')}<a href="./doc/" target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;">${t('HELP_GETTING_STARTED_DOCS_LINK', 'tutorials and additional documentation')}</a>${t('HELP_GETTING_STARTED_DOCS_SUFFIX', ' here.')}` }) },
+    {
+      label: t('DONATE_TITLE', 'Donate'),
+      icon: <DollarSign size={12} />,
+      onClick: () => setConfirmDialog({
+        title: t('DONATE_TITLE', 'Donate'),
+        message: `${t('DONATE_DIALOG_MESSAGE_PREFIX', 'I maintain and support Buddi Live in my own time. If you have the means to do so, I would greatly appreciate a donation. A donation of any amount will enable the premium features, including the ability to export transactions and access to more reports. You can donate via ')}${t('DONATE_DIALOG_PAYPAL', 'PayPal')}${t('DONATE_DIALOG_MESSAGE_SUFFIX', '.')}`,
+        confirmLabel: t('DONATE_TITLE', 'Donate'),
+        onConfirm: () => {
+          window.open(donateUrl, '_blank', 'noopener,noreferrer');
+          setConfirmDialog(null);
+        },
+        onCancel: () => setConfirmDialog(null),
+      }),
+    },
     '-',
     { label: t('DELETE_USER', 'Delete Account'), icon: <UserX size={12} />, onClick: handleDeleteUser },
   ];
@@ -739,6 +754,7 @@ function BuddiApp({ userConfig }) {
           }
           onConfirm={confirmDialog.onConfirm}
           onCancel={confirmDialog.onCancel || (() => setConfirmDialog(null))}
+          confirmLabel={confirmDialog.confirmLabel}
           confirmDisabled={
             confirmDialog.confirmRequiresText != null
               ? deleteAccountConfirmText.trim() !== confirmDialog.confirmRequiresText
@@ -751,6 +767,7 @@ function BuddiApp({ userConfig }) {
           open={true}
           title={alertDialog.title}
           message={alertDialog.message}
+          messageHtml={alertDialog.messageHtml}
           onClose={() => setAlertDialog(null)}
         />
       )}

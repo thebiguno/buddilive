@@ -9,6 +9,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.TemplateRepresentation;
+import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
@@ -37,6 +38,13 @@ public class DefaultResource extends ServerResource {
 		}
 		
 		final String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+
+		// Avoid exposing directory listing for docs root; send users directly to the tutorial.
+		if ("doc".equals(normalizedPath) || "doc/".equals(normalizedPath)){
+			redirectSeeOther(new Reference(getRootRef().toString() + "/doc/tutorial.html"));
+			return new EmptyRepresentation();
+		}
+
 		final boolean forceDoNotModify = normalizedPath.startsWith("media/lib/extjs") || normalizedPath.startsWith("buddilive-react/");
 		
 		if (!forceDoNotModify && (variant.getMediaType().equals(MediaType.TEXT_HTML) || variant.getMediaType().getName().contains("javascript"))) {
