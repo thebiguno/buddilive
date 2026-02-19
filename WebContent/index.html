@@ -2,40 +2,30 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Buddi Live</title>
-		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/classic/theme-gray/resources/theme-gray-all-debug.css">
-		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/packages/charts/classic/classic/resources/charts-all.css">
-		<link href="css/buddilive.css" rel="stylesheet" />
-		
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/ext-all-debug.js"></script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/packages/charts/classic/charts.js"></script>
 <#if user??>
-		<script type="text/javascript" src="buddilive/Application.js"></script>
-	<#if newUser??>
 		<script type="text/javascript">
-			var newUserMessage = function(){
-				if (Ext.MessageBox){
-					Ext.MessageBox.show({
-						"title": "${translation("HELP_GETTING_STARTED_TITLE")?json_string}",
-						"msg": "${translation("HELP_GETTING_STARTED")?json_string}",
-						"buttons": Ext.Msg.OK
-					});
-				}
-				else {
-					Ext.defer(newUserMessage, 500);
-				}
+			window.BUDDI_CONFIG = {
+				"encrypted": ${((user.encrypted)!false)?c},
+				"premium": ${((user.premium)!false)?c},
+				"newUser": ${(newUser??)?c},
+				"dateFormat": "${(user.extDateFormat!"yyyy-MM-dd")?json_string}",
+				"identifier": "${(user.plaintextIdentifier!"")?json_string}"
+			<#if user.premium>,"premiumTooltip": "${translation("PREMIUM_TOOLTIP")?json_string}"</#if>
 			};
-			Ext.defer(newUserMessage, 500);
 		</script>
-	</#if>
+		<link rel="stylesheet" href="buddilive-react/assets/index.css" />
+		<script type="module" src="buddilive-react/assets/index.js"></script>
 <#else>
 		<link href="css/login.css" rel="stylesheet" />
 		<script type="text/javascript" src="authentication/app/Application.js"></script>
 </#if>
 	</head>
 	<body>
-<#if !(user??)>
+<#if user??>
+		<div id="root"></div>
+<#else>
 		<div class="title"></div>
 		<div class="background-top"></div>
 		<div class="background-bottom"></div>
@@ -44,11 +34,8 @@
 			<br/>
 			Build Date: ${systemProperties("BUILD_DATE")!"N/A"}; Version: <a href='doc/changelog.html' target='_blank'>${systemProperties("VERSION")!"N/A"}</a>
 		</div>
-
-		
 		<div class="messages">
 			<div id="loginform"></div>
-			
 			<p>&nbsp;</p>
 			<p>Buddi Live is an online, personal budgeting application.  It is designed from the ground up for anonymous access.  Please see the following pages for information on Buddi Live:</p>
 			<p>

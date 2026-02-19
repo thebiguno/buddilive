@@ -62,6 +62,7 @@ public class ConstraintsChecker {
 		if (account.isAccount()){
 			final List<Account> accounts = sqlSession.getMapper(Sources.class).selectAccounts(user, account.getAccountType());
 			for (Account a : accounts) {
+				if (account.getId() != null && a.getId().equals(account.getId())) continue;
 				if (!a.getType().equals(account.getType())){
 					if ("D".equals(account.getType())) throw new DatabaseException(String.format("There is already an account type '%s' for a credit account.  Please change the account type, or set the type to credit.", account.getAccountType()));
 					else throw new DatabaseException(String.format("There is already an account type '%s' for a debit account.  Please change the account type, or set the type to debit.", account.getAccountType()));

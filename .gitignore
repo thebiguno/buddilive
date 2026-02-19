@@ -5,4 +5,5 @@
 /conf/server-config.properties
 /conf/test-config.properties
 /WebContent/WEB-INF/classes/config.properties
+/WebContent/buddilive-react/
 

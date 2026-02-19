@@ -116,7 +116,7 @@ public class CategoriesResource extends ServerResource {
 
 		final BigDecimal currentAmount = CryptoUtil.decryptWrapperBigDecimal(category.getCurrentEntry().getAmount(), user, true);
 		result.put("current", FormatUtil.formatCurrency(currentAmount, user));
-//		result.put("currentAmount", currentAmount);
+		result.put("currentAmount", currentAmount);
 		result.put("currentStyle", (currentAmount.compareTo(BigDecimal.ZERO) == 0) ? FormatUtil.formatGray() : (FormatUtil.isRed(category, currentAmount) ? FormatUtil.formatRed() : ""));
 		
 		final BigDecimal previousAmount = CryptoUtil.decryptWrapperBigDecimal(category.getPreviousEntry().getAmount(), user, true);

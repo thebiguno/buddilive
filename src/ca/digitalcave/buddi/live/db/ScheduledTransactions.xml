@@ -70,9 +70,15 @@
 			s.to_source,
 			s.memo,
 			s.created s_created,
-			s.modified s_modified
+			s.modified s_modified,
+			fs.name from_source_name,
+			ts.name to_source_name,
+			fs.type from_type,
+			ts.type to_type
 		FROM scheduledtransactions t
 		LEFT JOIN scheduledsplits s ON s.scheduledtransaction_id = t.id
+		LEFT JOIN sources fs ON fs.id = s.from_source
+		LEFT JOIN sources ts ON ts.id = s.to_source
 		WHERE t.user_id = #{user.id}
 	</select>
 	
@@ -102,9 +108,15 @@
 			s.to_source,
 			s.memo,
 			s.created s_created,
-			s.modified s_modified
+			s.modified s_modified,
+			fs.name from_source_name,
+			ts.name to_source_name,
+			fs.type from_type,
+			ts.type to_type
 		FROM scheduledtransactions t
 		LEFT JOIN scheduledsplits s ON s.scheduledtransaction_id = t.id
+		LEFT JOIN sources fs ON fs.id = s.from_source
+		LEFT JOIN sources ts ON ts.id = s.to_source
 		WHERE t.user_id = #{user.id}
 			AND t.start_date &lt;= CURRENT_DATE
 			AND (t.last_created_date IS NULL OR t.last_created_date &lt; CURRENT_DATE)

@@ -24,13 +24,20 @@
 
 	<target name="war-all" depends="war-buddilive,war-buddilive-test" description="Build both test and prod server instances"/>
 		
-	<target name="war-buddilive" depends="jar" description="Build Buddi Live server instance">
+	<target name="vite-build" description="Build the React/Vite UI">
+		<exec executable="npm" dir="WebContent/react-ui" failonerror="true">
+			<arg value="run"/>
+			<arg value="build"/>
+		</exec>
+	</target>
+
+	<target name="war-buddilive" depends="jar,vite-build" description="Build Buddi Live server instance">
 		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
 			<param name="conf" value="server"/>
 			<param name="war-name" value="buddilive"/>
 		</antcall>
 	</target>
-	<target name="war-buddilive-test" depends="jar" description="Build Buddi Live Test server instance">
+	<target name="war-buddilive-test" depends="jar,vite-build" description="Build Buddi Live Test server instance">
 		<antcall target="bundle-war" inheritrefs="true" inheritall="false">
 			<param name="conf" value="test"/>
 			<param name="war-name" value="buddilive-test"/>
@@ -73,6 +80,8 @@
 				<exclude name="WEB-INF/**"/>
 				<exclude name="extjs/**"/>
 				<exclude name="touch/**"/>
+				<exclude name="buddilive/**"/>
+				<exclude name="react-ui/**"/>
 			</zipfileset>
 			<zipfileset dir="build/temp" prefix="doc">
 				<include name="changelog.html"/>
@@ -96,8 +105,7 @@
 	<target name="compile" depends="clean">
 		<mkdir dir="build/temp/bin"/>
 		<javac
-			target="1.8"
-			source="1.8" 
+			release="11"
 			optimize="true" 
 			includes="**/*.java" 
 			destdir="build/temp/bin" 

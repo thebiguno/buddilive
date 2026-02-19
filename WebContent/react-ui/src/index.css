@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 13px;
+  background: #e8e8e8;
+  color: #333;
+}
+
+/* AG Grid overrides to match ExtJS gray theme feel */
+.ag-theme-alpine {
+  --ag-font-size: 13px;
+  --ag-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ag-header-background-color: #d0d0d0;
+  --ag-header-foreground-color: #333;
+  --ag-odd-row-background-color: #f5f5f5;
+  --ag-row-hover-color: #dde8f5;
+  --ag-selected-row-background-color: #b8d0f0;
+  --ag-border-color: #c0c0c0;
+  --ag-cell-horizontal-padding: 6px;
+  --ag-row-height: 22px;
+  --ag-header-height: 26px;
+}
+
+.ag-theme-alpine .ag-row-odd {
+  background-color: #f5f5f5;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f0f0f0; }
+::-webkit-scrollbar-thumb { background: #aaa; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #888; }

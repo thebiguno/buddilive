@@ -36,9 +36,10 @@ public class DefaultResource extends ServerResource {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 		
-		final boolean forceDoNotModify = path.startsWith("media/lib/extjs");
+		final String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+		final boolean forceDoNotModify = normalizedPath.startsWith("media/lib/extjs") || normalizedPath.startsWith("buddilive-react/");
 		
-		if (!forceDoNotModify && (variant.getMediaType().equals(MediaType.TEXT_HTML) || variant.getMediaType().equals(MediaType.APPLICATION_JAVASCRIPT))) {
+		if (!forceDoNotModify && (variant.getMediaType().equals(MediaType.TEXT_HTML) || variant.getMediaType().getName().contains("javascript"))) {
 			final HashMap<String, Object> dataModel = new HashMap<String, Object>();
 			final User user = (User) getClientInfo().getUser();
 			dataModel.put("user", user);

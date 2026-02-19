@@ -28,6 +28,7 @@ import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 import ca.digitalcave.moss.crypto.DefaultHash;
+import ca.digitalcave.moss.restlet.plugin.AuthenticationHelper;
 import ca.digitalcave.moss.restlet.CookieAuthenticator;
 
 public class UserPreferencesResource extends ServerResource {
@@ -103,6 +104,15 @@ public class UserPreferencesResource extends ServerResource {
 			}
 			else if ("invalidatetotpbackups".equals(action)){
 				sqlSession.getMapper(Users.class).deleteUnusedBackupCodes(user);
+			}
+			else if ("changePassword".equals(action)){
+				final AuthenticationHelper authenticationHelper = application.getAuthenticationHelper();
+				final String currentPassword = json.getString("currentPassword");
+				final String newPassword = json.getString("newPassword");
+				if (!DefaultHash.verify(user.getSecretString(), currentPassword)) throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, LocaleUtil.getTranslation(getRequest()).getString("INCORRECT_PASSWORD"));
+				final String hashedSecret = authenticationHelper.getHash().generate(newPassword);
+				int count = sqlSession.getMapper(Users.class).updateUserSecret(user, hashedSecret);
+				if (count != 1) throw new DatabaseException(String.format("Update failed; expected 1 row, returned %s", count));
 			}
 			else if ("delete".equals(action)){
 				//Everything in the system will cascade from sources, transactions, and users

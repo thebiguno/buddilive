@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import javax.mail.internet.AddressException;
@@ -56,10 +59,18 @@ import ca.digitalcave.buddi.live.resource.buddilive.preferences.CurrenciesResour
 import ca.digitalcave.buddi.live.resource.buddilive.preferences.LocalesResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.AverageIncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.BalancesOverTimeResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.BudgetVsActualResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.CategoryDrillDownResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.DebtPaydownResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.IncomeAndExpensesByCategoryResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.InflowAndOutflowByAccountResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.InflowAndOutflowByPayeeResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.MonthlyCashFlowResource;
 import ca.digitalcave.buddi.live.resource.buddilive.report.PieTotalsByCategoryResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.ProjectedBalanceResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.SavingsRateResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.TopPayeesBySpendResource;
+import ca.digitalcave.buddi.live.resource.buddilive.report.YearOverYearResource;
 import ca.digitalcave.buddi.live.resource.data.BackupResource;
 import ca.digitalcave.buddi.live.resource.data.ExportResource;
 import ca.digitalcave.buddi.live.resource.data.RestoreResource;
@@ -90,10 +101,16 @@ public class BuddiApplication extends Application{
 	private Properties systemProperties = new Properties();
 	private PasswordChecker passwordChecker = new PasswordChecker().setHistoryEnforced(false);
 	private Crypto crypto = new Crypto().setAlgorithm(Algorithm.AES_256).setSaltLength(32).setKeyIterations(1);
+	private AuthenticationHelper authenticationHelper;
+	private final ExecutorService emailExecutor = Executors.newFixedThreadPool(2);
+
+	public ExecutorService getEmailExecutor() {
+		return emailExecutor;
+	}
 
 	public synchronized void start() throws Exception {
 		try { systemProperties.load(new ClientResource(getContext(), "war:///WEB-INF/classes/version.properties").get().getStream()); } catch (Throwable e){}
-		
+
 		configProperties = new Properties();
 		try {
 			configProperties.load(new ClientResource(getContext(), "war:///WEB-INF/classes/config.properties").get().getStream());
@@ -103,14 +120,14 @@ public class BuddiApplication extends Application{
 			getLogger().severe("There was an error loading the config file from WEB-INF/classes/config.properties.  Please ensure that this file exists and is readable.");
 			throw e;
 		}
-		
+
 		//If we are using Derby, and the user does not have a connection URL, set one up in a sane location.
 		if ("org.apache.derby.jdbc.EmbeddedDriver".equals(configProperties.getProperty("db.driver")) && configProperties.getProperty("db.url") == null){
 			final File buddiLiveFolder = OperatingSystemUtil.getUserFolder("BuddiLive");
-			
+
 			//Try to create directory if needed
 			if (!buddiLiveFolder.exists()) buddiLiveFolder.mkdirs();
-			
+
 			//Check if the directory exists
 			if (!buddiLiveFolder.exists()){
 				throw new RuntimeException("Unable to access folder '" + buddiLiveFolder.getAbsolutePath() + "'; please ensure this folder exists and is writable.");
@@ -123,7 +140,7 @@ public class BuddiApplication extends Application{
 			final File database = new File(buddiLiveFolder, "derby");
 			configProperties.setProperty("db.url", "jdbc:derby:directory:" + database.getAbsolutePath() + (database.exists() ? "" : ";create=true"));
 		}
-		
+
 		ds = new ComboPooledDataSource();
 		ds.setDriverClass(configProperties.getProperty("db.driver"));
 		ds.setJdbcUrl(configProperties.getProperty("db.url"));
@@ -143,11 +160,11 @@ public class BuddiApplication extends Application{
 		configuration.getTypeHandlerRegistry().register(BooleanHandler.class);
 		configuration.getTypeHandlerRegistry().register(CurrencyHandler.class);
 		configuration.getTypeHandlerRegistry().register(LocaleHandler.class);
-		
+
 		configuration.addMappers("ca.digitalcave.buddi.live.db");
-		
+
 		sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
-		
+
 		//***** Freemarker Configuration *****
 		freemarker.template.Configuration freemarkerConfiguration = new freemarker.template.Configuration(new Version(2, 3, 31));
 		final Object servletContext = getContext().getAttributes().get("org.restlet.ext.servlet.ServletContext");
@@ -168,18 +185,18 @@ public class BuddiApplication extends Application{
 
 		super.start();
 	}
-	
+
 	@Override  
 	public synchronized Restlet createInboundRoot() {
 		final BuddiApplication application = this;
-		
+
 		getMetadataService().setDefaultLanguage(Language.ENGLISH);
 		getMetadataService().setEnabled(true);
 		getTunnelService().setEnabled(true);
 		getTunnelService().setExtensionsTunnel(true);
 
-		final AuthenticationHelper authenticationHelper = new BuddiLiveAuthenticationHelper(this);
-		
+		authenticationHelper = new BuddiLiveAuthenticationHelper(this);
+
 		authenticationHelper.getConfig().showCookieWarning = true;
 		authenticationHelper.getConfig().showForgotUsername = false;
 		authenticationHelper.getConfig().showForgotPassword = true;
@@ -191,7 +208,7 @@ public class BuddiApplication extends Application{
 
 		authenticationHelper.getConfig().applicationLoaderPaths = new HashMap<String, String>();
 		authenticationHelper.getConfig().applicationLoaderPaths.put("BuddiLive", "buddilive");
-		
+
 		authenticationHelper.getConfig().applicationViews = new String[]{"BuddiLive.view.component.CurrenciesCombobox","BuddiLive.view.component.LocalesCombobox"};
 		authenticationHelper.getConfig().applicationControllers = new String[]{"BuddiLive.controller.preferences.PreferencesEditor"};
 
@@ -287,17 +304,17 @@ public class BuddiApplication extends Application{
 				}
 			}
 		};
-		
+
 		final Router privateRouter = new Router(getContext());
-		
+
 		final BuddiVerifier verifier = new BuddiVerifier(authenticationHelper);
-		
+
 		final CookieAuthenticator privateAuth = new CookieAuthenticator(getContext(), false, authenticationHelper, verifier);
 		final CookieAuthenticator optionalAuth = new CookieAuthenticator(getContext(), true, authenticationHelper, verifier);;
-		
+
 		privateAuth.setVerifier(verifier);
 		privateAuth.setNext(privateRouter);
-		
+
 		//Handles the desktop GUI stuff
 		privateRouter.attach("/accounts", AccountsResource.class);
 		privateRouter.attach("/categories", CategoriesResource.class);
@@ -311,27 +328,35 @@ public class BuddiApplication extends Application{
 		privateRouter.attach("/sources/from", SourcesResource.class);
 		privateRouter.attach("/sources/to", SourcesResource.class);
 		privateRouter.attach("/userpreferences", UserPreferencesResource.class);
-		
+
 		privateRouter.attach("/report/pietotalsbycategory", PieTotalsByCategoryResource.class);
 		privateRouter.attach("/report/incomeandexpensesbycategory", IncomeAndExpensesByCategoryResource.class);
 		privateRouter.attach("/report/averageincomeandexpensesbycategory", AverageIncomeAndExpensesByCategoryResource.class);
 		privateRouter.attach("/report/inflowandoutflowbyaccount", InflowAndOutflowByAccountResource.class);
 		privateRouter.attach("/report/inflowandoutflowbypayee", InflowAndOutflowByPayeeResource.class);
 		privateRouter.attach("/report/balancesovertime", BalancesOverTimeResource.class);
-		
+		privateRouter.attach("/report/budgetvsactual", BudgetVsActualResource.class);
+		privateRouter.attach("/report/monthlycashflow", MonthlyCashFlowResource.class);
+		privateRouter.attach("/report/savingsrate", SavingsRateResource.class);
+		privateRouter.attach("/report/yearoveryear", YearOverYearResource.class);
+		privateRouter.attach("/report/toppayeesbyspend", TopPayeesBySpendResource.class);
+		privateRouter.attach("/report/categorydrilldown", CategoryDrillDownResource.class);
+		privateRouter.attach("/report/projectedbalance", ProjectedBalanceResource.class);
+		privateRouter.attach("/report/debtpaydown", DebtPaydownResource.class);
+
 		privateRouter.attach("/backup", BackupResource.class);
 		privateRouter.attach("/export", ExportResource.class);
 		privateRouter.attach("/restore", RestoreResource.class);
-		
+
 		final Router comboStoreRouter = new Router(getContext());
 		comboStoreRouter.attach("/currencies", CurrenciesResource.class);
 		comboStoreRouter.attach("/locales", LocalesResource.class);
 
-		
+
 		final Router publicRouter = new Router(getContext());
 		optionalAuth.setVerifier(verifier);
 		optionalAuth.setNext(publicRouter);
-		
+
 		//Public data and binary data which should not be filtered through freemarker
 		publicRouter.attach("", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
 		publicRouter.attach("/", new Redirector(getContext(), "index.html", Redirector.MODE_CLIENT_TEMPORARY));
@@ -339,36 +364,46 @@ public class BuddiApplication extends Application{
 		publicRouter.attach("/index", IndexResource.class);
 		publicRouter.attach("/stores", comboStoreRouter);
 		publicRouter.attach("/data", privateAuth);
-		
+
 		publicRouter.attach("/donation-completed", DonationResource.class);
-		
+
 		publicRouter.attachDefault(DefaultResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
-		
+
 		final Encoder encoder = new Encoder(getContext(), false, true, getEncoderService());
 		encoder.setNext(optionalAuth);
 
 		return encoder;
 	}
-	
+
 	@Override
 	public synchronized void stop() throws Exception {
 		ds.close();
-		
+
+		emailExecutor.shutdown();
+		try {
+			if (!emailExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+				emailExecutor.shutdownNow();
+			}
+		} catch (InterruptedException e) {
+			emailExecutor.shutdownNow();
+			Thread.currentThread().interrupt();
+		}
+
 		super.stop();
 	}
-	
+
 	public Properties getConfigProperties() {
 		return configProperties;
 	}
-	
+
 	public SqlSessionFactory getSqlSessionFactory() {
 		return sqlSessionFactory;
 	}
-	
+
 	public Configuration getFreemarkerConfiguration() {
 		return freemarkerConfiguration;
 	}
-	
+
 	public JsonFactory getJsonFactory() {
 		return jsonFactory;
 	}
@@ -381,7 +416,10 @@ public class BuddiApplication extends Application{
 	public Crypto getCrypto() {
 		return crypto;
 	}
-	
+	public AuthenticationHelper getAuthenticationHelper() {
+		return authenticationHelper;
+	}
+
 	public HtmlEmail getEmail(String from, String replyTo, String to) throws EmailException, AddressException {
 		final Properties c = getConfigProperties();
 		final HtmlEmail htmlEmail = new HtmlEmail();
@@ -390,17 +428,17 @@ public class BuddiApplication extends Application{
 		}
 		htmlEmail.setHostName(c.getProperty("mail.smtp.host"));
 		htmlEmail.setSmtpPort(Integer.parseInt(c.getProperty("mail.smtp.port", "25")));
-		
+
 		final InternetAddress[] fromAddresses = InternetAddress.parse(from, false);
 		if (fromAddresses != null && fromAddresses.length > 0) {
 			htmlEmail.setFrom(fromAddresses[0].getAddress(), fromAddresses[0].getPersonal());
 		}
-		
+
 		final InternetAddress[] toAddresses = InternetAddress.parse(to, false);
 		for (InternetAddress toAddress : toAddresses) {
 			htmlEmail.addTo(toAddress.getAddress(), toAddress.getPersonal());
 		}
-		
+
 		if (StringUtils.isNotBlank(replyTo)){
 			final InternetAddress[] replyToAddresses = InternetAddress.parse(replyTo);
 			for (InternetAddress replyToAddress : replyToAddresses) {
@@ -412,7 +450,7 @@ public class BuddiApplication extends Application{
 				}
 			}
 		}
-		
+
 		final String emailUser = c.getProperty("mail.smtp.username");
 		final String emailPassword = ObfuscateUtil.deobfuscate(c.getProperty("mail.smtp.password", ""));
 		if (StringUtils.isNotBlank(emailUser)){
@@ -421,14 +459,14 @@ public class BuddiApplication extends Application{
 		final boolean startTls = Boolean.parseBoolean(c.getProperty("mail.smtp.starttls.enable", "false"));
 		htmlEmail.setStartTLSEnabled(startTls);
 		htmlEmail.setStartTLSRequired(startTls);
-		
+
 		//final String ssl = getParameterProvider().get("config.smtp.ssl");
 		//htmlEmail.setSSLOnConnect("ENABLED".equalsIgnoreCase(ssl));
 
 		if (Boolean.parseBoolean(c.getProperty("mail.smtp.debug", "false"))){
 			htmlEmail.setDebug(true);
 		}
-		
+
 		return htmlEmail;
 	}
 }

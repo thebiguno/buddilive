@@ -20,6 +20,10 @@ public class FormatUtil {
 		if (date == null) return null;
 		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date);
 	}
+	public static String formatAuditTimestamp(Date date, User user){
+		if (date == null) return null;
+		return new SimpleDateFormat(user.getDateFormat() + " HH:mm:ss").format(date);
+	}
 	public static String formatDateInternal(Date date){
 		if (date == null) return null;
 		return new SimpleDateFormat("yyyy-MM-dd").format(date);

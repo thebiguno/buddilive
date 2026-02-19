@@ -63,7 +63,8 @@ public class TransactionsResource extends ServerResource {
 					final int limit = Integer.parseInt(getQuery().getFirstValue("limit"));
 					final MutableInt total = new MutableInt(0);
 					final MutableInt count = new MutableInt(0);
-					sqlSession.getMapper(Transactions.class).selectTransactions(user, source, new ResultHandler<Transaction>() {
+					final boolean sortByModified = "modified".equals(getQuery().getFirstValue("sortBy"));
+					final ResultHandler<Transaction> handler = new ResultHandler<Transaction>() {
 						public void handleResult(ResultContext<? extends Transaction> context) {
 							Transaction t = (Transaction) context.getResultObject();
 							try {
@@ -95,6 +96,7 @@ public class TransactionsResource extends ServerResource {
 								generator.writeStringField("description", description);
 								generator.writeStringField("number", number);
 								generator.writeBooleanField("deleted", t.isDeleted());
+								generator.writeStringField("modified", FormatUtil.formatAuditTimestamp(t.getModified(), user));
 								generator.writeArrayFieldStart("splits");
 								for (Split s : t.getSplits()) {
 									generator.writeStartObject();
@@ -129,7 +131,12 @@ public class TransactionsResource extends ServerResource {
 								throw new RuntimeException(e);
 							}
 						}
-					});
+					};
+					if (sortByModified) {
+						sqlSession.getMapper(Transactions.class).selectTransactionsSortedByModified(user, source, handler);
+					} else {
+						sqlSession.getMapper(Transactions.class).selectTransactions(user, source, handler);
+					}
 					generator.writeEndArray();
 					generator.writeNumberField("total", total.intValue());
 					generator.writeEndObject();

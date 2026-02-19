@@ -193,7 +193,7 @@ public class AccountsResource extends ServerResource {
 			return new JsonRepresentation(result);
 		}
 		catch (DatabaseException e){
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
 		}
 		catch (IOException e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);

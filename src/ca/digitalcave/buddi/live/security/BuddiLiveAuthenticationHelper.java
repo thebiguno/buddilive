@@ -3,8 +3,12 @@ package ca.digitalcave.buddi.live.security;
 import java.security.Key;
 import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +43,10 @@ import ca.digitalcave.moss.restlet.plugin.AuthenticationConfiguration;
 import ca.digitalcave.moss.restlet.plugin.AuthenticationHelper;
 
 public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
-	
+
+	private static final long MAX_BACKOFF_MS = 5_000L;
+	private final ConcurrentHashMap<String, AtomicInteger> failedAttempts = new ConcurrentHashMap<>();
+
 	private final BuddiApplication application;
 	
 	public BuddiLiveAuthenticationHelper(BuddiApplication application) {
@@ -61,12 +68,20 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		}
 //		cr.setIdentifier(identifier.toLowerCase());
 		final String authenticator = CookieAuthenticator.getAuthenticator(cr);
-		
+
+		// Incremental backoff: delay = min(2^(failures-1), 5) seconds
+		final AtomicInteger failures = failedAttempts.get(authenticator);
+		if (failures != null && failures.get() > 0) {
+			final long delayMs = Math.min((1L << (failures.get() - 1)) * 1000L, MAX_BACKOFF_MS);
+			try { Thread.sleep(delayMs); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+		}
+
 		final String secret = new String(cr.getSecret());
 		
 		final User user = (User) selectUser(authenticator);
 		if (user == null){
 			//If the user was not found, we do not proceed.
+			failedAttempts.computeIfAbsent(authenticator, k -> new AtomicInteger(0)).incrementAndGet();
 			return null;
 		}
 
@@ -91,6 +106,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		}
 		
 		if (authenticated){
+			failedAttempts.remove(authenticator);
 			//We update the DB for legacy hashing algorithms.  This ensures that everyone who logs in will have their password stored in a safe manner.
 			if (legacy){
 				final SqlSession sql2 = application.getSqlSessionFactory().openSession();
@@ -112,6 +128,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 			return user;
 		}
 		
+		failedAttempts.computeIfAbsent(authenticator, k -> new AtomicInteger(0)).incrementAndGet();
 		return null;
 	}
 
@@ -323,17 +340,14 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 			final HtmlEmail email = getApplication().getEmail(fromEmail, null, toEmail);
 			email.setSubject(subject);
 			email.setTextMsg(body);
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						email.send();
-					}
-					catch (EmailException e){
-						Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error sending email", e);
-					}
+			application.getEmailExecutor().submit(() -> {
+				try {
+					email.send();
 				}
-			}).start();
+				catch (EmailException e){
+					Logger.getLogger(BuddiLiveAuthenticationHelper.class.getName()).log(Level.WARNING, "Error sending email", e);
+				}
+			});
 		}
 		catch (AddressException e){
 			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error parsing email address", e);
@@ -375,9 +389,6 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 				sql.getMapper(BuddiSystem.class).updateCookieEncryptionKey(keyEncoded);
 				sql.commit();
 			}
-			finally {
-				sql.close();
-			}
 			return key;
 		}
 		catch (CryptoException e){
@@ -388,6 +399,82 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		}
 	}
 	
+	@Override
+	public String getCookiePath() {
+		return application.getConfigProperties().getProperty("cookie.path", super.getCookiePath());
+	}
+	
+	public String getCookieName(){
+		return "buddi_auth";
+	}
+	
+	@Override
+	public String getRegisterFields() {
+		final ResourceBundle t = LocaleUtil.getTranslation();
+		final StringBuilder sb = new StringBuilder();
+		sb.append("[");
+
+		// Locale select
+		sb.append("{\"type\":\"select\",\"name\":\"locale\",\"label\":").append(jsonString(t.getString("LOCALE")))
+		  .append(",\"defaultValue\":\"en_US\",\"help\":").append(jsonString(t.getString("HELP_LOCALE")))
+		  .append(",\"options\":[");
+		final Locale[] commonLocales = new Locale[]{ Locale.CANADA, Locale.US, Locale.UK, new Locale("es","ES"), Locale.GERMANY, Locale.ITALY };
+		for (int i = 0; i < commonLocales.length; i++) {
+			if (i > 0) sb.append(",");
+			sb.append("{\"text\":").append(jsonString(commonLocales[i].getDisplayName(Locale.ENGLISH)))
+			  .append(",\"value\":").append(jsonString(commonLocales[i].toString())).append("}");
+		}
+		sb.append(",{\"text\":\"---\",\"value\":\"\",\"disabled\":true}");
+		final java.util.Set<Locale> allLocales = new java.util.TreeSet<>(new java.util.Comparator<Locale>() {
+			public int compare(Locale a, Locale b) { return a.getDisplayName(Locale.ENGLISH).compareTo(b.getDisplayName(Locale.ENGLISH)); }
+		});
+		for (Locale l : Locale.getAvailableLocales()) {
+			if (l.getCountry() != null && !l.getCountry().isEmpty()) allLocales.add(l);
+		}
+		allLocales.removeAll(java.util.Arrays.asList(commonLocales));
+		for (Locale l : allLocales) {
+			sb.append(",{\"text\":").append(jsonString(l.getDisplayName(Locale.ENGLISH)))
+			  .append(",\"value\":").append(jsonString(l.toString())).append("}");
+		}
+		sb.append("]},");
+
+		// Currency select
+		sb.append("{\"type\":\"select\",\"name\":\"currency\",\"label\":").append(jsonString(t.getString("CURRENCY")))
+		  .append(",\"defaultValue\":\"USD\",\"help\":").append(jsonString(t.getString("HELP_CURRENCY")))
+		  .append(",\"options\":[");
+		final String[] commonCurrencies = new String[]{ "CAD", "USD", "EUR", "GBP", "AUD" };
+		for (int i = 0; i < commonCurrencies.length; i++) {
+			if (i > 0) sb.append(",");
+			sb.append("{\"text\":").append(jsonString(commonCurrencies[i]))
+			  .append(",\"value\":").append(jsonString(commonCurrencies[i])).append("}");
+		}
+		sb.append(",{\"text\":\"---\",\"value\":\"\",\"disabled\":true}");
+		final java.util.Set<String> allCurrencies = new java.util.TreeSet<>();
+		for (Locale l : Locale.getAvailableLocales()) {
+			try { allCurrencies.add(java.util.Currency.getInstance(l).getCurrencyCode()); } catch (Exception e2) {}
+		}
+		allCurrencies.removeAll(java.util.Arrays.asList(commonCurrencies));
+		for (String c : allCurrencies) {
+			sb.append(",{\"text\":").append(jsonString(c)).append(",\"value\":").append(jsonString(c)).append("}");
+		}
+		sb.append("]},");
+
+		// Terms checkbox
+		sb.append("{\"type\":\"checkbox\",\"name\":\"agree\",\"checkboxLabel\":").append(jsonString(t.getString("AGREE_TERMS_AND_CONDITIONS")))
+		  .append(",\"help\":").append(jsonString(t.getString("CREATE_USER_AGREEMENT_REQUIRED"))).append("},");
+
+		// Help text
+		sb.append("{\"type\":\"html\",\"html\":").append(jsonString(t.getString("HELP_REGISTER"))).append("}");
+
+		sb.append("]");
+		return sb.toString();
+	}
+
+	private static String jsonString(String s) {
+		if (s == null) return "null";
+		return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r") + "\"";
+	}
+
 	@Override
 	public Hash getHash() {
 		return new DefaultHash().setAlgorithm("SHA-512").setIterations(20000).setSaltLength(96);
