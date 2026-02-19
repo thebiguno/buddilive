@@ -38,7 +38,10 @@ function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
           {lastSplit && <span style={parseStyle(lastSplit.balanceStyle)}>{lastSplit.balance}</span>}
         </span>
         {showTimestamps && (
-          <span className="w-[14%] flex-shrink-0 truncate text-gray-500 text-right pr-1">{row.modified}</span>
+          <>
+            <span className="w-[11%] flex-shrink-0 truncate text-gray-500 text-right pr-1">{row.created}</span>
+            <span className="w-[11%] flex-shrink-0 truncate text-gray-500 text-right pr-1">{row.modified}</span>
+          </>
         )}
       </div>
       {/* Split sub-rows: indented, From → To | amount in debit or credit col | balance | [timestamp spacers] */}
@@ -53,7 +56,10 @@ function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
           </span>
           <span className="w-[12%] flex-shrink-0" />
           {showTimestamps && (
-            <span className="w-[14%] flex-shrink-0" />
+            <>
+              <span className="w-[11%] flex-shrink-0" />
+              <span className="w-[11%] flex-shrink-0" />
+            </>
           )}
         </div>
       ))}
@@ -67,7 +73,7 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [showTimestamps, setShowTimestamps] = useState(false);
-  const [sortByModified, setSortByModified] = useState(false);
+  const [sortBy, setSortBy] = useState('date');
   const [headerCtxMenu, setHeaderCtxMenu] = useState(null);
   const searchTimer = useRef(null);
 
@@ -75,7 +81,8 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
     if (!selectedAccount) { setRows([]); return; }
     setLoading(true);
     try {
-      const params = `?source=${selectedAccount.id}&start=0&limit=500${search ? `&search=${encodeURIComponent(search)}` : ''}${sortByModified ? '&sortBy=modified' : ''}`;
+      const sortParam = sortBy === 'date' ? '' : `&sortBy=${sortBy}`;
+      const params = `?source=${selectedAccount.id}&start=0&limit=500${search ? `&search=${encodeURIComponent(search)}` : ''}${sortParam}`;
       const data = await api.transactions.list(params);
       setRows(data?.data || []);
     } catch (e) {
@@ -83,7 +90,7 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
     } finally {
       setLoading(false);
     }
-  }, [selectedAccount, search, showError, transactionListVersion, sortByModified]);
+  }, [selectedAccount, search, showError, transactionListVersion, sortBy]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -106,7 +113,10 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
         <span className="w-[12%] text-right pr-1">{t('AMOUNT_TO', 'Amount To')}</span>
         <span className="w-[12%] text-right pr-1">{t('BALANCE', 'Balance')}</span>
         {showTimestamps && (
-          <span className="w-[14%] text-right pr-1">{t('MODIFIED', 'Modified')}</span>
+          <>
+            <span className="w-[11%] text-right pr-1">{t('CREATED', 'Created')}</span>
+            <span className="w-[11%] text-right pr-1">{t('MODIFIED', 'Modified')}</span>
+          </>
         )}
       </div>
       {headerCtxMenu && (
@@ -119,15 +129,16 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
               label: showTimestamps ? t('HIDE_AUDIT_TIMESTAMPS', 'Hide Audit Timestamps') : t('SHOW_AUDIT_TIMESTAMPS', 'Show Audit Timestamps'),
               onClick: () => {
                 setShowTimestamps(v => {
-                  if (v) setSortByModified(false);
+                  if (v) setSortBy('date');
                   return !v;
                 });
               },
             },
-            ...(showTimestamps ? [{
-              label: sortByModified ? t('SORT_BY_TRANSACTION_DATE', 'Sort by Transaction Date') : t('SORT_BY_MODIFIED_DATE', 'Sort by Modified Date'),
-              onClick: () => setSortByModified(v => !v),
-            }] : []),
+            ...(showTimestamps ? [
+              { label: t('SORT_BY_TRANSACTION_DATE', 'Sort by Transaction Date'), onClick: () => setSortBy('date') },
+              { label: t('SORT_BY_CREATED_DATE', 'Sort by Created Date'), onClick: () => setSortBy('created') },
+              { label: t('SORT_BY_MODIFIED_DATE', 'Sort by Modified Date'), onClick: () => setSortBy('modified') },
+            ] : []),
           ]}
         />
       )}

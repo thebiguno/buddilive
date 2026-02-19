@@ -63,7 +63,9 @@ public class TransactionsResource extends ServerResource {
 					final int limit = Integer.parseInt(getQuery().getFirstValue("limit"));
 					final MutableInt total = new MutableInt(0);
 					final MutableInt count = new MutableInt(0);
-					final boolean sortByModified = "modified".equals(getQuery().getFirstValue("sortBy"));
+					final String sortBy = getQuery().getFirstValue("sortBy");
+					final boolean sortByCreated = "created".equals(sortBy);
+					final boolean sortByModified = "modified".equals(sortBy);
 					final ResultHandler<Transaction> handler = new ResultHandler<Transaction>() {
 						public void handleResult(ResultContext<? extends Transaction> context) {
 							Transaction t = (Transaction) context.getResultObject();
@@ -96,6 +98,7 @@ public class TransactionsResource extends ServerResource {
 								generator.writeStringField("description", description);
 								generator.writeStringField("number", number);
 								generator.writeBooleanField("deleted", t.isDeleted());
+								generator.writeStringField("created", FormatUtil.formatAuditTimestamp(t.getCreated(), user));
 								generator.writeStringField("modified", FormatUtil.formatAuditTimestamp(t.getModified(), user));
 								generator.writeArrayFieldStart("splits");
 								for (Split s : t.getSplits()) {
@@ -132,7 +135,10 @@ public class TransactionsResource extends ServerResource {
 							}
 						}
 					};
-					if (sortByModified) {
+					if (sortByCreated) {
+						sqlSession.getMapper(Transactions.class).selectTransactionsSortedByCreated(user, source, handler);
+					}
+					else if (sortByModified) {
 						sqlSession.getMapper(Transactions.class).selectTransactionsSortedByModified(user, source, handler);
 					} else {
 						sqlSession.getMapper(Transactions.class).selectTransactions(user, source, handler);
