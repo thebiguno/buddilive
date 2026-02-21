@@ -70,7 +70,7 @@ export const api = {
     savingsRate: (query) => request(`data/report/savingsrate.json?${query}`),
     yearOverYear: (query) => request(`data/report/yearoveryear.json?${query}`),
     topPayeesBySpend: (query) => request(`data/report/toppayeesbyspend.json?${query}`),
-    categoryDrillDown: (categoryId, query) => request(`data/report/categorydrilldown.json?categoryId=${categoryId}&${query}`),
+    categoryDrillDown: (categoryId, query) => request(`data/report/categorydrilldown.json?categoryId=${encodeURIComponent(categoryId)}&${query}`),
     projectedBalance: (days) => request(`data/report/projectedbalance.json?days=${days}`),
     debtPaydown: (query) => request(`data/report/debtpaydown.json?${query}`),
   },

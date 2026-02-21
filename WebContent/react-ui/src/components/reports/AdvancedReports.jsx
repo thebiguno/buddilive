@@ -81,6 +81,7 @@ export function CategoryDrillDownReport({ options }) {
   const { showError, t } = useApp();
   const [data, setData] = useState([]);
   const [categoryName, setCategoryName] = useState('');
+  const [hasChildCategories, setHasChildCategories] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -89,20 +90,24 @@ export function CategoryDrillDownReport({ options }) {
     api.reports.categoryDrillDown(options.categoryId, options.query)
       .then(res => {
         setData(res?.data || []);
-        setCategoryName(res?.categoryName || '');
+        setCategoryName(res?.categoryName || options.categoryName || '');
+        setHasChildCategories(!!res?.hasChildCategories);
       })
       .catch(showError)
       .finally(() => setLoading(false));
-  }, [options.categoryId, options.query, showError]);
+  }, [options.categoryId, options.query, options.categoryName, showError]);
 
   if (loading) return <Loading t={t} />;
 
-  const amountKey = t('AMOUNT', 'Amount');
+  const categorySeriesName = categoryName || t('CATEGORY', 'Category');
+  const childRollupSeriesName = t('CHILD_CATEGORY_ROLLUP', 'Child categories (rollup)');
 
   const chartData = (data || []).map(d => ({
     month: d.month,
-    [amountKey]: d.amount,
-    formatted: d.amountFormatted,
+    categoryAmount: d.amount,
+    categoryAmountFormatted: d.amountFormatted,
+    childRollupAmount: d.childRollupAmount,
+    childRollupAmountFormatted: d.childRollupAmountFormatted,
   }));
 
   return (
@@ -116,9 +121,17 @@ export function CategoryDrillDownReport({ options }) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
             <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-            <Tooltip formatter={(v, _n, props) => [props.payload.formatted, amountKey]} />
+            <Tooltip formatter={(v, _n, props) => {
+              if (props?.dataKey === 'childRollupAmount') {
+                return [props.payload.childRollupAmountFormatted, childRollupSeriesName];
+              }
+              return [props.payload.categoryAmountFormatted, categorySeriesName];
+            }} />
             <Legend />
-            <Line type="monotone" dataKey={amountKey} stroke={COLORS[0]} strokeWidth={2} dot={{ r: 3 }} />
+            <Line type="monotone" dataKey="categoryAmount" name={categorySeriesName} stroke={COLORS[0]} strokeWidth={2} dot={{ r: 3 }} />
+            {hasChildCategories && (
+              <Line type="monotone" dataKey="childRollupAmount" name={childRollupSeriesName} stroke={COLORS[1]} strokeWidth={2} dot={{ r: 3 }} />
+            )}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -246,11 +259,23 @@ export function CategoryPickerDialog({ open, onClose, onConfirm }) {
     api.categories.parents()
       .then(res => {
         const flat = (res?.data || []).filter(c => c.value !== '' && c.value != null);
-        setCategories(flat);
-        if (flat.length > 0) setCategoryId(String(flat[0].value));
+        const incomeCategories = flat
+          .filter(c => c.income === true)
+          .map(c => ({ ...c, text: `\u00a0\u00a0${c.text}` }));
+        const expenseCategories = flat
+          .filter(c => c.income === false)
+          .map(c => ({ ...c, text: `\u00a0\u00a0${c.text}` }));
+        const options = [
+          { value: '__income__', text: t('INCOME', 'Income') },
+          ...incomeCategories,
+          { value: '__expenses__', text: t('EXPENSES', 'Expenses') },
+          ...expenseCategories,
+        ];
+        setCategories(options);
+        if (options.length > 0) setCategoryId(String(options[0].value));
       })
       .catch(showError);
-  }, [open, showError]);
+  }, [open, showError, t]);
 
   function handleOk() {
     if (!categoryId) return;
