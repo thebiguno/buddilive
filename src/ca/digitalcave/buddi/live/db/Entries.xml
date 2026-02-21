@@ -55,7 +55,7 @@
 	
 	<insert id="insertEntry">
 		<selectKey keyProperty="entry.id" resultType="long" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from entries
+			SELECT nextval('entries_id_seq')
 		</selectKey>
 		INSERT INTO entries (
 			id,

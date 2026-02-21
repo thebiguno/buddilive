@@ -130,7 +130,7 @@
 	
 	<insert id="insertTransaction">
 		<selectKey keyProperty="transaction.id" resultType="long" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from transactions
+			SELECT nextval('transactions_id_seq')
 		</selectKey>
 		INSERT INTO transactions (
 			id,
@@ -160,7 +160,7 @@
 	
 	<insert id="insertSplit">
 		<selectKey keyProperty="split.id" resultType="long" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from splits
+			SELECT nextval('splits_id_seq')
 		</selectKey>
 		INSERT INTO splits (
 			id, transaction_id, user_id, amount, from_source, to_source, memo, created, modified

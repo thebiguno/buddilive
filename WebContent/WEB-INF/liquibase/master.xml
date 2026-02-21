@@ -276,4 +276,24 @@
 		<sql>CREATE INDEX IF NOT EXISTS ix_scheduledsplits_to_source ON scheduledsplits(to_source)</sql>
 		<sql>CREATE INDEX IF NOT EXISTS ix_user_totp_backups_user_id ON user_totp_backups(user_id)</sql>
 	</changeSet>
+
+	<changeSet id="add id sequences for concurrent inserts" author="wyatt">
+		<preConditions onFail="MARK_RAN" onError="MARK_RAN">
+			<dbms type="postgresql"/>
+		</preConditions>
+		<sql>CREATE SEQUENCE IF NOT EXISTS users_id_seq</sql>
+		<sql>SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 0) + 1, false)</sql>
+		<sql>CREATE SEQUENCE IF NOT EXISTS sources_id_seq</sql>
+		<sql>SELECT setval('sources_id_seq', COALESCE((SELECT MAX(id) FROM sources), 0) + 1, false)</sql>
+		<sql>CREATE SEQUENCE IF NOT EXISTS entries_id_seq</sql>
+		<sql>SELECT setval('entries_id_seq', COALESCE((SELECT MAX(id) FROM entries), 0) + 1, false)</sql>
+		<sql>CREATE SEQUENCE IF NOT EXISTS transactions_id_seq</sql>
+		<sql>SELECT setval('transactions_id_seq', COALESCE((SELECT MAX(id) FROM transactions), 0) + 1, false)</sql>
+		<sql>CREATE SEQUENCE IF NOT EXISTS splits_id_seq</sql>
+		<sql>SELECT setval('splits_id_seq', COALESCE((SELECT MAX(id) FROM splits), 0) + 1, false)</sql>
+		<sql>CREATE SEQUENCE IF NOT EXISTS scheduledtransactions_id_seq</sql>
+		<sql>SELECT setval('scheduledtransactions_id_seq', COALESCE((SELECT MAX(id) FROM scheduledtransactions), 0) + 1, false)</sql>
+		<sql>CREATE SEQUENCE IF NOT EXISTS scheduledsplits_id_seq</sql>
+		<sql>SELECT setval('scheduledsplits_id_seq', COALESCE((SELECT MAX(id) FROM scheduledsplits), 0) + 1, false)</sql>
+	</changeSet>
 </databaseChangeLog>

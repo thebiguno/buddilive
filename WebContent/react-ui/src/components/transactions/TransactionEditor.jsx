@@ -47,7 +47,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       const num = selectedTransaction.number || '';
       const s = selectedTransaction.splits || [];
       const mappedSplits = s.length > 0 ? s.map(sp => ({
-        amount: sp.amountNumber || sp.amount || '',
+        amount: formatAmountForEditor(sp.amountNumber ?? sp.amount ?? ''),
         fromId: sp.fromId || null,
         toId: sp.toId || null,
         memo: sp.memo || '',
@@ -123,7 +123,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
         let { fromId, toId } = remapSplitToCurrentAccount(sp, currentAccountId);
         ({ fromId, toId } = ensureDistinctSplitSources(fromId, toId, originalFromId, originalToId));
         return {
-          amount: existing.amount || sp.amountNumber || sp.amount || '',
+          amount: formatAmountForEditor(existing.amount || sp.amountNumber || sp.amount || ''),
           fromId,
           toId,
           memo: existing.memo || sp.memo || '',
@@ -151,7 +151,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   }
 
   function isValid() {
-    if (!date) return false;
+    if (!isValidIsoDate(date)) return false;
     if (!description.trim()) return false;
     for (const s of splits) {
       if (!s.amount || parseFloat(s.amount) === 0) return false;
@@ -273,6 +273,15 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     }
   }
 
+  function handleDateFocus(e) {
+    e.target.select();
+  }
+
+  function handleDateMouseUp(e) {
+    // Keep full selection when focus is gained via mouse click.
+    e.preventDefault();
+  }
+
   function focusPreviousTabStop(current) {
     if (!current) return;
     const selector = [
@@ -319,11 +328,15 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       <div className="flex items-center gap-2 mb-1">
         <Input
           ref={dateInputRef}
-          type="date"
+          type="text"
+          inputMode="numeric"
           className="w-32"
           value={date}
           onChange={e => setDate(e.target.value)}
           onKeyDown={handleDateKeyDown}
+          onFocus={handleDateFocus}
+          onMouseUp={handleDateMouseUp}
+          placeholder="YYYY-MM-DD"
         />
         <Combobox
           ref={descriptionInputRef}
@@ -381,4 +394,31 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
 
 function today() {
   return new Date().toISOString().split('T')[0];
+}
+
+function isValidIsoDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return false;
+  const parsed = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return false;
+  return parsed.toISOString().slice(0, 10) === value;
+}
+
+function formatAmountForEditor(raw) {
+  if (raw == null || raw === '') return '';
+  if (typeof raw === 'number') return Number.isFinite(raw) ? raw.toFixed(2) : '';
+
+  const value = String(raw).trim();
+  if (!value) return '';
+
+  const cleaned = value.replace(/[^0-9,.-]/g, '');
+  if (!cleaned) return '';
+
+  const lastDot = cleaned.lastIndexOf('.');
+  const lastComma = cleaned.lastIndexOf(',');
+  const normalized = lastComma > lastDot
+    ? cleaned.replace(/\./g, '').replace(',', '.')
+    : cleaned.replace(/,/g, '');
+
+  const n = Number.parseFloat(normalized);
+  return Number.isFinite(n) ? n.toFixed(2) : value;
 }

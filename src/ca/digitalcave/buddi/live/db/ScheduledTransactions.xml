@@ -132,7 +132,7 @@
 
 	<insert id="insertScheduledTransaction">
 		<selectKey keyProperty="transaction.id" resultType="long" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from scheduledtransactions
+			SELECT nextval('scheduledtransactions_id_seq')
 		</selectKey>
 		INSERT INTO scheduledtransactions (
 			id,
@@ -174,7 +174,7 @@
 	
 	<insert id="insertScheduledSplit">
 		<selectKey keyProperty="split.id" resultType="long" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from scheduledsplits
+			SELECT nextval('scheduledsplits_id_seq')
 		</selectKey>
 		INSERT INTO scheduledsplits (
 			id,

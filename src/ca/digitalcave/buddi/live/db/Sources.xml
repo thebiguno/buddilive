@@ -211,7 +211,7 @@
 	
 	<insert id="insertAccount">
 		<selectKey keyProperty="account.id" resultType="int" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from sources
+			SELECT CAST(nextval('sources_id_seq') AS INTEGER)
 		</selectKey>
 		INSERT INTO sources (
 			id,
@@ -243,7 +243,7 @@
 	
 	<insert id="insertCategory">
 		<selectKey keyProperty="category.id" resultType="int" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from sources
+			SELECT CAST(nextval('sources_id_seq') AS INTEGER)
 		</selectKey>
 		INSERT INTO sources (
 			id,

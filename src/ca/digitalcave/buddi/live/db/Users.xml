@@ -78,7 +78,7 @@
 	
 	<insert id="insertUser">
 		<selectKey keyProperty="user.id" resultType="int" order="BEFORE">
-			SELECT coalesce(max(id), 0) + 1 from users
+			SELECT CAST(nextval('users_id_seq') AS INTEGER)
 		</selectKey>
 		INSERT INTO users
 			(
