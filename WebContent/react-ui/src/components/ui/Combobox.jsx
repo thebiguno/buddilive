@@ -53,9 +53,9 @@ export const Combobox = forwardRef(function Combobox({ options = [], value, onCh
     else forwardedRef.current = node;
   }
 
-
-  const filtered = query
-    ? options.filter(o => o.text && o.text.toLowerCase().includes(query.toLowerCase()))
+  const normalizedQuery = normalizeForSearch(query);
+  const filtered = normalizedQuery
+    ? options.filter(o => normalizeForSearch(o.text).includes(normalizedQuery))
     : options;
 
   // Only selectable items (non-header entries)
@@ -84,8 +84,9 @@ export const Combobox = forwardRef(function Combobox({ options = [], value, onCh
       String(displayValue || '').trim().length > 0
     );
     const nextQuery = shouldFilterOnFocus ? String(displayValue) : '';
-    const filteredOnFocus = nextQuery
-      ? options.filter(o => o.text && o.text.toLowerCase().includes(nextQuery.toLowerCase()))
+    const normalizedFocusQuery = normalizeForSearch(nextQuery);
+    const filteredOnFocus = normalizedFocusQuery
+      ? options.filter(o => normalizeForSearch(o.text).includes(normalizedFocusQuery))
       : options;
     const selectableOnFocus = filteredOnFocus.filter(o => o.value !== '' && o.value !== null);
     const selectedIndex = getSelectableIndexByValue(filteredOnFocus, value);
@@ -233,4 +234,10 @@ function parseStyle(styleStr) {
     }
   });
   return result;
+}
+
+function normalizeForSearch(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 }

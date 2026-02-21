@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Combobox } from '../ui/Combobox';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
@@ -27,7 +27,8 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   const [number, setNumber] = useState('');
   const [splits, setSplits] = useState([EMPTY_SPLIT()]);
   const [transactionId, setTransactionId] = useState(null);
-  const [descriptions, setDescriptions] = useState([]);
+  const [descriptionsAll, setDescriptionsAll] = useState([]);
+  const [descriptionUserTyped, setDescriptionUserTyped] = useState(false);
   const [saving, setSaving] = useState(false);
   const [confirmPending, setConfirmPending] = useState(null);
   // Snapshot of the transaction as it was loaded, for change detection
@@ -45,9 +46,30 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   // Load description autocomplete
   useEffect(() => {
     api.transactions.descriptions()
-      .then(data => setDescriptions((data?.data || []).map(d => ({ value: d.value, text: d.value, transaction: d.transaction }))))
+      .then(data => {
+        const loaded = (data?.data || []).map(d => ({
+          value: d.value,
+          text: d.value,
+          transaction: d.transaction,
+          recentTs: Number(d?.transaction?.dateEpoch) || 0,
+        }));
+        loaded.sort((a, b) => a.text.localeCompare(b.text, undefined, { sensitivity: 'base' }));
+        setDescriptionsAll(loaded);
+      })
       .catch(() => {});
   }, [descriptionStoreVersion]);
+
+  const descriptionsRecent = useMemo(() => {
+    const recent = [...descriptionsAll]
+      .sort((a, b) => b.recentTs - a.recentTs)
+      .slice(0, 25);
+    recent.sort((a, b) => a.text.localeCompare(b.text, undefined, { sensitivity: 'base' }));
+    return recent;
+  }, [descriptionsAll]);
+
+  const descriptionOptions = descriptionUserTyped && description.trim().length > 0
+    ? descriptionsAll
+    : descriptionsRecent;
 
   // Load selected transaction into form
   useEffect(() => {
@@ -67,6 +89,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       setTransactionId(id);
       setDate(formatIsoDateForDisplay(dIso, dateFormat));
       setDescription(desc);
+      setDescriptionUserTyped(false);
       setNumber(num);
       setSplits(mappedSplits);
       loadedTransaction.current = { id, dateIso: dIso, description: desc, number: num, splitsCount: mappedSplits.length };
@@ -85,6 +108,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     setTransactionId(null);
     if (!preserveDate) setDate(formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
     setDescription('');
+    setDescriptionUserTyped(false);
     setNumber('');
     setSplits([{ ...EMPTY_SPLIT(), source: selectedAccount?.id }]);
   }
@@ -124,6 +148,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
 
   function handleDescriptionSelect(opt) {
     setDescription(opt.value);
+    setDescriptionUserTyped(false);
     if (opt.transaction) {
       const t = opt.transaction;
       const currentAccountId = selectedAccount?.id || null;
@@ -335,9 +360,12 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
         <Combobox
           ref={descriptionInputRef}
           className="flex-1"
-          options={descriptions}
+          options={descriptionOptions}
           value={description}
-          onChange={setDescription}
+          onChange={value => {
+            setDescription(value);
+            setDescriptionUserTyped(true);
+          }}
           onSelect={handleDescriptionSelect}
           filterOnFocus
           placeholder={t('DESCRIPTION', 'Description')}

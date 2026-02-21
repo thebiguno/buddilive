@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,6 +39,7 @@ import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class DescriptionsResource extends ServerResource {
+	private static final int DESCRIPTION_LOOKBACK_MONTHS = 18;
 
 	@Override
 	protected void doInit() throws ResourceException {
@@ -48,14 +52,19 @@ public class DescriptionsResource extends ServerResource {
 		final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 		final User user = (User) getRequest().getClientInfo().getUser();
 		try {
-			final Map<String, Transaction> transactionsByDescription = new TreeMap<String, Transaction>();
-			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectDescriptions(user);
-			for (Transaction transaction : transactions) {
-				final String description = CryptoUtil.decryptWrapper(transaction.getDescription(), user);
-				if (transactionsByDescription.get(description) == null){
-					transactionsByDescription.put(description, transaction);
+			final Calendar lookback = Calendar.getInstance();
+			lookback.add(Calendar.MONTH, -DESCRIPTION_LOOKBACK_MONTHS);
+			final Date minDate = lookback.getTime();
+
+			final Map<String, Transaction> mostRecentByDescription = new LinkedHashMap<String, Transaction>();
+			final List<Transaction> transactions = sqlSession.getMapper(Transactions.class).selectDescriptions(user, minDate);
+				for (Transaction transaction : transactions) {
+					final String description = CryptoUtil.decryptWrapper(transaction.getDescription(), user);
+					if (mostRecentByDescription.get(description) == null){
+						mostRecentByDescription.put(description, transaction);
+					}
 				}
-			}
+			final Map<String, Transaction> transactionsByDescription = new TreeMap<String, Transaction>(mostRecentByDescription);
 			
 			return new WriterRepresentation(MediaType.APPLICATION_JSON) {
 				@Override
@@ -72,6 +81,7 @@ public class DescriptionsResource extends ServerResource {
 							generator.writeObjectFieldStart("transaction");
 							generator.writeStringField("description", description);
 							generator.writeStringField("number", CryptoUtil.decryptWrapper(t.getNumber(), user));
+							generator.writeNumberField("dateEpoch", t.getDate() == null ? 0L : t.getDate().getTime());
 							generator.writeArrayFieldStart("splits");
 							for (Split s : t.getSplits() != null ? t.getSplits() : new ArrayList<Split>()) {
 								generator.writeStartObject();

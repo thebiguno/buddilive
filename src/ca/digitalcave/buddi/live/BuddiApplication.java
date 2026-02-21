@@ -23,15 +23,19 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.restlet.Application;
+import org.restlet.Request;
 import org.restlet.Restlet;
+import org.restlet.Response;
 import org.restlet.data.Language;
 import org.restlet.data.Status;
 import org.restlet.engine.application.Encoder;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
+import org.restlet.routing.Filter;
 import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
+import org.restlet.service.LogService;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -190,6 +194,14 @@ public class BuddiApplication extends Application{
 	@Override  
 	public synchronized Restlet createInboundRoot() {
 		final BuddiApplication application = this;
+
+		// Do not include authenticated usernames in request logs.
+		LogService logService = getServices().get(LogService.class);
+		if (logService == null) {
+			logService = new LogService(true);
+			getServices().add(logService);
+		}
+		logService.setIdentityCheck(false);
 
 		getMetadataService().setDefaultLanguage(Language.ENGLISH);
 		getMetadataService().setEnabled(true);
@@ -374,7 +386,22 @@ public class BuddiApplication extends Application{
 		final Encoder encoder = new Encoder(getContext(), false, true, getEncoderService());
 		encoder.setNext(optionalAuth);
 
-		return encoder;
+		// Scrub identity fields after request handling so Restlet request logs
+		// do not include usernames.
+		final Filter privacyLogFilter = new Filter(getContext()) {
+			@Override
+			protected void afterHandle(Request request, Response response) {
+				if (request == null) return;
+				request.setChallengeResponse(null);
+				if (request.getClientInfo() != null) {
+					request.getClientInfo().setUser(null);
+					request.getClientInfo().setAuthenticated(false);
+				}
+			}
+		};
+		privacyLogFilter.setNext(encoder);
+
+		return privacyLogFilter;
 	}
 
 	@Override

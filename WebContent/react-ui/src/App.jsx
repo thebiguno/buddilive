@@ -151,6 +151,7 @@ function BuddiApp({ userConfig }) {
     t,
     showError, error, clearError,
     refreshAccounts, refreshTransactions, refreshDescriptions,
+    setSplitSources,
     accountTreeVersion,
   } = useApp();
 
@@ -251,6 +252,10 @@ function BuddiApp({ userConfig }) {
     return () => clearInterval(id);
   }, []);
 
+  const refreshSplitSources = useCallback(() => {
+    api.transactions.splitSources().then(setSplitSources).catch(showError);
+  }, [setSplitSources, showError]);
+
 
   // ── Tab helpers ──────────────────────────────────────────────────────────
 
@@ -295,6 +300,7 @@ function BuddiApp({ userConfig }) {
           try {
             await api.accounts.save({ action: 'undelete', id: selectedAccount.id });
             refreshAccounts();
+            refreshSplitSources();
             setSelectedAccount(null);
           } catch (e) { showError(e); }
           setConfirmDialog(null);
@@ -308,6 +314,7 @@ function BuddiApp({ userConfig }) {
           try {
             await api.accounts.save({ action: 'delete', id: selectedAccount.id });
             refreshAccounts();
+            refreshSplitSources();
             setSelectedAccount(null);
           } catch (e) { showError(e); }
           setConfirmDialog(null);
@@ -338,6 +345,7 @@ function BuddiApp({ userConfig }) {
         onConfirm: async () => {
           try {
             await api.categories.save({ action: 'undelete', id: selectedBudgetNode.id });
+            refreshSplitSources();
             setSelectedBudgetNode(null);
           } catch (e) { showError(e); }
           setConfirmDialog(null);
@@ -350,6 +358,7 @@ function BuddiApp({ userConfig }) {
         onConfirm: async () => {
           try {
             await api.categories.save({ action: 'delete', id: selectedBudgetNode.id });
+            refreshSplitSources();
             setSelectedBudgetNode(null);
           } catch (e) { showError(e); }
           setConfirmDialog(null);
@@ -737,13 +746,19 @@ function BuddiApp({ userConfig }) {
         open={accountEditorOpen}
         selected={accountEditorSelected}
         onClose={() => setAccountEditorOpen(false)}
-        onSaved={() => { refreshAccounts(); }}
+        onSaved={() => {
+          refreshAccounts();
+          refreshSplitSources();
+        }}
       />
       <BudgetEditor
         open={budgetEditorOpen}
         selected={budgetEditorSelected}
         onClose={() => setBudgetEditorOpen(false)}
-        onSaved={() => setBudgetTreeVersion(v => v + 1)}
+        onSaved={() => {
+          setBudgetTreeVersion(v => v + 1);
+          refreshSplitSources();
+        }}
       />
       <ScheduledEditor
         open={scheduledEditorOpen}

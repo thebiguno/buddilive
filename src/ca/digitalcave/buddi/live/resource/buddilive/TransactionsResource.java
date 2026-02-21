@@ -3,6 +3,7 @@ package ca.digitalcave.buddi.live.resource.buddilive;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.util.Locale;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.ibatis.session.ResultContext;
@@ -55,7 +56,8 @@ public class TransactionsResource extends ServerResource {
 				final SqlSession sqlSession = application.getSqlSessionFactory().openSession(true);
 				try {
 					final Source source = sqlSession.getMapper(Sources.class).selectSource(user, Integer.parseInt(getQuery().getFirstValue("source")));
-					final String search = (getQuery().getFirstValue("search") != null ? getQuery().getFirstValue("search").toLowerCase(user.getLocale()) : null);
+					final String normalizedSearch = normalizeForSearch(getQuery().getFirstValue("search"), user.getLocale());
+					final String search = (normalizedSearch.length() == 0 ? null : normalizedSearch);
 					generator.writeStartObject();
 					generator.writeBooleanField("success", true);
 					generator.writeArrayFieldStart("data");
@@ -74,11 +76,11 @@ public class TransactionsResource extends ServerResource {
 								final String number = CryptoUtil.decryptWrapper(t.getNumber(), user);
 								if (search != null){
 									//See if the search terms are contained in description, number, or memo.  If so, proceed; otherwise, skip this row.
-									if (!description.toLowerCase(user.getLocale()).contains(search)
-											&& !number.toLowerCase(user.getLocale()).contains(search)){
+									if (!normalizeForSearch(description, user.getLocale()).contains(search)
+											&& !normalizeForSearch(number, user.getLocale()).contains(search)){
 										boolean match = false;
 										for (Split s : t.getSplits()) {
-											if (CryptoUtil.decryptWrapper(s.getMemo(), user).toLowerCase(user.getLocale()).contains(search)){
+											if (normalizeForSearch(CryptoUtil.decryptWrapper(s.getMemo(), user), user.getLocale()).contains(search)){
 												match = true;
 												break;
 											}
@@ -233,5 +235,20 @@ public class TransactionsResource extends ServerResource {
 		finally {
 			sqlSession.close();
 		}
+	}
+
+	private static String normalizeForSearch(String value, Locale locale) {
+		if (value == null) return "";
+
+		final String lower = value.toLowerCase(locale);
+		final StringBuilder normalized = new StringBuilder(lower.length());
+		for (int i = 0; i < lower.length(); i++) {
+			final char c = lower.charAt(i);
+			if (Character.isLetterOrDigit(c)) {
+				normalized.append(c);
+			}
+		}
+
+		return normalized.toString();
 	}
 }

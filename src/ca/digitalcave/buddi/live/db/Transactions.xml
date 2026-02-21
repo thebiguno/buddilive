@@ -101,6 +101,7 @@
 		INNER JOIN sources fs ON fs.id = s.from_source
 		INNER JOIN sources ts ON ts.id = s.to_source
 		WHERE t.deleted = 'N' AND t.user_id = #{user.id}
+			AND t.transaction_date >= #{minDate}
 		ORDER BY t.transaction_date DESC, s.id DESC
 	</select>
 
@@ -195,13 +196,12 @@
 		SET
 			<choose>
 				<when test="from">
-					from_balance = #{balance,jdbcType=VARCHAR},
+					from_balance = #{balance,jdbcType=VARCHAR}
 				</when>
 				<otherwise>
-					to_balance = #{balance,jdbcType=VARCHAR},
+					to_balance = #{balance,jdbcType=VARCHAR}
 				</otherwise>
 			</choose>
-			modified = CURRENT_TIMESTAMP
 		WHERE id = #{splitId} AND user_id = #{user.id}
 	</update>
 	

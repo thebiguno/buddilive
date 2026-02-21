@@ -23,7 +23,7 @@ public interface Transactions {
 	public void selectTransactionsSortedByCreated(@Param("user") User user, @Param("source") Source source, ResultHandler<Transaction> handler);
 	public void selectTransactionsSortedByModified(@Param("user") User user, @Param("source") Source source, ResultHandler<Transaction> handler);
 	
-	public List<Transaction> selectDescriptions(@Param("user") User user);
+	public List<Transaction> selectDescriptions(@Param("user") User user, @Param("minDate") Date minDate);
 	
 	public List<Split> selectSplits(@Param("user") User user);
 	
