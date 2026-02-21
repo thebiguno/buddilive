@@ -6,13 +6,14 @@ import { cn } from '../../lib/utils';
  * Autocomplete combobox with styled dropdown items.
  * options: [{ value, text, style }]
  */
-export const Combobox = forwardRef(function Combobox({ options = [], value, onChange, onSelect, placeholder, className, disabled }, forwardedRef) {
+export const Combobox = forwardRef(function Combobox({ options = [], value, onChange, onSelect, placeholder, className, disabled, filterOnFocus = false }, forwardedRef) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
+  const typedSinceLastSelectRef = useRef(false);
 
   const selected = options.find(o => o.value === value);
   const displayValue = selected ? selected.text : (value ?? '');
@@ -61,6 +62,7 @@ export const Combobox = forwardRef(function Combobox({ options = [], value, onCh
   const selectableFiltered = filtered.filter(o => o.value !== '' && o.value !== null);
 
   function handleInputChange(e) {
+    typedSinceLastSelectRef.current = true;
     setQuery(e.target.value);
     setOpen(true);
     setActiveIndex(-1);
@@ -68,6 +70,7 @@ export const Combobox = forwardRef(function Combobox({ options = [], value, onCh
   }
 
   function handleSelect(opt) {
+    typedSinceLastSelectRef.current = false;
     setOpen(false);
     setQuery('');
     setActiveIndex(-1);
@@ -75,11 +78,23 @@ export const Combobox = forwardRef(function Combobox({ options = [], value, onCh
   }
 
   function openAndHighlightCurrent() {
-    const selectedIndex = getSelectableIndexByValue(options, value);
+    const shouldFilterOnFocus = !!(
+      filterOnFocus &&
+      typedSinceLastSelectRef.current &&
+      String(displayValue || '').trim().length > 0
+    );
+    const nextQuery = shouldFilterOnFocus ? String(displayValue) : '';
+    const filteredOnFocus = nextQuery
+      ? options.filter(o => o.text && o.text.toLowerCase().includes(nextQuery.toLowerCase()))
+      : options;
+    const selectableOnFocus = filteredOnFocus.filter(o => o.value !== '' && o.value !== null);
+    const selectedIndex = getSelectableIndexByValue(filteredOnFocus, value);
+    const nextIndex = selectedIndex >= 0 ? selectedIndex : (shouldFilterOnFocus && selectableOnFocus.length > 0 ? 0 : -1);
+    setQuery(nextQuery);
     setOpen(true);
-    setActiveIndex(selectedIndex);
-    if (selectedIndex >= 0) {
-      requestAnimationFrame(() => scrollActiveIntoView(selectedIndex));
+    setActiveIndex(nextIndex);
+    if (nextIndex >= 0) {
+      requestAnimationFrame(() => scrollActiveIntoView(nextIndex));
     }
   }
 
@@ -119,11 +134,23 @@ export const Combobox = forwardRef(function Combobox({ options = [], value, onCh
     }
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (open && activeIndex >= 0 && selectableFiltered[activeIndex]) {
-        handleSelect(selectableFiltered[activeIndex]);
+      if (open) {
+        const option = activeIndex >= 0
+          ? selectableFiltered[activeIndex]
+          : selectableFiltered[0];
+        if (option) {
+          handleSelect(option);
+        }
       }
       return;
     }
+  }
+
+  function handleInputBlur() {
+    // Always collapse the picklist when the textbox loses focus.
+    setOpen(false);
+    setQuery('');
+    setActiveIndex(-1);
   }
 
   return (
@@ -139,6 +166,7 @@ export const Combobox = forwardRef(function Combobox({ options = [], value, onCh
         value={open ? (query !== '' ? query : displayValue) : displayValue}
         onChange={handleInputChange}
         onFocus={openAndHighlightCurrent}
+        onBlur={handleInputBlur}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}

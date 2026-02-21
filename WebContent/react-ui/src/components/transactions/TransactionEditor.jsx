@@ -2,16 +2,27 @@ import { useState, useEffect, useRef } from 'react';
 import { Combobox } from '../ui/Combobox';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { DateField } from '../ui/DateField';
 import { SplitEditor } from './SplitEditor';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
+import {
+  formatDateForDisplay,
+  formatIsoDateForDisplay,
+  normalizeDateFormat,
+  parseDisplayDate,
+  parseIsoDate,
+  todayIso,
+  toIsoDate,
+} from '../../lib/dateFormat';
 
 const EMPTY_SPLIT = () => ({ amount: '', fromId: null, toId: null, memo: '' });
 
 export function TransactionEditor({ selectedAccount, selectedTransaction, onSaved, onClear, onDelete }) {
-  const { splitSources, setSplitSources, showError, descriptionStoreVersion, t } = useApp();
-  const [date, setDate] = useState(today());
+  const { splitSources, setSplitSources, showError, descriptionStoreVersion, t, userConfig } = useApp();
+  const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
+  const [date, setDate] = useState(() => formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
   const [description, setDescription] = useState('');
   const [number, setNumber] = useState('');
   const [splits, setSplits] = useState([EMPTY_SPLIT()]);
@@ -42,7 +53,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   useEffect(() => {
     if (selectedTransaction) {
       const id = selectedTransaction.id || null;
-      const d = selectedTransaction.dateIso || today();
+      const dIso = selectedTransaction.dateIso || todayIso();
       const desc = selectedTransaction.description || '';
       const num = selectedTransaction.number || '';
       const s = selectedTransaction.splits || [];
@@ -54,16 +65,16 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
         source: selectedAccount?.id,
       })) : [{ ...EMPTY_SPLIT(), source: selectedAccount?.id }];
       setTransactionId(id);
-      setDate(d);
+      setDate(formatIsoDateForDisplay(dIso, dateFormat));
       setDescription(desc);
       setNumber(num);
       setSplits(mappedSplits);
-      loadedTransaction.current = { id, date: d, description: desc, number: num, splitsCount: mappedSplits.length };
+      loadedTransaction.current = { id, dateIso: dIso, description: desc, number: num, splitsCount: mappedSplits.length };
     } else {
       clearForm(false);
       loadedTransaction.current = null;
     }
-  }, [selectedTransaction]);
+  }, [selectedTransaction, dateFormat]);
 
   // When account changes, update source on splits
   useEffect(() => {
@@ -72,7 +83,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
 
   function clearForm(preserveDate = false) {
     setTransactionId(null);
-    if (!preserveDate) setDate(today());
+    if (!preserveDate) setDate(formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
     setDescription('');
     setNumber('');
     setSplits([{ ...EMPTY_SPLIT(), source: selectedAccount?.id }]);
@@ -151,7 +162,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   }
 
   function isValid() {
-    if (!isValidIsoDate(date)) return false;
+    if (!parseDisplayDate(date, dateFormat)) return false;
     if (!description.trim()) return false;
     for (const s of splits) {
       if (!s.amount || parseFloat(s.amount) === 0) return false;
@@ -160,13 +171,13 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     return true;
   }
 
-  async function doSave() {
+  async function doSave(dateIso) {
     setSaving(true);
     try {
       await api.transactions.save({
         action: transactionId ? 'update' : 'insert',
         ...(transactionId ? { id: transactionId } : {}),
-        date,
+        date: dateIso,
         description: description.trim(),
         number,
         splits: splits.map(s => ({
@@ -190,8 +201,11 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
 
   function handleSave() {
     if (!isValid()) return;
+    const parsedDate = parseDisplayDate(date, dateFormat);
+    if (!parsedDate) return;
+    const dateIso = toIsoDate(parsedDate);
 
-    const d = new Date(date + 'T00:00:00');
+    const d = parsedDate;
     const now = new Date();
     const future = new Date(now); future.setDate(future.getDate() + 7);
     const past = new Date(now); past.setMonth(past.getMonth() - 3);
@@ -200,7 +214,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     const loaded = loadedTransaction.current;
     const isModify = !!transactionId && loaded;
     const fieldsChanged = isModify && (
-      loaded.date !== date ||
+      loaded.dateIso !== dateIso ||
       loaded.description !== description.trim() ||
       loaded.number !== (number || '') ||
       loaded.splitsCount !== splits.length
@@ -219,11 +233,11 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
             setConfirmPending({
               title: t('MODIFY_EXISTING_TRANSACTION', 'Modify Existing Transaction'),
               message: t('MODIFY_EXISTING_TRANSACTION_CONFIRM', 'You have changed fields on an existing transaction. Are you sure you want to save these changes?'),
-              onConfirm: () => { setConfirmPending(null); doSave(); },
+              onConfirm: () => { setConfirmPending(null); doSave(dateIso); },
               onCancel: () => setConfirmPending(null),
             });
           } else {
-            doSave();
+            doSave(dateIso);
           }
         },
         onCancel: () => setConfirmPending(null),
@@ -232,11 +246,11 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       setConfirmPending({
         title: t('MODIFY_EXISTING_TRANSACTION', 'Modify Existing Transaction'),
         message: t('MODIFY_EXISTING_TRANSACTION_CONFIRM', 'You have changed fields on an existing transaction. Are you sure you want to save these changes?'),
-        onConfirm: () => { setConfirmPending(null); doSave(); },
+        onConfirm: () => { setConfirmPending(null); doSave(dateIso); },
         onCancel: () => setConfirmPending(null),
       });
     } else {
-      doSave();
+      doSave(dateIso);
     }
   }
 
@@ -248,6 +262,10 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   function handleClear() {
     clearForm(false);
     onClear && onClear();
+    requestAnimationFrame(() => {
+      dateInputRef.current?.focus();
+      dateInputRef.current?.select?.();
+    });
   }
 
   const sourcesWithAccount = {
@@ -260,26 +278,6 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       e.preventDefault();
       handleSave();
     }
-  }
-
-  function handleDateKeyDown(e) {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      if (e.shiftKey) {
-        focusPreviousTabStop(dateInputRef.current);
-      } else {
-        descriptionInputRef.current?.focus();
-      }
-    }
-  }
-
-  function handleDateFocus(e) {
-    e.target.select();
-  }
-
-  function handleDateMouseUp(e) {
-    // Keep full selection when focus is gained via mouse click.
-    e.preventDefault();
   }
 
   function focusPreviousTabStop(current) {
@@ -326,17 +324,13 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       )}
       {/* Top row: date, description, number */}
       <div className="flex items-center gap-2 mb-1">
-        <Input
+        <DateField
           ref={dateInputRef}
-          type="text"
-          inputMode="numeric"
           className="w-32"
           value={date}
-          onChange={e => setDate(e.target.value)}
-          onKeyDown={handleDateKeyDown}
-          onFocus={handleDateFocus}
-          onMouseUp={handleDateMouseUp}
-          placeholder="YYYY-MM-DD"
+          onChange={setDate}
+          onTabPrevious={() => focusPreviousTabStop(dateInputRef.current)}
+          onTabNext={() => descriptionInputRef.current?.focus()}
         />
         <Combobox
           ref={descriptionInputRef}
@@ -345,6 +339,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
           value={description}
           onChange={setDescription}
           onSelect={handleDescriptionSelect}
+          filterOnFocus
           placeholder={t('DESCRIPTION', 'Description')}
         />
         <Input
@@ -390,17 +385,6 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       </div>
     </div>
   );
-}
-
-function today() {
-  return new Date().toISOString().split('T')[0];
-}
-
-function isValidIsoDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return false;
-  const parsed = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) return false;
-  return parsed.toISOString().slice(0, 10) === value;
 }
 
 function formatAmountForEditor(raw) {

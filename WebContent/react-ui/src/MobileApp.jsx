@@ -3,9 +3,17 @@ import { AppProvider, useApp } from './context/AppContext';
 import { api } from './lib/api';
 import { cn } from './lib/utils';
 import { ConfirmDialog, AlertDialog } from './components/ui/ConfirmDialog';
+import { DateField } from './components/ui/DateField';
+import {
+  formatDateForDisplay,
+  formatIsoDateForDisplay,
+  normalizeDateFormat,
+  parseDisplayDate,
+  parseIsoDate,
+  todayIso,
+  toIsoDate,
+} from './lib/dateFormat';
 import { ChevronDown, ChevronRight, ChevronLeft, Plus, ArrowRight, Minus, Trash2, RefreshCw, LogOut } from 'lucide-react';
-
-function today() { return new Date().toISOString().split('T')[0]; }
 
 function parseStyle(s) {
   if (!s) return {};
@@ -193,8 +201,9 @@ function SplitRow({ split, index, isOnly, splitSources, onUpdate, onAdd, onRemov
 const EMPTY_SPLIT = () => ({ amount: '', fromId: null, toId: null, memo: '' });
 
 function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
-  const { splitSources, setSplitSources, showError, descriptionStoreVersion, t } = useApp();
-  const [date, setDate] = useState(today());
+  const { splitSources, setSplitSources, showError, descriptionStoreVersion, t, userConfig } = useApp();
+  const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
+  const [date, setDate] = useState(() => formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
   const [description, setDescription] = useState('');
   const [number, setNumber] = useState('');
   const [splits, setSplits] = useState([EMPTY_SPLIT()]);
@@ -211,18 +220,18 @@ function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
   useEffect(() => {
     if (transaction) {
       const id = transaction.id || null;
-      const d = transaction.dateIso || today();
+      const dIso = transaction.dateIso || todayIso();
       const desc = transaction.description || '';
       const num = transaction.number || '';
       const s = (transaction.splits || []).map(sp => ({ amount: sp.amountNumber || sp.amount || '', fromId: sp.fromId || null, toId: sp.toId || null, memo: sp.memo || '', source: account?.id }));
       const ms = s.length > 0 ? s : [{ ...EMPTY_SPLIT(), source: account?.id }];
-      setTxId(id); setDate(d); setDescription(desc); setNumber(num); setSplits(ms);
-      loaded.current = { id, date: d, description: desc, number: num, splitsCount: ms.length };
+      setTxId(id); setDate(formatIsoDateForDisplay(dIso, dateFormat)); setDescription(desc); setNumber(num); setSplits(ms);
+      loaded.current = { id, dateIso: dIso, description: desc, number: num, splitsCount: ms.length };
     } else {
-      setTxId(null); setDate(today()); setDescription(''); setNumber(''); setSplits([{ ...EMPTY_SPLIT(), source: account?.id }]);
+      setTxId(null); setDate(formatDateForDisplay(parseIsoDate(todayIso()), dateFormat)); setDescription(''); setNumber(''); setSplits([{ ...EMPTY_SPLIT(), source: account?.id }]);
       loaded.current = null;
     }
-  }, [transaction, account]);
+  }, [transaction, account, dateFormat]);
 
   useEffect(() => { setSplits(prev => prev.map(s => ({ ...s, source: account?.id }))); }, [account]);
 
@@ -231,31 +240,35 @@ function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
   const remSplit = i => setSplits(prev => prev.filter((_, j) => j !== i));
 
   const valid = () => {
-    if (!date || !description.trim()) return false;
+    if (!parseDisplayDate(date, dateFormat) || !description.trim()) return false;
     return splits.every(s => s.amount && parseFloat(s.amount) !== 0 && s.fromId && s.toId);
   };
 
-  async function doSave() {
+  async function doSave(dateIso) {
     setSaving(true);
     try {
-      await api.transactions.save({ action: txId ? 'update' : 'insert', ...(txId ? { id: txId } : {}), date, description: description.trim(), number, splits: splits.map(s => ({ amount: parseFloat(s.amount), fromId: s.fromId, toId: s.toId, memo: s.memo || '' })) });
+      await api.transactions.save({ action: txId ? 'update' : 'insert', ...(txId ? { id: txId } : {}), date: dateIso, description: description.trim(), number, splits: splits.map(s => ({ amount: parseFloat(s.amount), fromId: s.fromId, toId: s.toId, memo: s.memo || '' })) });
       onSaved && onSaved();
     } catch (e) { showError(e); } finally { setSaving(false); }
   }
 
   function handleSave() {
     if (!valid()) return;
-    const d = new Date(date + 'T00:00:00'), now = new Date();
+    const parsedDate = parseDisplayDate(date, dateFormat);
+    if (!parsedDate) return;
+    const dateIso = toIsoDate(parsedDate);
+    const d = parsedDate;
+    const now = new Date();
     const future = new Date(now); future.setDate(future.getDate() + 7);
     const past = new Date(now); past.setMonth(past.getMonth() - 3);
     const oor = d > future || d < past;
     const l = loaded.current;
-    const changed = !!txId && l && (l.date !== date || l.description !== description.trim() || l.number !== (number || '') || l.splitsCount !== splits.length);
+    const changed = !!txId && l && (l.dateIso !== dateIso || l.description !== description.trim() || l.number !== (number || '') || l.splitsCount !== splits.length);
     if (oor) {
-      setConfirm({ title: t('DATE_OUT_OF_RANGE', 'Date Out of Range'), message: d > future ? t('TRANSACTION_DATE_TOO_FAR_FUTURE_MOBILE', 'Date is more than 7 days in the future. Save anyway?') : t('TRANSACTION_DATE_TOO_FAR_PAST_MOBILE', 'Date is more than 3 months in the past. Save anyway?'), onConfirm: () => { setConfirm(null); changed ? setConfirm({ title: t('MODIFY_TRANSACTION', 'Modify Transaction'), message: t('SAVE_CHANGES_CONFIRM', 'Save changes?'), onConfirm: () => { setConfirm(null); doSave(); }, onCancel: () => setConfirm(null) }) : doSave(); }, onCancel: () => setConfirm(null) });
+      setConfirm({ title: t('DATE_OUT_OF_RANGE', 'Date Out of Range'), message: d > future ? t('TRANSACTION_DATE_TOO_FAR_FUTURE_MOBILE', 'Date is more than 7 days in the future. Save anyway?') : t('TRANSACTION_DATE_TOO_FAR_PAST_MOBILE', 'Date is more than 3 months in the past. Save anyway?'), onConfirm: () => { setConfirm(null); changed ? setConfirm({ title: t('MODIFY_TRANSACTION', 'Modify Transaction'), message: t('SAVE_CHANGES_CONFIRM', 'Save changes?'), onConfirm: () => { setConfirm(null); doSave(dateIso); }, onCancel: () => setConfirm(null) }) : doSave(dateIso); }, onCancel: () => setConfirm(null) });
     } else if (changed) {
-      setConfirm({ title: t('MODIFY_TRANSACTION', 'Modify Transaction'), message: t('SAVE_CHANGES_TO_TRANSACTION_CONFIRM', 'Save changes to this transaction?'), onConfirm: () => { setConfirm(null); doSave(); }, onCancel: () => setConfirm(null) });
-    } else { doSave(); }
+      setConfirm({ title: t('MODIFY_TRANSACTION', 'Modify Transaction'), message: t('SAVE_CHANGES_TO_TRANSACTION_CONFIRM', 'Save changes to this transaction?'), onConfirm: () => { setConfirm(null); doSave(dateIso); }, onCancel: () => setConfirm(null) });
+    } else { doSave(dateIso); }
   }
 
   const filtered = description.length > 0 ? descs.filter(d => d.text.toLowerCase().includes(description.toLowerCase()) && d.text !== description).slice(0, 6) : [];
@@ -274,7 +287,7 @@ function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
               <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">{t('DATE', 'Date')}</label>
-              <input type="date" className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={date} onChange={e => setDate(e.target.value)} />
+              <DateField className="w-full" inputClassName="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={date} onChange={setDate} />
             </div>
             <div className="w-28">
               <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">{t('NUMBER_SHORT', 'Transaction #')}</label>

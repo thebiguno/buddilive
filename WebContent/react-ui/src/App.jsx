@@ -365,15 +365,22 @@ function BuddiApp({ userConfig }) {
     setScheduledEditorOpen(true);
   }
 
-  function handleEditScheduled(row) {
-    const target = row || selectedScheduled;
+  function resolveScheduledTarget(rowOrEvent) {
+    if (rowOrEvent && typeof rowOrEvent === 'object' && Object.prototype.hasOwnProperty.call(rowOrEvent, 'id')) {
+      return rowOrEvent;
+    }
+    return selectedScheduled;
+  }
+
+  function handleEditScheduled(rowOrEvent) {
+    const target = resolveScheduledTarget(rowOrEvent);
     if (!target) return;
     setScheduledEditorSelected(target);
     setScheduledEditorOpen(true);
   }
 
-  function handleDeleteScheduled(row) {
-    const target = row || selectedScheduled;
+  function handleDeleteScheduled(rowOrEvent) {
+    const target = resolveScheduledTarget(rowOrEvent);
     if (!target) return;
     setConfirmDialog({
       title: t('DELETE_SCHEDULED_TRANSACTION_TITLE', 'Delete Scheduled Transaction'),

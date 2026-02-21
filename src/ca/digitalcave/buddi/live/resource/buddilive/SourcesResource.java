@@ -1,6 +1,8 @@
 package ca.digitalcave.buddi.live.resource.buddilive;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -54,6 +56,10 @@ public class SourcesResource extends ServerResource {
 				}
 			}
 			final List<Category> categories = Category.getHierarchy(sqlSession.getMapper(Sources.class).selectCategories(user, isIncome));
+			for (AccountType accountType : accountTypeMap.values()) {
+				sortAccountsByName(accountType.getAccounts(), user);
+			}
+			sortCategoriesByName(categories, user);
 			final JSONObject result = new JSONObject();
 
 			final StringBuilder sb = new StringBuilder();
@@ -111,6 +117,29 @@ public class SourcesResource extends ServerResource {
 		}
 		finally {
 			sqlSession.close();
+		}
+	}
+
+	private void sortAccountsByName(List<Account> accounts, User user) {
+		if (accounts == null || accounts.size() < 2) return;
+		Collections.sort(accounts, Comparator.comparing(a -> getSortName(a.getName(), user), String.CASE_INSENSITIVE_ORDER));
+	}
+
+	private void sortCategoriesByName(List<Category> categories, User user) {
+		if (categories == null || categories.isEmpty()) return;
+		Collections.sort(categories, Comparator.comparing(c -> getSortName(c.getName(), user), String.CASE_INSENSITIVE_ORDER));
+		for (Category category : categories) {
+			sortCategoriesByName(category.getChildren(), user);
+		}
+	}
+
+	private String getSortName(String encryptedValue, User user) {
+		try {
+			final String decrypted = CryptoUtil.decryptWrapper(encryptedValue, user);
+			return decrypted == null ? "" : decrypted;
+		}
+		catch (CryptoException e) {
+			return encryptedValue == null ? "" : encryptedValue;
 		}
 	}
 	

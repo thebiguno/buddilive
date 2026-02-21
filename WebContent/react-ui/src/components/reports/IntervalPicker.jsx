@@ -2,8 +2,16 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogFooter } from '../ui/Dialog';
 import { Button } from '../ui/Button';
 import { Select } from '../ui/Select';
-import { Input } from '../ui/Input';
+import { DateField } from '../ui/DateField';
 import { useApp } from '../../context/AppContext';
+import {
+  formatDateForDisplay,
+  normalizeDateFormat,
+  parseDisplayDate,
+  parseIsoDate,
+  todayIso,
+  toIsoDate,
+} from '../../lib/dateFormat';
 
 const INTERVALS = [
   { value: 'PLUGIN_FILTER_THIS_WEEK', key: 'INTERVAL_THIS_WEEK', text: 'This Week' },
@@ -22,20 +30,25 @@ const INTERVALS = [
 ];
 
 export function IntervalPicker({ open, onClose, onConfirm }) {
-  const { t } = useApp();
+  const { t, userConfig } = useApp();
+  const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
   const [interval, setInterval] = useState('PLUGIN_FILTER_THIS_MONTH');
-  const [startDate, setStartDate] = useState(today());
-  const [endDate, setEndDate] = useState(today());
+  const [startDate, setStartDate] = useState(() => formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
+  const [endDate, setEndDate] = useState(() => formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
 
   const isCustom = interval === 'PLUGIN_FILTER_OTHER';
-  const isValid = !isCustom || (startDate && endDate && startDate <= endDate);
+  const startDateParsed = parseDisplayDate(startDate, dateFormat);
+  const endDateParsed = parseDisplayDate(endDate, dateFormat);
+  const startDateIso = startDateParsed ? toIsoDate(startDateParsed) : '';
+  const endDateIso = endDateParsed ? toIsoDate(endDateParsed) : '';
+  const isValid = !isCustom || (!!startDateIso && !!endDateIso && startDateIso <= endDateIso);
 
   function handleOk() {
     let query = `interval=${interval}`;
     const intervalItem = INTERVALS.find(i => i.value === interval);
     let dateRange = intervalItem ? t(intervalItem.key, intervalItem.text) : interval;
     if (isCustom) {
-      query += `&startDate=${startDate}&endDate=${endDate}`;
+      query += `&startDate=${startDateIso}&endDate=${endDateIso}`;
       dateRange = `${startDate} - ${endDate}`;
     }
     onConfirm({ query, dateRange });
@@ -56,22 +69,10 @@ export function IntervalPicker({ open, onClose, onConfirm }) {
           {isCustom && (
             <>
               <FormRow label={t('START_DATE', 'Start Date')}>
-                <Input
-                  type="date"
-                  className="flex-1"
-                  value={startDate}
-                  onChange={e => setStartDate(e.target.value)}
-                  max={endDate}
-                />
+                <DateField className="flex-1" inputClassName="flex-1" value={startDate} onChange={setStartDate} />
               </FormRow>
               <FormRow label={t('END_DATE', 'End Date')}>
-                <Input
-                  type="date"
-                  className="flex-1"
-                  value={endDate}
-                  onChange={e => setEndDate(e.target.value)}
-                  min={startDate}
-                />
+                <DateField className="flex-1" inputClassName="flex-1" value={endDate} onChange={setEndDate} />
               </FormRow>
             </>
           )}
@@ -92,8 +93,4 @@ function FormRow({ label, children }) {
       {children}
     </div>
   );
-}
-
-function today() {
-  return new Date().toISOString().split('T')[0];
 }

@@ -4,9 +4,19 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Textarea } from '../ui/Input';
+import { DateField } from '../ui/DateField';
 import { SplitEditor } from '../transactions/SplitEditor';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
+import {
+  formatDateForDisplay,
+  formatIsoDateForDisplay,
+  normalizeDateFormat,
+  parseDisplayDate,
+  parseIsoDate,
+  todayIso,
+  toIsoDate,
+} from '../../lib/dateFormat';
 
 const FREQUENCIES = [
   { value: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE', key: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE_LABEL', text: 'Monthly by Date' },
@@ -23,14 +33,13 @@ const FREQUENCIES = [
 const DAYS_OF_WEEK = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-function today() { return new Date().toISOString().split('T')[0]; }
-
 export function ScheduledEditor({ open, selected, onClose, onSaved }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
   const [name, setName] = useState(selected?.name || '');
   const [repeat, setRepeat] = useState(selected?.repeat || 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE');
-  const [startDate, setStartDate] = useState(selected?.start || today());
-  const [endDate, setEndDate] = useState(selected?.end || '');
+  const [startDate, setStartDate] = useState(() => formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
+  const [endDate, setEndDate] = useState(() => (selected?.end ? formatIsoDateForDisplay(selected.end, dateFormat) : ''));
   const [scheduleDay, setScheduleDay] = useState(selected?.scheduleDay ?? 1);
   const [scheduleWeek, setScheduleWeek] = useState(selected?.scheduleWeek ?? 0);
   const [scheduleMonth, setScheduleMonth] = useState(selected?.scheduleMonth ?? 0);
@@ -43,8 +52,8 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
     if (!open) return;
     setName(selected?.name || '');
     setRepeat(selected?.repeat || 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE');
-    setStartDate(selected?.start || today());
-    setEndDate(selected?.end || '');
+    setStartDate(formatIsoDateForDisplay(selected?.start || todayIso(), dateFormat));
+    setEndDate(selected?.end ? formatIsoDateForDisplay(selected.end, dateFormat) : '');
     setScheduleDay(selected?.scheduleDay ?? 1);
     setScheduleWeek(selected?.scheduleWeek ?? 0);
     setScheduleMonth(selected?.scheduleMonth ?? 0);
@@ -52,10 +61,15 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
     setMessage(selected?.message || '');
     setSplits(normalizeSplitsForEditor(selected?.splits || []));
     setSaving(false);
-  }, [open, selected]);
+  }, [open, selected, dateFormat]);
 
   const isEditing = !!selected;
-  const isValid = name.trim().length > 0;
+  const startDateParsed = parseDisplayDate(startDate, dateFormat);
+  const endDateParsed = endDate ? parseDisplayDate(endDate, dateFormat) : null;
+  const startDateIso = startDateParsed ? toIsoDate(startDateParsed) : '';
+  const endDateIso = endDateParsed ? toIsoDate(endDateParsed) : '';
+  const datesValid = !!startDateIso && (!endDate || !!endDateIso) && (!endDateIso || startDateIso <= endDateIso);
+  const isValid = name.trim().length > 0 && datesValid;
 
   function toggleMonth(bit) {
     setScheduleMonth(m => m ^ bit);
@@ -71,8 +85,8 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
         lastCreatedDate: selected?.lastCreatedDate || null,
         name: name.trim(),
         repeat,
-        start: startDate,
-        end: endDate || null,
+        start: startDateIso,
+        end: endDateIso || null,
         scheduleDay: parseInt(scheduleDay) || 1,
         scheduleWeek: parseInt(scheduleWeek) || 0,
         scheduleMonth,
@@ -109,10 +123,10 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
             </Select>
           </FormRow>
           <FormRow label={t('START_DATE', 'Start Date')}>
-            <Input type="date" className="flex-1" value={startDate} onChange={e => setStartDate(e.target.value)} disabled={isEditing} />
+            <DateField className="flex-1" inputClassName="flex-1" value={startDate} onChange={setStartDate} disabled={isEditing} />
           </FormRow>
           <FormRow label={t('END_DATE', 'End Date')}>
-            <Input type="date" className="flex-1" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            <DateField className="flex-1" inputClassName="flex-1" value={endDate} onChange={setEndDate} />
           </FormRow>
 
           {/* Frequency-specific config */}
