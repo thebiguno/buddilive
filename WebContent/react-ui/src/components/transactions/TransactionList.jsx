@@ -44,9 +44,10 @@ function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
           </>
         )}
       </div>
-      {/* Split sub-rows: indented, From → To | amount in debit or credit col | balance | [timestamp spacers] */}
+      {/* Split sub-rows: keep date col empty; show From → To under description | amount cols | [timestamp spacers] */}
       {splits.map((s, i) => (
-        <div key={i} className="flex items-center text-xs py-0.5 pl-8 pr-1 text-gray-500 italic">
+        <div key={i} className="flex items-center text-xs py-0.5 px-1 text-gray-500 italic">
+          <span className="w-[13%] flex-shrink-0" />
           <span className="flex-1 truncate">{s.from} → {s.to}</span>
           <span className="w-[12%] flex-shrink-0 text-right pr-1">
             {s.amountInDebitColumn && <span style={parseStyle(s.amountStyle)}>{s.amount}</span>}
@@ -67,7 +68,7 @@ function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
   );
 }
 
-export function TransactionList({ selectedAccount, onTransactionSelect, selectedTransactionId }) {
+export function TransactionList({ selectedAccount, onTransactionSelect, selectedTransactionId, onLoaded }) {
   const { transactionListVersion, showError, t } = useApp();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -78,7 +79,11 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
   const searchTimer = useRef(null);
 
   const load = useCallback(async () => {
-    if (!selectedAccount) { setRows([]); return; }
+    if (!selectedAccount) {
+      setRows([]);
+      onLoaded && onLoaded();
+      return;
+    }
     setLoading(true);
     try {
       const sortParam = sortBy === 'date' ? '' : `&sortBy=${sortBy}`;
@@ -89,8 +94,9 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
       showError(e);
     } finally {
       setLoading(false);
+      onLoaded && onLoaded();
     }
-  }, [selectedAccount, search, showError, transactionListVersion, sortBy]);
+  }, [selectedAccount, search, showError, transactionListVersion, sortBy, onLoaded]);
 
   useEffect(() => { load(); }, [load]);
 

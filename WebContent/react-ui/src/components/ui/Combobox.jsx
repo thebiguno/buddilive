@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { forwardRef, useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
  * Autocomplete combobox with styled dropdown items.
  * options: [{ value, text, style }]
  */
-export function Combobox({ options = [], value, onChange, onSelect, placeholder, className, disabled }) {
+export const Combobox = forwardRef(function Combobox({ options = [], value, onChange, onSelect, placeholder, className, disabled }, forwardedRef) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -15,6 +15,21 @@ export function Combobox({ options = [], value, onChange, onSelect, placeholder,
   const listRef = useRef(null);
 
   const selected = options.find(o => o.value === value);
+  const displayValue = selected ? selected.text : (value ?? '');
+
+  function getSelectableIndexByValue(list, selectedValue) {
+    let selectableIdx = -1;
+    let found = -1;
+    for (const opt of list) {
+      if (opt.value === '' || opt.value === null) continue;
+      selectableIdx++;
+      if (opt.value === selectedValue) {
+        found = selectableIdx;
+        break;
+      }
+    }
+    return found;
+  }
 
   useEffect(() => {
     if (!open) { setQuery(''); setActiveIndex(-1); }
@@ -29,6 +44,13 @@ export function Combobox({ options = [], value, onChange, onSelect, placeholder,
     document.addEventListener('mousedown', handleMouseDown);
     return () => document.removeEventListener('mousedown', handleMouseDown);
   }, []);
+
+  function setInputRef(node) {
+    inputRef.current = node;
+    if (!forwardedRef) return;
+    if (typeof forwardedRef === 'function') forwardedRef(node);
+    else forwardedRef.current = node;
+  }
 
 
   const filtered = query
@@ -52,6 +74,15 @@ export function Combobox({ options = [], value, onChange, onSelect, placeholder,
     if (onSelect) onSelect(opt);
   }
 
+  function openAndHighlightCurrent() {
+    const selectedIndex = getSelectableIndexByValue(options, value);
+    setOpen(true);
+    setActiveIndex(selectedIndex);
+    if (selectedIndex >= 0) {
+      requestAnimationFrame(() => scrollActiveIntoView(selectedIndex));
+    }
+  }
+
   function scrollActiveIntoView(idx) {
     if (!listRef.current) return;
     const items = listRef.current.querySelectorAll('[data-selectable]');
@@ -60,9 +91,16 @@ export function Combobox({ options = [], value, onChange, onSelect, placeholder,
 
   function handleKeyDown(e) {
     if (e.key === 'Escape') { setOpen(false); setQuery(''); return; }
+    if (e.key === 'Tab') {
+      // Let browser tab navigation proceed, but close the list immediately.
+      setOpen(false);
+      setQuery('');
+      setActiveIndex(-1);
+      return;
+    }
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (!open) { setOpen(true); return; }
+      if (!open) { openAndHighlightCurrent(); return; }
       setActiveIndex(i => {
         const next = Math.min(i + 1, selectableFiltered.length - 1);
         scrollActiveIntoView(next);
@@ -91,16 +129,16 @@ export function Combobox({ options = [], value, onChange, onSelect, placeholder,
   return (
     <div ref={containerRef} className={cn('relative', className)}>
       <input
-        ref={inputRef}
+        ref={setInputRef}
         type="text"
         className={cn(
           'w-full border border-gray-400 rounded pl-1.5 pr-5 py-0.5 text-xs bg-white',
           'focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400',
           'disabled:bg-gray-100 disabled:text-gray-500'
         )}
-        value={open ? query : (selected ? selected.text : (value || ''))}
+        value={open ? (query !== '' ? query : displayValue) : displayValue}
         onChange={handleInputChange}
-        onFocus={() => setOpen(true)}
+        onFocus={openAndHighlightCurrent}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
@@ -109,7 +147,13 @@ export function Combobox({ options = [], value, onChange, onSelect, placeholder,
         type="button"
         tabIndex={-1}
         disabled={disabled}
-        onMouseDown={e => { e.preventDefault(); if (!disabled) { setOpen(o => !o); inputRef.current?.focus(); } }}
+        onMouseDown={e => {
+          e.preventDefault();
+          if (disabled) return;
+          if (open) setOpen(false);
+          else openAndHighlightCurrent();
+          inputRef.current?.focus();
+        }}
         className="absolute right-0 top-0 bottom-0 w-5 flex items-center justify-center text-gray-400 hover:text-gray-600 disabled:opacity-40"
       >
         <ChevronDown size={11} />
@@ -148,7 +192,7 @@ export function Combobox({ options = [], value, onChange, onSelect, placeholder,
       )}
     </div>
   );
-}
+});
 
 function parseStyle(styleStr) {
   if (!styleStr) return {};

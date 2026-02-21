@@ -1,8 +1,10 @@
+import { forwardRef } from 'react';
 import { cn } from '../../lib/utils';
 
-export function Input({ className, ...props }) {
+export const Input = forwardRef(function Input({ className, ...props }, ref) {
   return (
     <input
+      ref={ref}
       className={cn(
         'border border-gray-400 rounded px-1.5 py-0.5 text-xs bg-white',
         'focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400',
@@ -12,11 +14,12 @@ export function Input({ className, ...props }) {
       {...props}
     />
   );
-}
+});
 
-export function Textarea({ className, ...props }) {
+export const Textarea = forwardRef(function Textarea({ className, ...props }, ref) {
   return (
     <textarea
+      ref={ref}
       className={cn(
         'border border-gray-400 rounded px-1.5 py-0.5 text-xs bg-white',
         'focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400',
@@ -26,4 +29,4 @@ export function Textarea({ className, ...props }) {
       {...props}
     />
   );
-}
+});

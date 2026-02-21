@@ -36,7 +36,7 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
   const [scheduleMonth, setScheduleMonth] = useState(selected?.scheduleMonth ?? 0);
   const [description, setDescription] = useState(selected?.description || '');
   const [message, setMessage] = useState(selected?.message || '');
-  const [splits, setSplits] = useState(selected?.splits || []);
+  const [splits, setSplits] = useState(() => normalizeSplitsForEditor(selected?.splits || []));
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
     setScheduleMonth(selected?.scheduleMonth ?? 0);
     setDescription(selected?.description || '');
     setMessage(selected?.message || '');
-    setSplits(selected?.splits || []);
+    setSplits(normalizeSplitsForEditor(selected?.splits || []));
     setSaving(false);
   }, [open, selected]);
 
@@ -79,7 +79,12 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
         message,
         transaction: {
           description: description || name.trim(),
-          splits,
+          splits: splits.map(split => ({
+            amount: normalizeAmount(split.amount),
+            fromId: split.fromId,
+            toId: split.toId,
+            memo: split.memo || '',
+          })),
         },
       });
       onSaved && onSaved();
@@ -229,4 +234,34 @@ function FormRow({ label, children }) {
       <div className="flex-1">{children}</div>
     </div>
   );
+}
+
+function normalizeSplitsForEditor(splits) {
+  return (splits || []).map(split => ({
+    ...split,
+    amount: normalizeAmount(split?.amountNumber ?? split?.amount ?? ''),
+  }));
+}
+
+function normalizeAmount(raw) {
+  if (raw == null || raw === '') return '';
+  if (typeof raw === 'number') {
+    return Number.isFinite(raw) ? raw.toFixed(2) : '';
+  }
+
+  const value = String(raw).trim();
+  if (!value) return '';
+
+  // Allow editor values with currency symbols/group separators.
+  const cleaned = value.replace(/[^0-9.,-]/g, '');
+  if (!cleaned) return '';
+
+  const lastDot = cleaned.lastIndexOf('.');
+  const lastComma = cleaned.lastIndexOf(',');
+  const normalized = lastComma > lastDot
+    ? cleaned.replace(/\./g, '').replace(',', '.')
+    : cleaned.replace(/,/g, '');
+
+  const n = Number.parseFloat(normalized);
+  return Number.isFinite(n) ? n.toFixed(2) : '';
 }

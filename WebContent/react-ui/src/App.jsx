@@ -50,6 +50,14 @@ function AccountsTabLayout({ selectedAccount, setSelectedAccount, setSelectedTra
   const dragging = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(0);
+  const pendingTransactionReloadResolve = useRef(null);
+
+  function onTransactionsLoaded() {
+    if (!pendingTransactionReloadResolve.current) return;
+    const resolve = pendingTransactionReloadResolve.current;
+    pendingTransactionReloadResolve.current = null;
+    resolve();
+  }
 
   function onDividerMouseDown(e) {
     dragging.current = true;
@@ -101,7 +109,13 @@ function AccountsTabLayout({ selectedAccount, setSelectedAccount, setSelectedTra
         <TransactionEditor
           selectedAccount={selectedAccount}
           selectedTransaction={selectedTransaction}
-          onSaved={() => { refreshTransactions(); refreshAccounts(); refreshDescriptions(); setSelectedTransaction(null); }}
+          onSaved={() => new Promise(resolve => {
+            pendingTransactionReloadResolve.current = resolve;
+            refreshTransactions();
+            refreshAccounts();
+            refreshDescriptions();
+            setSelectedTransaction(null);
+          })}
           onClear={() => setSelectedTransaction(null)}
           onDelete={id => {
             setConfirmDialog({
@@ -124,6 +138,7 @@ function AccountsTabLayout({ selectedAccount, setSelectedAccount, setSelectedTra
             selectedAccount={selectedAccount}
             selectedTransactionId={selectedTransaction?.id}
             onTransactionSelect={t => setSelectedTransaction(t)}
+            onLoaded={onTransactionsLoaded}
           />
         </div>
       </div>

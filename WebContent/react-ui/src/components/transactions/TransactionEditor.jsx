@@ -21,6 +21,8 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   const [confirmPending, setConfirmPending] = useState(null);
   // Snapshot of the transaction as it was loaded, for change detection
   const loadedTransaction = useRef(null);
+  const dateInputRef = useRef(null);
+  const descriptionInputRef = useRef(null);
 
   // Load split sources once
   useEffect(() => {
@@ -92,6 +94,23 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     return { fromId, toId };
   }
 
+  function ensureDistinctSplitSources(fromId, toId, originalFromId, originalToId) {
+    if (fromId == null || toId == null || fromId !== toId) {
+      return { fromId, toId };
+    }
+
+    // Prefer restoring the original opposite side if it keeps the pair distinct.
+    if (originalFromId != null && originalFromId !== toId) {
+      return { fromId: originalFromId, toId };
+    }
+    if (originalToId != null && originalToId !== fromId) {
+      return { fromId, toId: originalToId };
+    }
+
+    // Final fallback: force user to pick a different destination source.
+    return { fromId, toId: null };
+  }
+
   function handleDescriptionSelect(opt) {
     setDescription(opt.value);
     if (opt.transaction) {
@@ -99,7 +118,10 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       const currentAccountId = selectedAccount?.id || null;
       const s = (t.splits || []).map((sp, i) => {
         const existing = splits[i] || {};
-        const { fromId, toId } = remapSplitToCurrentAccount(sp, currentAccountId);
+        const originalFromId = sp.fromId || null;
+        const originalToId = sp.toId || null;
+        let { fromId, toId } = remapSplitToCurrentAccount(sp, currentAccountId);
+        ({ fromId, toId } = ensureDistinctSplitSources(fromId, toId, originalFromId, originalToId));
         return {
           amount: existing.amount || sp.amountNumber || sp.amount || '',
           fromId,
@@ -155,7 +177,10 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
         })),
       });
       clearForm(true);
-      onSaved && onSaved();
+      if (onSaved) {
+        await onSaved();
+      }
+      requestAnimationFrame(() => dateInputRef.current?.focus());
     } catch (e) {
       showError(e);
     } finally {
@@ -237,8 +262,43 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     }
   }
 
+  function handleDateKeyDown(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        focusPreviousTabStop(dateInputRef.current);
+      } else {
+        descriptionInputRef.current?.focus();
+      }
+    }
+  }
+
+  function focusPreviousTabStop(current) {
+    if (!current) return;
+    const selector = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+
+    const tabbables = Array.from(document.querySelectorAll(selector)).filter(el => {
+      if (!(el instanceof HTMLElement)) return false;
+      if (el.hasAttribute('disabled')) return false;
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    });
+
+    const index = tabbables.indexOf(current);
+    if (index > 0) {
+      tabbables[index - 1].focus();
+    }
+  }
+
   return (
-    <div className="border-b border-gray-300 bg-[#f0f0f0] px-2 py-1.5" onKeyDown={handleKeyDown}>
+    <div className="relative border-b border-gray-300 bg-[#f0f0f0] px-2 py-1.5" onKeyDown={handleKeyDown}>
       {confirmPending && (
         <ConfirmDialog
           open
@@ -248,15 +308,25 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
           onCancel={confirmPending.onCancel}
         />
       )}
+      {saving && (
+        <div className="absolute inset-0 z-20 bg-white/65 flex items-center justify-center">
+          <div className="px-3 py-1.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded shadow-sm">
+            {t('SAVING', 'Saving...')}
+          </div>
+        </div>
+      )}
       {/* Top row: date, description, number */}
       <div className="flex items-center gap-2 mb-1">
         <Input
+          ref={dateInputRef}
           type="date"
           className="w-32"
           value={date}
           onChange={e => setDate(e.target.value)}
+          onKeyDown={handleDateKeyDown}
         />
         <Combobox
+          ref={descriptionInputRef}
           className="flex-1"
           options={descriptions}
           value={description}

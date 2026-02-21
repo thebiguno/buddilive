@@ -54,7 +54,28 @@ public class FormatUtil {
 
 	public static BigDecimal parseCurrency(String value){
 		if (value == null || value.length() == 0) return null;
-		return new BigDecimal(value);
+		final String trimmed = value.trim();
+		if (trimmed.length() == 0) return null;
+
+		try {
+			return new BigDecimal(trimmed);
+		}
+		catch (NumberFormatException e){
+			// Accept formatted values such as "$1,234.56" or "1.234,56".
+			String cleaned = trimmed.replaceAll("[^0-9,\\.\\-]", "");
+			if (cleaned.length() == 0) throw e;
+
+			final int lastDot = cleaned.lastIndexOf('.');
+			final int lastComma = cleaned.lastIndexOf(',');
+			if (lastComma > lastDot){
+				cleaned = cleaned.replace(".", "").replace(',', '.');
+			}
+			else {
+				cleaned = cleaned.replace(",", "");
+			}
+
+			return new BigDecimal(cleaned);
+		}
 	}
 	
 	public static String formatCurrency(BigDecimal value, User user){
