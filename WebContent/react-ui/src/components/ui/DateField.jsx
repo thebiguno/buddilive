@@ -31,6 +31,7 @@ export const DateField = forwardRef(function DateField({
 }, ref) {
   const { userConfig, t } = useApp();
   const dateFormat = normalizeDateFormat(dateFormatOverride ?? userConfig?.dateFormat);
+  const intlLocale = useMemo(() => resolveIntlLocale(userConfig?.locale), [userConfig?.locale]);
   const containerRef = useRef(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [pickerMonth, setPickerMonth] = useState(() => {
@@ -49,10 +50,10 @@ export const DateField = forwardRef(function DateField({
   }, [datePickerOpen]);
 
   const selectedDate = parseDisplayDate(value, dateFormat) || parseIsoDate(todayIso());
-  const monthYearOptions = useMemo(() => buildMonthYearOptions(pickerMonth, 10), [pickerMonth]);
+  const monthYearOptions = useMemo(() => buildMonthYearOptions(pickerMonth, 10, intlLocale), [pickerMonth, intlLocale]);
   const monthYearValue = `${pickerMonth.getFullYear()}-${pickerMonth.getMonth()}`;
   const pickerWeeks = useMemo(() => buildCalendarWeeks(pickerMonth), [pickerMonth]);
-  const weekdayLabels = useMemo(() => buildWeekdayLabels(), []);
+  const weekdayLabels = useMemo(() => buildWeekdayLabels(intlLocale), [intlLocale]);
 
   function handleInputKeyDown(e) {
     onKeyDown?.(e);
@@ -214,14 +215,14 @@ export const DateField = forwardRef(function DateField({
   );
 });
 
-function buildMonthYearOptions(centerMonth, yearsEachSide = 10) {
+function buildMonthYearOptions(centerMonth, yearsEachSide = 10, locale) {
   const options = [];
   const startYear = centerMonth.getFullYear() - yearsEachSide;
   const endYear = centerMonth.getFullYear() + yearsEachSide;
   for (let y = startYear; y <= endYear; y++) {
     for (let m = 0; m < 12; m++) {
       const value = `${y}-${m}`;
-      const label = new Date(y, m, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      const label = new Date(y, m, 1).toLocaleDateString(locale || undefined, { month: 'long', year: 'numeric' });
       options.push({ value, label });
     }
   }
@@ -247,8 +248,21 @@ function buildCalendarWeeks(monthDate) {
   return weeks;
 }
 
-function buildWeekdayLabels() {
-  const formatter = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
+function buildWeekdayLabels(locale) {
+  const formatter = new Intl.DateTimeFormat(locale || undefined, { weekday: 'short' });
   const baseSunday = new Date(2024, 0, 7);
   return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(baseSunday.getFullYear(), baseSunday.getMonth(), baseSunday.getDate() + i)));
+}
+
+function resolveIntlLocale(localeValue) {
+  const raw = String(localeValue || '').trim();
+  if (!raw) return undefined;
+
+  const normalized = raw.replace(/_/g, '-');
+  try {
+    const [supported] = Intl.DateTimeFormat.supportedLocalesOf([normalized]);
+    return supported || undefined;
+  } catch (_) {
+    return undefined;
+  }
 }

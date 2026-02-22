@@ -63,6 +63,7 @@ public class TransactionsResource extends ServerResource {
 					generator.writeArrayFieldStart("data");
 					final int start = Integer.parseInt(getQuery().getFirstValue("start"));
 					final int limit = Integer.parseInt(getQuery().getFirstValue("limit"));
+					final boolean unlimited = limit <= 0;
 					final MutableInt total = new MutableInt(0);
 					final MutableInt count = new MutableInt(0);
 					final String sortBy = getQuery().getFirstValue("sortBy");
@@ -90,7 +91,7 @@ public class TransactionsResource extends ServerResource {
 								}
 								
 								total.increment();
-								if (context.getResultCount() < start || count.intValue() >= limit) return;
+								if (context.getResultCount() < start || (!unlimited && count.intValue() >= limit)) return;
 								count.increment();
 								
 								generator.writeStartObject();

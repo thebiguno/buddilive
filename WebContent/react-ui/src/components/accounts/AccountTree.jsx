@@ -35,7 +35,7 @@ function parseStyle(styleStr) {
 function TreeNode({ node, depth, selectedId, focusedId, onSelect, expandedSet, onToggle, onContextMenu }) {
   const hasChildren = node.children && node.children.length > 0;
   const isAccount = node.nodeType === 'account';
-  const isSelected = selectedId === node.id;
+  const isSelected = isAccount && selectedId === node.id;
   const isFocused = focusedId === node.id;
   const expanded = expandedSet.has(node.id);
 
@@ -44,8 +44,8 @@ function TreeNode({ node, depth, selectedId, focusedId, onSelect, expandedSet, o
       <div
         className={cn(
           'flex items-center py-0.5 px-1 cursor-pointer select-none text-xs',
-          'hover:bg-blue-50',
-          depth % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]',
+          isAccount ? 'hover:bg-blue-50' : 'hover:bg-[#e2e2e2]',
+          isAccount ? (depth % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]') : 'bg-[#e8e8e8]',
           isSelected && '!bg-[#b8d0f0]',
           isFocused && !isSelected && '!bg-blue-100 outline outline-1 outline-blue-400'
         )}

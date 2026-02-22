@@ -5,9 +5,11 @@ import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
+import { formatLocaleNumber, getAmountPlaceholder, parseLocaleNumber } from '../../lib/numberFormat';
 
 export function AccountEditor({ open, selected, onClose, onSaved }) {
-  const { showError, refreshAccounts, t } = useApp();
+  const { showError, refreshAccounts, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
   const [name, setName] = useState('');
   const [accountType, setAccountType] = useState('');
   const [type, setType] = useState('D');
@@ -15,8 +17,10 @@ export function AccountEditor({ open, selected, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
 
   function formatBalance(v) {
-    const n = parseFloat(v);
-    return Number.isFinite(n) ? n.toFixed(2) : '';
+    const n = parseLocaleNumber(v, locale);
+    return Number.isFinite(n)
+      ? formatLocaleNumber(n, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : '';
   }
 
   useEffect(() => {
@@ -40,7 +44,7 @@ export function AccountEditor({ open, selected, onClose, onSaved }) {
         name: name.trim(),
         accountType: accountType.trim(),
         type,
-        startBalance: parseFloat(startBalance) || 0,
+        startBalance: parseLocaleNumber(startBalance, locale) || 0,
       });
       refreshAccounts();
       onSaved && onSaved();
@@ -88,8 +92,13 @@ export function AccountEditor({ open, selected, onClose, onSaved }) {
               inputMode="decimal"
               value={startBalance}
               onChange={e => setStartBalance(e.target.value)}
-              onBlur={e => { const n = parseFloat(e.target.value); if (!isNaN(n)) setStartBalance(n.toFixed(2)); }}
-              placeholder="0.00"
+              onBlur={e => {
+                const n = parseLocaleNumber(e.target.value, locale);
+                if (Number.isFinite(n)) {
+                  setStartBalance(formatLocaleNumber(n, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                }
+              }}
+              placeholder={getAmountPlaceholder(locale)}
             />
           </FormRow>
           {hasStartBalanceChanged && (

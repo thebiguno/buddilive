@@ -11,7 +11,9 @@
 				"encrypted": ${((user.encrypted)!false)?c},
 				"premium": ${((user.premium)!false)?c},
 				"newUser": ${(newUser??)?c},
-				"dateFormat": "${(user.extDateFormat!"yyyy-MM-dd")?json_string}",
+				"dateFormat": "${(user.dateFormat!"yyyy-MM-dd")?json_string}",
+				"locale": "${(user.locale!"")?json_string}",
+				"currency": "${(user.currency.currencyCode!"USD")?json_string}",
 				"identifier": "${(user.plaintextIdentifier!"")?json_string}",
 				"i18n": {
 					"PREFERENCES": "${translation("PREFERENCES")?json_string}",

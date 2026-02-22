@@ -135,6 +135,7 @@ export function PreferencesEditor({ open, onClose }) {
   const dateFormats = [
     { value: '', text: t('USE_LOCALE_DEFAULTS', 'Use Locale Defaults') },
     { value: 'yyyy-MM-dd', text: today.toISOString().split('T')[0] },
+    { value: 'dd.MM.yyyy', text: `${String(today.getDate()).padStart(2,'0')}.${String(today.getMonth()+1).padStart(2,'0')}.${today.getFullYear()}` },
     { value: 'MM/dd/yyyy', text: `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}/${today.getFullYear()}` },
     { value: 'dd/MM/yyyy', text: `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}` },
   ];

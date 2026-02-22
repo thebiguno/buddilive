@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogFooter } from '../ui/Dialog';
 import { Button } from '../ui/Button';
 import { Select } from '../ui/Select';
 import { Input } from '../ui/Input';
+import { formatLocaleCurrency } from '../../lib/numberFormat';
 
 const COLORS = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac'];
 
@@ -16,15 +17,21 @@ function Loading({ t }) {
   return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
 }
 
-function currencyFormatter(value) {
-  if (Math.abs(value) >= 1000) return `$${(value / 1000).toFixed(1)}k`;
-  return `$${value.toFixed(0)}`;
+function currencyFormatter(value, locale, currency) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  if (Math.abs(n) >= 1000) {
+    return formatLocaleCurrency(n, locale, currency, { minimumFractionDigits: 0, maximumFractionDigits: 1, notation: 'compact' });
+  }
+  return formatLocaleCurrency(n, locale, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 // ── Top Payees by Spend ───────────────────────────────────────────────────────
 
 export function TopPayeesBySpendReport({ options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const currency = userConfig?.currency;
   const [data, setData] = useState([]);
   const [total, setTotal] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,7 +67,7 @@ export function TopPayeesBySpendReport({ options }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 80, left: 120, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
+            <XAxis type="number" tickFormatter={v => currencyFormatter(v, locale, currency)} tick={{ fontSize: 10 }} />
             <YAxis type="category" dataKey="payee" tick={{ fontSize: 10 }} width={115} />
             <Tooltip formatter={(v, _n, props) => [`${props.payload.formatted} (${props.payload.pct})`, spendKey]} />
             <Bar dataKey={spendKey} radius={[0, 3, 3, 0]}>
@@ -95,12 +102,14 @@ function getImmediateChildren(nodeId, categories) {
   return categories.filter(c => String(c.parent) === id);
 }
 
-function formatTooltipCurrency(value) {
-  return `$${Number(value || 0).toFixed(2)}`;
+function formatTooltipCurrency(value, locale, currency) {
+  return formatLocaleCurrency(value, locale, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export function CategoryDrillDownReport({ options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const currency = userConfig?.currency;
   const [allCategories, setAllCategories] = useState([]);
   const [contexts, setContexts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -253,10 +262,10 @@ export function CategoryDrillDownReport({ options }) {
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
-            <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
+            <YAxis tickFormatter={v => currencyFormatter(v, locale, currency)} tick={{ fontSize: 10 }} />
             <Tooltip formatter={(value, name, props) => {
               const formatted = props?.payload?.[`${name}Formatted`];
-              return [formatted || formatTooltipCurrency(value), name];
+              return [formatted || formatTooltipCurrency(value, locale, currency), name];
             }} />
             <Legend onClick={(entry) => {
               const target = current.series.find(series => series.key === entry?.dataKey || series.name === entry?.value);
@@ -294,7 +303,9 @@ export function CategoryDrillDownReport({ options }) {
 // ── Projected Balance ─────────────────────────────────────────────────────────
 
 export function ProjectedBalanceReport({ options, accountTree }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const currency = userConfig?.currency;
   const [data, setData] = useState([]);
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -329,8 +340,8 @@ export function ProjectedBalanceReport({ options, accountTree }) {
           <LineChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" angle={-90} textAnchor="end" interval="preserveStartEnd" tick={{ fontSize: 10 }} />
-            <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-            <Tooltip formatter={(v) => `$${Number(v).toFixed(2)}`} />
+            <YAxis tickFormatter={v => currencyFormatter(v, locale, currency)} tick={{ fontSize: 10 }} />
+            <Tooltip formatter={(v) => formatLocaleCurrency(v, locale, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
             <Legend />
             <Line type="monotone" dataKey="netWorth" name={t('NET_WORTH', 'Net Worth')} stroke="#4e79a7" strokeWidth={2} dot={false} strokeDasharray="5 5" />
             {series.map((s, i) => (
@@ -347,7 +358,9 @@ export function ProjectedBalanceReport({ options, accountTree }) {
 // ── Debt Paydown Tracker ──────────────────────────────────────────────────────
 
 export function DebtPaydownReport({ options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const currency = userConfig?.currency;
   const [data, setData] = useState([]);
   const [series, setSeries] = useState([]);
   const [noData, setNoData] = useState(false);
@@ -374,8 +387,8 @@ export function DebtPaydownReport({ options }) {
         <LineChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" angle={-90} textAnchor="end" interval="preserveStartEnd" tick={{ fontSize: 10 }} />
-          <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-          <Tooltip formatter={(v) => `$${Number(v).toFixed(2)}`} />
+          <YAxis tickFormatter={v => currencyFormatter(v, locale, currency)} tick={{ fontSize: 10 }} />
+          <Tooltip formatter={(v) => formatLocaleCurrency(v, locale, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
           <Legend />
           {series.map((s, i) => (
             <Line key={s.id} type="monotone" dataKey={`a${s.id}`} name={s.name}

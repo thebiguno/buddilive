@@ -8,6 +8,7 @@ import { DateField } from '../ui/DateField';
 import { SplitEditor } from '../transactions/SplitEditor';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
+import { formatLocaleNumber, parseLocaleNumber } from '../../lib/numberFormat';
 import {
   formatDateForDisplay,
   formatIsoDateForDisplay,
@@ -35,6 +36,7 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 
 export function ScheduledEditor({ open, selected, onClose, onSaved }) {
   const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
   const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
   const [name, setName] = useState(selected?.name || '');
   const [repeat, setRepeat] = useState(selected?.repeat || 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE');
@@ -45,7 +47,7 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
   const [scheduleMonth, setScheduleMonth] = useState(selected?.scheduleMonth ?? 0);
   const [description, setDescription] = useState(selected?.description || '');
   const [message, setMessage] = useState(selected?.message || '');
-  const [splits, setSplits] = useState(() => normalizeSplitsForEditor(selected?.splits || []));
+  const [splits, setSplits] = useState(() => normalizeSplitsForEditor(selected?.splits || [], locale));
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -59,9 +61,9 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
     setScheduleMonth(selected?.scheduleMonth ?? 0);
     setDescription(selected?.description || '');
     setMessage(selected?.message || '');
-    setSplits(normalizeSplitsForEditor(selected?.splits || []));
+    setSplits(normalizeSplitsForEditor(selected?.splits || [], locale));
     setSaving(false);
-  }, [open, selected, dateFormat]);
+  }, [open, selected, dateFormat, locale]);
 
   const isEditing = !!selected;
   const startDateParsed = parseDisplayDate(startDate, dateFormat);
@@ -94,7 +96,7 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
         transaction: {
           description: description || name.trim(),
           splits: splits.map(split => ({
-            amount: normalizeAmount(split.amount),
+            amount: normalizeAmountForSave(split.amount, locale),
             fromId: split.fromId,
             toId: split.toId,
             memo: split.memo || '',
@@ -250,32 +252,31 @@ function FormRow({ label, children }) {
   );
 }
 
-function normalizeSplitsForEditor(splits) {
+function normalizeSplitsForEditor(splits, localeValue) {
   return (splits || []).map(split => ({
     ...split,
-    amount: normalizeAmount(split?.amountNumber ?? split?.amount ?? ''),
+    amount: normalizeAmountForEditor(split?.amountNumber ?? split?.amount ?? '', localeValue),
   }));
 }
 
-function normalizeAmount(raw) {
+function normalizeAmountForEditor(raw, localeValue) {
   if (raw == null || raw === '') return '';
   if (typeof raw === 'number') {
-    return Number.isFinite(raw) ? raw.toFixed(2) : '';
+    return Number.isFinite(raw)
+      ? formatLocaleNumber(raw, localeValue, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : '';
   }
 
   const value = String(raw).trim();
   if (!value) return '';
 
-  // Allow editor values with currency symbols/group separators.
-  const cleaned = value.replace(/[^0-9.,-]/g, '');
-  if (!cleaned) return '';
+  const n = parseLocaleNumber(value, localeValue);
+  if (!Number.isFinite(n)) return '';
+  return formatLocaleNumber(n, localeValue, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
-  const lastDot = cleaned.lastIndexOf('.');
-  const lastComma = cleaned.lastIndexOf(',');
-  const normalized = lastComma > lastDot
-    ? cleaned.replace(/\./g, '').replace(',', '.')
-    : cleaned.replace(/,/g, '');
-
-  const n = Number.parseFloat(normalized);
-  return Number.isFinite(n) ? n.toFixed(2) : '';
+function normalizeAmountForSave(raw, localeValue) {
+  const n = parseLocaleNumber(raw, localeValue);
+  if (!Number.isFinite(n)) return '';
+  return n.toFixed(2);
 }

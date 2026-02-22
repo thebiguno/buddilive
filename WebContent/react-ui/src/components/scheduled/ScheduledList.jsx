@@ -3,6 +3,13 @@ import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
 import { cn } from '../../lib/utils';
 import { ContextMenu } from '../ui/ContextMenu';
+import {
+  formatDateForDisplay,
+  isValidDateObject,
+  normalizeDateFormat,
+  parseIsoDate,
+  toIsoDate,
+} from '../../lib/dateFormat';
 
 const FREQUENCY_LABEL_KEYS = {
   SCHEDULE_FREQUENCY_MONTHLY_BY_DATE: 'SCHEDULE_FREQUENCY_MONTHLY_BY_DATE_LABEL',
@@ -39,7 +46,8 @@ function formatRepeat(row, t) {
 }
 
 export function ScheduledList({ selectedId, onSelect, onAdd, onEdit, onDelete }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [version, setVersion] = useState(0);
@@ -83,29 +91,33 @@ export function ScheduledList({ selectedId, onSelect, onAdd, onEdit, onDelete })
             {loading && (
               <tr><td colSpan={6} className="text-center py-4 text-gray-400">{t('LOADING', 'Loading...')}</td></tr>
             )}
-            {rows.map((row, i) => (
-              <tr
-                key={row.id}
-                className={cn(
-                  'border-b border-gray-200 cursor-pointer hover:bg-blue-50',
-                  i % 2 !== 0 ? 'bg-[#f5f5f5]' : 'bg-white',
-                  selectedId === row.id ? '!bg-[#b8d0f0]' : ''
-                )}
-                onClick={() => onSelect && onSelect(row)}
-                onContextMenu={e => { e.preventDefault(); onSelect && onSelect(row); setCtxMenu({ x: e.clientX, y: e.clientY, row }); }}
-              >
-                <td className="px-2 py-1">{row.name}</td>
-                <td className="px-2 py-1">{formatRepeat(row, t)}</td>
-                <td className="px-2 py-1">{row.lastCreatedDate}</td>
-                <td className="px-2 py-1">{row.end}</td>
-                <td className="px-2 py-1 text-right">
-                  {(row.splits || []).map((s, j) => (
-                    <div key={j}>{s.amount}</div>
-                  ))}
-                </td>
-                <td className="px-2 py-1">{row.message}</td>
-              </tr>
-            ))}
+            {rows.map((row, i) => {
+              const lastCreatedDate = formatInternalIsoDateForDisplay(row.lastCreatedDate, dateFormat);
+              const endDate = formatInternalIsoDateForDisplay(row.end, dateFormat);
+              return (
+                <tr
+                  key={row.id}
+                  className={cn(
+                    'border-b border-gray-200 cursor-pointer hover:bg-blue-50',
+                    i % 2 !== 0 ? 'bg-[#f5f5f5]' : 'bg-white',
+                    selectedId === row.id ? '!bg-[#b8d0f0]' : ''
+                  )}
+                  onClick={() => onSelect && onSelect(row)}
+                  onContextMenu={e => { e.preventDefault(); onSelect && onSelect(row); setCtxMenu({ x: e.clientX, y: e.clientY, row }); }}
+                >
+                  <td className="px-2 py-1">{row.name}</td>
+                  <td className="px-2 py-1">{formatRepeat(row, t)}</td>
+                  <td className="px-2 py-1">{lastCreatedDate}</td>
+                  <td className="px-2 py-1">{endDate}</td>
+                  <td className="px-2 py-1 text-right">
+                    {(row.splits || []).map((s, j) => (
+                      <div key={j}>{s.amount}</div>
+                    ))}
+                  </td>
+                  <td className="px-2 py-1">{row.message}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -124,4 +136,12 @@ export function ScheduledList({ selectedId, onSelect, onAdd, onEdit, onDelete })
       )}
     </div>
   );
+}
+
+function formatInternalIsoDateForDisplay(isoDate, dateFormat) {
+  const value = String(isoDate || '').trim();
+  if (!value) return '';
+  const parsed = parseIsoDate(value);
+  if (!isValidDateObject(parsed) || toIsoDate(parsed) !== value) return value;
+  return formatDateForDisplay(parsed, dateFormat);
 }

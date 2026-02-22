@@ -3,13 +3,25 @@ export function todayIso() {
 }
 
 export function normalizeDateFormat(rawFormat) {
-  const normalized = String(rawFormat || '').trim().replace(/[-.]/g, '/').toLowerCase();
-  if (normalized === 'dd/mm/yyyy') return 'dd/MM/yyyy';
-  if (normalized === 'mm/dd/yyyy') return 'MM/dd/yyyy';
+  const normalized = String(rawFormat || '')
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/Y/g, 'y')
+    .replace(/D/g, 'd')
+    .replace(/M/g, 'm')
+    .toLowerCase();
+
+  if (/^y{1,4}[-./]m{1,4}[-./]d{1,4}$/.test(normalized)) return 'yyyy-MM-dd';
+  if (/^m{1,4}[-./]d{1,4}[-./]y{1,4}$/.test(normalized)) return 'MM/dd/yyyy';
+  if (/^d{1,4}[./-]m{1,4}[./-]y{1,4}$/.test(normalized)) {
+    return normalized.includes('.') ? 'dd.MM.yyyy' : 'dd/MM/yyyy';
+  }
+
   return 'yyyy-MM-dd';
 }
 
 export function getDatePlaceholder(dateFormat) {
+  if (dateFormat === 'dd.MM.yyyy') return 'dd.mm.yyyy';
   if (dateFormat === 'dd/MM/yyyy') return 'dd/mm/yyyy';
   if (dateFormat === 'MM/dd/yyyy') return 'mm/dd/yyyy';
   return 'yyyy-mm-dd';
@@ -40,6 +52,7 @@ export function formatDateForDisplay(date, dateFormat) {
   const yyyy = String(date.getFullYear());
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
+  if (dateFormat === 'dd.MM.yyyy') return `${dd}.${mm}.${yyyy}`;
   if (dateFormat === 'dd/MM/yyyy') return `${dd}/${mm}/${yyyy}`;
   if (dateFormat === 'MM/dd/yyyy') return `${mm}/${dd}/${yyyy}`;
   return `${yyyy}-${mm}-${dd}`;
@@ -113,7 +126,7 @@ function parseFlexibleDateInput(raw, baseDate, dateFormat) {
 }
 
 function buildDateCandidatesForYear(year, first, second, dateFormat) {
-  if (dateFormat === 'dd/MM/yyyy') {
+  if (dateFormat === 'dd/MM/yyyy' || dateFormat === 'dd.MM.yyyy') {
     return [
       buildValidDate(year, second, first),
       buildValidDate(year, first, second),
@@ -148,7 +161,7 @@ function buildDateCandidatesFromEightDigits(digits, dateFormat) {
   const secondAsDay = Number.parseInt(digits.slice(2, 4), 10);
   const trailingYear = Number.parseInt(digits.slice(4, 8), 10);
 
-  if (dateFormat === 'dd/MM/yyyy') {
+  if (dateFormat === 'dd/MM/yyyy' || dateFormat === 'dd.MM.yyyy') {
     return [
       buildValidDate(trailingYear, secondAsDay, firstAsMonth),
       buildValidDate(yFirst, mFirst, dFirst),
@@ -178,7 +191,7 @@ function buildDateCandidatesFromSixDigits(digits, dateFormat) {
   const middleMonth = middleTwo;
   const lastDay = Number.parseInt(digits.slice(4, 6), 10);
 
-  if (dateFormat === 'dd/MM/yyyy') {
+  if (dateFormat === 'dd/MM/yyyy' || dateFormat === 'dd.MM.yyyy') {
     return [
       buildValidDate(lastTwoYear, middleTwo, firstTwo),
       buildValidDate(firstYear, middleMonth, lastDay),

@@ -122,27 +122,44 @@ public class User extends AuthUser {
 				.replaceAll("MM?", "m");
 	}
 	public String getDateFormat() {
-		if (StringUtils.isBlank(overrideDateFormat)) {
-			if (locale != null) {
-				final DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, locale);
-				if (format instanceof SimpleDateFormat) return ((SimpleDateFormat) format).toLocalizedPattern();
-			} 
-		}
-		else {
-			try {
-				if (new SimpleDateFormat(overrideDateFormat) != null);
-				return overrideDateFormat;
+		final String normalizedOverride = normalizeSupportedDateFormat(overrideDateFormat);
+		if (StringUtils.isNotBlank(normalizedOverride)) return normalizedOverride;
+
+		if (locale != null) {
+			final DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, locale);
+			if (format instanceof SimpleDateFormat) {
+				final String normalizedLocale = normalizeSupportedDateFormat(((SimpleDateFormat) format).toPattern());
+				if (StringUtils.isNotBlank(normalizedLocale)) return normalizedLocale;
 			}
-			catch (IllegalArgumentException e){}
 		}
-		
+
 		return "yyyy-MM-dd";
 	}
 	public String getOverrideDateFormat() {
 		return overrideDateFormat;
 	}
 	public void setOverrideDateFormat(String overrideDateFormat) {
-		this.overrideDateFormat = overrideDateFormat;
+		this.overrideDateFormat = normalizeSupportedDateFormat(overrideDateFormat);
+	}
+
+	public static String normalizeSupportedDateFormat(String rawFormat) {
+		final String value = StringUtils.trimToEmpty(rawFormat);
+		if (StringUtils.isBlank(value)) return null;
+
+		final String pattern = value
+				.replace('Y', 'y')
+				.replace('D', 'd')
+				.replace('M', 'm')
+				.trim()
+				.toLowerCase(Locale.ROOT);
+
+		if (pattern.matches("^y{1,4}[-./]m{1,4}[-./]d{1,4}$")) return "yyyy-MM-dd";
+		if (pattern.matches("^m{1,4}[-./]d{1,4}[-./]y{1,4}$")) return "MM/dd/yyyy";
+		if (pattern.matches("^d{1,4}[.\\-/]m{1,4}[.\\-/]y{1,4}$")) {
+			return pattern.indexOf('.') >= 0 ? "dd.MM.yyyy" : "dd/MM/yyyy";
+		}
+
+		return null;
 	}
 	public Currency getCurrency() {
 		return currency;

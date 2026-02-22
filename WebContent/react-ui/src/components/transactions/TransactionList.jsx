@@ -87,7 +87,7 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
     setLoading(true);
     try {
       const sortParam = sortBy === 'date' ? '' : `&sortBy=${sortBy}`;
-      const params = `?source=${selectedAccount.id}&start=0&limit=500${search ? `&search=${encodeURIComponent(search)}` : ''}${sortParam}`;
+      const params = `?source=${selectedAccount.id}&start=0&limit=0${search ? `&search=${encodeURIComponent(search)}` : ''}${sortParam}`;
       const data = await api.transactions.list(params);
       setRows(data?.data || []);
     } catch (e) {
@@ -149,8 +149,7 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
         />
       )}
       {/* Rows */}
-      <div className="flex-1 overflow-y-auto">
-        {loading && <div className="p-2 text-xs text-gray-400">{t('LOADING', 'Loading...')}</div>}
+      <div className="relative flex-1 overflow-y-auto">
         {!loading && !selectedAccount && (
           <div className="p-4 text-xs text-gray-400 text-center">{t('SELECT_ACCOUNT_TO_VIEW_TRANSACTIONS', 'Select an account to view transactions.')}</div>
         )}
@@ -164,6 +163,13 @@ export function TransactionList({ selectedAccount, onTransactionSelect, selected
             showTimestamps={showTimestamps}
           />
         ))}
+        {loading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px] pointer-events-none">
+            <div className="px-3 py-1 rounded border border-gray-300 bg-white/90 text-xs text-gray-600 shadow-sm">
+              {t('LOADING', 'Loading...')}
+            </div>
+          </div>
+        )}
       </div>
       {/* Bottom search bar */}
       <div className="flex items-center justify-end gap-2 px-2 py-1 bg-[#e8e8e8] border-t border-gray-300 flex-shrink-0">

@@ -5,6 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { Input } from '../ui/Input';
 import { cn } from '../../lib/utils';
 import { ContextMenu } from '../ui/ContextMenu';
+import { formatLocaleNumber, parseLocaleNumber } from '../../lib/numberFormat';
 
 function parseStyle(styleStr) {
   if (!styleStr) return {};
@@ -19,7 +20,7 @@ function parseStyle(styleStr) {
   return result;
 }
 
-function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, onContextMenu, t }) {
+function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, onContextMenu, t, locale }) {
   const [expanded, setExpanded] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
@@ -30,14 +31,15 @@ function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, on
   const isSelected = selectedId === node.id;
 
   function startEdit() {
-    setEditValue(node.currentAmount != null ? String(node.currentAmount) : '');
+    const n = parseLocaleNumber(node.currentAmount, locale);
+    setEditValue(Number.isFinite(n) ? formatLocaleNumber(n, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
     setEditing(true);
   }
 
   function commitEdit() {
     setEditing(false);
-    const n = parseFloat(editValue);
-    if (onEditAmount) onEditAmount(node, isNaN(n) ? 0 : parseFloat(n.toFixed(2)));
+    const n = parseLocaleNumber(editValue, locale);
+    if (onEditAmount) onEditAmount(node, Number.isFinite(n) ? Number(n.toFixed(2)) : 0);
   }
 
   return (
@@ -115,6 +117,7 @@ function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, on
           stripe={i % 2 !== 0}
           onContextMenu={onContextMenu}
           t={t}
+          locale={locale}
         />
       ))}
     </>
@@ -122,7 +125,8 @@ function BudgetRow({ node, depth, selectedId, onSelect, onEditAmount, stripe, on
 }
 
 export function BudgetTree({ periodType, onSelectionChange, externalVersion = 0, onAdd, onEdit, onDelete }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
   const [nodes, setNodes] = useState([]);
   const [period, setPeriod] = useState('');
   const [previousPeriod, setPreviousPeriod] = useState('');
@@ -255,6 +259,7 @@ export function BudgetTree({ periodType, onSelectionChange, externalVersion = 0,
             stripe={i % 2 !== 0}
             onContextMenu={handleContextMenu}
             t={t}
+            locale={locale}
           />
         ))}
       </div>

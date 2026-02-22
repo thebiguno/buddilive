@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { api } from './lib/api';
 import { cn } from './lib/utils';
+import { formatLocaleNumber, getAmountPlaceholder, parseLocaleNumber } from './lib/numberFormat';
 import { ConfirmDialog, AlertDialog } from './components/ui/ConfirmDialog';
 import { DateField } from './components/ui/DateField';
 import {
@@ -142,10 +143,16 @@ function TxListView({ account, onBack, onNew, onSelect }) {
       <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
         <input type="search" className="w-full border border-gray-300 rounded-full px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder={t('SEARCH', 'Search...')} onChange={e => { clearTimeout(timer.current); timer.current = setTimeout(() => setSearch(e.target.value), 300); }} />
       </div>
-      <div className="flex-1 overflow-y-auto">
-        {loading && <div className="p-6 text-sm text-gray-400 text-center">{t('LOADING', 'Loading...')}</div>}
+      <div className="relative flex-1 overflow-y-auto">
         {!loading && rows.length === 0 && <div className="p-6 text-sm text-gray-400 text-center">{t('NO_TRANSACTIONS_FOUND', 'No transactions found.')}</div>}
         {rows.map(r => <TxRow key={r.id} row={r} onClick={onSelect} />)}
+        {loading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px] pointer-events-none">
+            <div className="px-3 py-1 rounded border border-gray-300 bg-white/90 text-xs text-gray-600 shadow-sm">
+              {t('LOADING', 'Loading...')}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -163,7 +170,9 @@ function MSelect({ options, value, onChange, placeholder }) {
 
 // ── Split row ────────────────────────────────────────────────────────────────
 function SplitRow({ split, index, isOnly, splitSources, onUpdate, onAdd, onRemove }) {
-  const { t } = useApp();
+  const { t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const amountPlaceholder = getAmountPlaceholder(locale);
   const { from: fromOpts, to: toOpts } = splitSources;
   const upd = (f, v) => onUpdate(index, { ...split, [f]: v });
   const handleFrom = val => {
@@ -183,7 +192,20 @@ function SplitRow({ split, index, isOnly, splitSources, onUpdate, onAdd, onRemov
   return (
     <div className="bg-gray-50 rounded-xl p-3 mb-2 border border-gray-200">
       <div className="flex items-center gap-2 mb-2">
-        <input type="text" inputMode="decimal" className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" value={split.amount || ''} onChange={e => upd('amount', e.target.value)} onBlur={e => { const n = parseFloat(e.target.value); if (!isNaN(n)) upd('amount', n.toFixed(2)); }} placeholder={t('AMOUNT_PLACEHOLDER', '0.00')} />
+        <input
+          type="text"
+          inputMode="decimal"
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={split.amount || ''}
+          onChange={e => upd('amount', e.target.value)}
+          onBlur={e => {
+            const n = parseLocaleNumber(e.target.value, locale);
+            if (Number.isFinite(n)) {
+              upd('amount', formatLocaleNumber(n, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            }
+          }}
+          placeholder={amountPlaceholder || t('AMOUNT_PLACEHOLDER', '0.00')}
+        />
         <button className={cn('w-8 h-8 rounded-full flex items-center justify-center text-white', isOnly ? 'bg-gray-200' : 'bg-red-400')} onClick={() => !isOnly && onRemove(index)} disabled={isOnly}><Minus size={14} /></button>
         <button className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white" onClick={() => onAdd(index)}><Plus size={14} /></button>
       </div>
@@ -200,9 +222,17 @@ function SplitRow({ split, index, isOnly, splitSources, onUpdate, onAdd, onRemov
 // ── Transaction form ─────────────────────────────────────────────────────────
 const EMPTY_SPLIT = () => ({ amount: '', fromId: null, toId: null, memo: '' });
 
+function formatAmountForEditor(raw, localeValue) {
+  if (raw == null || raw === '') return '';
+  const n = parseLocaleNumber(raw, localeValue);
+  if (!Number.isFinite(n)) return String(raw).trim();
+  return formatLocaleNumber(n, localeValue, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
   const { splitSources, setSplitSources, showError, descriptionStoreVersion, t, userConfig } = useApp();
   const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
+  const locale = userConfig?.locale;
   const [date, setDate] = useState(() => formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
   const [description, setDescription] = useState('');
   const [number, setNumber] = useState('');
@@ -223,7 +253,13 @@ function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
       const dIso = transaction.dateIso || todayIso();
       const desc = transaction.description || '';
       const num = transaction.number || '';
-      const s = (transaction.splits || []).map(sp => ({ amount: sp.amountNumber || sp.amount || '', fromId: sp.fromId || null, toId: sp.toId || null, memo: sp.memo || '', source: account?.id }));
+      const s = (transaction.splits || []).map(sp => ({
+        amount: formatAmountForEditor(sp.amountNumber || sp.amount || '', locale),
+        fromId: sp.fromId || null,
+        toId: sp.toId || null,
+        memo: sp.memo || '',
+        source: account?.id,
+      }));
       const ms = s.length > 0 ? s : [{ ...EMPTY_SPLIT(), source: account?.id }];
       setTxId(id); setDate(formatIsoDateForDisplay(dIso, dateFormat)); setDescription(desc); setNumber(num); setSplits(ms);
       loaded.current = { id, dateIso: dIso, description: desc, number: num, splitsCount: ms.length };
@@ -241,13 +277,28 @@ function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
 
   const valid = () => {
     if (!parseDisplayDate(date, dateFormat) || !description.trim()) return false;
-    return splits.every(s => s.amount && parseFloat(s.amount) !== 0 && s.fromId && s.toId);
+    return splits.every(s => {
+      const n = parseLocaleNumber(s.amount, locale);
+      return Number.isFinite(n) && n !== 0 && s.fromId && s.toId;
+    });
   };
 
   async function doSave(dateIso) {
     setSaving(true);
     try {
-      await api.transactions.save({ action: txId ? 'update' : 'insert', ...(txId ? { id: txId } : {}), date: dateIso, description: description.trim(), number, splits: splits.map(s => ({ amount: parseFloat(s.amount), fromId: s.fromId, toId: s.toId, memo: s.memo || '' })) });
+      await api.transactions.save({
+        action: txId ? 'update' : 'insert',
+        ...(txId ? { id: txId } : {}),
+        date: dateIso,
+        description: description.trim(),
+        number,
+        splits: splits.map(s => ({
+          amount: parseLocaleNumber(s.amount, locale),
+          fromId: s.fromId,
+          toId: s.toId,
+          memo: s.memo || '',
+        })),
+      });
       onSaved && onSaved();
     } catch (e) { showError(e); } finally { setSaving(false); }
   }
@@ -311,7 +362,13 @@ function TxFormView({ account, transaction, onSaved, onCancel, onDelete }) {
                         if (isAcct(sp.fromType) && isAcct(sp.toType)) { fromId = currentAccountId; }
                         else if (isAcct(sp.fromType)) { fromId = currentAccountId; }
                         else if (isAcct(sp.toType)) { toId = currentAccountId; }
-                        return { amount: splits[i]?.amount || sp.amountNumber || sp.amount || '', fromId, toId, memo: splits[i]?.memo || sp.memo || '', source: currentAccountId };
+                        return {
+                          amount: splits[i]?.amount || formatAmountForEditor(sp.amountNumber || sp.amount || '', locale),
+                          fromId,
+                          toId,
+                          memo: splits[i]?.memo || sp.memo || '',
+                          source: currentAccountId,
+                        };
                       });
                       if (s.length > 0) setSplits(s);
                     }

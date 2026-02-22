@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
+import { formatLocaleCurrency, formatLocaleNumber } from '../../lib/numberFormat';
 
 const INCOME_COLOR = '#59a14f';
 const EXPENSE_COLOR = '#e15759';
@@ -20,15 +21,21 @@ function Loading({ t }) {
   return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
 }
 
-function currencyFormatter(value) {
-  if (Math.abs(value) >= 1000) return `$${(value / 1000).toFixed(1)}k`;
-  return `$${value.toFixed(0)}`;
+function currencyFormatter(value, locale, currency) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  if (Math.abs(n) >= 1000) {
+    return formatLocaleCurrency(n, locale, currency, { minimumFractionDigits: 0, maximumFractionDigits: 1, notation: 'compact' });
+  }
+  return formatLocaleCurrency(n, locale, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 // ── Budget vs Actual ──────────────────────────────────────────────────────────
 
 export function BudgetVsActualReport({ options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const currency = userConfig?.currency;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -57,8 +64,8 @@ export function BudgetVsActualReport({ options }) {
         <BarChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 100 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="category" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
-          <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-          <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
+          <YAxis tickFormatter={v => currencyFormatter(v, locale, currency)} tick={{ fontSize: 10 }} />
+          <Tooltip formatter={(v) => formatLocaleCurrency(v, locale, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
           <Legend />
           <Bar dataKey={budgetedKey} fill={BUDGET_COLOR} />
           <Bar dataKey={actualKey} fill={ACTUAL_COLOR} />
@@ -70,14 +77,14 @@ export function BudgetVsActualReport({ options }) {
 
 // ── Monthly Cash Flow ─────────────────────────────────────────────────────────
 
-function CashFlowTooltip({ active, payload, label }) {
+function CashFlowTooltip({ active, payload, label, formatCurrency }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white border border-gray-200 shadow rounded px-3 py-2 text-xs">
       <div className="font-semibold mb-1">{label}</div>
       {payload.map(p => (
         <div key={p.dataKey} style={{ color: p.fill }}>
-          {p.dataKey}: ${Number(p.value).toFixed(2)}
+          {p.dataKey}: {formatCurrency(p.value)}
         </div>
       ))}
     </div>
@@ -85,7 +92,10 @@ function CashFlowTooltip({ active, payload, label }) {
 }
 
 export function MonthlyCashFlowReport({ options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const currency = userConfig?.currency;
+  const formatCurrency = v => formatLocaleCurrency(v, locale, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -116,8 +126,8 @@ export function MonthlyCashFlowReport({ options }) {
         <BarChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
-          <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-          <Tooltip content={<CashFlowTooltip />} />
+          <YAxis tickFormatter={v => currencyFormatter(v, locale, currency)} tick={{ fontSize: 10 }} />
+          <Tooltip content={<CashFlowTooltip formatCurrency={formatCurrency} />} />
           <Legend />
           <ReferenceLine y={0} stroke="#666" />
           <Bar dataKey={incomeKey} fill={INCOME_COLOR} />
@@ -136,7 +146,8 @@ export function MonthlyCashFlowReport({ options }) {
 // ── Savings Rate ──────────────────────────────────────────────────────────────
 
 export function SavingsRateReport({ options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -163,8 +174,8 @@ export function SavingsRateReport({ options }) {
         <LineChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
-          <YAxis tickFormatter={v => `${v.toFixed(0)}%`} tick={{ fontSize: 10 }} />
-          <Tooltip formatter={(v) => `${v.toFixed(1)}%`} />
+          <YAxis tickFormatter={v => `${formatLocaleNumber(v, locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}%`} tick={{ fontSize: 10 }} />
+          <Tooltip formatter={(v) => `${formatLocaleNumber(v, locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`} />
           <Legend />
           <ReferenceLine y={0} stroke="#666" />
           <Line type="monotone" dataKey={savingsRateKey} stroke={SAVINGS_COLOR} strokeWidth={2} dot={{ r: 3 }} />
@@ -177,7 +188,9 @@ export function SavingsRateReport({ options }) {
 // ── Year-over-Year ────────────────────────────────────────────────────────────
 
 export function YearOverYearReport({ options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
+  const currency = userConfig?.currency;
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState({});
   const [loading, setLoading] = useState(false);
@@ -216,8 +229,8 @@ export function YearOverYearReport({ options }) {
           <BarChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 100 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="category" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
-            <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-            <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
+            <YAxis tickFormatter={v => currencyFormatter(v, locale, currency)} tick={{ fontSize: 10 }} />
+            <Tooltip formatter={(v) => formatLocaleCurrency(v, locale, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
             <Legend />
             <Bar dataKey={currentKey} fill={CURRENT_COLOR} />
             <Bar dataKey={previousKey} fill={PREVIOUS_COLOR} />

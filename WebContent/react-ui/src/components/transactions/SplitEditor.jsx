@@ -3,10 +3,13 @@ import { Input } from '../ui/Input';
 import { Combobox } from '../ui/Combobox';
 import { cn } from '../../lib/utils';
 import { useApp } from '../../context/AppContext';
+import { formatLocaleNumber, getAmountPlaceholder, parseLocaleNumber } from '../../lib/numberFormat';
 
 export function SplitEditor({ split, index, isOnly, splitSources, onUpdate, onAdd, onRemove }) {
-  const { t } = useApp();
+  const { t, userConfig } = useApp();
   const { from: fromOptions, to: toOptions } = splitSources;
+  const locale = userConfig?.locale;
+  const amountPlaceholder = getAmountPlaceholder(locale);
 
   function update(field, value) {
     onUpdate(index, { ...split, [field]: value });
@@ -40,10 +43,12 @@ export function SplitEditor({ split, index, isOnly, splitSources, onUpdate, onAd
         value={split.amount || ''}
         onChange={e => update('amount', e.target.value)}
         onBlur={e => {
-          const n = parseFloat(e.target.value);
-          if (!isNaN(n)) update('amount', n.toFixed(2));
+          const n = parseLocaleNumber(e.target.value, locale);
+          if (Number.isFinite(n)) {
+            update('amount', formatLocaleNumber(n, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+          }
         }}
-        placeholder={t('AMOUNT_PLACEHOLDER', '0.00')}
+        placeholder={amountPlaceholder || t('AMOUNT_PLACEHOLDER', '0.00')}
       />
       <Combobox
         className="flex-1 min-w-0"

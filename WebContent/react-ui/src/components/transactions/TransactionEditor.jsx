@@ -7,6 +7,7 @@ import { SplitEditor } from './SplitEditor';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
+import { formatLocaleNumber, parseLocaleNumber } from '../../lib/numberFormat';
 import {
   formatDateForDisplay,
   formatIsoDateForDisplay,
@@ -22,6 +23,7 @@ const EMPTY_SPLIT = () => ({ amount: '', fromId: null, toId: null, memo: '' });
 export function TransactionEditor({ selectedAccount, selectedTransaction, onSaved, onClear, onDelete }) {
   const { splitSources, setSplitSources, showError, descriptionStoreVersion, t, userConfig } = useApp();
   const dateFormat = normalizeDateFormat(userConfig?.dateFormat);
+  const locale = userConfig?.locale;
   const [date, setDate] = useState(() => formatDateForDisplay(parseIsoDate(todayIso()), dateFormat));
   const [description, setDescription] = useState('');
   const [number, setNumber] = useState('');
@@ -80,7 +82,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
       const num = selectedTransaction.number || '';
       const s = selectedTransaction.splits || [];
       const mappedSplits = s.length > 0 ? s.map(sp => ({
-        amount: formatAmountForEditor(sp.amountNumber ?? sp.amount ?? ''),
+        amount: formatAmountForEditor(sp.amountNumber ?? sp.amount ?? '', locale),
         fromId: sp.fromId || null,
         toId: sp.toId || null,
         memo: sp.memo || '',
@@ -159,7 +161,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
         let { fromId, toId } = remapSplitToCurrentAccount(sp, currentAccountId);
         ({ fromId, toId } = ensureDistinctSplitSources(fromId, toId, originalFromId, originalToId));
         return {
-          amount: formatAmountForEditor(existing.amount || sp.amountNumber || sp.amount || ''),
+          amount: formatAmountForEditor(existing.amount || sp.amountNumber || sp.amount || '', locale),
           fromId,
           toId,
           memo: existing.memo || sp.memo || '',
@@ -190,7 +192,8 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
     if (!parseDisplayDate(date, dateFormat)) return false;
     if (!description.trim()) return false;
     for (const s of splits) {
-      if (!s.amount || parseFloat(s.amount) === 0) return false;
+      const parsedAmount = parseLocaleNumber(s.amount, locale);
+      if (!Number.isFinite(parsedAmount) || parsedAmount === 0) return false;
       if (!s.fromId || !s.toId) return false;
     }
     return true;
@@ -206,7 +209,7 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
         description: description.trim(),
         number,
         splits: splits.map(s => ({
-          amount: parseFloat(s.amount),
+          amount: parseLocaleNumber(s.amount, locale),
           fromId: s.fromId,
           toId: s.toId,
           memo: s.memo || '',
@@ -415,22 +418,17 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
   );
 }
 
-function formatAmountForEditor(raw) {
+function formatAmountForEditor(raw, localeValue) {
   if (raw == null || raw === '') return '';
-  if (typeof raw === 'number') return Number.isFinite(raw) ? raw.toFixed(2) : '';
+  if (typeof raw === 'number') {
+    return Number.isFinite(raw)
+      ? formatLocaleNumber(raw, localeValue, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : '';
+  }
 
   const value = String(raw).trim();
   if (!value) return '';
-
-  const cleaned = value.replace(/[^0-9,.-]/g, '');
-  if (!cleaned) return '';
-
-  const lastDot = cleaned.lastIndexOf('.');
-  const lastComma = cleaned.lastIndexOf(',');
-  const normalized = lastComma > lastDot
-    ? cleaned.replace(/\./g, '').replace(',', '.')
-    : cleaned.replace(/,/g, '');
-
-  const n = Number.parseFloat(normalized);
-  return Number.isFinite(n) ? n.toFixed(2) : value;
+  const n = parseLocaleNumber(value, localeValue);
+  if (!Number.isFinite(n)) return value;
+  return formatLocaleNumber(n, localeValue, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

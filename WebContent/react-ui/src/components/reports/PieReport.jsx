@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { api } from '../../lib/api';
 import { useApp } from '../../context/AppContext';
+import { formatLocaleNumber } from '../../lib/numberFormat';
 
 const COLORS = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac'];
 
 export function PieReport({ type, options }) {
-  const { showError, t } = useApp();
+  const { showError, t, userConfig } = useApp();
+  const locale = userConfig?.locale;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,7 +37,7 @@ export function PieReport({ type, options }) {
             cx="50%"
             cy="50%"
             outerRadius="60%"
-            label={({ label, percent }) => `${label} (${(percent * 100).toFixed(1)}%)`}
+            label={({ label, percent }) => `${label} (${formatLocaleNumber(percent * 100, locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)`}
             labelLine={true}
           >
             {data.map((_, i) => (
