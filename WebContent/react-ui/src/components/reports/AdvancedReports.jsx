@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line, Cell
@@ -77,61 +77,213 @@ export function TopPayeesBySpendReport({ options }) {
 
 // ── Category Drill-Down ───────────────────────────────────────────────────────
 
+const ROOT_INCOME_ID = '__income__';
+const ROOT_EXPENSES_ID = '__expenses__';
+
+function normalizeCategoryText(text) {
+  return String(text || '').replace(/^[\s\u00a0]+/, '').trim();
+}
+
+function getImmediateChildren(nodeId, categories) {
+  const id = String(nodeId);
+  if (id === ROOT_INCOME_ID) {
+    return categories.filter(c => c.income === true && (c.parent == null || c.parent === ''));
+  }
+  if (id === ROOT_EXPENSES_ID) {
+    return categories.filter(c => c.income === false && (c.parent == null || c.parent === ''));
+  }
+  return categories.filter(c => String(c.parent) === id);
+}
+
+function formatTooltipCurrency(value) {
+  return `$${Number(value || 0).toFixed(2)}`;
+}
+
 export function CategoryDrillDownReport({ options }) {
   const { showError, t } = useApp();
-  const [data, setData] = useState([]);
-  const [categoryName, setCategoryName] = useState('');
-  const [hasChildCategories, setHasChildCategories] = useState(false);
+  const [allCategories, setAllCategories] = useState([]);
+  const [contexts, setContexts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const drillRequestIdRef = useRef(0);
 
   useEffect(() => {
-    if (!options.categoryId) return;
+    let cancelled = false;
+    if (!options.categoryId) return undefined;
+
+    async function loadInitialContext() {
+      setLoading(true);
+      try {
+        const parents = await api.categories.parents();
+        if (cancelled) return;
+
+        const categories = (parents?.data || [])
+          .filter(c => c.value !== '' && c.value != null)
+          .map(c => ({ ...c, id: String(c.value), name: normalizeCategoryText(c.text) }));
+        setAllCategories(categories);
+
+        const rootId = String(options.categoryId);
+        const rootName = options.categoryName || (
+          rootId === ROOT_INCOME_ID ? t('INCOME', 'Income')
+          : rootId === ROOT_EXPENSES_ID ? t('EXPENSES', 'Expenses')
+          : (categories.find(c => String(c.value) === rootId)?.name || rootId)
+        );
+
+        const rootResponse = await api.reports.categoryDrillDown(rootId, options.query);
+        if (cancelled) return;
+
+        const key = `s_${rootId}`;
+        const rootData = (rootResponse?.data || []).map(row => ({
+          month: row.month,
+          [key]: Number(row.totalAmount ?? (Number(row.amount || 0) + Number(row.childRollupAmount || 0))),
+          [`${key}Formatted`]: row.totalAmountFormatted || row.amountFormatted,
+        }));
+
+        setContexts([{
+          nodeId: rootId,
+          title: rootName,
+          series: [{ id: rootId, key, name: rootName }],
+          data: rootData,
+        }]);
+      } catch (e) {
+        if (!cancelled) showError(e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadInitialContext();
+    return () => { cancelled = true; };
+  }, [options.categoryId, options.categoryName, options.query, showError, t]);
+
+  async function drillIntoSeries(seriesItem) {
+    if (loading) return;
+    const children = getImmediateChildren(seriesItem.id, allCategories);
+    if (!children.length) return;
+
+    const requestId = ++drillRequestIdRef.current;
     setLoading(true);
-    api.reports.categoryDrillDown(options.categoryId, options.query)
-      .then(res => {
-        setData(res?.data || []);
-        setCategoryName(res?.categoryName || options.categoryName || '');
-        setHasChildCategories(!!res?.hasChildCategories);
-      })
-      .catch(showError)
-      .finally(() => setLoading(false));
-  }, [options.categoryId, options.query, options.categoryName, showError]);
+    try {
+      const fetched = await Promise.all(children.map(async child => {
+        const childId = String(child.value);
+        const childName = normalizeCategoryText(child.text);
+        const res = await api.reports.categoryDrillDown(childId, options.query);
+        return { childId, childName, data: (res?.data || []) };
+      }));
+      if (requestId !== drillRequestIdRef.current) return;
 
-  if (loading) return <Loading t={t} />;
+      const monthMap = new Map();
+      const nextSeries = [];
 
-  const categorySeriesName = categoryName || t('CATEGORY', 'Category');
-  const childRollupSeriesName = t('CHILD_CATEGORY_ROLLUP', 'Child categories (rollup)');
+      fetched.forEach((entry) => {
+        const key = `s_${entry.childId}`;
+        nextSeries.push({ id: entry.childId, key, name: entry.childName });
+        entry.data.forEach(row => {
+          const existing = monthMap.get(row.month) || { month: row.month };
+          existing[key] = Number(row.totalAmount ?? (Number(row.amount || 0) + Number(row.childRollupAmount || 0)));
+          existing[`${key}Formatted`] = row.totalAmountFormatted || row.amountFormatted;
+          monthMap.set(row.month, existing);
+        });
+      });
 
-  const chartData = (data || []).map(d => ({
-    month: d.month,
-    categoryAmount: d.amount,
-    categoryAmountFormatted: d.amountFormatted,
-    childRollupAmount: d.childRollupAmount,
-    childRollupAmountFormatted: d.childRollupAmountFormatted,
-  }));
+      const nextData = Array.from(monthMap.values()).sort((a, b) => String(a.month).localeCompare(String(b.month)));
+      setContexts(prev => [...prev, {
+        nodeId: seriesItem.id,
+        title: seriesItem.name,
+        series: nextSeries,
+        data: nextData,
+      }]);
+    } catch (e) {
+      if (requestId === drillRequestIdRef.current) showError(e);
+    } finally {
+      if (requestId === drillRequestIdRef.current) setLoading(false);
+    }
+  }
+
+  function moveUp() {
+    // Cancel any in-flight drill request and restore interaction immediately.
+    drillRequestIdRef.current++;
+    setLoading(false);
+    setContexts(prev => (prev.length > 1 ? prev.slice(0, -1) : prev));
+  }
+
+  function isSeriesDrillable(series) {
+    return getImmediateChildren(series.id, allCategories).length > 0;
+  }
+
+  const current = contexts[contexts.length - 1];
+  if (loading && !current) return <Loading t={t} />;
+  if (!current) return <div className="flex items-center justify-center h-full text-sm text-gray-400">{t('LOADING', 'Loading...')}</div>;
+
+  const breadcrumbs = contexts.map(c => c.title).filter(Boolean).join(' / ');
 
   return (
     <div className="h-full w-full p-2 flex flex-col gap-1">
-      {categoryName && (
-        <div className="text-xs text-gray-500 text-center font-semibold">{categoryName}</div>
-      )}
+      <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="font-semibold truncate pr-2">{breadcrumbs}</div>
+        <div className="flex items-center gap-2">
+          {loading && <span className="text-[11px] text-gray-400">{t('LOADING', 'Loading...')}</span>}
+          <Button variant="default" className="h-6 px-2 py-0 text-[11px]" disabled={contexts.length <= 1} onClick={moveUp}>
+            {t('PREVIOUS', 'Previous')}
+          </Button>
+        </div>
+      </div>
+      <div className="flex items-center gap-1 flex-wrap text-[11px] text-gray-600">
+        <span>{t('DRILL_INTO', 'Drill into')}:</span>
+        {current.series.map(series => {
+          const drillable = isSeriesDrillable(series);
+          return (
+            <button
+              key={series.key}
+              type="button"
+              disabled={!drillable}
+              onClick={() => drillIntoSeries(series)}
+              className={`px-2 py-0.5 rounded border ${drillable ? 'border-blue-300 text-blue-700 hover:bg-blue-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'} disabled:opacity-60`}
+              title={drillable ? t('CLICK_LINE_TO_DRILL', 'Click to drill down') : t('NO_CHILD_CATEGORIES', 'No child categories')}
+            >
+              {series.name}
+            </button>
+          );
+        })}
+      </div>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
+          <LineChart
+            data={current.data}
+            margin={{ top: 5, right: 20, left: 20, bottom: 60 }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" angle={-45} textAnchor="end" interval={0} tick={{ fontSize: 10 }} />
             <YAxis tickFormatter={currencyFormatter} tick={{ fontSize: 10 }} />
-            <Tooltip formatter={(v, _n, props) => {
-              if (props?.dataKey === 'childRollupAmount') {
-                return [props.payload.childRollupAmountFormatted, childRollupSeriesName];
-              }
-              return [props.payload.categoryAmountFormatted, categorySeriesName];
+            <Tooltip formatter={(value, name, props) => {
+              const formatted = props?.payload?.[`${name}Formatted`];
+              return [formatted || formatTooltipCurrency(value), name];
             }} />
-            <Legend />
-            <Line type="monotone" dataKey="categoryAmount" name={categorySeriesName} stroke={COLORS[0]} strokeWidth={2} dot={{ r: 3 }} />
-            {hasChildCategories && (
-              <Line type="monotone" dataKey="childRollupAmount" name={childRollupSeriesName} stroke={COLORS[1]} strokeWidth={2} dot={{ r: 3 }} />
-            )}
+            <Legend onClick={(entry) => {
+              const target = current.series.find(series => series.key === entry?.dataKey || series.name === entry?.value);
+              if (target && isSeriesDrillable(target) && !loading) drillIntoSeries(target);
+            }} />
+            {current.series.map((series, i) => {
+              const drillable = isSeriesDrillable(series);
+              return (
+                <Line
+                  key={series.key}
+                  type="monotone"
+                  dataKey={series.key}
+                  name={series.name}
+                  stroke={COLORS[i % COLORS.length]}
+                  strokeWidth={2}
+                  dot={{
+                    r: 3,
+                    style: { cursor: drillable ? 'pointer' : 'default' },
+                    onClick: () => {
+                      if (drillable && !loading) drillIntoSeries(series);
+                    },
+                  }}
+                  style={{ cursor: drillable ? 'pointer' : 'default' }}
+                  onClick={() => drillIntoSeries(series)}
+                />
+              );
+            })}
           </LineChart>
         </ResponsiveContainer>
       </div>

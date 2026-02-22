@@ -118,12 +118,15 @@ public class CategoryDrillDownResource extends ServerResource {
 			for (String key : allMonths.keySet()) {
 				final BigDecimal selectedAmount = selectedCategoryMonthly.getOrDefault(key, BigDecimal.ZERO);
 				final BigDecimal childRollupAmount = childRollupMonthly.getOrDefault(key, BigDecimal.ZERO);
+				final BigDecimal totalAmount = selectedAmount.add(childRollupAmount);
 				final JSONObject row = new JSONObject();
 				row.put("month", key);
 				row.put("amount", selectedAmount.doubleValue());
 				row.put("amountFormatted", FormatUtil.formatCurrency(selectedAmount, user));
 				row.put("childRollupAmount", childRollupAmount.doubleValue());
 				row.put("childRollupAmountFormatted", FormatUtil.formatCurrency(childRollupAmount, user));
+				row.put("totalAmount", totalAmount.doubleValue());
+				row.put("totalAmountFormatted", FormatUtil.formatCurrency(totalAmount, user));
 				result.append("data", row);
 			}
 
