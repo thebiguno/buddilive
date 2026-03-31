@@ -46,7 +46,7 @@ function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
       </div>
       {/* Split sub-rows: keep date col empty; show From → To under description | amount cols | [timestamp spacers] */}
       {splits.map((s, i) => (
-        <div key={i} className="flex items-center text-xs py-0.5 px-1 text-gray-500 italic">
+        <div key={i} className="flex items-center text-xs py-0.5 px-1 text-neutral-800 italic">
           <span className="w-[13%] flex-shrink-0" />
           <span className="flex-1 truncate">{s.from} → {s.to}</span>
           <span className="w-[12%] flex-shrink-0 text-right pr-1">

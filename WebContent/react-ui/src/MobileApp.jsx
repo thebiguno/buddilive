@@ -99,7 +99,7 @@ function TxRow({ row, onClick }) {
         <div className="flex-1 min-w-0">
           <div className="text-sm font-medium truncate">{row.description}</div>
           <div className="text-xs text-gray-400 mt-0.5">{row.date}</div>
-          {splits.map((s, i) => <div key={i} className="text-xs text-gray-500 mt-0.5 truncate">{s.from} → {s.to}{s.memo ? ` · ${s.memo}` : ''}</div>)}
+          {splits.map((s, i) => <div key={i} className="text-xs text-neutral-800 mt-0.5 truncate">{s.from} → {s.to}{s.memo ? ` · ${s.memo}` : ''}</div>)}
         </div>
         <div className="flex-shrink-0 text-right">
           {splits.map((s, i) => <div key={i} className="text-sm font-medium" style={parseStyle(s.amountStyle)}>{s.amount}</div>)}
