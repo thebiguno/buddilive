@@ -27,6 +27,7 @@ import ca.digitalcave.buddi.live.model.Category;
 import ca.digitalcave.buddi.live.model.User;
 import ca.digitalcave.buddi.live.util.CryptoUtil;
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.LocaleUtil;
 import ca.digitalcave.moss.crypto.Crypto.CryptoException;
 
 public class SourcesResource extends ServerResource {
@@ -65,7 +66,7 @@ public class SourcesResource extends ServerResource {
 			final StringBuilder sb = new StringBuilder();
 			
 			JSONObject separator = new JSONObject();
-			separator.put("text", "--- Accounts ---");
+			separator.put("text", "--- " + LocaleUtil.getTranslation(getRequest()).getString("SOURCE_COMBOBOX_SECTION_ACCOUNTS") + " ---");
 			separator.put("value", "");
 			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
 			result.append("data", separator);
@@ -99,7 +100,7 @@ public class SourcesResource extends ServerResource {
 			}
 			
 			separator = new JSONObject();
-			separator.put("text", "--- Budget Categories ---");
+			separator.put("text", "--- " + LocaleUtil.getTranslation(getRequest()).getString("SOURCE_COMBOBOX_SETION_BUDGET_CATEGORIES") + " ---");
 			separator.put("value", "");
 			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
 			result.append("data", separator);

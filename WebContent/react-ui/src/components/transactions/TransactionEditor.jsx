@@ -411,7 +411,9 @@ export function TransactionEditor({ selectedAccount, selectedTransaction, onSave
           disabled={!isValid() || saving}
           onClick={handleSave}
         >
-          {transactionId ? t('UPDATE', 'Update') : t('RECORD', 'Record')} {t('TRANSACTION', 'Transaction')}
+          {transactionId
+            ? t('UPDATE_TRANSACTION', 'Update Transaction')
+            : t('RECORD_TRANSACTION', 'Record Transaction')}
         </Button>
       </div>
     </div>

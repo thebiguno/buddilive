@@ -165,7 +165,7 @@ export function AccountTree({ selectedAccount, onAccountSelect, onAdd, onEdit, o
       onKeyDown={handleKeyDown}
     >
       <div className="flex items-center bg-gradient-to-b from-[#d8d8d8] to-[#c8c8c8] border-b border-gray-300 px-2 py-1">
-        <span className="text-xs font-semibold text-gray-700 flex-1">{t('NAME', 'Name')}</span>
+        <span className="text-xs font-semibold text-gray-700 flex-1">{t('ACCOUNT_EDITOR_NAME', 'Account Name')}</span>
         <span className="text-xs font-semibold text-gray-700">{t('BALANCE', 'Balance')}</span>
       </div>
       <div
