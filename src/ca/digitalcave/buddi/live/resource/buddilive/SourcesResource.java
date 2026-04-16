@@ -100,7 +100,7 @@ public class SourcesResource extends ServerResource {
 			}
 			
 			separator = new JSONObject();
-			separator.put("text", "--- " + LocaleUtil.getTranslation(getRequest()).getString("SOURCE_COMBOBOX_SETION_BUDGET_CATEGORIES") + " ---");
+			separator.put("text", "--- " + LocaleUtil.getTranslation(getRequest()).getString("SOURCE_COMBOBOX_SECTION_BUDGET_CATEGORIES") + " ---");
 			separator.put("value", "");
 			separator.put("style", "color: " + FormatUtil.HTML_GRAY + ";");
 			result.append("data", separator);
