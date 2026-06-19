@@ -70,8 +70,6 @@ public class PieTotalsByCategoryResource extends ServerResource {
 			for (BigDecimal subtotal : totalsByCategory.values()) {
 				total = total.add(subtotal);
 			}
-			total = total.divide(new BigDecimal(100));  //The total is only used for calculating percents; divide by 100 now instead of multiplying after every calculation
-			
 			//Sort categories by total
 			final List<Integer> categories = new ArrayList<Integer>(totalsByCategory.keySet());
 			Collections.sort(categories, new Comparator<Integer>() {
@@ -88,7 +86,7 @@ public class PieTotalsByCategoryResource extends ServerResource {
 				object.put("label", CryptoUtil.decryptWrapper(labelsByCategory.get(categoryId), user) + " - " + FormatUtil.formatCurrency(amount, user));
 				object.put("amount", amount);
 				object.put("formattedAmount", FormatUtil.formatCurrency(amount, user));
-				object.put("percent", amount.divide(total, RoundingMode.HALF_UP));
+				object.put("percent", total.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : amount.divide(total, 6, RoundingMode.HALF_UP));
 				result.append("data", object);
 			}
 
