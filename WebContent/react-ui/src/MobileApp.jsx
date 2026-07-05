@@ -92,7 +92,8 @@ function AccountSidebar({ selectedAccount, onSelect, visible }) {
 // ── Transaction row ──────────────────────────────────────────────────────────
 function TxRow({ row, onClick }) {
   const splits = row.splits || [];
-  const last = splits[splits.length - 1];
+  // Running balance lives on the highest-id split (see TransactionList.jsx); array order is descending id.
+  const last = splits.reduce((max, s) => (max == null || s.id > max.id ? s : max), null);
   return (
     <div className="px-4 py-3 border-b border-gray-100 bg-white active:bg-blue-50 cursor-pointer" onClick={() => onClick(row)}>
       <div className="flex items-start justify-between gap-2">

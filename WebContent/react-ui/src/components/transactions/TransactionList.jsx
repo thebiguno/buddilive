@@ -20,7 +20,11 @@ function parseStyle(styleStr) {
 
 function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
   const splits = row.splits || [];
-  const lastSplit = splits[splits.length - 1];
+  // The transaction's running balance lives on the split that DataUpdater.updateBalances processed
+  // last, which is the one with the highest id (balances accumulate in ascending transaction_date, s.id
+  // order). We can't rely on array position: selectTransactions returns splits in descending id order,
+  // so splits[splits.length - 1] is the FIRST-accumulated split and only reflects a partial balance.
+  const balanceSplit = splits.reduce((max, s) => (max == null || s.id > max.id ? s : max), null);
   const bg = isSelected ? 'bg-[#b8d0f0]' : (index % 2 !== 0 ? 'bg-[#f5f5f5]' : 'bg-white');
 
   return (
@@ -35,7 +39,7 @@ function TransactionRow({ row, index, isSelected, onClick, showTimestamps }) {
         <span className="w-[12%] flex-shrink-0" />
         <span className="w-[12%] flex-shrink-0" />
         <span className="w-[12%] flex-shrink-0 text-right pr-1">
-          {lastSplit && <span style={parseStyle(lastSplit.balanceStyle)}>{lastSplit.balance}</span>}
+          {balanceSplit && <span style={parseStyle(balanceSplit.balanceStyle)}>{balanceSplit.balance}</span>}
         </span>
         {showTimestamps && (
           <>
