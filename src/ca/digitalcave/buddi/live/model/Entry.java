@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.JsonInput;
 
 public class Entry {
 	private Long id;
@@ -20,7 +21,7 @@ public class Entry {
 	public Entry(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setCategoryId(json.getInt("categoryId"));	//This field is required
-		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")).toPlainString());	//This field is required, but can be zero
+		this.setAmount(JsonInput.currency(json, "amount", "Budget amount", true));
 		this.setDate(FormatUtil.parseDateInternal(json.getString("date")));	//This field is required
 	}
 	

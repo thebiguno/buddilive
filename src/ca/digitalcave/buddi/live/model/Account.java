@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.JsonInput;
 
 public class Account extends Source {
 	private String accountType;
@@ -20,8 +21,7 @@ public class Account extends Source {
 	public Account(JSONObject json) throws JSONException {
 		super(json);
 		this.setAccountType(json.optString("accountType", null));
-		final BigDecimal startBalance = FormatUtil.parseCurrency(json.optString("startBalance", null));
-		if (startBalance != null) this.setStartBalance(startBalance.toPlainString());
+		this.setStartBalance(JsonInput.currency(json, "startBalance", "Starting balance", false));
 		this.setStartDate(FormatUtil.parseDateInternal(json.optString("startDate", "1900-01-01")));
 	}
 	

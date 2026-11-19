@@ -79,6 +79,27 @@ export function ScheduledEditor({ open, selected, onClose, onSaved }) {
 
   async function handleSave() {
     if (!isValid) return;
+    if (splits.length === 0) {
+      showError(new Error('Add at least one transaction split.'));
+      return;
+    }
+    for (const [index, split] of splits.entries()) {
+      const amount = parseLocaleNumber(split.amount, locale);
+      let error = '';
+      if (!Number.isFinite(amount) || amount === 0) {
+        error = 'Enter a valid, non-zero amount.';
+      }
+      else if (!split.fromId || !split.toId) {
+        error = 'Choose both a From and a To account or category.';
+      }
+      else if (split.fromId === split.toId) {
+        error = 'From and To must be different.';
+      }
+      if (error) {
+        showError(new Error(`Split ${index + 1}: ${error}`));
+        return;
+      }
+    }
     setSaving(true);
     try {
       await api.scheduled.save({

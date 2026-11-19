@@ -28,7 +28,7 @@ public class Transaction {
 	public Transaction() {
 	}
 	public Transaction(JSONObject json) throws JSONException {
-		this.setId(StringUtils.isNotBlank(json.optString("id", null)) ? Long.parseLong(json.getString("id")) : null);
+		this.setId(StringUtils.isNotBlank(json.optString("id", null)) ? json.getLong("id") : null);
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		this.setDescription(json.getString("description"));
 		this.setNumber(json.has("number") ? json.getString("number") : null);

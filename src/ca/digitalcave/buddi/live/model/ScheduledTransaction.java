@@ -45,7 +45,7 @@ public class ScheduledTransaction {
 	public ScheduledTransaction() {
 	}
 	public ScheduledTransaction(JSONObject json) throws JSONException {
-		this.setId(StringUtils.isNotBlank(json.optString("id", null)) ? Long.parseLong(json.getString("id")) : null);
+		this.setId(StringUtils.isNotBlank(json.optString("id", null)) ? json.getLong("id") : null);
 		this.setUuid(json.has("uuid") ? json.getString("uuid") : UUID.randomUUID().toString());
 		this.setScheduleName(json.getString("name"));
 		this.setScheduleDay(json.getInt("scheduleDay"));
@@ -53,8 +53,8 @@ public class ScheduledTransaction {
 		this.setScheduleMonth(json.getInt("scheduleMonth"));
 		this.setFrequencyType(json.getString("repeat"));
 		this.setStartDate(FormatUtil.parseDateInternal(json.getString("start")));
-		this.setEndDate(FormatUtil.parseDateInternal(json.getString("end")));
-		this.setLastCreatedDate(FormatUtil.parseDateInternal(json.getString("lastCreatedDate")));
+		this.setEndDate(FormatUtil.parseDateInternal(json.optString("end", null)));
+		this.setLastCreatedDate(FormatUtil.parseDateInternal(json.optString("lastCreatedDate", null)));
 		this.setMessage(json.optString("message", null));
 
 		final JSONObject transaction = json.getJSONObject("transaction");

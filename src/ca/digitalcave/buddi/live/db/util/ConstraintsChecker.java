@@ -94,6 +94,12 @@ public class ConstraintsChecker {
 		
 		final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
 		final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
+		if (fromSource == null) {
+			throw new DatabaseException("Choose a valid From account or category for each split.");
+		}
+		if (toSource == null) {
+			throw new DatabaseException("Choose a valid To account or category for each split.");
+		}
 		if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
 		if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 
@@ -149,6 +155,12 @@ public class ConstraintsChecker {
 
 			final Source fromSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getFromSource());
 			final Source toSource = sqlSession.getMapper(Sources.class).selectSource(user, split.getToSource());
+			if (fromSource == null) {
+				throw new DatabaseException("Choose a valid From account or category for each split.");
+			}
+			if (toSource == null) {
+				throw new DatabaseException("Choose a valid To account or category for each split.");
+			}
 			if (!fromSource.isAccount() && !toSource.isAccount()) throw new DatabaseException("From and To cannot both be categories");
 			if (fromSource.getId() == toSource.getId()) throw new DatabaseException("From and To cannot be the same");
 

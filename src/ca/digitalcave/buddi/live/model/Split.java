@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ca.digitalcave.buddi.live.util.FormatUtil;
+import ca.digitalcave.buddi.live.util.JsonInput;
 
 public class Split {
 	private Long id;
@@ -31,7 +32,7 @@ public class Split {
 	public Split(JSONObject json) throws JSONException {
 		this.setId(json.has("id") ? json.getLong("id") : null);
 		this.setTransactionId(json.has("transactionId") ? json.getLong("transactionId") : null);
-		this.setAmount(FormatUtil.parseCurrency(json.getString("amount")).toPlainString());
+		this.setAmount(JsonInput.currency(json, "amount", "Split amount", true));
 		this.setFromSource(json.getInt("fromId"));
 		this.setToSource(json.getInt("toId"));
 		this.setMemo(json.optString("memo", null));
