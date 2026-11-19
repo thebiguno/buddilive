@@ -10,7 +10,7 @@ in Linux it will be .buddilive, and in OSX it will be ~/<user>/Library/Applicati
 To connect to the Derby DB for troubleshooting or other use, please do the following (assuming *nix system, 
 you may have to adapt for Windows use) from the checked out source directory:
 
-	java -jar lib/derbyrun.jar ij
+	java -cp 'lib/*' org.apache.derby.tools.ij
 	# after you get into the Derby shell, connect to the DB
 	CONNECT 'jdbc:derby:/Path/to/BuddiLive/derby';
 	

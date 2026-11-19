@@ -34,7 +34,7 @@ public class LocalesResource extends ServerResource {
 				Locale.CANADA,
 				Locale.US,
 				Locale.UK,
-				new Locale("es", "ES"),
+				Locale.of("es", "ES"),
 				Locale.GERMANY,
 				Locale.ITALY,
 		};

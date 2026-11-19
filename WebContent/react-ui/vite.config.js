@@ -12,8 +12,11 @@ export default defineConfig({
   },
   build: {
     outDir: '../buddilive-react',
-    rollupOptions: {
+    emptyOutDir: true,
+    rolldownOptions: {
       output: {
+        // Let the bundler preserve dependency initialization order. Forced
+        // size-based vendor groups created circular initialization imports.
         entryFileNames: 'assets/index.js',
         chunkFileNames: 'assets/[name].js',
         assetFileNames: 'assets/[name][extname]',

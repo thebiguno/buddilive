@@ -17,7 +17,7 @@ import org.restlet.service.StatusService;
 public class BuddiStatusService extends StatusService {
 
 	@Override
-	public Representation getRepresentation(Status status, Request request, Response response) {
+	public Representation toRepresentation(Status status, Request request, Response response) {
 		final ArrayList<Variant> variants = new ArrayList<Variant>();
 		variants.add(new Variant(MediaType.TEXT_HTML));
 		variants.add(new Variant(MediaType.APPLICATION_JSON));

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Dependency manifest only; Ant remains the application build. Versions verified 2026-11-18.
+     Keep web and standalone profiles separate so container libraries stay out of the WAR. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ca.digitalcave</groupId><artifactId>buddilive-dependencies</artifactId><version>1.0</version><packaging>pom</packaging>
+  <profiles>
+    <profile><id>web</id><dependencies>
+        <dependency><groupId>org.liquibase</groupId><artifactId>liquibase-core</artifactId><version>5.0.4</version></dependency>
+        <dependency><groupId>org.restlet</groupId><artifactId>org.restlet</artifactId><version>2.6.1</version></dependency>
+        <dependency><groupId>org.restlet</groupId><artifactId>org.restlet.ext.servlet</artifactId><version>2.6.1</version></dependency>
+        <dependency><groupId>org.restlet</groupId><artifactId>org.restlet.ext.json</artifactId><version>2.6.1</version></dependency>
+        <dependency><groupId>org.restlet</groupId><artifactId>org.restlet.ext.freemarker</artifactId><version>2.6.1</version></dependency>
+        <dependency><groupId>org.restlet</groupId><artifactId>org.restlet.ext.xml</artifactId><version>2.6.1</version></dependency>
+        <dependency><groupId>com.mchange</groupId><artifactId>c3p0</artifactId><version>0.15.1</version></dependency>
+        <dependency><groupId>org.mybatis</groupId><artifactId>mybatis</artifactId><version>3.6.0</version></dependency>
+        <dependency><groupId>ognl</groupId><artifactId>ognl</artifactId><version>3.4.17</version></dependency>
+        <dependency><groupId>org.postgresql</groupId><artifactId>postgresql</artifactId><version>42.7.14</version></dependency>
+        <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>2.0.20</version></dependency>
+        <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-jdk14</artifactId><version>2.0.20</version></dependency>
+        <dependency><groupId>org.freemarker</groupId><artifactId>freemarker</artifactId><version>2.3.35</version></dependency>
+        <dependency><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId><version>1.23.0</version></dependency>
+        <dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.22.0</version></dependency>
+        <dependency><groupId>commons-io</groupId><artifactId>commons-io</artifactId><version>2.22.0</version></dependency>
+        <dependency><groupId>org.apache.commons</groupId><artifactId>commons-csv</artifactId><version>1.14.1</version></dependency>
+        <dependency><groupId>org.apache.commons</groupId><artifactId>commons-email</artifactId><version>1.6.0</version></dependency>
+        <dependency><groupId>org.apache.commons</groupId><artifactId>commons-fileupload2-jakarta-servlet6</artifactId><version>2.0.0-M5</version></dependency>
+        <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-core</artifactId><version>2.23.0</version></dependency>
+        <dependency><groupId>org.json</groupId><artifactId>json</artifactId><version>20260814</version></dependency>
+        <dependency><groupId>com.google.zxing</groupId><artifactId>core</artifactId><version>3.5.4</version></dependency>
+        <dependency><groupId>com.google.zxing</groupId><artifactId>javase</artifactId><version>3.5.4</version></dependency>
+        <dependency><groupId>dev.samstevens.totp</groupId><artifactId>totp</artifactId><version>1.7.1</version></dependency>
+    </dependencies></profile>
+    <profile><id>standalone</id><dependencies>
+        <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>2.0.20</version></dependency>
+        <dependency><groupId>org.eclipse.jetty.ee10</groupId><artifactId>jetty-ee10-webapp</artifactId><version>12.1.15</version></dependency>
+        <dependency><groupId>org.apache.derby</groupId><artifactId>derby</artifactId><version>10.17.1.0</version></dependency>
+        <dependency><groupId>org.apache.derby</groupId><artifactId>derbytools</artifactId><version>10.17.1.0</version></dependency>
+    </dependencies></profile>
+  </profiles>
+</project>

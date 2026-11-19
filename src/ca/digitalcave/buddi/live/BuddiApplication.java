@@ -173,7 +173,8 @@ public class BuddiApplication extends Application{
 		//***** Freemarker Configuration *****
 		freemarker.template.Configuration freemarkerConfiguration = new freemarker.template.Configuration(new Version(2, 3, 31));
 		final Object servletContext = getContext().getAttributes().get("org.restlet.ext.servlet.ServletContext");
-		freemarkerConfiguration.setServletContextForTemplateLoading(servletContext, "/");
+		freemarkerConfiguration.setTemplateLoader(new freemarker.ext.jakarta.servlet.WebappTemplateLoader(
+				(jakarta.servlet.ServletContext) servletContext, "/"));
 		freemarkerConfiguration.setDefaultEncoding("UTF-8");
 		freemarkerConfiguration.setLocalizedLookup(false);
 		freemarkerConfiguration.setLocale(Locale.ENGLISH);

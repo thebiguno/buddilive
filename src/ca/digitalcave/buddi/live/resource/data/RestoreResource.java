@@ -1,6 +1,9 @@
 package ca.digitalcave.buddi.live.resource.data;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,16 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletDiskFileUpload;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.RequestContext;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.ibatis.session.SqlSession;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
@@ -65,23 +69,28 @@ public class RestoreResource extends ServerResource {
 				// as FileItem.
 
 				// 1/ Create a factory for disk-based file items
-				DiskFileItemFactory factory = new DiskFileItemFactory();
-				factory.setSizeThreshold(1000240);
+				DiskFileItemFactory factory = DiskFileItemFactory.builder().setThreshold(1000240).get();
 
-				// 2/ Create a new file upload handler based on the Restlet
-				// FileUpload extension that will parse Restlet requests and
-				// generates FileItems.
-				RestletFileUpload upload = new RestletFileUpload(factory);
-				List<FileItem> items;
+				// 2/ Use the Jakarta upload handler with the Restlet entity stream.
+				JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(factory);
+				List<DiskFileItem> items;
 
 				// 3/ Request is parsed by the handler which generates a
 				// list of FileItems
-				items = upload.parseRequest(getRequest());
+				items = upload.parseRequest(new RequestContext() {
+					public String getCharacterEncoding() {
+						return entity.getCharacterSet() == null ? null : entity.getCharacterSet().getName();
+					}
+					public String getContentType() { return entity.getMediaType().toString(); }
+					public long getContentLength() { return entity.getSize(); }
+					public boolean isMultipartRelated() { return false; }
+					public InputStream getInputStream() throws IOException { return entity.getStream(); }
+				});
 
 				// Process only the uploaded item called "fileToUpload" and
 				// save it on disk
-				for (final Iterator<FileItem> it = items.iterator(); it.hasNext(); ) {
-					FileItem fi = it.next();
+				for (final Iterator<DiskFileItem> it = items.iterator(); it.hasNext(); ) {
+					DiskFileItem fi = it.next();
 					if (fi.getFieldName().equals("file")) {
 						//If deleteData is selected, delete all data prior to inserting.
 						if ("true".equals(getQuery().getFirstValue("deleteData", "false"))){
@@ -91,7 +100,7 @@ public class RestoreResource extends ServerResource {
 							sqlSession.getMapper(ScheduledTransactions.class).deleteAllScheduledTransactions(user);
 						}
 						
-						final JSONObject request = new JSONObject(fi.getString());
+						final JSONObject request = new JSONObject(fi.getString(StandardCharsets.UTF_8));
 
 						final Map<String, Integer> sourceIDsByUUID = new HashMap<String, Integer>();
 						restoreAccounts(request, user, sqlSession, sourceIDsByUUID);

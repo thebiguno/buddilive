@@ -426,7 +426,7 @@ public class BuddiLiveAuthenticationHelper extends AuthenticationHelper {
 		sb.append("{\"type\":\"select\",\"name\":\"locale\",\"label\":").append(jsonString(t.getString("LOCALE")))
 		  .append(",\"defaultValue\":\"en_US\",\"help\":").append(jsonString(t.getString("HELP_LOCALE")))
 		  .append(",\"options\":[");
-		final Locale[] commonLocales = new Locale[]{ Locale.CANADA, Locale.US, Locale.UK, new Locale("es","ES"), Locale.GERMANY, Locale.ITALY };
+		final Locale[] commonLocales = new Locale[]{ Locale.CANADA, Locale.US, Locale.UK, Locale.of("es", "ES"), Locale.GERMANY, Locale.ITALY };
 		for (int i = 0; i < commonLocales.length; i++) {
 			if (i > 0) sb.append(",");
 			sb.append("{\"text\":").append(jsonString(commonLocales[i].getDisplayName(Locale.ENGLISH)))
